@@ -4,8 +4,9 @@ This file is CodeBuddy's memory for this project. It is the builder's entry poin
 reads only this should know what the project is, what it is not, and how work is done here.
 
 **Status: scaffold only.** No scope has been agreed yet. Do not start building anything until the
-planning map is closed and this file carries a ruled scope. The planning decisions live in a
-separate repository; this folder deliberately cannot read it.
+planning map is closed and this file carries a ruled scope. The planning decisions live in a separate
+repository; this folder deliberately cannot read it, by design — the permission fence in
+`.codebuddy/settings.json` denies reads of that path, and it is verified to work.
 
 ## What this project is
 
@@ -45,6 +46,14 @@ It is the only source of requirements that counts.
 - **One capability at a time**, verified before moving on.
 - Commit with a clear message after each verified step.
 - Log decisions as they are made. A future session starts from these files, not from memory.
+- **Run from this folder.** `cd ~/hermes-workspace/projects/ryde-build && codebuddy`. Sessions are
+  scoped by launch directory, and this folder carries its own memory file and permission fence.
+- **Default model is `deepseek-v4.1-flash`** (global default, x0.00 cost multiplier). Override per
+  task with `--model <id>` only when the work warrants the expense: GPT-5.6-Luna x0.14 is the cheap
+  upgrade, Kimi-K3 x1.62 for hard reasoning. Never use Primary, Deep, Sol or GPT-6-Astra here.
+- **Headless capture:** `codebuddy -p "<prompt>" --output-format json` returns machine-readable
+  results and writes a transcript to `~/.codebuddy/projects/`. Useful when the build needs to be
+  driven from outside the interactive session.
 
 ## Layout
 
