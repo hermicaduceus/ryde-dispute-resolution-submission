@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+._*
+
+# Secrets — never commit. The submission repo is PUBLIC.
+.env
+.env.*
+!env.example
+*.pem
+*.key
+*.p12
+credentials.json
+secrets/
+
+# CodeBuddy local state and personal overrides
+.codebuddy/settings.local.json
+CODEBUDDY.local.md
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+out/
+*.log
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp

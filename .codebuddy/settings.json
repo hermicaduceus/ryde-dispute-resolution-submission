@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(/[USER_HOME]/hermes-workspace/projects/tencent-ai-hackathon-2026/**)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)"
+    ],
+    "ask": [
+      "Bash(git remote:*)",
+      "Bash(git push:*)"
+    ]
+  },
+  "includeCoAuthoredBy": false
+}
