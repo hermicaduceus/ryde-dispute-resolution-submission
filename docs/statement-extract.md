@@ -6,10 +6,10 @@ document's own copy-paste artefacts, so nothing is paraphrased or silently repai
 **Why this file exists:** this is the only organiser document that carries requirements. `CODEBUDDY.md`
 points here. There is no separate judging-criteria document in hand, so build to this text.
 
-**Known artefacts in the source, left intact:** the stretch-goals table lost its row structure in the
-original (line beginning "|||||2. Stretch Goals"), and section 5's "Suggested Tools & Technologies"
-table carries residue from an unrelated track (skill-gap data, employee records, PDF/OCR). Neither is
-a requirement.
+**Known artefacts in the source, left intact below:** the stretch-goals table lost its row structure
+in the original (the line beginning "|||||2. Stretch Goals"), and the "Suggested Tools & Technologies"
+table carries residue from an unrelated track (skill-gap data, employee records, PDF/OCR). **Neither
+is a requirement.** Both are reproduced verbatim rather than tidied, so nothing is silently repaired.
 
 ---
 
@@ -115,3 +115,16 @@ Teams should ensure their system can handle at least two of the following disput
 - **Architecture Diagram** – A clear visual representation of the multi-agent system and key components.
 - **Demo Walkthrough** – A live demonstration showing how a dispute is processed and resolved autonomously.
 - **Source Code** – Complete source code submitted through a GitHub repository.
+**Note:** *The features listed above are provided as guidance only. Participants are strongly*
+ *encouraged to explore alternative approaches that meaningfully address the problem* *statement.*
+##### Suggested Tools & Technologies (WorkBuddy Ecosystem)
+
+The following tools are all accessible through WorkBuddy’s built-in ecosystem — no complex development environment setup required. Operate everything via natural language.
+
+|Area|Recommended Tools|Description|
+|---|---|---|
+|AI Agent|WorkBuddy Ecosystem|A unified AI workspace that enables users to build, use, and manage intelligent agents through a natural language interface.|
+|Cloud|Tencent Cloud|Provides the full AI agent infrastructure, from model orchestration and sandbox runtime to development platforms and extensible tools.|
+|Database|Tencent Cloud Database|Store skill-gap data, capability matrices, employee records, provider information, approval states, and tracking metrics.|
+|PDF/OCR|Pdf skill, e.g. pdfkit-py|Parse PDF files and perform OCR recognition|
+
