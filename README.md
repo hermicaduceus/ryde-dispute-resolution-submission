@@ -3,7 +3,8 @@
 Entry for the **Tencent Cloud "AI CAN DO IT" Hackathon Singapore 2026**, Digital Native track
 (challenge 4, contributed by Ryde).
 
-**Status: scaffold.** No scope agreed yet. The build has not started. The challenge statement is in
+**Status: scaffold.** The build has not started. This folder is populated with the build brief and
+the build information when building actually starts. The challenge statement is in
 [`docs/statement-extract.md`](docs/statement-extract.md).
 
 ## The challenge

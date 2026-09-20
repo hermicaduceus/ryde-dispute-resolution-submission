@@ -1,12 +1,15 @@
-# PROJECT: <name pending the scope ruling>
+# PROJECT: Ryde — Multi-Agent Autonomous Dispute Resolution
 
 This file is CodeBuddy's memory for this project. It is the builder's entry point: a session that
 reads only this should know what the project is, what it is not, and how work is done here.
 
-**Status: scaffold only.** No scope has been agreed yet. Do not start building anything until the
-planning map is closed and this file carries a ruled scope. The planning decisions live in a separate
-repository; this folder deliberately cannot read it, by design — the permission fence in
-`.codebuddy/settings.json` denies reads of that path, and it is verified to work.
+**Status: scaffold.** Planning closed **2026-09-19**: scope and tool lanes are ruled. This folder
+carries **no build information yet, by design** — it stays minimal so it does not contaminate how
+sessions in this folder operate. The ruled scope lives in the planning repository and is deliberately
+unreadable from here (the permission fence in `.codebuddy/settings.json` denies reads of that path,
+and it is verified to work). **The brief and the build information land here when building actually
+starts.** Until then, a session needing scope detail has nothing local to read: stop and ask; do not
+invent scope.
 
 ## What this project is
 
