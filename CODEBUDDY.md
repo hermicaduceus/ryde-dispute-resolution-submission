@@ -111,7 +111,7 @@ ryde-build/
 │   ├── settings.json       # permission fence
 │   └── rules/              # topic-scoped rules (added as the build needs them)
 ├── app/                    # Python backend — agents, evidence layer, LLM calls
-├── ui/                     # plain HTML/JS front end — intake form + case-file observability view (to come)
+├── ui/                     # plain HTML/JS front end — case-file observability view (to come)
 ├── data/                   # synthesised dispute corpus, ground-truth labelled (17 cases; swappable)
 ├── docs/
 │   ├── statement-extract.md  # challenge statement, verbatim — the only requirements source
@@ -119,9 +119,9 @@ ryde-build/
 │   ├── dataset.md            # dataset description + provenance
 │   ├── architecture.md       # required deliverable: diagram + system description (to come)
 │   └── evidence-plan.md      # §8 evidence rules and naming
-├── evidence/               # §8 screenshots (YYYY-MM-DD_<tool>_<topic>.png)
-├── tools/                  # NON-APP helper scripts — app/ never imports from here (to come)
-└── tests/                  # NON-APP tests (to come)
+├── evidence/               # §8 screenshots (YYYY-MM-DD_<tool>_<topic>.png|.jpg)
+├── tools/                  # NON-APP helper scripts — app/ never imports from here
+└── tests/                  # NON-APP tests (178, stdlib only)
 ```
 
 Files marked "(to come)" are authored in their own build sessions; do not create them as a
