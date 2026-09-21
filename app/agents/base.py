@@ -20,7 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..dispute import Dispute
 from ..events import EventLog
 from ..evidence import EvidencePack
-from ..llm import LLMClient, LLMError, LLMRequest, parse_json_object
+from ..llm import LLMClient, LLMContractError, LLMError, LLMRequest, parse_json_object
 from ..policy import PolicySet
 from ..schemas import AdvocateCase, ContractError
 
@@ -147,7 +147,11 @@ class BaseAgent(abc.ABC):
         except LLMError as exc:
             raise AgentError("%s: the LLM call failed: %s" % (self.name, exc)) from exc
 
-        payload = parse_json_object(response.text, agent=self.name)
+        try:
+            payload = parse_json_object(response.text, agent=self.name)
+        except LLMContractError as exc:
+            raise AgentError("%s: the model response did not match the contract: %s" % (self.name, exc)) from exc
+
         provenance = response.as_log_fields()
         provenance["request_fingerprint"] = request.fingerprint()
         return payload, provenance
