@@ -3,9 +3,12 @@
 Entry for the **Tencent Cloud "AI CAN DO IT" Hackathon Singapore 2026**, Digital Native track
 (challenge 4, contributed by Ryde).
 
-**Status: scaffold.** The build has not started. This folder is populated with the build brief and
-the build information when building actually starts. The challenge statement is in
-[`docs/statement-extract.md`](docs/statement-extract.md).
+**Status: building (since 2026-09-21).** Entry for the **Tencent Cloud "AI CAN DO IT"
+Hackathon Singapore 2026**, Digital Native track (challenge 4, contributed by Ryde). The scope
+is ruled: a two-category MVP (route deviation + no-show charge) with three agents, a
+deterministic evidence layer, and an observable case-file view. The challenge statement is in
+[`docs/statement-extract.md`](docs/statement-extract.md); the builder's contract is in
+[`CODEBUDDY.md`](CODEBUDDY.md).
 
 ## The challenge
 
@@ -40,3 +43,7 @@ information and build their cases. That surface is a required deliverable, not a
 
 Built with Tencent Cloud **CodeBuddy**. The project is developed against the competition's mandatory
 proof-of-usage requirement, so development happens in tool and the evidence is captured as it occurs.
+
+## Run (populated as the build lands)
+
+The three-command run and the demo GIF will appear here once the first build lands.
