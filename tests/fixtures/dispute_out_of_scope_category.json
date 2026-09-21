@@ -1,0 +1,17 @@
+{
+  "_fixture": "TEST FIXTURE for the pipeline tests. Not the project corpus. Deliberately a category outside the locked two (the statement's 'Property Damage / Mess' example), to prove it routes to human review with a neutral message and never reaches an agent.",
+  "dispute_id": "PD-0003",
+  "category": "Property Damage / Mess",
+  "filed_by": "driver",
+  "filed_at": "2026-09-20T21:40:00+08:00",
+
+  "claim": {
+    "text": "Rider spilled drinks in the car and I am claiming a cleaning fee.",
+    "amount_sgd": 80.00
+  },
+
+  "intake": {
+    "what_went_wrong": "Spilled drink on the back seat.",
+    "photos_available": "Yes, two photos taken after the trip."
+  }
+}
