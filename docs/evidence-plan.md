@@ -10,18 +10,27 @@ reconstructed later.
    happens: prompt visible, tool's response visible. The minimum bar is three CodeBuddy/WorkBuddy
    chat screenshots; the habit targets **one screenshot per real interaction, not per turn** —
    a multi-turn session that ends in a working feature is one or two screenshots, not five.
-2. **Prompts target named deliverables.** Development prompts name the file, test or deploy they
+2. **At least one screenshot per session must show the product name.** A mid-session frame of
+   code scrolling past is indistinguishable from any other terminal coding agent, and a judge
+   scoring §8 has no way to tell which tool produced it. Capture the session banner
+   (`CodeBuddy Code vX.Y.Z` with the logo, model and working directory) or an approval prompt
+   that names CodeBuddy, and keep it in the pile as the anchor frame the other shots hang off.
+   Verified for 2026-09-21: `..._05-session-banner-and-kickoff-prompt.jpg` is that anchor.
+3. **Prompts target named deliverables.** Development prompts name the file, test or deploy they
    are for; no exploratory filler in the evidence pile.
-3. **Naming:** `YYYY-MM-DD_<tool>_<topic>.png` — tool is `codebuddy-cli`, `codebuddy-ide`,
+4. **Naming:** `YYYY-MM-DD_<tool>_<topic>.<ext>` — tool is `codebuddy-cli`, `codebuddy-ide`,
    `workbuddy` or `miora`; topic is short and deliverable-anchored, e.g.
-   `2026-09-22_codebuddy-cli_evidence-pack.png`.
-4. **Store in `evidence/`** (this folder), moved in the same working session it was taken. At
+   `2026-09-22_codebuddy-cli_evidence-pack.jpg`. `.png` and `.jpg` are both fine: screenshots
+   often arrive through a phone or a chat app that re-encodes them, and renaming a JPEG to
+   `.png` would misstate the file. An optional two-digit sequence after the date
+   (`..._05-session-banner...`) keeps a multi-shot session in capture order.
+5. **Store in `evidence/`** (this folder), moved in the same working session it was taken. At
    submission, this folder sorted by name is the evidence exhibit.
-5. **CLI transcripts are the backstop**, not the primary proof: CodeBuddy CLI sessions write
+6. **CLI transcripts are the backstop**, not the primary proof: CodeBuddy CLI sessions write
    transcripts automatically to `~/.codebuddy/projects/`. Curated excerpts may be added as
    supplementary proof late in the build. **IDE chat lives server-side**; if an IDE session's
    screenshot was missed, the IDE History panel's Export action is the fallback.
-6. **Per-person:** §8 evidence is per team member. It starts single-person (account
+7. **Per-person:** §8 evidence is per team member. It starts single-person (account
    availability) and extends to the second member as soon as their account exists. A second
    member's evidence pile starts with a real deliverable, not a token prompt.
 

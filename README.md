@@ -46,6 +46,29 @@ information and build their cases. That surface is a required deliverable, not a
 Built with Tencent Cloud **CodeBuddy**. The competition mandates proof of product usage, so
 development happens in the tool and evidence is captured as it occurs.
 
-## Run (populated as the build lands)
+## Run
 
-The three-command run and the demo GIF will appear here once the first build lands.
+No dependencies and no API key needed for the skeleton: it runs on a stock Python 3.9+ with the
+standard library only, using a deterministic mock in place of the LLM.
+
+```bash
+python3 -m unittest discover -s tests -t .        # 82 tests
+python3 -m app.cli --dispute tests/fixtures/dispute_route_deviation.json \
+                   --policy tests/fixtures/policy_min.md
+```
+
+That prints the agent-to-agent event strip and the ruling, and writes the run's artifacts to
+`runs/<run_id>/`: `events.jsonl` (the observable traffic), `payloads/*.json` (the full payload
+behind each event) and `case_file.json` (evidence, both claims, resolution).
+
+Swap the fixture for `dispute_no_show_charge.json` to see the second category, or
+`dispute_out_of_scope_category.json` to see an out-of-scope filing routed to human review
+without an LLM call.
+
+**Two caveats while the build is in progress.** `--policy` is needed because the real policy
+document (`docs/policy.md`) is authored separately and is not in the tree yet; the fixture is a
+minimal stand-in, not the project's policy. And every mock string is prefixed `MOCK`, because
+the Tencent endpoint is not pinned yet (see the TODO block in `app/llm/tencent.py`) — a mock run
+is a plumbing demonstration, never a real ruling.
+
+The demo walkthrough and its recording land once the case-file UI and the real LLM call are in.
