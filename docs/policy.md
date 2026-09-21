@@ -78,8 +78,9 @@ filing party selects as "other" — is outside this policy and goes to human rev
 RydeTAXI trips are excluded from Section 4 entirely: metered taxi services do not carry Ryde's
 cancellation and waiting fee policy ("Cancellation Policy applies to all Service Types in the
 Ryde app... All services except RydeTAXI", Ryde help centre) [RYDE-ACTUAL]. Cite `service_type`.
-Where it is `null` the pack could not establish which service was booked, so the exclusion cannot
-be applied and the dispute proceeds on the merits.
+Where `service_type` is absent from the pack's citable refs, the record did not state which
+service was booked: the exclusion cannot be applied and the dispute proceeds on the merits. Do not
+cite a field that is not in the citable list — an unresolvable citation is recorded as ungrounded.
 
 ### GEN-2 — Every finding must rest on the Evidence Pack [SYNTHESISED]
 
@@ -298,9 +299,12 @@ pick-up point and cancels the trip (Rider NO SHOW and no trip completion)."
 
 Two distinct routes to the same fee, and they are tested differently. A rider-initiated
 cancellation turns on elapsed time from matching: cite `cancellation.matching_to_cancel_minutes`,
-and where it is at or below **3 minutes** the fee is not chargeable regardless of anything else. A
-driver-initiated no-show cancellation turns on the driver having actually arrived and actually
-waited, which NS-2 and NS-3 test.
+and where it is at or below **3 minutes** the fee is not chargeable regardless of anything else.
+Check `cancellation.matching_anchor_source` before relying on a borderline figure: where it reads
+`trip.requested_at` the interval was measured from booking rather than matching, so the true
+interval is shorter than shown and a figure just above 3 minutes does not establish a chargeable
+cancellation. A driver-initiated no-show cancellation turns on the driver having actually arrived
+and actually waited, which NS-2 and NS-3 test.
 
 ### NS-2 — The wait must be real [RYDE-ACTUAL]
 

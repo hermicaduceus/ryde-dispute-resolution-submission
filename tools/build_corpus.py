@@ -244,6 +244,11 @@ def no_show_case(
     recomputes the same number rather than trusting a stated one.
     """
     matched = datetime(2026, 9, day, hour, 0, tzinfo=SGT)
+    # Booking happens before matching. Keeping them distinct matters: NS-1's free window
+    # runs from matching, and a corpus where the two coincide would never exercise the
+    # difference, so a proxy measuring from booking would look correct here and be wrong
+    # in production.
+    requested = matched - timedelta(seconds=40)
     arrived = matched + timedelta(minutes=6)
     cancelled = arrived + timedelta(minutes=wait_minutes)
     if matched_to_cancel_min is not None:
@@ -252,6 +257,7 @@ def no_show_case(
     pickup_point = {"lat": 1.3048, "lng": 103.8318}
     cancellation: Dict[str, Any] = {
         "cancelled_at": cancelled.isoformat(),
+        "matched_at": matched.isoformat(),
         "cancellation_fee_sgd": fee,
         "driver_marked_no_show": driver_marked_no_show,
         "rider_claims_driver_absent": rider_claims_driver_absent,
@@ -280,7 +286,7 @@ def no_show_case(
             "rider_id": profiles["rider"]["party_id"],
             "driver_id": profiles["driver"]["party_id"],
             "service_type": service_type,
-            "requested_at": matched.isoformat(),
+            "requested_at": requested.isoformat(),
             "fare": {"charged_sgd": fee, "breakdown": {"cancellation_sgd": fee}},
         },
         "cancellation": cancellation,

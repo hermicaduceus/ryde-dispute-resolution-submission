@@ -75,6 +75,23 @@ def _round(value: Optional[float], places: int) -> Optional[float]:
     return None if value is None else round(value, places) + 0.0
 
 
+def _round_up(value: Optional[float], places: int) -> Optional[float]:
+    """Round away from zero, for values a policy threshold is applied to.
+
+    Both thresholds that read these fields are upper bounds: GEN-6 asks whether a filing
+    is within 30 days, NS-1 whether a cancellation is at or below 3 minutes. Ordinary
+    rounding carries a value across such a bound without it having been crossed, so
+    30.004 days reads as 30.0 and a cancellation at 3 min 2 s reads as 3.0 — both land
+    inside a window the real number sits outside. The Judge compares the figure it is
+    shown and may not recompute it, so the figure must never flatter the claim.
+    Rounding up keeps a value that exceeds the bound looking like it exceeds the bound.
+    """
+    if value is None:
+        return None
+    factor = 10.0 ** places
+    return (math.ceil(value * factor) / factor) + 0.0
+
+
 def _as_float(value: Any) -> Optional[float]:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
@@ -349,6 +366,18 @@ def _build_fare(
 # ------------------------------------------------------------------ cancellation
 
 
+#: Booking time stands in for matching time when the record has no matching timestamp.
+#: The two are not the same event, and the gap between them is dead time the rider did not
+#: choose, so a cancellation measured from booking looks later than it was. NS-1's free
+#: window is only 3 minutes wide, which makes this substitution decision-changing rather
+#: than cosmetic. The Judge is told, so it can weigh a borderline interval accordingly.
+MATCHING_ANCHOR_PROXY_NOTE = (
+    "the record carries no matching timestamp, so the interval to cancellation was measured "
+    "from booking time as a proxy; matching happens after booking, so the true interval from "
+    "matching is shorter than the figure shown"
+)
+
+
 def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[CancellationEvidence]:
     raw = dispute.cancellation
     if not raw:
@@ -369,21 +398,32 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
     # who cancels before any driver arrives has no other measurable interval. Without
     # this field the rule is unenforceable: the Judge may cite pack fields but may not
     # subtract two timestamps itself.
-    matched_at = None
-    for candidate in (
-        _first(raw, "matched_at", "accepted_at"),
-        (dispute.trip or {}).get("matched_at"),
-        (dispute.trip or {}).get("requested_at"),
+    #
+    # Booking time is NOT matching time: a rider books, then the platform matches a driver
+    # some seconds or minutes later. Measuring from booking overstates the interval and can
+    # push a cancellation outside NS-1's 3-minute free window that was actually inside it.
+    # So the anchor used is named in the pack, and falling back to booking time is recorded
+    # as a proxy rather than presented as the real thing.
+    matching_anchor_at = None
+    matching_anchor_source = None
+    for value, source in (
+        (_first(raw, "matched_at", "accepted_at"), "matched_at"),
+        ((dispute.trip or {}).get("matched_at"), "trip.matched_at"),
+        ((dispute.trip or {}).get("requested_at"), "trip.requested_at"),
     ):
-        if isinstance(candidate, str) and candidate.strip():
-            matched_at = candidate
+        if isinstance(value, str) and value.strip():
+            matching_anchor_at = value
+            matching_anchor_source = source
             break
-    matching_to_cancel = _minutes_between(matched_at, cancelled_at, local_notes)
+
+    matching_to_cancel = _minutes_between(matching_anchor_at, cancelled_at, local_notes)
     if matching_to_cancel is None:
         local_notes.append(
             "no matching time and/or cancellation time in the record, so the interval "
             "from matching to cancellation could not be computed"
         )
+    elif matching_anchor_source == "trip.requested_at":
+        local_notes.append(MATCHING_ANCHOR_PROXY_NOTE)
 
     pickup = raw.get("pickup_point") if isinstance(raw.get("pickup_point"), dict) else {}
     driver_position = raw.get("driver_gps_at_arrival") if isinstance(raw.get("driver_gps_at_arrival"), dict) else {}
@@ -407,7 +447,9 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
         cancelled_at=cancelled_at if isinstance(cancelled_at, str) else None,
         driver_wait_minutes=_round(wait_minutes, 1),
         arrival_to_cancel_minutes=_round(arrival_to_cancel, 1),
-        matching_to_cancel_minutes=_round(matching_to_cancel, 1),
+        matching_to_cancel_minutes=_round_up(matching_to_cancel, 1),
+        matching_anchor_at=matching_anchor_at,
+        matching_anchor_source=matching_anchor_source,
         driver_marked_no_show=_as_bool(raw.get("driver_marked_no_show")),
         rider_claims_driver_absent=_as_bool(raw.get("rider_claims_driver_absent")),
         driver_distance_from_pickup_m=_round(distance_km * 1000.0, 1) if distance_km is not None else None,
@@ -530,20 +572,18 @@ def _build_profiles(dispute: Dispute, notes: List[str]) -> Optional[ProfileEvide
 # --------------------------------------------------------------- filing and service
 
 
-#: Recognised service types. RydeTAXI trips are metered and sit outside the fare rules
-#: in the policy's section 4, so the Judge needs to see which service a trip was.
+#: Recognised service types, keyed on the normalised form: lowercased with spaces,
+#: hyphens and underscores stripped. One entry per service — a key containing a space
+#: would be unreachable, because the lookup removes separators before matching.
+#: RydeTAXI trips are metered and sit outside the fare rules in the policy's section 4,
+#: so the Judge needs to see which service a trip was.
 _SERVICE_TYPES = {
     "rydex": "RydeX",
-    "ryde x": "RydeX",
     "rydexl": "RydeXL",
-    "ryde xl": "RydeXL",
     "rydetaxi": "RydeTAXI",
-    "ryde taxi": "RydeTAXI",
     "taxi": "RydeTAXI",
     "rydeexec": "RydeEXEC",
-    "ryde exec": "RydeEXEC",
     "rydepool": "RydePOOL",
-    "ryde pool": "RydePOOL",
 }
 
 SERVICE_TYPE_UNKNOWN_NOTE = (
@@ -553,14 +593,19 @@ SERVICE_TYPE_UNKNOWN_NOTE = (
 
 
 def _service_type(trip: Dict[str, Any], notes: List[str]) -> Optional[str]:
-    """The trip's service type, normalised, or None with a note."""
+    """The trip's service type, normalised, or None with a note.
+
+    An unrecognised value is passed through verbatim rather than nulled: the record did
+    state a service, and discarding it would claim the pack could not establish something
+    it can. Only a missing or non-string value is null.
+    """
     raw = _first(trip or {}, "service_type", "service", "product", "vehicle_type")
     if not isinstance(raw, str) or not raw.strip():
         if SERVICE_TYPE_UNKNOWN_NOTE not in notes:
             notes.append(SERVICE_TYPE_UNKNOWN_NOTE)
         return None
-    key = raw.strip().lower().replace("-", " ").replace("_", " ")
-    return _SERVICE_TYPES.get(key.replace(" ", "")) or _SERVICE_TYPES.get(key) or raw.strip()
+    key = re.sub(r"[\s_-]+", "", raw.strip().lower())
+    return _SERVICE_TYPES.get(key, raw.strip())
 
 
 FILING_WINDOW_UNVERIFIABLE_NOTE = (
@@ -599,10 +644,20 @@ def _build_filing(dispute: Dispute, notes: List[str]) -> FilingEvidence:
         minutes = _minutes_between(reference, filed_at, local)
         if minutes is not None:
             days = minutes / (60.0 * 24.0)
+        else:
+            # The string did not parse. Do not display it as though it were a date:
+            # the pack's rule is that a value derived from a broken record is withheld,
+            # not shown with a caveat somewhere else.
+            filed_at = None
 
     if days is None:
         if FILING_WINDOW_UNVERIFIABLE_NOTE not in notes:
             notes.append(FILING_WINDOW_UNVERIFIABLE_NOTE)
+        # Also kept on the block itself: a view rendering the filing section reads
+        # filing.notes, and an unexplained null there is exactly the silent gap the
+        # note exists to prevent. Cancellation already carries its notes in both places.
+        if FILING_WINDOW_UNVERIFIABLE_NOTE not in local:
+            local.append(FILING_WINDOW_UNVERIFIABLE_NOTE)
 
     for note in local:
         if note not in notes:
@@ -611,7 +666,7 @@ def _build_filing(dispute: Dispute, notes: List[str]) -> FilingEvidence:
     return FilingEvidence(
         filed_at=filed_at,
         trip_reference_at=reference,
-        days_since_trip=_round(days, 2),
+        days_since_trip=_round_up(days, 2),
         window_established=days is not None,
         notes=list(local),
     )

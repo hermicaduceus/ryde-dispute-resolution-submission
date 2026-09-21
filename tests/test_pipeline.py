@@ -228,6 +228,37 @@ class CitationCheckingTest(PipelineTestCase):
         # The model's own claim is kept as well as the finding against it.
         self.assertEqual(case_file.rider_case["evidence_cited"], ["fare.made_up_field"])
 
+    def test_a_judge_citing_an_invented_evidence_reference_is_recorded(self):
+        """The judge's evidence citations must be validated, not just stored.
+
+        This is the pin on a real defect: the judge once called the validator with an
+        empty ref list, so a ruling citing a field that does not exist was presented as
+        fully grounded. Only the advocates' citations were checked. Without a scripted
+        judge citing a bad ref, reverting that fix leaves the whole suite green.
+        """
+        llm = ScriptedLLM(
+            {
+                "rider_advocate": RIDER_CASE,
+                "driver_advocate": DRIVER_CASE,
+                "judge": {
+                    "action": "refund",
+                    "recommended_amount_sgd": 4.87,
+                    "confidence": 0.8,
+                    "explanation": "RD-1 applies.",
+                    "cited_rule_ids": ["RD-1"],
+                    "cited_evidence_refs": ["route.does_not_exist", "route.deviation_km"],
+                },
+            }
+        )
+        case_file = run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm)
+        ruling = case_file.to_dict()["resolution"]["ruling"]
+
+        self.assertEqual(["route.does_not_exist"], ruling["validation"]["unknown_evidence_refs"])
+        # The real ref is not swept up with the invented one.
+        self.assertIn("route.deviation_km", ruling["cited_evidence_refs"])
+        # The model's own claim survives alongside the finding against it.
+        self.assertIn("route.does_not_exist", ruling["cited_evidence_refs"])
+
     def test_a_judge_citing_an_invented_rule_is_recorded(self):
         llm = ScriptedLLM(
             {

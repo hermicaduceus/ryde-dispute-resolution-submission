@@ -14,7 +14,12 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional
 
-EVIDENCE_SCHEMA_VERSION = "1.0"
+#: Bumped whenever the pack's shape changes, including purely additive changes — the
+#: same doctrine the event log states. A consumer holding two packs must be able to tell
+#: them apart by this string alone, and "the new field is simply absent" is not a signal
+#: it can distinguish from "the field was null in that case".
+#: 1.1 added service_type, the filing block, and the cancellation matching anchor.
+EVIDENCE_SCHEMA_VERSION = "1.1"
 
 # Keys that are provenance rather than evidence: an agent citing them would be citing
 # metadata, not a fact about the trip. Excluded from field_refs().
@@ -102,6 +107,11 @@ class CancellationEvidence:
     rider_claims_driver_absent: Optional[bool]
     driver_distance_from_pickup_m: Optional[float]
     cancellation_fee_sgd: Optional[float]
+    #: Which timestamp matching_to_cancel_minutes was measured from, and its source key.
+    #: Named so the Judge can see when the interval rests on booking time as a proxy
+    #: rather than on a real matching event.
+    matching_anchor_at: Optional[str] = None
+    matching_anchor_source: Optional[str] = None
     notes: List[str] = field(default_factory=list)
 
 

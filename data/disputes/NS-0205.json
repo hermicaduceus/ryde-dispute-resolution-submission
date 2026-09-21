@@ -18,7 +18,7 @@
     "rider_id": "R-6005",
     "driver_id": "D-3005",
     "service_type": "RydeX",
-    "requested_at": "2026-09-14T19:00:00+08:00",
+    "requested_at": "2026-09-14T18:59:20+08:00",
     "fare": {
       "charged_sgd": 6.61,
       "breakdown": {
@@ -28,6 +28,7 @@
   },
   "cancellation": {
     "cancelled_at": "2026-09-14T19:10:00+08:00",
+    "matched_at": "2026-09-14T19:00:00+08:00",
     "cancellation_fee_sgd": 6.61,
     "driver_marked_no_show": true,
     "rider_claims_driver_absent": true,

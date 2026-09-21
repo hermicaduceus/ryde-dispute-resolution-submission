@@ -52,7 +52,7 @@ No dependencies and no API key needed for the skeleton: it runs on a stock Pytho
 standard library only, using a deterministic mock in place of the LLM.
 
 ```bash
-python3 -m unittest discover -s tests -t .        # 155 tests
+python3 -m unittest discover -s tests -t .        # 176 tests
 python3 -m app.cli --dispute data/disputes/RD-0101.json
 ```
 

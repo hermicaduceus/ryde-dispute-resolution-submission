@@ -122,9 +122,11 @@ def _optional_text_list(payload: Dict[str, Any], key: str, agent: str) -> List[s
     for item in value:
         if isinstance(item, str) and item.strip():
             items.append(item.strip())
-        elif isinstance(item, (int, float)) and not isinstance(item, bool):
-            items.append(str(item))
         else:
+            # Numbers were once coerced with str(). That invented a citation the model
+            # never made: '5' resolves to no rule and no pack field, so it rode into the
+            # ruling looking grounded while the validator, which drops non-strings, never
+            # saw it. A citation that cannot resolve is worse than a missing one.
             raise ContractError(
                 "%s: '%s' must contain only strings, found %r" % (agent, key, item)
             )
