@@ -52,7 +52,7 @@ No dependencies and no API key needed for the skeleton: it runs on a stock Pytho
 standard library only, using a deterministic mock in place of the LLM.
 
 ```bash
-python3 -m unittest discover -s tests -t .        # 104 tests
+python3 -m unittest discover -s tests -t .        # 132 tests
 python3 -m app.cli --dispute data/disputes/RD-0101.json
 ```
 
@@ -61,10 +61,18 @@ That prints the agent-to-agent event strip and the ruling, and writes the run's 
 behind each event) and `case_file.json` (evidence, both claims, resolution).
 
 The corpus in `data/disputes/` has 17 labelled cases. `RD-0103` is a deviation too small to
-matter, `NS-0203` is a driver who marked arrival 885 m from the pickup point, and `OS-0301` is an
+matter, `NS-0203` is a driver who marked arrival 885 m from the pickup point, `RD-0109` is a
+remedy above the autonomous cap that the system refuses to issue on its own, and `OS-0301` is an
 out-of-scope filing routed to human review without an LLM call. `docs/dataset.md` maps each case
 to what it tests; `data/ground-truth.json` holds the expected outcomes, deliberately kept out of
 the records the agents see.
+
+Two gates stand between a ruling and the parties, and **both are enforced in Python, not asked of
+the model in a prompt**: the confidence threshold and ESC-4's SGD 50 autonomous cap. Try them:
+
+```bash
+python3 -m app.cli --dispute data/disputes/RD-0109.json   # withheld: above the cap
+```
 
 **One caveat while the build is in progress.** Every mock string is prefixed `MOCK`, because the
 Tencent endpoint is not pinned yet (see the TODO block in `app/llm/tencent.py`) — a mock run is a

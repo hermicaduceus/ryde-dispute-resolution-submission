@@ -86,6 +86,7 @@ def run_dispute(
     policy: PolicySet,
     events: EventLog,
     confidence_threshold: float,
+    autonomous_cap_sgd: float = 50.00,
 ) -> CaseFile:
     """Run one dispute end to end and return its case file."""
     events.emit(
@@ -168,6 +169,7 @@ def run_dispute(
         rider_case,
         driver_case,
         confidence_threshold=confidence_threshold,
+        autonomous_cap_sgd=autonomous_cap_sgd,
     )
 
     events.emit(

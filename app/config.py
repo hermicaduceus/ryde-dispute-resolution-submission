@@ -91,6 +91,7 @@ class Config:
     """Everything the pipeline needs to run one dispute."""
 
     confidence_threshold: float
+    autonomous_cap_sgd: float
     llm: LLMSettings
     policy_path: Path
     out_dir: Path
@@ -134,6 +135,19 @@ def load_config(path: Optional[Path] = None) -> Config:
             "%s: confidence_threshold must be between 0 and 1, got %r" % (where, threshold)
         )
 
+    # ESC-4's autonomous decision cap. A remedy above this is prepared but never issued
+    # without a human. Defaults to the policy's stated SGD 50.00 when the key is absent,
+    # so an older config file cannot silently disable the gate.
+    cap = data.get("autonomous_cap_sgd", 50.00)
+    if isinstance(cap, bool) or not isinstance(cap, (int, float)):
+        raise ConfigError("%s: autonomous_cap_sgd must be a number, got %r" % (where, cap))
+    cap = float(cap)
+    if cap <= 0.0:
+        raise ConfigError(
+            "%s: autonomous_cap_sgd must be greater than 0, got %r. A cap of zero or less "
+            "would withhold every ruling that moves money." % (where, cap)
+        )
+
     llm_raw = _require_mapping(data, "llm", where)
     provider = llm_raw.get("provider")
     if not isinstance(provider, str) or not provider.strip():
@@ -166,6 +180,7 @@ def load_config(path: Optional[Path] = None) -> Config:
 
     return Config(
         confidence_threshold=threshold,
+        autonomous_cap_sgd=cap,
         llm=llm,
         policy_path=policy_path,
         out_dir=out_dir,

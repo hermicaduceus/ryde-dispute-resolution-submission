@@ -12,6 +12,7 @@ if the two drift apart.
 from __future__ import annotations
 
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -107,6 +108,90 @@ class CorpusStructureTest(unittest.TestCase):
             self.assertIsNone(
                 label["expected_action"],
                 "%s: %s cases must not pre-commit an action" % (dispute_id, label["expected_outcome"]),
+            )
+
+    def test_the_thresholds_here_match_the_policy_document(self):
+        """The constants above are duplicated from the policy. Prove the copy is faithful.
+
+        Parses the parameters table's actual row VALUES rather than grepping for a
+        substring: a first-draft version of this test looked only for the text "20%"
+        anywhere in the document, and a mutation that changed the parameters row still
+        passed because the string survived elsewhere. Read the number that governs.
+        """
+        rows = {}
+        for line in POLICY.read_text(encoding="utf-8").splitlines():
+            if not line.startswith("|"):
+                continue
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            if len(cells) < 2 or cells[0] in ("Parameter", "---"):
+                continue
+            rows[cells[0]] = cells[1]
+
+        self.assertTrue(rows, "no parameters table found in docs/policy.md")
+
+        def numbers(parameter):
+            self.assertIn(parameter, rows, "docs/policy.md lost the %r row" % parameter)
+            return [float(n) for n in re.findall(r"\d+(?:\.\d+)?", rows[parameter])]
+
+        material = numbers("Material route deviation")
+        self.assertIn(MATERIAL_PCT, material, "material deviation pct drifted: %s" % rows["Material route deviation"])
+        self.assertIn(MATERIAL_KM, material, "material deviation km drifted: %s" % rows["Material route deviation"])
+        self.assertIn(GROSS_KM, numbers("Gross route deviation"))
+        self.assertIn(DE_MINIMIS_SGD, numbers("De minimis adjustment"))
+        self.assertIn(AUTONOMOUS_CAP_SGD, numbers("Autonomous decision cap"))
+        self.assertIn(MIN_WAIT_MINUTES, numbers("Minimum driver wait before no-show"))
+        self.assertIn(PROXIMITY_LIMIT_M, numbers("Driver proximity limit at pickup"))
+
+    def test_the_autonomous_cap_matches_the_runtime_config(self):
+        """The policy's cap and the one the code enforces must be the same number.
+
+        They live in different files by design (policy is the document, config is the
+        runtime knob), which is exactly how they drift apart.
+        """
+        config = json.loads((REPO / "app" / "config.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            AUTONOMOUS_CAP_SGD,
+            config["autonomous_cap_sgd"],
+            "app/config.json enforces a cap the policy document does not state",
+        )
+
+    def test_every_label_category_matches_its_record(self):
+        """A label's category steers which evidence checks run, so it must not drift.
+
+        Found by mutation testing: flipping a LABEL's category silently disabled every
+        evidence-agreement check for that case, and flipping a RECORD's category to
+        'other' under a 'ruled' label went unnoticed in both directions.
+        """
+        for dispute_id, label in self.by_id.items():
+            path, data = self.records[dispute_id]
+            record_category = normalise_category(data["category"])
+            self.assertEqual(
+                record_category,
+                normalise_category(label["category"]),
+                "%s: the label says %r but the record says %r"
+                % (dispute_id, label["category"], data["category"]),
+            )
+
+    def test_a_no_action_ruling_carries_a_zero_amount(self):
+        """'No action' means no money moves, so any other amount is a contradiction."""
+        for dispute_id, label in self.by_id.items():
+            if label["expected_action"] != "no action":
+                continue
+            self.assertEqual(
+                0.0,
+                float(label["expected_amount_sgd"]),
+                "%s: a no-action ruling cannot carry a non-zero amount" % dispute_id,
+            )
+
+    def test_a_non_ruled_case_pre_commits_no_amount(self):
+        """Escalation hands the decision to a human; it must not pre-decide the money."""
+        for dispute_id, label in self.by_id.items():
+            if label["expected_outcome"] == "ruled":
+                continue
+            self.assertIsNone(
+                label["expected_amount_sgd"],
+                "%s: a %s case must not pre-commit an amount — that is the human's call"
+                % (dispute_id, label["expected_outcome"]),
             )
 
     def test_every_case_carries_a_rationale(self):

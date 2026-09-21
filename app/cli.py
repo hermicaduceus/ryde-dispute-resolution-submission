@@ -88,6 +88,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             policy=policy,
             events=events,
             confidence_threshold=config.confidence_threshold,
+            autonomous_cap_sgd=config.autonomous_cap_sgd,
         )
     except (DisputeError, PolicyError, LLMError, RuntimeError, ValueError) as exc:
         print("error: the run failed: %s" % exc, file=sys.stderr)

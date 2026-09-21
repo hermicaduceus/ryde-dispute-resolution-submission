@@ -106,6 +106,12 @@ corpus or the escalation path is untested.
 | RD-0108 | No estimated distance in the record, so materiality cannot be tested | escalate |
 | RD-0109 | Clear-cut deviation whose remedy exceeds the SGD 50 autonomous cap | escalate |
 
+RD-0109 is load-bearing beyond its label. It is the regression case for ESC-4: an adversarial
+review found the cap was stated in this document and in the labels but enforced **nowhere in
+code**, and a live run delivered "refund of SGD 55.16" straight to the parties at confidence 0.86.
+The cap is now a Python gate in `app/agents/judge.py` alongside the confidence gate, and
+`tests/test_gates.py` fails if it ever regresses.
+
 **No-show / cancellation fee**
 
 | ID | Tests | Expected |
@@ -157,17 +163,27 @@ breakdown is inconsistent, and that inconsistency is the thing being tested.
 
 ## Verification
 
-`tests/test_corpus.py` (22 tests) is the guard on this artifact. It checks structure (every case
+`tests/test_corpus.py` (28 tests) is the guard on this artifact. It checks structure (every case
 labelled exactly once, no label leaking into a record, every label carrying a rationale), policy
-agreement (no label cites a rule that is not in `docs/policy.md`), and — the part that matters
-most — **evidence agreement**: every labelled refund amount must match a number the Evidence Pack
-actually computes from that record, and the policy's mechanical thresholds applied to the pack
-must not contradict the label.
+agreement (no label cites a rule that is not in `docs/policy.md`, and the thresholds the tests use
+are parsed from the policy's own parameters table rather than trusted as copies), and — the part
+that matters most — **evidence agreement**: every labelled refund amount must match a number the
+Evidence Pack actually computes from that record, and the policy's mechanical thresholds applied
+to the pack must not contradict the label.
 
 That last check earned its place during authoring. It caught two labels whose amounts were written
 by hand and were wrong: RD-0101 was labelled 4.81 against a computed 5.81, and RD-0109 was labelled
 below the autonomous cap when its real delta was above it. Both were fixed by correcting the label
 and the case, not the test.
+
+**The guard was then audited by mutation testing**, and it was narrower than it claimed. Six
+deliberate corruptions passed a green suite: editing a threshold in the policy's parameters table,
+flipping a label's category (which silently disabled every evidence check for that case), flipping
+a record's category, putting a non-zero amount on a no-action label, pre-committing an amount on an
+escalated label, and raising the runtime cap above the policy's. Each now has a test and each now
+fails. The lesson worth keeping: a guard is only as good as the last attempt to defeat it, and the
+comment in the test file claiming it caught policy-threshold drift was simply untrue until someone
+tried it.
 
 Every case also runs end to end through the real pipeline without error.
 

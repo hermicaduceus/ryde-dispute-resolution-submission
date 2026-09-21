@@ -21,6 +21,7 @@ app/config.json and is passed in — never hard-coded here or in any agent.
 
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass, field
 from enum import Enum
@@ -97,6 +98,13 @@ def _require_number(
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ContractError("%s: '%s' is required and must be a number, got %r" % (agent, key, value))
     number = float(value)
+    # NaN and Infinity survive json.loads and slip past every comparison below: NaN is
+    # neither < minimum nor > maximum, so an unbounded-nonsense amount would reach the
+    # parties as "refund of SGD nan". Reject them before the range checks.
+    if not math.isfinite(number):
+        raise ContractError(
+            "%s: '%s' must be a finite number, got %r" % (agent, key, value)
+        )
     if minimum is not None and number < minimum:
         raise ContractError("%s: '%s' must be >= %s, got %s" % (agent, key, minimum, number))
     if maximum is not None and number > maximum:

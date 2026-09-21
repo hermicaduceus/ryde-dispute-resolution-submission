@@ -98,11 +98,21 @@ def _first(mapping: Dict[str, Any], *keys: str) -> Any:
 
 
 def haversine_km(a: Dict[str, Any], b: Dict[str, Any]) -> Optional[float]:
-    """Great-circle distance between two {lat, lng} points, in km."""
+    """Great-circle distance between two {lat, lng} points, in km.
+
+    Returns None for coordinates outside the valid ranges rather than computing a
+    distance from them. A lat of 999 is not a long trip, it is a broken record, and a
+    pack field the agents will argue from must never carry a number derived from one.
+    """
     lat1, lng1 = _as_float(_first(a, "lat", "latitude")), _as_float(_first(a, "lng", "lon", "longitude"))
     lat2, lng2 = _as_float(_first(b, "lat", "latitude")), _as_float(_first(b, "lng", "lon", "longitude"))
-    if None in (lat1, lng1, lat2, lng2):
+    if lat1 is None or lng1 is None or lat2 is None or lng2 is None:
         return None
+    for lat, lng in ((lat1, lng1), (lat2, lng2)):
+        if not (math.isfinite(lat) and math.isfinite(lng)):
+            return None
+        if not (-90.0 <= lat <= 90.0 and -180.0 <= lng <= 180.0):
+            return None
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     d_phi = math.radians(lat2 - lat1)
     d_lambda = math.radians(lng2 - lng1)
@@ -127,12 +137,31 @@ def _parse_ts(value: Any, notes: List[str]) -> Optional[datetime]:
     return parsed
 
 
+NEGATIVE_INTERVAL_NOTE = (
+    "a timestamp pair ran backwards (the end precedes the start); the interval was "
+    "discarded rather than recorded as a negative duration"
+)
+
+
 def _minutes_between(start: Any, end: Any, notes: List[str]) -> Optional[float]:
+    """Minutes from start to end, or None if the pair is unusable.
+
+    A negative interval means the record's timestamps are out of order. Returning the
+    negative number would let it flow into the fare formula and produce a confident,
+    precise, wrong figure: a dropoff before its pickup once yielded a recomputed fare of
+    SGD 3.13 against a real 18.65, presented to the agents as a SGD 15.50 overcharge.
+    Refusing to compute it is the only safe answer.
+    """
     start_dt = _parse_ts(start, notes)
     end_dt = _parse_ts(end, notes)
     if start_dt is None or end_dt is None:
         return None
-    return (end_dt - start_dt).total_seconds() / 60.0
+    minutes = (end_dt - start_dt).total_seconds() / 60.0
+    if minutes < 0:
+        if NEGATIVE_INTERVAL_NOTE not in notes:
+            notes.append(NEGATIVE_INTERVAL_NOTE)
+        return None
+    return minutes
 
 
 # ------------------------------------------------------------------------ route
@@ -209,6 +238,15 @@ def _build_duration(trip: Dict[str, Any], notes: List[str]) -> DurationEvidence:
 
 # ------------------------------------------------------------------------- fare
 
+NEGATIVE_FARE_INPUT_NOTE = (
+    "the fare could not be recomputed: a distance or duration was negative, which is a "
+    "record defect rather than a cheap trip"
+)
+
+NON_POSITIVE_SURGE_NOTE = (
+    "the fare could not be recomputed: the surge multiplier was zero or negative"
+)
+
 
 def _build_fare(
     trip: Dict[str, Any],
@@ -246,11 +284,25 @@ def _build_fare(
     promo = abs(_as_float(_first(components, "promo_sgd", "promo", "discount_sgd")) or 0.0)
 
     def recompute(distance_km: Optional[float], minutes: Optional[float]) -> Optional[float]:
+        """The fare for these inputs, or None when the inputs cannot produce a real one.
+
+        Negative distances or minutes, and a zero or negative surge, are record defects
+        rather than cheap trips: each one makes the formula return a smaller or negative
+        fare that reads as a legitimate overcharge finding. Refuse instead of computing.
+        """
         if not rates:
             return None
         if per_km and distance_km is None:
             return None
         if per_min and minutes is None:
+            return None
+        if (distance_km is not None and distance_km < 0) or (minutes is not None and minutes < 0):
+            if NEGATIVE_FARE_INPUT_NOTE not in notes:
+                notes.append(NEGATIVE_FARE_INPUT_NOTE)
+            return None
+        if surge <= 0:
+            if NON_POSITIVE_SURGE_NOTE not in notes:
+                notes.append(NON_POSITIVE_SURGE_NOTE)
             return None
         subtotal = base + per_km * (distance_km or 0.0) + per_min * (minutes or 0.0)
         return subtotal * surge - promo

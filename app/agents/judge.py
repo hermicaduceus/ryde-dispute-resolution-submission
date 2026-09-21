@@ -25,6 +25,7 @@ from ..schemas import (
     ContractError,
     JudgeRuling,
     Resolution,
+    RulingAction,
     party_message_for_ruling,
 )
 from .base import AgentError, BaseAgent, HARD_RULES, citable_refs_block, dispute_block, evidence_block, policy_blocks, validate_citations
@@ -98,6 +99,7 @@ class Judge(BaseAgent):
         driver_case: AdvocateCase,
         *,
         confidence_threshold: float,
+        autonomous_cap_sgd: float = 50.00,
     ) -> Resolution:
         """Deliberate, then either issue the ruling or withhold it behind the gate."""
         payload, llm_info = self._ask(
@@ -110,6 +112,7 @@ class Judge(BaseAgent):
                 "available_rule_ids": self.policy.rule_ids(),
                 "available_evidence_refs": pack.field_refs(),
                 "confidence_threshold": confidence_threshold,
+                "autonomous_cap_sgd": autonomous_cap_sgd,
             },
         )
 
@@ -128,7 +131,32 @@ class Judge(BaseAgent):
         except ContractError as exc:
             raise AgentError("judge returned a response that breaks its contract: %s" % exc) from exc
 
-        if ruling.confidence >= confidence_threshold:
+        # Two independent gates stand between a ruling and the parties, and BOTH are
+        # enforced here in Python rather than asked of the model in a prompt. A prompt is
+        # a request; this is a guarantee. ESC-4 in particular moves money, so it must not
+        # depend on the LLM having read its instructions carefully.
+        gate_failures = []
+        if ruling.confidence < confidence_threshold:
+            gate_failures.append(
+                (
+                    "confidence",
+                    "confidence %.2f is below the threshold %.2f"
+                    % (ruling.confidence, confidence_threshold),
+                )
+            )
+        if (
+            ruling.action != RulingAction.NO_ACTION.value
+            and ruling.recommended_amount_sgd > autonomous_cap_sgd
+        ):
+            gate_failures.append(
+                (
+                    "ESC-4",
+                    "SGD %.2f exceeds the autonomous decision cap of SGD %.2f"
+                    % (ruling.recommended_amount_sgd, autonomous_cap_sgd),
+                )
+            )
+
+        if not gate_failures:
             self.events.emit(
                 EVENT_RULING_ISSUED,
                 from_=self.name,
@@ -139,6 +167,7 @@ class Judge(BaseAgent):
                     "dispute_id": dispute.dispute_id,
                     "ruling": ruling.to_dict(),
                     "confidence_threshold": confidence_threshold,
+                    "autonomous_cap_sgd": autonomous_cap_sgd,
                 },
             )
             return Resolution(
@@ -149,16 +178,18 @@ class Judge(BaseAgent):
                 ruling=ruling,
             )
 
+        reasons = [reason for _gate, reason in gate_failures]
         self.events.emit(
             EVENT_RULING_WITHHELD,
             from_=self.name,
             to="parties",
-            summary="Judge withheld the ruling: confidence %.2f is below the threshold %.2f"
-            % (ruling.confidence, confidence_threshold),
+            summary="Judge withheld the ruling: %s" % "; ".join(reasons),
             payload={
                 "dispute_id": dispute.dispute_id,
                 "confidence": ruling.confidence,
                 "confidence_threshold": confidence_threshold,
+                "autonomous_cap_sgd": autonomous_cap_sgd,
+                "gates_failed": [gate for gate, _reason in gate_failures],
                 "withheld_candidate": ruling.to_dict(),
                 "escalation": "queued for human review with the full case file",
             },
@@ -170,10 +201,7 @@ class Judge(BaseAgent):
             confidence_threshold=confidence_threshold,
             withheld_candidate=ruling,
             escalated_for_human_review=True,
-            notes=[
-                "the ruling was not delivered: confidence %.2f is below the threshold %.2f"
-                % (ruling.confidence, confidence_threshold)
-            ],
+            notes=["the ruling was not delivered: %s" % reason for reason in reasons],
         )
 
 
