@@ -36,8 +36,8 @@ information and build their cases. That surface is a required deliverable, not a
 
 - [`docs/statement-extract.md`](docs/statement-extract.md) — the challenge statement, verbatim
 - `docs/architecture.md` — architecture diagram and system description (required deliverable, to come)
-- `docs/policy.md` — policy rule set with stated provenance (to come)
-- `docs/dataset.md` — dataset description and provenance (to come)
+- [`docs/policy.md`](docs/policy.md) — the policy rule set the Judge applies, with per-rule provenance
+- [`docs/dataset.md`](docs/dataset.md) — the labelled corpus, its provenance and its limitations
 - [`docs/evidence-plan.md`](docs/evidence-plan.md) — development-process evidence rules
 - [`CODEBUDDY.md`](CODEBUDDY.md) — builder's entry point and project memory
 
@@ -52,23 +52,22 @@ No dependencies and no API key needed for the skeleton: it runs on a stock Pytho
 standard library only, using a deterministic mock in place of the LLM.
 
 ```bash
-python3 -m unittest discover -s tests -t .        # 82 tests
-python3 -m app.cli --dispute tests/fixtures/dispute_route_deviation.json \
-                   --policy tests/fixtures/policy_min.md
+python3 -m unittest discover -s tests -t .        # 104 tests
+python3 -m app.cli --dispute data/disputes/RD-0101.json
 ```
 
 That prints the agent-to-agent event strip and the ruling, and writes the run's artifacts to
 `runs/<run_id>/`: `events.jsonl` (the observable traffic), `payloads/*.json` (the full payload
 behind each event) and `case_file.json` (evidence, both claims, resolution).
 
-Swap the fixture for `dispute_no_show_charge.json` to see the second category, or
-`dispute_out_of_scope_category.json` to see an out-of-scope filing routed to human review
-without an LLM call.
+The corpus in `data/disputes/` has 17 labelled cases. `RD-0103` is a deviation too small to
+matter, `NS-0203` is a driver who marked arrival 885 m from the pickup point, and `OS-0301` is an
+out-of-scope filing routed to human review without an LLM call. `docs/dataset.md` maps each case
+to what it tests; `data/ground-truth.json` holds the expected outcomes, deliberately kept out of
+the records the agents see.
 
-**Two caveats while the build is in progress.** `--policy` is needed because the real policy
-document (`docs/policy.md`) is authored separately and is not in the tree yet; the fixture is a
-minimal stand-in, not the project's policy. And every mock string is prefixed `MOCK`, because
-the Tencent endpoint is not pinned yet (see the TODO block in `app/llm/tencent.py`) — a mock run
-is a plumbing demonstration, never a real ruling.
+**One caveat while the build is in progress.** Every mock string is prefixed `MOCK`, because the
+Tencent endpoint is not pinned yet (see the TODO block in `app/llm/tencent.py`) — a mock run is a
+plumbing demonstration, never a real ruling.
 
 The demo walkthrough and its recording land once the case-file UI and the real LLM call are in.

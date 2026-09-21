@@ -1,0 +1,128 @@
+{
+  "dispute_id": "RD-0101",
+  "category": "route_deviation",
+  "filed_by": "rider",
+  "filed_at": "2026-09-14T12:01:00+08:00",
+  "claim": {
+    "text": "The driver took a much longer way round and I paid more than the app quoted.",
+    "amount_sgd": 5.81
+  },
+  "intake": {
+    "what_went_wrong": "Driver ignored the route in the app and drove a long way round.",
+    "expected_route": "The app showed about 6.4 km via the expressway.",
+    "was_route_agreed": "No",
+    "asked_driver_to_stop": "No",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-RD0101",
+    "rider_id": "R-5001",
+    "driver_id": "D-2001",
+    "requested_at": "2026-09-14T09:26:00+08:00",
+    "pickup_at": "2026-09-14T09:30:00+08:00",
+    "dropoff_at": "2026-09-14T10:01:00+08:00",
+    "estimated_duration_min": 18,
+    "estimated_distance_km": 6.4,
+    "actual_route": [
+      {
+        "lat": 1.2989,
+        "lng": 103.8456,
+        "t": "2026-09-14T09:30:00+08:00"
+      },
+      {
+        "lat": 1.30614,
+        "lng": 103.851895,
+        "t": "2026-09-14T09:33:26.666667+08:00"
+      },
+      {
+        "lat": 1.31453,
+        "lng": 103.856547,
+        "t": "2026-09-14T09:36:53.333333+08:00"
+      },
+      {
+        "lat": 1.321769,
+        "lng": 103.862842,
+        "t": "2026-09-14T09:40:20+08:00"
+      },
+      {
+        "lat": 1.330159,
+        "lng": 103.867494,
+        "t": "2026-09-14T09:43:46.666667+08:00"
+      },
+      {
+        "lat": 1.337399,
+        "lng": 103.873789,
+        "t": "2026-09-14T09:47:13.333333+08:00"
+      },
+      {
+        "lat": 1.345789,
+        "lng": 103.878441,
+        "t": "2026-09-14T09:50:40+08:00"
+      },
+      {
+        "lat": 1.353029,
+        "lng": 103.884736,
+        "t": "2026-09-14T09:54:06.666667+08:00"
+      },
+      {
+        "lat": 1.361419,
+        "lng": 103.889388,
+        "t": "2026-09-14T09:57:33.333333+08:00"
+      },
+      {
+        "lat": 1.368659,
+        "lng": 103.895683,
+        "t": "2026-09-14T10:01:00+08:00"
+      }
+    ],
+    "fare": {
+      "charged_sgd": 18.63,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 7.68,
+        "time_sgd": 7.75
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "chat_log": [
+    {
+      "t": "2026-09-14T09:32:00+08:00",
+      "sender": "rider",
+      "text": "Why are we going this way? The app showed the expressway."
+    },
+    {
+      "t": "2026-09-14T09:34:00+08:00",
+      "sender": "driver",
+      "text": "This way is better."
+    },
+    {
+      "t": "2026-09-14T09:55:00+08:00",
+      "sender": "rider",
+      "text": "This is much longer than the estimate."
+    }
+  ],
+  "profiles": {
+    "rider": {
+      "party_id": "R-5001",
+      "account_age_days": 640,
+      "trips_completed": 180,
+      "disputes_total": 2,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-2001",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 5,
+      "disputes_upheld": 1,
+      "rating": 4.72
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "dispute_id": "NS-0202",
+  "category": "no_show_charge",
+  "filed_by": "rider",
+  "filed_at": "2026-09-14T20:07:30+08:00",
+  "claim": {
+    "text": "The driver cancelled almost immediately and I was still charged.",
+    "amount_sgd": 6.61
+  },
+  "intake": {
+    "what_went_wrong": "Driver cancelled about a minute after saying he arrived.",
+    "where_were_you": "Walking out of the building, I could see the car.",
+    "did_driver_contact_you": "One message, then he cancelled.",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-NS0202",
+    "rider_id": "R-6002",
+    "driver_id": "D-3002",
+    "requested_at": "2026-09-14T19:00:00+08:00",
+    "fare": {
+      "charged_sgd": 6.61,
+      "breakdown": {
+        "cancellation_sgd": 6.61
+      }
+    }
+  },
+  "cancellation": {
+    "cancelled_at": "2026-09-14T19:07:30+08:00",
+    "cancellation_fee_sgd": 6.61,
+    "driver_marked_no_show": true,
+    "rider_claims_driver_absent": false,
+    "pickup_point": {
+      "lat": 1.3048,
+      "lng": 103.8318
+    },
+    "driver_arrived_at": "2026-09-14T19:06:00+08:00",
+    "wait_started_at": "2026-09-14T19:06:00+08:00",
+    "driver_gps_at_arrival": {
+      "lat": 1.305026,
+      "lng": 103.8318
+    }
+  },
+  "chat_log": [
+    {
+      "t": "2026-09-14T19:06:00+08:00",
+      "sender": "driver",
+      "text": "Arrived."
+    },
+    {
+      "t": "2026-09-14T19:07:20+08:00",
+      "sender": "rider",
+      "text": "Coming now, 30 seconds."
+    }
+  ],
+  "profiles": {
+    "rider": {
+      "party_id": "R-6002",
+      "account_age_days": 640,
+      "trips_completed": 180,
+      "disputes_total": 2,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-3002",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 14,
+      "disputes_upheld": 6,
+      "rating": 4.72
+    }
+  }
+}

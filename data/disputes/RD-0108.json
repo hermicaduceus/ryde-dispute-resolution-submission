@@ -1,0 +1,117 @@
+{
+  "dispute_id": "RD-0108",
+  "category": "route_deviation",
+  "filed_by": "rider",
+  "filed_at": "2026-09-14T12:06:00+08:00",
+  "claim": {
+    "text": "I think the driver went a long way round but I am not sure what was quoted.",
+    "amount_sgd": 7.1
+  },
+  "intake": {
+    "what_went_wrong": "The trip felt much longer than it should have been.",
+    "expected_route": "I do not remember what the app showed.",
+    "was_route_agreed": "No",
+    "asked_driver_to_stop": "No",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-RD0108",
+    "rider_id": "R-5008",
+    "driver_id": "D-2008",
+    "requested_at": "2026-09-14T09:26:00+08:00",
+    "pickup_at": "2026-09-14T09:30:00+08:00",
+    "dropoff_at": "2026-09-14T10:06:00+08:00",
+    "estimated_duration_min": 22,
+    "actual_route": [
+      {
+        "lat": 1.2989,
+        "lng": 103.8456,
+        "t": "2026-09-14T09:30:00+08:00"
+      },
+      {
+        "lat": 1.308327,
+        "lng": 103.853797,
+        "t": "2026-09-14T09:34:00+08:00"
+      },
+      {
+        "lat": 1.319251,
+        "lng": 103.859854,
+        "t": "2026-09-14T09:38:00+08:00"
+      },
+      {
+        "lat": 1.328678,
+        "lng": 103.868051,
+        "t": "2026-09-14T09:42:00+08:00"
+      },
+      {
+        "lat": 1.339602,
+        "lng": 103.874108,
+        "t": "2026-09-14T09:46:00+08:00"
+      },
+      {
+        "lat": 1.349029,
+        "lng": 103.882305,
+        "t": "2026-09-14T09:50:00+08:00"
+      },
+      {
+        "lat": 1.359954,
+        "lng": 103.888362,
+        "t": "2026-09-14T09:54:00+08:00"
+      },
+      {
+        "lat": 1.36938,
+        "lng": 103.896559,
+        "t": "2026-09-14T09:58:00+08:00"
+      },
+      {
+        "lat": 1.380305,
+        "lng": 103.902616,
+        "t": "2026-09-14T10:02:00+08:00"
+      },
+      {
+        "lat": 1.389732,
+        "lng": 103.910813,
+        "t": "2026-09-14T10:06:00+08:00"
+      }
+    ],
+    "fare": {
+      "charged_sgd": 22.2,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 10.0,
+        "time_sgd": 9.0
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "chat_log": [
+    {
+      "t": "2026-09-14T09:58:00+08:00",
+      "sender": "rider",
+      "text": "That felt longer than it should be."
+    }
+  ],
+  "profiles": {
+    "rider": {
+      "party_id": "R-5008",
+      "account_age_days": 640,
+      "trips_completed": 180,
+      "disputes_total": 2,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-2008",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 5,
+      "disputes_upheld": 1,
+      "rating": 4.72
+    }
+  }
+}

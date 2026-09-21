@@ -110,13 +110,13 @@ ryde-build/
 ├── .codebuddy/
 │   ├── settings.json       # permission fence
 │   └── rules/              # topic-scoped rules (added as the build needs them)
-├── app/                    # Python backend — agents, evidence layer, LLM calls (to come)
+├── app/                    # Python backend — agents, evidence layer, LLM calls
 ├── ui/                     # plain HTML/JS front end — intake form + case-file observability view (to come)
-├── data/                   # synthesised dispute corpus, ground-truth labelled (to come; swappable)
+├── data/                   # synthesised dispute corpus, ground-truth labelled (17 cases; swappable)
 ├── docs/
 │   ├── statement-extract.md  # challenge statement, verbatim — the only requirements source
-│   ├── policy.md             # policy rule set (to come; swappable; provenance stated in-file)
-│   ├── dataset.md            # dataset description + provenance (to come)
+│   ├── policy.md             # policy rule set (32 rules; swappable; provenance stated in-file)
+│   ├── dataset.md            # dataset description + provenance
 │   ├── architecture.md       # required deliverable: diagram + system description (to come)
 │   └── evidence-plan.md      # §8 evidence rules and naming
 ├── evidence/               # §8 screenshots (YYYY-MM-DD_<tool>_<topic>.png)

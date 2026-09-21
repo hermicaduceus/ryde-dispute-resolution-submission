@@ -1,0 +1,128 @@
+{
+  "dispute_id": "RD-0102",
+  "category": "route_deviation",
+  "filed_by": "rider",
+  "filed_at": "2026-09-14T11:59:00+08:00",
+  "claim": {
+    "text": "Fare was higher than quoted.",
+    "amount_sgd": 5.86
+  },
+  "intake": {
+    "what_went_wrong": "Final fare was more than the app quoted at booking.",
+    "expected_route": "Direct route to the original drop-off.",
+    "was_route_agreed": "Yes, I asked him to drop my colleague first.",
+    "asked_driver_to_stop": "Yes, I added a stop",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-RD0102",
+    "rider_id": "R-5002",
+    "driver_id": "D-2002",
+    "requested_at": "2026-09-14T09:26:00+08:00",
+    "pickup_at": "2026-09-14T09:30:00+08:00",
+    "dropoff_at": "2026-09-14T09:59:00+08:00",
+    "estimated_duration_min": 19,
+    "estimated_distance_km": 7.0,
+    "actual_route": [
+      {
+        "lat": 1.2989,
+        "lng": 103.8456,
+        "t": "2026-09-14T09:30:00+08:00"
+      },
+      {
+        "lat": 1.307346,
+        "lng": 103.852944,
+        "t": "2026-09-14T09:33:13.333333+08:00"
+      },
+      {
+        "lat": 1.317135,
+        "lng": 103.858371,
+        "t": "2026-09-14T09:36:26.666667+08:00"
+      },
+      {
+        "lat": 1.325581,
+        "lng": 103.865716,
+        "t": "2026-09-14T09:39:40+08:00"
+      },
+      {
+        "lat": 1.335369,
+        "lng": 103.871143,
+        "t": "2026-09-14T09:42:53.333333+08:00"
+      },
+      {
+        "lat": 1.343816,
+        "lng": 103.878487,
+        "t": "2026-09-14T09:46:06.666667+08:00"
+      },
+      {
+        "lat": 1.353604,
+        "lng": 103.883915,
+        "t": "2026-09-14T09:49:20+08:00"
+      },
+      {
+        "lat": 1.36205,
+        "lng": 103.891259,
+        "t": "2026-09-14T09:52:33.333333+08:00"
+      },
+      {
+        "lat": 1.371839,
+        "lng": 103.896686,
+        "t": "2026-09-14T09:55:46.666667+08:00"
+      },
+      {
+        "lat": 1.380285,
+        "lng": 103.904031,
+        "t": "2026-09-14T09:59:00+08:00"
+      }
+    ],
+    "fare": {
+      "charged_sgd": 19.41,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 8.96,
+        "time_sgd": 7.25
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "chat_log": [
+    {
+      "t": "2026-09-14T09:33:00+08:00",
+      "sender": "rider",
+      "text": "Can we stop at Buona Vista first to drop my colleague?"
+    },
+    {
+      "t": "2026-09-14T09:33:40+08:00",
+      "sender": "driver",
+      "text": "Ok no problem."
+    },
+    {
+      "t": "2026-09-14T09:58:00+08:00",
+      "sender": "rider",
+      "text": "Thanks."
+    }
+  ],
+  "profiles": {
+    "rider": {
+      "party_id": "R-5002",
+      "account_age_days": 640,
+      "trips_completed": 180,
+      "disputes_total": 2,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-2002",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 5,
+      "disputes_upheld": 1,
+      "rating": 4.72
+    }
+  }
+}

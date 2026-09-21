@@ -1,0 +1,118 @@
+{
+  "dispute_id": "RD-0103",
+  "category": "route_deviation",
+  "filed_by": "rider",
+  "filed_at": "2026-09-14T11:47:00+08:00",
+  "claim": {
+    "text": "Driver did not take the exact route in the app.",
+    "amount_sgd": 0.74
+  },
+  "intake": {
+    "what_went_wrong": "The route was not identical to the one the app showed.",
+    "expected_route": "The route the app displayed at booking.",
+    "was_route_agreed": "No",
+    "asked_driver_to_stop": "No",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-RD0103",
+    "rider_id": "R-5003",
+    "driver_id": "D-2003",
+    "requested_at": "2026-09-14T09:26:00+08:00",
+    "pickup_at": "2026-09-14T09:30:00+08:00",
+    "dropoff_at": "2026-09-14T09:47:00+08:00",
+    "estimated_duration_min": 15,
+    "estimated_distance_km": 5.0,
+    "actual_route": [
+      {
+        "lat": 1.2989,
+        "lng": 103.8456,
+        "t": "2026-09-14T09:30:00+08:00"
+      },
+      {
+        "lat": 1.302897,
+        "lng": 103.849075,
+        "t": "2026-09-14T09:31:53.333333+08:00"
+      },
+      {
+        "lat": 1.307529,
+        "lng": 103.851644,
+        "t": "2026-09-14T09:33:46.666667+08:00"
+      },
+      {
+        "lat": 1.311526,
+        "lng": 103.855119,
+        "t": "2026-09-14T09:35:40+08:00"
+      },
+      {
+        "lat": 1.316158,
+        "lng": 103.857687,
+        "t": "2026-09-14T09:37:33.333333+08:00"
+      },
+      {
+        "lat": 1.320155,
+        "lng": 103.861163,
+        "t": "2026-09-14T09:39:26.666667+08:00"
+      },
+      {
+        "lat": 1.324787,
+        "lng": 103.863731,
+        "t": "2026-09-14T09:41:20+08:00"
+      },
+      {
+        "lat": 1.328784,
+        "lng": 103.867206,
+        "t": "2026-09-14T09:43:13.333333+08:00"
+      },
+      {
+        "lat": 1.333416,
+        "lng": 103.869775,
+        "t": "2026-09-14T09:45:06.666667+08:00"
+      },
+      {
+        "lat": 1.337413,
+        "lng": 103.87325,
+        "t": "2026-09-14T09:47:00+08:00"
+      }
+    ],
+    "fare": {
+      "charged_sgd": 11.69,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 4.24,
+        "time_sgd": 4.25
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "chat_log": [
+    {
+      "t": "2026-09-14T09:47:00+08:00",
+      "sender": "driver",
+      "text": "We are here, thank you."
+    }
+  ],
+  "profiles": {
+    "rider": {
+      "party_id": "R-5003",
+      "account_age_days": 640,
+      "trips_completed": 60,
+      "disputes_total": 9,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-2003",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 5,
+      "disputes_upheld": 1,
+      "rating": 4.72
+    }
+  }
+}

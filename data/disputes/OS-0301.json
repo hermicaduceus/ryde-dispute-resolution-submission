@@ -1,0 +1,47 @@
+{
+  "dispute_id": "OS-0301",
+  "category": "Property Damage / Mess",
+  "filed_by": "driver",
+  "filed_at": "2026-09-14T20:06:00+08:00",
+  "claim": {
+    "text": "The rider left a mess in my car and I want the cleaning fee.",
+    "amount_sgd": 120.0
+  },
+  "intake": {
+    "what_went_wrong": "Passenger was sick in the back seat and I lost the rest of my shift.",
+    "where_were_you": "At the drop-off point.",
+    "did_driver_contact_you": "n/a",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-OS0301",
+    "rider_id": "R-7001",
+    "driver_id": "D-4001",
+    "requested_at": "2026-09-14T19:00:00+08:00",
+    "fare": {
+      "charged_sgd": 0.0,
+      "breakdown": {
+        "cancellation_sgd": 0.0
+      }
+    }
+  },
+  "chat_log": [],
+  "profiles": {
+    "rider": {
+      "party_id": "R-7001",
+      "account_age_days": 640,
+      "trips_completed": 180,
+      "disputes_total": 2,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-4001",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 5,
+      "disputes_upheld": 1,
+      "rating": 4.72
+    }
+  }
+}

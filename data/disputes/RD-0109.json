@@ -1,0 +1,178 @@
+{
+  "dispute_id": "RD-0109",
+  "category": "route_deviation",
+  "filed_by": "rider",
+  "filed_at": "2026-09-14T13:14:00+08:00",
+  "claim": {
+    "text": "Driver drove nearly twice the distance on a long surge-priced trip.",
+    "amount_sgd": 55.16
+  },
+  "intake": {
+    "what_went_wrong": "Driver went a very long way round on an already expensive trip.",
+    "expected_route": "About 31 km direct.",
+    "was_route_agreed": "No",
+    "asked_driver_to_stop": "No",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-RD0109",
+    "rider_id": "R-5009",
+    "driver_id": "D-2009",
+    "requested_at": "2026-09-14T09:26:00+08:00",
+    "pickup_at": "2026-09-14T09:30:00+08:00",
+    "dropoff_at": "2026-09-14T11:14:00+08:00",
+    "estimated_duration_min": 52,
+    "estimated_distance_km": 31.0,
+    "actual_route": [
+      {
+        "lat": 1.2989,
+        "lng": 103.8456,
+        "t": "2026-09-14T09:30:00+08:00"
+      },
+      {
+        "lat": 1.321762,
+        "lng": 103.865479,
+        "t": "2026-09-14T09:35:28.421053+08:00"
+      },
+      {
+        "lat": 1.348257,
+        "lng": 103.88017,
+        "t": "2026-09-14T09:40:56.842105+08:00"
+      },
+      {
+        "lat": 1.371119,
+        "lng": 103.900049,
+        "t": "2026-09-14T09:46:25.263158+08:00"
+      },
+      {
+        "lat": 1.397614,
+        "lng": 103.91474,
+        "t": "2026-09-14T09:51:53.684211+08:00"
+      },
+      {
+        "lat": 1.420476,
+        "lng": 103.93462,
+        "t": "2026-09-14T09:57:22.105263+08:00"
+      },
+      {
+        "lat": 1.446971,
+        "lng": 103.949311,
+        "t": "2026-09-14T10:02:50.526316+08:00"
+      },
+      {
+        "lat": 1.469833,
+        "lng": 103.969191,
+        "t": "2026-09-14T10:08:18.947368+08:00"
+      },
+      {
+        "lat": 1.496328,
+        "lng": 103.983883,
+        "t": "2026-09-14T10:13:47.368421+08:00"
+      },
+      {
+        "lat": 1.51919,
+        "lng": 104.003764,
+        "t": "2026-09-14T10:19:15.789474+08:00"
+      },
+      {
+        "lat": 1.545685,
+        "lng": 104.018455,
+        "t": "2026-09-14T10:24:44.210526+08:00"
+      },
+      {
+        "lat": 1.568547,
+        "lng": 104.038337,
+        "t": "2026-09-14T10:30:12.631579+08:00"
+      },
+      {
+        "lat": 1.595042,
+        "lng": 104.053029,
+        "t": "2026-09-14T10:35:41.052632+08:00"
+      },
+      {
+        "lat": 1.617904,
+        "lng": 104.07291,
+        "t": "2026-09-14T10:41:09.473684+08:00"
+      },
+      {
+        "lat": 1.644399,
+        "lng": 104.087603,
+        "t": "2026-09-14T10:46:37.894737+08:00"
+      },
+      {
+        "lat": 1.667261,
+        "lng": 104.107485,
+        "t": "2026-09-14T10:52:06.315789+08:00"
+      },
+      {
+        "lat": 1.693756,
+        "lng": 104.122178,
+        "t": "2026-09-14T10:57:34.736842+08:00"
+      },
+      {
+        "lat": 1.716618,
+        "lng": 104.142061,
+        "t": "2026-09-14T11:03:03.157895+08:00"
+      },
+      {
+        "lat": 1.743113,
+        "lng": 104.156754,
+        "t": "2026-09-14T11:08:31.578947+08:00"
+      },
+      {
+        "lat": 1.765975,
+        "lng": 104.176637,
+        "t": "2026-09-14T11:14:00+08:00"
+      }
+    ],
+    "fare": {
+      "charged_sgd": 112.56,
+      "breakdown": {
+        "base_sgd": 4.48,
+        "distance_sgd": 71.68,
+        "time_sgd": 36.4
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.4
+      }
+    }
+  },
+  "chat_log": [
+    {
+      "t": "2026-09-14T10:10:00+08:00",
+      "sender": "rider",
+      "text": "Where are we going? This is not the route."
+    },
+    {
+      "t": "2026-09-14T10:12:00+08:00",
+      "sender": "driver",
+      "text": "Ok."
+    },
+    {
+      "t": "2026-09-14T11:00:00+08:00",
+      "sender": "rider",
+      "text": "I will report this, it is unacceptable."
+    }
+  ],
+  "profiles": {
+    "rider": {
+      "party_id": "R-5009",
+      "account_age_days": 640,
+      "trips_completed": 180,
+      "disputes_total": 2,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-2009",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 5,
+      "disputes_upheld": 1,
+      "rating": 4.72
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "dispute_id": "NS-0205",
+  "category": "no_show_charge",
+  "filed_by": "rider",
+  "filed_at": "2026-09-14T20:10:00+08:00",
+  "claim": {
+    "text": "Driver says I did not show up, I say he was not there.",
+    "amount_sgd": 6.61
+  },
+  "intake": {
+    "what_went_wrong": "I was at the pickup point and the driver was not.",
+    "where_were_you": "At the taxi stand as booked.",
+    "did_driver_contact_you": "He messaged that he was waiting, I did not see him.",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-NS0205",
+    "rider_id": "R-6005",
+    "driver_id": "D-3005",
+    "requested_at": "2026-09-14T19:00:00+08:00",
+    "fare": {
+      "charged_sgd": 6.61,
+      "breakdown": {
+        "cancellation_sgd": 6.61
+      }
+    }
+  },
+  "cancellation": {
+    "cancelled_at": "2026-09-14T19:10:00+08:00",
+    "cancellation_fee_sgd": 6.61,
+    "driver_marked_no_show": true,
+    "rider_claims_driver_absent": true,
+    "pickup_point": {
+      "lat": 1.3048,
+      "lng": 103.8318
+    },
+    "driver_arrived_at": "2026-09-14T19:06:00+08:00",
+    "wait_started_at": "2026-09-14T19:06:00+08:00"
+  },
+  "chat_log": [
+    {
+      "t": "2026-09-14T19:06:00+08:00",
+      "sender": "driver",
+      "text": "Waiting at the pickup."
+    },
+    {
+      "t": "2026-09-14T19:08:00+08:00",
+      "sender": "rider",
+      "text": "I am at the stand, I do not see you."
+    },
+    {
+      "t": "2026-09-14T19:09:00+08:00",
+      "sender": "driver",
+      "text": "I am here."
+    }
+  ],
+  "profiles": {
+    "rider": {
+      "party_id": "R-6005",
+      "account_age_days": 640,
+      "trips_completed": 180,
+      "disputes_total": 2,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-3005",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 5,
+      "disputes_upheld": 1,
+      "rating": 4.72
+    }
+  }
+}

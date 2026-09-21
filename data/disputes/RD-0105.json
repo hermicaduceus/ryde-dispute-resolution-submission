@@ -1,0 +1,123 @@
+{
+  "dispute_id": "RD-0105",
+  "category": "route_deviation",
+  "filed_by": "rider",
+  "filed_at": "2026-09-14T12:03:00+08:00",
+  "claim": {
+    "text": "The driver took a longer route, I want the extra distance refunded.",
+    "amount_sgd": 5.56
+  },
+  "intake": {
+    "what_went_wrong": "Driver drove much further than the app route.",
+    "expected_route": "About 7 km direct.",
+    "was_route_agreed": "No",
+    "asked_driver_to_stop": "No",
+    "safety_concern": "No"
+  },
+  "trip": {
+    "trip_id": "T-RD0105",
+    "rider_id": "R-5005",
+    "driver_id": "D-2005",
+    "requested_at": "2026-09-14T09:26:00+08:00",
+    "pickup_at": "2026-09-14T09:30:00+08:00",
+    "dropoff_at": "2026-09-14T10:03:00+08:00",
+    "estimated_duration_min": 21,
+    "estimated_distance_km": 7.2,
+    "actual_route": [
+      {
+        "lat": 1.2989,
+        "lng": 103.8456,
+        "t": "2026-09-14T09:30:00+08:00"
+      },
+      {
+        "lat": 1.306743,
+        "lng": 103.85242,
+        "t": "2026-09-14T09:33:40+08:00"
+      },
+      {
+        "lat": 1.315832,
+        "lng": 103.857459,
+        "t": "2026-09-14T09:37:20+08:00"
+      },
+      {
+        "lat": 1.323675,
+        "lng": 103.864279,
+        "t": "2026-09-14T09:41:00+08:00"
+      },
+      {
+        "lat": 1.332764,
+        "lng": 103.869318,
+        "t": "2026-09-14T09:44:40+08:00"
+      },
+      {
+        "lat": 1.340607,
+        "lng": 103.876138,
+        "t": "2026-09-14T09:48:20+08:00"
+      },
+      {
+        "lat": 1.349697,
+        "lng": 103.881178,
+        "t": "2026-09-14T09:52:00+08:00"
+      },
+      {
+        "lat": 1.35754,
+        "lng": 103.887998,
+        "t": "2026-09-14T09:55:40+08:00"
+      },
+      {
+        "lat": 1.366629,
+        "lng": 103.893037,
+        "t": "2026-09-14T09:59:20+08:00"
+      },
+      {
+        "lat": 1.374472,
+        "lng": 103.899857,
+        "t": "2026-09-14T10:03:00+08:00"
+      }
+    ],
+    "fare": {
+      "charged_sgd": 14.21,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 5.76,
+        "time_sgd": 5.25
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "chat_log": [
+    {
+      "t": "2026-09-14T09:40:00+08:00",
+      "sender": "rider",
+      "text": "This is not the way the app showed."
+    },
+    {
+      "t": "2026-09-14T09:41:00+08:00",
+      "sender": "driver",
+      "text": "Traffic."
+    }
+  ],
+  "profiles": {
+    "rider": {
+      "party_id": "R-5005",
+      "account_age_days": 640,
+      "trips_completed": 180,
+      "disputes_total": 2,
+      "disputes_upheld": 1,
+      "rating": 4.8
+    },
+    "driver": {
+      "party_id": "D-2005",
+      "account_age_days": 1100,
+      "trips_completed": 4200,
+      "disputes_total": 5,
+      "disputes_upheld": 1,
+      "rating": 4.72
+    }
+  }
+}
