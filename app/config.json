@@ -1,0 +1,26 @@
+{
+  "_readme": [
+    "Runtime configuration for the Ryde dispute pipeline. Edit this file, not the code.",
+    "confidence_threshold: below this value the Judge does not rule; the parties see the",
+    "neutral under-review message instead. Change it live during the demo to show the gate.",
+    "llm.endpoint / llm.model: placeholders. The Tencent service name and endpoint are not",
+    "pinned yet -- see the TODO in app/llm/tencent.py. The API key never goes here: it lives",
+    "in .env as TENCENT_LLM_API_KEY and .env is never committed."
+  ],
+
+  "confidence_threshold": 0.65,
+
+  "llm": {
+    "provider": "mock",
+    "endpoint": "https://TODO-pin-tencent-llm-endpoint.example/v1/chat/completions",
+    "model": "TODO-pin-tencent-model-id",
+    "temperature": 0.2,
+    "max_tokens": 1500,
+    "timeout_seconds": 60
+  },
+
+  "paths": {
+    "policy": "docs/policy.md",
+    "out_dir": "runs"
+  }
+}
