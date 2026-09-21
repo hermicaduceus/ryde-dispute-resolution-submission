@@ -17,7 +17,7 @@ from __future__ import annotations
 import math
 import re
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional
 
 from ..dispute import CATEGORY_NO_SHOW_CHARGE, CATEGORY_ROUTE_DEVIATION, Dispute
 from .schema import (

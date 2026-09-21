@@ -19,7 +19,7 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
 from .config import ConfigError, load_config
 from .dispute import DisputeError, load_dispute

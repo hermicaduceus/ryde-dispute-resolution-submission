@@ -118,7 +118,7 @@ def run_dispute(
 
     # ---------------------------------------------------------------- evidence
     pack = build_evidence_pack(dispute)
-    events.emit(
+    pack_event = events.emit(
         EventType.EVIDENCE_PACK_BUILT,
         from_=Actor.SYSTEM,
         to="agents",
@@ -139,7 +139,7 @@ def run_dispute(
             payload={
                 "dispute_id": dispute.dispute_id,
                 "category": dispute.category,
-                "evidence_pack_ref": events.events()[-1].payload_ref,
+                "evidence_pack_ref": pack_event.payload_ref,
             },
         )
 
