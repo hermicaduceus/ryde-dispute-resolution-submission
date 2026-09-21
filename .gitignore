@@ -33,6 +33,9 @@ __pycache__/
 venv/
 .pytest_cache/
 
+# Pipeline run artifacts (event logs, payloads, case files) — generated, not source
+runs/
+
 # Editor / OS
 .vscode/
 .idea/
