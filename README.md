@@ -1,10 +1,9 @@
 # Ryde — Multi-Agent Autonomous Dispute Resolution
 
 Entry for the **Tencent Cloud "AI CAN DO IT" Hackathon Singapore 2026**, Digital Native track
-(challenge 4, contributed by Ryde).
+(the Ryde challenge statement, section 5 of the organisers' document).
 
-**Status: building (since 2026-09-21).** Entry for the **Tencent Cloud "AI CAN DO IT"
-Hackathon Singapore 2026**, Digital Native track (challenge 4, contributed by Ryde). The scope
+**Status: building (since 2026-09-21).** The scope
 is ruled: a two-category MVP (route deviation + no-show charge) with three agents, a
 deterministic evidence layer, and an observable case-file view. The challenge statement is in
 [`docs/statement-extract.md`](docs/statement-extract.md); the builder's contract is in
@@ -37,12 +36,15 @@ information and build their cases. That surface is a required deliverable, not a
 
 - [`docs/statement-extract.md`](docs/statement-extract.md) — the challenge statement, verbatim
 - `docs/architecture.md` — architecture diagram and system description (required deliverable, to come)
+- `docs/policy.md` — policy rule set with stated provenance (to come)
+- `docs/dataset.md` — dataset description and provenance (to come)
+- [`docs/evidence-plan.md`](docs/evidence-plan.md) — development-process evidence rules
 - [`CODEBUDDY.md`](CODEBUDDY.md) — builder's entry point and project memory
 
 ## Development tooling
 
-Built with Tencent Cloud **CodeBuddy**. The project is developed against the competition's mandatory
-proof-of-usage requirement, so development happens in tool and the evidence is captured as it occurs.
+Built with Tencent Cloud **CodeBuddy**. The competition mandates proof of product usage, so
+development happens in the tool and evidence is captured as it occurs.
 
 ## Run (populated as the build lands)
 

@@ -1,11 +1,8 @@
 # PROJECT: Ryde — Multi-Agent Autonomous Dispute Resolution
 
-This file is CodeBuddy's memory for this project. It is the builder's entry point: a session that
-reads only this should know what the project is, what it is not, and how work is done here.
-
 **Status: BUILDING (2026-09-21).** Planning closed **2026-09-19** and the scope, stack and
-workflow are ruled. This file is the builder's entry point: a session that reads only this must
-know what the project is, what it is not, and how work is done here. The ruled scope lives in
+workflow are ruled. This file is CodeBuddy's memory for this project: the builder's entry
+point. The ruled scope lives in
 the planning repository and is deliberately unreadable from here (the permission fence in
 `.codebuddy/settings.json` denies reads of that path, and it is verified to work), so
 **everything you need is in this file, `docs/` and the kickoff prompt the operator gives you**.
@@ -20,7 +17,8 @@ agent, a Driver Advocate agent, and a Judge agent that weighs both cases, applie
 issues a ruling with a confidence score.
 
 `docs/statement-extract.md` holds the challenge statement verbatim. Read it before any build work.
-It is the only source of requirements that counts.
+It is the requirements floor: the locked scope below is the team's chosen subset of it, and the
+locked scope never widens past the statement.
 
 ## Hard requirements (non-negotiable)
 
@@ -73,18 +71,27 @@ These decisions are ruled by the team and are **not open to re-litigation**:
 ## Non-negotiable engineering rules
 
 - Never commit `.env`, API keys, tokens, or any credential. The repo is public.
-- Do not read or write anything outside this folder. The permission fence in
-  `.codebuddy/settings.json` enforces this; treat it as a design constraint, not an obstacle.
+- Do not read or write anything outside this folder — **this is a rule you must honour, not
+  something the fence guarantees.** The permission fence in `.codebuddy/settings.json` denies
+  reads of the planning repository path and of secret files (`.env`, `*.pem`, `*.key`,
+  `secrets/`), denies `curl`, `wget`, `rm -rf` and `git push`, and asks before `git remote`.
+  It does NOT block other writes or other reads. Staying inside this folder is your job.
 - Verify work by running it, not by describing it. A feature is done when it has been exercised and
   the real output checked.
 - Keep the demo path working at all times. A half-built stretch goal that breaks the main flow is
   worse than no stretch goal.
+- **Only the CodeBuddy build lane writes `app/` and `ui/`.** Any other AI assistant used for
+  rescue or unblocking (e.g. another coding agent) is confined to `tools/` and `tests/` and must never
+  touch application code — the project's "built on CodeBuddy" claim must stay honest.
 
 ## How work is done here
 
 - **One capability at a time**, verified before moving on.
 - Commit with a clear message after each verified step.
 - Log decisions as they are made. A future session starts from these files, not from memory.
+- **Effort follows the Demo Day rubric:** 40 of 100 points are story, design and presentation,
+  so `README.md`, `docs/architecture.md` and the demo walkthrough are deliverables on the same
+  footing as code — polished after the MVP floor is standing, never skipped.
 - **Run from this folder.** `cd ~/hermes-workspace/projects/ryde-build && codebuddy`. Sessions are
   scoped by launch directory, and this folder carries its own memory file and permission fence.
 - **Default model is `deepseek-v4.1-flash`** (global default, x0.00 cost multiplier). Override per
@@ -103,16 +110,19 @@ ryde-build/
 ├── .codebuddy/
 │   ├── settings.json       # permission fence
 │   └── rules/              # topic-scoped rules (added as the build needs them)
-├── app/                    # Python backend — agents, evidence layer, LLM calls
-├── ui/                     # plain HTML/JS front end — intake form + case-file observability view
-├── data/                   # synthesised dispute corpus (swappable; ground-truth labelled)
+├── app/                    # Python backend — agents, evidence layer, LLM calls (to come)
+├── ui/                     # plain HTML/JS front end — intake form + case-file observability view (to come)
+├── data/                   # synthesised dispute corpus, ground-truth labelled (to come; swappable)
 ├── docs/
 │   ├── statement-extract.md  # challenge statement, verbatim — the only requirements source
-│   ├── policy.md             # policy rule set (swappable; provenance stated in-file)
-│   ├── dataset.md            # dataset description + provenance
-│   ├── architecture.md       # required deliverable: diagram + system description
+│   ├── policy.md             # policy rule set (to come; swappable; provenance stated in-file)
+│   ├── dataset.md            # dataset description + provenance (to come)
+│   ├── architecture.md       # required deliverable: diagram + system description (to come)
 │   └── evidence-plan.md      # §8 evidence rules and naming
 ├── evidence/               # §8 screenshots (YYYY-MM-DD_<tool>_<topic>.png)
-├── tools/                  # NON-APP helper scripts — app/ never imports from here
-└── tests/                  # NON-APP tests
+├── tools/                  # NON-APP helper scripts — app/ never imports from here (to come)
+└── tests/                  # NON-APP tests (to come)
 ```
+
+Files marked "(to come)" are authored in their own build sessions; do not create them as a
+side effect of other work.

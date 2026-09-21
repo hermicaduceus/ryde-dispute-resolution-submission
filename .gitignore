@@ -3,9 +3,10 @@
 ._*
 
 # Secrets — never commit. The submission repo is PUBLIC.
+# .env.example is the committed config template; the negation must come after .env.*
 .env
 .env.*
-!env.example
+!.env.example
 *.pem
 *.key
 *.p12
