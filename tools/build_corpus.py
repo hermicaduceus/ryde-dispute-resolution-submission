@@ -163,6 +163,7 @@ def route_case(
     points: int = 10,
     break_breakdown: Optional[float] = None,
     drop_estimated_distance: bool = False,
+    service_type: str = "RydeX",
 ) -> Dict[str, Any]:
     """One route-deviation dispute.
 
@@ -192,6 +193,7 @@ def route_case(
         "trip_id": "T-%s" % dispute_id.replace("-", ""),
         "rider_id": profiles["rider"]["party_id"],
         "driver_id": profiles["driver"]["party_id"],
+        "service_type": service_type,
         "requested_at": (pickup - timedelta(minutes=4)).isoformat(),
         "pickup_at": pickup.isoformat(),
         "dropoff_at": dropoff.isoformat(),
@@ -233,6 +235,7 @@ def no_show_case(
     hour: int = 19,
     matched_to_cancel_min: Optional[float] = None,
     driver_arrived: bool = True,
+    service_type: str = "RydeX",
 ) -> Dict[str, Any]:
     """One no-show / cancellation-fee dispute.
 
@@ -276,6 +279,7 @@ def no_show_case(
             "trip_id": "T-%s" % dispute_id.replace("-", ""),
             "rider_id": profiles["rider"]["party_id"],
             "driver_id": profiles["driver"]["party_id"],
+            "service_type": service_type,
             "requested_at": matched.isoformat(),
             "fare": {"charged_sgd": fee, "breakdown": {"cancellation_sgd": fee}},
         },
@@ -450,6 +454,7 @@ def build_cases() -> List[Dict[str, Any]]:
             ],
             profiles=profile("R-5004", "D-2004"),
             points=16,
+            service_type="RydeXL",
         ),
         outcome="ruled",
         action="refund",

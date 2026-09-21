@@ -18,6 +18,7 @@
     "trip_id": "T-RD0109",
     "rider_id": "R-5009",
     "driver_id": "D-2009",
+    "service_type": "RydeX",
     "requested_at": "2026-09-14T09:26:00+08:00",
     "pickup_at": "2026-09-14T09:30:00+08:00",
     "dropoff_at": "2026-09-14T11:14:00+08:00",

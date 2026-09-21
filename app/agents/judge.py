@@ -44,6 +44,7 @@ class Judge(BaseAgent):
         "confidence": "number between 0 and 1",
         "explanation": "the reasoning, in plain language, for both parties to read",
         "cited_rule_ids": ["RULE-1", "..."],
+        "cited_evidence_refs": ["evidence.field.path", "..."],
     }
 
     def system_prompt(self) -> str:
@@ -60,6 +61,11 @@ class Judge(BaseAgent):
             "the parties instead of a wrong ruling — that is a correct outcome, not a failure. "
             "Do not inflate your confidence to clear a bar, and do not deflate it to avoid "
             "deciding.\n\n"
+            "CITING YOUR EVIDENCE\ncited_evidence_refs must name the Evidence Pack fields your "
+            "ruling actually rests on, taken verbatim from the citable refs list you are given. "
+            "A ruling nobody can trace back to specific numbers cannot be reviewed by the human "
+            "who receives an escalation, so cite the fields that decided it, not every field you "
+            "were shown.\n\n"
             "OUTPUT SCHEMA\n%s"
             % (HARD_RULES, json.dumps(self.OUTPUT_SCHEMA, indent=2))
         )
@@ -122,7 +128,7 @@ class Judge(BaseAgent):
                 agent=self.name,
                 llm=llm_info,
                 validation=validate_citations(
-                    cited_refs=[],
+                    cited_refs=_cited_evidence_refs(payload),
                     cited_rules=_cited_rules(payload),
                     pack=pack,
                     policy=self.policy,
@@ -206,7 +212,15 @@ class Judge(BaseAgent):
 
 
 def _cited_rules(payload: Dict[str, Any]) -> list:
-    value = payload.get("cited_rule_ids")
+    return _string_list(payload, "cited_rule_ids")
+
+
+def _cited_evidence_refs(payload: Dict[str, Any]) -> list:
+    return _string_list(payload, "cited_evidence_refs")
+
+
+def _string_list(payload: Dict[str, Any], key: str) -> list:
+    value = payload.get(key)
     if not isinstance(value, list):
         return []
     return [item.strip() for item in value if isinstance(item, str) and item.strip()]

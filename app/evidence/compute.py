@@ -27,6 +27,7 @@ from .schema import (
     DurationEvidence,
     EvidencePack,
     FareEvidence,
+    FilingEvidence,
     PartyProfile,
     ProfileEvidence,
     RouteEvidence,
@@ -364,6 +365,26 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
         wait_minutes = _minutes_between(arrived_at or wait_started_at, cancelled_at, local_notes)
     arrival_to_cancel = _minutes_between(arrived_at, cancelled_at, local_notes)
 
+    # NS-1's free-cancellation window runs from MATCHING, not from arrival, so a rider
+    # who cancels before any driver arrives has no other measurable interval. Without
+    # this field the rule is unenforceable: the Judge may cite pack fields but may not
+    # subtract two timestamps itself.
+    matched_at = None
+    for candidate in (
+        _first(raw, "matched_at", "accepted_at"),
+        (dispute.trip or {}).get("matched_at"),
+        (dispute.trip or {}).get("requested_at"),
+    ):
+        if isinstance(candidate, str) and candidate.strip():
+            matched_at = candidate
+            break
+    matching_to_cancel = _minutes_between(matched_at, cancelled_at, local_notes)
+    if matching_to_cancel is None:
+        local_notes.append(
+            "no matching time and/or cancellation time in the record, so the interval "
+            "from matching to cancellation could not be computed"
+        )
+
     pickup = raw.get("pickup_point") if isinstance(raw.get("pickup_point"), dict) else {}
     driver_position = raw.get("driver_gps_at_arrival") if isinstance(raw.get("driver_gps_at_arrival"), dict) else {}
     distance_km = haversine_km(driver_position, pickup) if pickup and driver_position else None
@@ -386,6 +407,7 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
         cancelled_at=cancelled_at if isinstance(cancelled_at, str) else None,
         driver_wait_minutes=_round(wait_minutes, 1),
         arrival_to_cancel_minutes=_round(arrival_to_cancel, 1),
+        matching_to_cancel_minutes=_round(matching_to_cancel, 1),
         driver_marked_no_show=_as_bool(raw.get("driver_marked_no_show")),
         rider_claims_driver_absent=_as_bool(raw.get("rider_claims_driver_absent")),
         driver_distance_from_pickup_m=_round(distance_km * 1000.0, 1) if distance_km is not None else None,
@@ -505,6 +527,96 @@ def _build_profiles(dispute: Dispute, notes: List[str]) -> Optional[ProfileEvide
 # ------------------------------------------------------------------------- entry
 
 
+# --------------------------------------------------------------- filing and service
+
+
+#: Recognised service types. RydeTAXI trips are metered and sit outside the fare rules
+#: in the policy's section 4, so the Judge needs to see which service a trip was.
+_SERVICE_TYPES = {
+    "rydex": "RydeX",
+    "ryde x": "RydeX",
+    "rydexl": "RydeXL",
+    "ryde xl": "RydeXL",
+    "rydetaxi": "RydeTAXI",
+    "ryde taxi": "RydeTAXI",
+    "taxi": "RydeTAXI",
+    "rydeexec": "RydeEXEC",
+    "ryde exec": "RydeEXEC",
+    "rydepool": "RydePOOL",
+    "ryde pool": "RydePOOL",
+}
+
+SERVICE_TYPE_UNKNOWN_NOTE = (
+    "no service type in the record, so service-specific rules (for example the RydeTAXI "
+    "carve-out) could not be applied"
+)
+
+
+def _service_type(trip: Dict[str, Any], notes: List[str]) -> Optional[str]:
+    """The trip's service type, normalised, or None with a note."""
+    raw = _first(trip or {}, "service_type", "service", "product", "vehicle_type")
+    if not isinstance(raw, str) or not raw.strip():
+        if SERVICE_TYPE_UNKNOWN_NOTE not in notes:
+            notes.append(SERVICE_TYPE_UNKNOWN_NOTE)
+        return None
+    key = raw.strip().lower().replace("-", " ").replace("_", " ")
+    return _SERVICE_TYPES.get(key.replace(" ", "")) or _SERVICE_TYPES.get(key) or raw.strip()
+
+
+FILING_WINDOW_UNVERIFIABLE_NOTE = (
+    "the filing window could not be established: the record lacks a filing date or a trip "
+    "date to measure it from"
+)
+
+
+def _build_filing(dispute: Dispute, notes: List[str]) -> FilingEvidence:
+    """Days between the trip and the filing, so the filing-window rule is applicable.
+
+    The Judge may not do arithmetic, so a rule about elapsed days is unenforceable unless
+    the days are computed here. When either date is missing, days_since_trip is None and
+    window_established is False — the policy's own fallback is to proceed rather than
+    decline, and it can only take that path if it can see the window is unverifiable.
+    """
+    local: List[str] = []
+    filed_at = dispute.raw.get("filed_at") if isinstance(dispute.raw, dict) else None
+    filed_at = filed_at if isinstance(filed_at, str) and filed_at.strip() else None
+
+    trip = dispute.trip or {}
+    cancellation = dispute.cancellation or {}
+    reference = None
+    for candidate in (
+        trip.get("dropoff_at"),
+        trip.get("pickup_at"),
+        cancellation.get("cancelled_at"),
+        trip.get("requested_at"),
+    ):
+        if isinstance(candidate, str) and candidate.strip():
+            reference = candidate
+            break
+
+    days = None
+    if filed_at and reference:
+        minutes = _minutes_between(reference, filed_at, local)
+        if minutes is not None:
+            days = minutes / (60.0 * 24.0)
+
+    if days is None:
+        if FILING_WINDOW_UNVERIFIABLE_NOTE not in notes:
+            notes.append(FILING_WINDOW_UNVERIFIABLE_NOTE)
+
+    for note in local:
+        if note not in notes:
+            notes.append(note)
+
+    return FilingEvidence(
+        filed_at=filed_at,
+        trip_reference_at=reference,
+        days_since_trip=_round(days, 2),
+        window_established=days is not None,
+        notes=list(local),
+    )
+
+
 def build_evidence_pack(dispute: Dispute, generated_at: Optional[str] = None) -> EvidencePack:
     """Compute the pack for one dispute.
 
@@ -543,6 +655,7 @@ def build_evidence_pack(dispute: Dispute, generated_at: Optional[str] = None) ->
     cancellation = _build_cancellation(dispute, notes)
     chat = _build_chat(dispute.chat_log, notes)
     profiles = _build_profiles(dispute, notes)
+    filing = _build_filing(dispute, notes)
 
     return EvidencePack(
         schema_version=EVIDENCE_SCHEMA_VERSION,
@@ -552,11 +665,13 @@ def build_evidence_pack(dispute: Dispute, generated_at: Optional[str] = None) ->
         trip_id=(trip.get("trip_id") if isinstance(trip.get("trip_id"), str) else None),
         rider_id=(trip.get("rider_id") if isinstance(trip.get("rider_id"), str) else None),
         driver_id=(trip.get("driver_id") if isinstance(trip.get("driver_id"), str) else None),
+        service_type=_service_type(trip, notes),
         route=route,
         duration=duration,
         fare=fare,
         cancellation=cancellation,
         chat=chat,
         profiles=profiles,
+        filing=filing,
         notes=notes,
     )

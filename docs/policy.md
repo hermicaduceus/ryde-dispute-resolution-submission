@@ -77,7 +77,9 @@ filing party selects as "other" — is outside this policy and goes to human rev
 
 RydeTAXI trips are excluded from Section 4 entirely: metered taxi services do not carry Ryde's
 cancellation and waiting fee policy ("Cancellation Policy applies to all Service Types in the
-Ryde app... All services except RydeTAXI", Ryde help centre) [RYDE-ACTUAL].
+Ryde app... All services except RydeTAXI", Ryde help centre) [RYDE-ACTUAL]. Cite `service_type`.
+Where it is `null` the pack could not establish which service was booked, so the exclusion cannot
+be applied and the dispute proceeds on the merits.
 
 ### GEN-2 — Every finding must rest on the Evidence Pack [SYNTHESISED]
 
@@ -125,9 +127,9 @@ A dispute must be filed within **30 days of the trip**. Ryde's waiver pages are 
 "Requests submitted after 30 days of the trip will not be considered for waivers." A dispute
 filed outside the window is declined on that ground alone, without reaching the merits.
 
-Where the pack cannot establish the filing date relative to the trip date, do not decline on this
-ground — decide the merits instead. Declining a valid claim on an unverified technicality is the
-worse error.
+Cite `filing.days_since_trip`. Where `filing.window_established` is false the pack could not
+measure the interval: do not decline on this ground — decide the merits instead. Declining a valid
+claim on an unverified technicality is the worse error.
 
 ### GEN-7 — Findings against a party are recorded, not punished here [RYDE-ACTUAL]
 
@@ -295,8 +297,10 @@ matching OR the driver presses 'I'm Here', waits for > 3 minutes for the rider t
 pick-up point and cancels the trip (Rider NO SHOW and no trip completion)."
 
 Two distinct routes to the same fee, and they are tested differently. A rider-initiated
-cancellation turns on elapsed time from matching. A driver-initiated no-show cancellation turns on
-the driver having actually arrived and actually waited, which NS-2 and NS-3 test.
+cancellation turns on elapsed time from matching: cite `cancellation.matching_to_cancel_minutes`,
+and where it is at or below **3 minutes** the fee is not chargeable regardless of anything else. A
+driver-initiated no-show cancellation turns on the driver having actually arrived and actually
+waited, which NS-2 and NS-3 test.
 
 ### NS-2 — The wait must be real [RYDE-ACTUAL]
 

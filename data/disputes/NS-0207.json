@@ -17,6 +17,7 @@
     "trip_id": "T-NS0207",
     "rider_id": "R-6007",
     "driver_id": "D-3007",
+    "service_type": "RydeX",
     "requested_at": "2026-09-14T19:00:00+08:00",
     "fare": {
       "charged_sgd": 5.0,

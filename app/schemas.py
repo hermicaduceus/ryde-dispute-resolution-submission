@@ -143,6 +143,7 @@ class JudgeRuling:
     confidence: float
     explanation: str
     cited_rule_ids: List[str]
+    cited_evidence_refs: List[str] = field(default_factory=list)
     raw: Dict[str, Any] = field(default_factory=dict)
     validation: Dict[str, Any] = field(default_factory=dict)
     llm: Dict[str, Any] = field(default_factory=dict)
@@ -161,6 +162,7 @@ class JudgeRuling:
         confidence = _require_number(payload, "confidence", agent, minimum=0.0, maximum=1.0)
         explanation = _require_text(payload, "explanation", agent)
         cited = _optional_text_list(payload, "cited_rule_ids", agent)
+        cited_refs = _optional_text_list(payload, "cited_evidence_refs", agent)
 
         notes: List[str] = []
         if action is RulingAction.NO_ACTION and amount != 0.0:
@@ -172,6 +174,11 @@ class JudgeRuling:
             notes.append("a %s ruling was issued with a zero amount" % action.value)
         if not cited:
             notes.append("no policy rule IDs cited")
+        if not cited_refs:
+            # GEN-2 requires a ruling to name the evidence behind it. A ruling with no
+            # cited fields is not invalid, but it is unreviewable, and the case file
+            # should say so rather than present it as fully grounded.
+            notes.append("no evidence pack fields cited")
 
         merged = dict(validation or {})
         merged.setdefault("notes", [])
@@ -183,6 +190,7 @@ class JudgeRuling:
             confidence=round(confidence, 4),
             explanation=explanation,
             cited_rule_ids=cited,
+            cited_evidence_refs=cited_refs,
             raw=dict(payload),
             validation=merged,
             llm=dict(llm or {}),
@@ -195,6 +203,7 @@ class JudgeRuling:
             "confidence": self.confidence,
             "explanation": self.explanation,
             "cited_rule_ids": list(self.cited_rule_ids),
+            "cited_evidence_refs": list(self.cited_evidence_refs),
             "validation": self.validation,
             "llm": self.llm,
         }

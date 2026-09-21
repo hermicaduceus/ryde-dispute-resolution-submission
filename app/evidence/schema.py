@@ -97,10 +97,27 @@ class CancellationEvidence:
     cancelled_at: Optional[str]
     driver_wait_minutes: Optional[float]
     arrival_to_cancel_minutes: Optional[float]
+    matching_to_cancel_minutes: Optional[float]
     driver_marked_no_show: Optional[bool]
     rider_claims_driver_absent: Optional[bool]
     driver_distance_from_pickup_m: Optional[float]
     cancellation_fee_sgd: Optional[float]
+    notes: List[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class FilingEvidence:
+    """When the dispute was filed relative to the trip.
+
+    Exists because the policy's filing window (GEN-6) is decisive but was previously
+    inexpressible: the Judge may only cite pack fields and may not do arithmetic, so a
+    rule about elapsed days needs the days computed here or it can never be applied.
+    """
+
+    filed_at: Optional[str]
+    trip_reference_at: Optional[str]
+    days_since_trip: Optional[float]
+    window_established: bool
     notes: List[str] = field(default_factory=list)
 
 
@@ -159,12 +176,14 @@ class EvidencePack:
     trip_id: Optional[str]
     rider_id: Optional[str]
     driver_id: Optional[str]
+    service_type: Optional[str]
     route: Optional[RouteEvidence]
     duration: Optional[DurationEvidence]
     fare: Optional[FareEvidence]
     cancellation: Optional[CancellationEvidence]
     chat: ChatSignalEvidence
     profiles: Optional[ProfileEvidence]
+    filing: Optional[FilingEvidence] = None
     notes: List[str] = field(default_factory=list)
 
     # ------------------------------------------------------------------ serialisation

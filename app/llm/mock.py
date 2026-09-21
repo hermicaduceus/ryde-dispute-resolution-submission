@@ -102,6 +102,7 @@ class MockLLMClient(LLMClient):
     def _judge_response(self, request: LLMRequest) -> Dict[str, Any]:
         meta = request.metadata
         rule_ids = _pick(meta.get("available_rule_ids"), 2)
+        refs = _pick(meta.get("available_evidence_refs"), 3)
         claim_amount = float(meta.get("claim_amount_sgd") or 0.0)
 
         if claim_amount > 0.0:
@@ -122,4 +123,5 @@ class MockLLMClient(LLMClient):
                 % (MOCK_MARKER, ", ".join(rule_ids) or "none")
             ),
             "cited_rule_ids": rule_ids,
+            "cited_evidence_refs": refs,
         }
