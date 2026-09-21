@@ -263,8 +263,32 @@ class CaseFileShapeTest(unittest.TestCase):
 
     def test_the_case_file_has_the_sections_the_ui_renders(self):
         case = self._case_file("RD-0101.json")
-        for key in ("run_id", "dispute_id", "category", "evidence_pack", "claims", "resolution", "events"):
+        for key in ("run_id", "dispute_id", "category", "intake", "evidence_pack", "claims", "resolution", "events"):
             self.assertIn(key, case, "the case file lost the %r section" % key)
+
+    def test_the_case_file_shows_what_was_actually_disputed(self):
+        """A view rendering the file alone must be able to state the grievance.
+
+        This lived only in an event payload on disk, so the file called itself
+        self-contained while a reader could see the ruling but not the complaint.
+        """
+        intake = self._case_file("RD-0101.json")["intake"]
+
+        self.assertTrue(intake["claim_text"], "the case file does not say what was claimed")
+        self.assertGreater(intake["claim_amount_sgd"], 0.0)
+        self.assertIn(intake["filed_by"], ("rider", "driver"))
+        self.assertTrue(intake["form_answers"], "the intake answers are not in the file")
+
+    def test_an_out_of_scope_filing_shows_the_category_the_party_chose(self):
+        """The refusal is only legible if the view can show what was asked for."""
+        intake = self._case_file("OS-0301.json")["intake"]
+
+        self.assertEqual("Property Damage / Mess", intake["category_as_submitted"])
+        self.assertNotEqual(
+            intake["category_as_submitted"],
+            self._case_file("OS-0301.json")["category"],
+            "the submitted and routed categories match, so the routing decision is invisible",
+        )
 
     def test_both_advocate_claims_are_present_and_distinguishable(self):
         claims = self._case_file("RD-0101.json")["claims"]

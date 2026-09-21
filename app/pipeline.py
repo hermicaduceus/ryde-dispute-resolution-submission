@@ -53,6 +53,10 @@ class CaseFile:
     confidence_threshold: float
     policy_path: str
     policy_rule_ids: List[str]
+    #: What the filing party actually claimed, in their words. The file called itself
+    #: self-contained while this lived only in an event payload on disk, so anything
+    #: reading case_file.json alone could show the ruling but not the grievance.
+    intake: Optional[Dict[str, Any]]
     evidence_pack: Optional[Dict[str, Any]]
     rider_case: Optional[Dict[str, Any]]
     driver_case: Optional[Dict[str, Any]]
@@ -67,6 +71,7 @@ class CaseFile:
             "generated_at": self.generated_at,
             "confidence_threshold": self.confidence_threshold,
             "policy": {"source_path": self.policy_path, "rule_ids": self.policy_rule_ids},
+            "intake": self.intake,
             "evidence_pack": self.evidence_pack,
             "claims": {"rider": self.rider_case, "driver": self.driver_case},
             "resolution": self.resolution,
@@ -77,6 +82,23 @@ class CaseFile:
         path = Path(run_dir) / CASE_FILE_NAME
         path.write_text(json.dumps(self.to_dict(), indent=2, default=str) + "\n", encoding="utf-8")
         return path
+
+
+def _intake_section(dispute: Dispute) -> Dict[str, Any]:
+    """The grievance as filed, for anything reading the case file on its own.
+
+    The category is carried twice on purpose: `category_as_submitted` is what the party
+    picked on the form, `category` is what the router accepted. When they differ, that
+    difference is the story of an out-of-scope filing.
+    """
+    return {
+        "filed_by": dispute.filed_by,
+        "filed_at": dispute.filed_at,
+        "category_as_submitted": dispute.category_as_submitted,
+        "claim_text": dispute.claim_text,
+        "claim_amount_sgd": dispute.claim_amount_sgd,
+        "form_answers": dict(dispute.intake),
+    }
 
 
 def run_dispute(
@@ -192,6 +214,7 @@ def run_dispute(
         confidence_threshold=confidence_threshold,
         policy_path=str(policy.source_path),
         policy_rule_ids=policy.rule_ids(),
+        intake=_intake_section(dispute),
         evidence_pack=pack.to_dict(),
         rider_case=rider_case.to_dict(),
         driver_case=driver_case.to_dict(),
@@ -262,6 +285,7 @@ def _human_review(
         confidence_threshold=threshold,
         policy_path=str(policy.source_path),
         policy_rule_ids=policy.rule_ids(),
+        intake=_intake_section(dispute),
         evidence_pack=None,
         rider_case=None,
         driver_case=None,
