@@ -990,6 +990,195 @@ input[type="file"] {
   margin-top: 18px;
 }
 
+.loader-panel label[for="run-folder-picker"] {
+  margin-top: 15px;
+}
+
+.payload-status {
+  min-height: 20px;
+  margin: 7px 0 0;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.payload-status[data-state="success"] {
+  color: var(--green);
+}
+
+.payload-status[data-state="error"] {
+  color: var(--red);
+}
+
+#events-content {
+  padding: 22px 24px 26px;
+}
+
+.event-intro {
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.event-stream {
+  border-top: 1px solid var(--line);
+}
+
+.event-row {
+  border-bottom: 1px solid var(--line);
+  background: #fcfdff;
+}
+
+.event-row[open] {
+  background: #f8fafc;
+}
+
+.event-row summary {
+  position: relative;
+  display: grid;
+  grid-template-columns: 62px minmax(160px, 0.9fr) minmax(150px, 0.85fr) minmax(150px, 0.8fr) minmax(200px, 1.5fr) minmax(130px, 0.8fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 54px;
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.event-row summary::-webkit-details-marker {
+  display: none;
+}
+
+.event-row summary::before {
+  position: absolute;
+  top: calc(50% - 10px);
+  left: 12px;
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--blue);
+  border: 1px solid #b9d3e3;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.event-row[open] summary::before {
+  content: "−";
+}
+
+.event-seq,
+.event-time,
+.event-type,
+.event-payload-ref,
+.event-actor {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+
+.event-seq {
+  padding-left: 28px;
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.event-time {
+  overflow-wrap: anywhere;
+}
+
+.event-type {
+  color: var(--navy);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.event-route {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.event-actor {
+  padding: 3px 5px;
+  color: var(--blue);
+  background: var(--blue-wash);
+  border: 1px solid #c9deeb;
+  border-radius: 2px;
+  overflow-wrap: anywhere;
+}
+
+.event-arrow {
+  color: var(--faint);
+}
+
+.event-summary-text {
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.event-payload-ref {
+  color: var(--faint);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.event-internal {
+  border-left: 3px solid var(--amber);
+}
+
+.event-internal .event-type,
+.event-internal .event-payload-ref {
+  color: var(--amber);
+}
+
+.event-payload {
+  margin: 0 12px 12px 54px;
+  padding: 12px;
+  background: #182334;
+  border: 1px solid #2f455f;
+  color: #e7eef7;
+}
+
+.payload-loading,
+.payload-unavailable,
+.payload-error,
+.payload-path {
+  margin: 0;
+  font-size: 12px;
+}
+
+.payload-unavailable {
+  color: #f2d39f;
+}
+
+.payload-error {
+  color: #ffb4b4;
+}
+
+.payload-path {
+  margin-bottom: 8px;
+  color: #9fc8df;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.payload-json {
+  max-height: 380px;
+  margin: 0;
+  overflow: auto;
+  color: #e7eef7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @media (max-width: 760px) {
   .app-shell {
     width: min(100% - 24px, 1180px);
@@ -1073,6 +1262,53 @@ input[type="file"] {
 
   .resolution-detail {
     text-align: left;
+  }
+
+  #events-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .event-row summary {
+    grid-template-columns: 44px 1fr;
+    gap: 7px;
+  }
+
+  .event-row summary::before {
+    top: 12px;
+  }
+
+  .event-seq {
+    padding-left: 28px;
+  }
+
+  .event-row summary > .event-time,
+  .event-row summary > .event-type,
+  .event-row summary > .event-route,
+  .event-row summary > .event-summary-text,
+  .event-row summary > .event-payload-ref {
+    grid-column: 2;
+  }
+
+  .event-row summary > .event-type {
+    grid-row: 3;
+  }
+
+  .event-row summary > .event-route {
+    grid-row: 4;
+  }
+
+  .event-row summary > .event-summary-text {
+    grid-row: 5;
+  }
+
+  .event-row summary > .event-payload-ref {
+    grid-row: 6;
+    text-align: left;
+  }
+
+  .event-payload {
+    margin-left: 37px;
   }
 
   .resolution-metrics,

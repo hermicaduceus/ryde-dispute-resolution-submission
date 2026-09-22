@@ -13,11 +13,14 @@
   var state = {
     caseFile: null,
     evidenceIndex: {},
-    policyIndex: {}
+    policyIndex: {},
+    payloadFiles: {}
   };
 
   var picker = document.getElementById("case-picker");
+  var runFolderPicker = document.getElementById("run-folder-picker");
   var status = document.getElementById("load-status");
+  var payloadStatus = document.getElementById("payload-status");
   var workspace = document.getElementById("case-workspace");
   var loadedFile = document.getElementById("loaded-file");
   var metadataList = document.getElementById("metadata-list");
@@ -26,6 +29,7 @@
   var claimsContent = document.getElementById("claims-content");
   var policyContent = document.getElementById("policy-content");
   var resolutionContent = document.getElementById("resolution-content");
+  var eventsContent = document.getElementById("events-content");
 
   function clear(element) {
     while (element.firstChild) {
@@ -108,6 +112,52 @@
   function setStatus(message, stateName) {
     status.textContent = message;
     status.dataset.state = stateName || "idle";
+  }
+
+  function setPayloadStatus(message, stateName) {
+    payloadStatus.textContent = message;
+    payloadStatus.dataset.state = stateName || "idle";
+  }
+
+  function normalizedPayloadRef(reference) {
+    if (typeof reference !== "string" || reference.trim() === "") {
+      return null;
+    }
+    var normalized = reference.replace(/\\/g, "/");
+    if (normalized.charAt(0) === "/" || /^[a-zA-Z]:/.test(normalized)) {
+      return null;
+    }
+    var parts = normalized.split("/");
+    if (parts.some(function (part) { return part === "" || part === "." || part === ".."; })) {
+      return null;
+    }
+    return normalized;
+  }
+
+  function relativeRunPath(file) {
+    var relative = file.webkitRelativePath || file.name;
+    var separator = relative.indexOf("/");
+    return separator === -1 ? relative : relative.slice(separator + 1);
+  }
+
+  function attachRunFiles(files) {
+    state.payloadFiles = {};
+    var attached = 0;
+    Array.prototype.forEach.call(files || [], function (file) {
+      var relative = normalizedPayloadRef(relativeRunPath(file));
+      if (relative) {
+        state.payloadFiles[relative] = file;
+        attached += 1;
+      }
+    });
+    if (attached > 0) {
+      setPayloadStatus("Attached " + attached + " run file(s); event payloads can be opened.", "success");
+    } else {
+      setPayloadStatus("No run files were attached.", "error");
+    }
+    if (state.caseFile) {
+      renderEvents(state.caseFile);
+    }
   }
 
   function addMetadata(label, value) {
@@ -570,6 +620,83 @@
     }
   }
 
+  function loadEventPayload(event, panel) {
+    if (panel.dataset.loaded === "true") {
+      return;
+    }
+    panel.dataset.loaded = "true";
+    var reference = normalizedPayloadRef(event.payload_ref);
+    if (!reference) {
+      panel.appendChild(element("p", "payload-unavailable", "No safe relative payload reference was supplied for this event."));
+      return;
+    }
+    var file = state.payloadFiles[reference];
+    if (!file) {
+      panel.appendChild(element("p", "payload-unavailable", "Attach the run directory to open this payload."));
+      return;
+    }
+    panel.appendChild(element("p", "payload-loading", "Reading " + reference + "…"));
+    file.text().then(function (text) {
+      var payload;
+      try {
+        payload = JSON.parse(text);
+      } catch (error) {
+        clear(panel);
+        panel.appendChild(element("p", "payload-error", "This payload is not valid JSON."));
+        return;
+      }
+      clear(panel);
+      panel.appendChild(element("p", "payload-path", reference));
+      panel.appendChild(element("pre", "payload-json", JSON.stringify(payload, null, 2)));
+    }).catch(function () {
+      clear(panel);
+      panel.appendChild(element("p", "payload-error", "The payload could not be read."));
+    });
+  }
+
+  function renderEvents(caseFile) {
+    clear(eventsContent);
+    var events = Array.isArray(caseFile.events) ? caseFile.events : [];
+    if (events.length === 0) {
+      var empty = element("article", "deliberate-empty");
+      empty.appendChild(element("h3", null, "No event traffic in this case file"));
+      empty.appendChild(element("p", null, "The case file did not contain an events array."));
+      eventsContent.appendChild(empty);
+      return;
+    }
+    var intro = element("p", "event-intro", "Agent-to-agent traffic is shown in sequence. Expand an event to inspect its payload.");
+    eventsContent.appendChild(intro);
+    var stream = element("div", "event-stream");
+    events.forEach(function (event) {
+      var details = element("details", "event-row");
+      details.dataset.sequence = displayValue(event.seq);
+      if (event.type === "judge.ruling_withheld") {
+        details.classList.add("event-internal");
+      }
+      var summary = element("summary", "event-summary");
+      summary.appendChild(element("span", "event-seq", "#" + displayValue(event.seq)));
+      summary.appendChild(element("time", "event-time", displayValue(event.ts)));
+      summary.appendChild(element("span", "event-type", displayValue(event.type)));
+      var route = element("span", "event-route");
+      route.appendChild(element("span", "event-actor", displayValue(event.from)));
+      route.appendChild(element("span", "event-arrow", "→"));
+      route.appendChild(element("span", "event-actor", displayValue(event.to)));
+      summary.appendChild(route);
+      summary.appendChild(element("span", "event-summary-text", displayValue(event.summary)));
+      summary.appendChild(element("span", "event-payload-ref", normalizedPayloadRef(event.payload_ref) || "No payload reference"));
+      details.appendChild(summary);
+      var panel = element("div", "event-payload");
+      details.appendChild(panel);
+      details.addEventListener("toggle", function () {
+        if (details.open) {
+          loadEventPayload(event, panel);
+        }
+      });
+      stream.appendChild(details);
+    });
+    eventsContent.appendChild(stream);
+  }
+
   function renderCase(fileName, caseFile) {
     state.caseFile = caseFile;
     loadedFile.textContent = fileName;
@@ -578,6 +705,7 @@
     renderEvidence(caseFile);
     renderClaims(caseFile);
     renderResolution(caseFile);
+    renderEvents(caseFile);
     workspace.hidden = false;
     setStatus("Loaded " + fileName + ".", "success");
   }
@@ -587,6 +715,8 @@
       return;
     }
 
+    state.payloadFiles = {};
+    setPayloadStatus("Payload files are not attached.", "idle");
     setStatus("Reading " + file.name + "…", "loading");
     file.text().then(function (text) {
       var parsed;
@@ -607,11 +737,16 @@
       clear(claimsContent);
       clear(policyContent);
       clear(resolutionContent);
+      clear(eventsContent);
       setStatus(error.message, "error");
     });
   }
 
   picker.addEventListener("change", function () {
     handleFile(picker.files[0]);
+  });
+
+  runFolderPicker.addEventListener("change", function () {
+    attachRunFiles(runFolderPicker.files);
   });
 }());

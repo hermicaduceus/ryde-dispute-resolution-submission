@@ -24,7 +24,10 @@
       </div>
       <label for="case-picker">Case file JSON</label>
       <input id="case-picker" type="file" accept=".json,application/json">
+      <label for="run-folder-picker">Run directory for event payloads (optional)</label>
+      <input id="run-folder-picker" type="file" webkitdirectory directory multiple>
       <p id="load-status" role="status" aria-live="polite">No case file loaded.</p>
+      <p id="payload-status" class="payload-status" role="status" aria-live="polite">Payload files are not attached.</p>
     </section>
 
     <div id="case-workspace" hidden>
@@ -80,6 +83,17 @@
           </div>
         </div>
         <div id="resolution-content"></div>
+      </section>
+
+      <section id="events-section" class="story-section" aria-labelledby="events-title">
+        <div class="section-heading">
+          <p class="section-index">05</p>
+          <div>
+            <p class="eyebrow">OBSERVABILITY</p>
+            <h2 id="events-title">Agent traffic</h2>
+          </div>
+        </div>
+        <div id="events-content"></div>
       </section>
     </div>
   </main>
