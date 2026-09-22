@@ -25,6 +25,7 @@
   var evidenceContent = document.getElementById("evidence-content");
   var claimsContent = document.getElementById("claims-content");
   var policyContent = document.getElementById("policy-content");
+  var resolutionContent = document.getElementById("resolution-content");
 
   function clear(element) {
     while (element.firstChild) {
@@ -261,9 +262,15 @@
     var pack = caseFile.evidence_pack;
     if (!pack || typeof pack !== "object") {
       var notBuilt = element("article", "deliberate-empty");
-      notBuilt.appendChild(element("h3", null, "Evidence Pack not built"));
-      notBuilt.appendChild(element("p", null, "This case file does not contain computed evidence."));
-      appendNotes(notBuilt, noteValues(null, null));
+      var humanReview = caseFile.resolution && caseFile.resolution.outcome === "human_review";
+      notBuilt.appendChild(element("h3", null, humanReview ? "Automated evidence not invoked" : "Evidence Pack not built"));
+      notBuilt.appendChild(element("p", null, humanReview
+        ? "This category was routed to human review before the Evidence Pack was built."
+        : "This case file does not contain computed evidence."));
+      var routingNotes = humanReview && caseFile.resolution && Array.isArray(caseFile.resolution.notes)
+        ? caseFile.resolution.notes
+        : noteValues(null, null);
+      appendNotes(notBuilt, routingNotes);
       evidenceContent.appendChild(notBuilt);
       return;
     }
@@ -442,6 +449,127 @@
     claimsContent.appendChild(grid);
   }
 
+  function appendOutcomeHeader(parent, label, className, detail) {
+    var header = element("header", "resolution-header");
+    header.appendChild(element("span", "outcome-badge " + className, label));
+    if (detail) {
+      header.appendChild(element("p", "resolution-detail", detail));
+    }
+    parent.appendChild(header);
+  }
+
+  function appendPartyMessage(parent, message) {
+    var box = element("div", "party-message");
+    box.appendChild(element("h4", "party-message-label", "Party-facing message"));
+    box.appendChild(element("p", null, displayValue(message)));
+    parent.appendChild(box);
+  }
+
+  function appendRulingDetails(parent, ruling, includeCitations) {
+    if (!ruling || typeof ruling !== "object") {
+      return;
+    }
+    var metrics = element("dl", "resolution-metrics");
+    appendInfoRow(metrics, "Action", ruling.action);
+    appendInfoRow(metrics, "Recommended amount", ruling.recommended_amount_sgd, "info-row highlight", "recommended_amount_sgd");
+    appendInfoRow(metrics, "Confidence", ruling.confidence, "info-row", "confidence");
+    parent.appendChild(metrics);
+    parent.appendChild(element("h4", "resolution-label", "Explanation"));
+    parent.appendChild(element("p", "resolution-explanation", displayValue(ruling.explanation)));
+    if (includeCitations) {
+      appendCitations(parent, "Cited evidence", ruling.cited_evidence_refs, "evidence", ruling.validation || {});
+      appendCitations(parent, "Cited policy rules", ruling.cited_rule_ids, "policy", ruling.validation || {});
+      appendValidation(parent, ruling.validation || {});
+    }
+  }
+
+  function appendResolutionNotes(parent, notes) {
+    if (Array.isArray(notes) && notes.length > 0) {
+      appendNotes(parent, notes);
+    }
+  }
+
+  function renderRuledResolution(resolution) {
+    var card = element("article", "resolution-card outcome-ruled");
+    card.dataset.audience = "parties";
+    appendOutcomeHeader(card, "RULING ISSUED", "outcome-ruled-badge", "The Judge delivered this decision to the parties.");
+    var body = element("div", "resolution-body");
+    appendRulingDetails(body, resolution.ruling, true);
+    var threshold = element("dl", "threshold-row");
+    appendInfoRow(threshold, "Confidence threshold", resolution.confidence_threshold, "info-row", "confidence_threshold");
+    body.appendChild(threshold);
+    appendPartyMessage(body, resolution.party_message);
+    card.appendChild(body);
+    return card;
+  }
+
+  function renderWithheldResolution(resolution) {
+    var wrapper = element("div", "withheld-layout");
+    var publicCard = element("article", "resolution-card outcome-withheld party-facing-region");
+    publicCard.dataset.audience = "parties";
+    appendOutcomeHeader(publicCard, "DECISION WITHHELD", "outcome-withheld-badge", "The parties have not received a ruling.");
+    var publicBody = element("div", "resolution-body");
+    appendPartyMessage(publicBody, resolution.party_message);
+    var delivery = element("dl", "threshold-row");
+    appendInfoRow(delivery, "Delivered to parties", resolution.delivered_to_parties);
+    appendInfoRow(delivery, "Escalated for human review", resolution.escalated_for_human_review);
+    publicBody.appendChild(delivery);
+    publicCard.appendChild(publicBody);
+    wrapper.appendChild(publicCard);
+
+    var humanCard = element("article", "resolution-card human-only-region");
+    humanCard.dataset.audience = "human-review-only";
+    var humanHeader = element("header", "human-only-header");
+    humanHeader.appendChild(element("span", "human-only-label", "HUMAN-ONLY — NOT DELIVERED TO PARTIES"));
+    humanHeader.appendChild(element("h3", null, "Candidate for reviewer"));
+    humanCard.appendChild(humanHeader);
+    var humanBody = element("div", "resolution-body");
+    appendRulingDetails(humanBody, resolution.withheld_candidate, true);
+    var threshold = element("dl", "threshold-row");
+    appendInfoRow(threshold, "Confidence threshold", resolution.confidence_threshold, "info-row", "confidence_threshold");
+    humanBody.appendChild(threshold);
+    appendResolutionNotes(humanBody, resolution.notes);
+    humanCard.appendChild(humanBody);
+    wrapper.appendChild(humanCard);
+    return wrapper;
+  }
+
+  function renderHumanReviewResolution(caseFile, resolution) {
+    var card = element("article", "resolution-card outcome-human-review");
+    card.dataset.audience = "parties";
+    appendOutcomeHeader(card, "ROUTED TO HUMAN REVIEW", "outcome-human-badge", "The system declined to act outside its supported categories.");
+    var body = element("div", "resolution-body");
+    var intake = caseFile.intake || {};
+    var routing = element("dl", "routing-grid");
+    appendInfoRow(routing, "Category as submitted", intake.category_as_submitted);
+    appendInfoRow(routing, "Routed category", caseFile.category);
+    body.appendChild(routing);
+    body.appendChild(element("p", "routing-explanation", "No Evidence Pack, advocate cases, or Judge ruling were produced for this routed category."));
+    appendPartyMessage(body, resolution.party_message);
+    appendResolutionNotes(body, resolution.notes);
+    card.appendChild(body);
+    return card;
+  }
+
+  function renderResolution(caseFile) {
+    clear(resolutionContent);
+    var resolution = caseFile.resolution && typeof caseFile.resolution === "object"
+      ? caseFile.resolution
+      : {};
+    if (resolution.outcome === "ruled") {
+      resolutionContent.appendChild(renderRuledResolution(resolution));
+    } else if (resolution.outcome === "withheld") {
+      resolutionContent.appendChild(renderWithheldResolution(resolution));
+    } else if (resolution.outcome === "human_review") {
+      resolutionContent.appendChild(renderHumanReviewResolution(caseFile, resolution));
+    } else {
+      var warning = element("article", "resolution-card outcome-unknown");
+      appendOutcomeHeader(warning, "UNKNOWN OUTCOME", "outcome-unknown-badge", "Operator attention required.");
+      warning.appendChild(element("p", "routing-explanation", "Outcome: " + displayValue(resolution.outcome)));
+      resolutionContent.appendChild(warning);
+    }
+  }
+
   function renderCase(fileName, caseFile) {
     state.caseFile = caseFile;
     loadedFile.textContent = fileName;
@@ -449,6 +577,7 @@
     renderGrievance(caseFile);
     renderEvidence(caseFile);
     renderClaims(caseFile);
+    renderResolution(caseFile);
     workspace.hidden = false;
     setStatus("Loaded " + fileName + ".", "success");
   }
@@ -477,6 +606,7 @@
       clear(evidenceContent);
       clear(claimsContent);
       clear(policyContent);
+      clear(resolutionContent);
       setStatus(error.message, "error");
     });
   }
