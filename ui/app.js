@@ -694,7 +694,13 @@
     var intro = element("p", "event-intro", "Agent-to-agent traffic is shown in sequence. Expand an event to inspect its payload.");
     eventsContent.appendChild(intro);
     var stream = element("div", "event-stream");
-    events.forEach(function (event) {
+    events.forEach(function (event, index) {
+      if (!event || typeof event !== "object" || Array.isArray(event)) {
+        var malformed = element("div", "event-row event-malformed");
+        malformed.appendChild(element("p", null, "Event row " + (index + 1) + " is malformed and cannot be shown."));
+        stream.appendChild(malformed);
+        return;
+      }
       var details = element("details", "event-row");
       details.dataset.sequence = displayValue(event.seq);
       if (event.type === "judge.ruling_withheld") {

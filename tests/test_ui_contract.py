@@ -250,6 +250,16 @@ class UIRenderContractTest(unittest.TestCase):
         self.assertIn("MALFORMED CASE FILE", rendered["resolutionText"])
         self.assertNotIn("55.16", rendered["resolutionText"])
 
+    def test_null_event_degrades_one_row_and_preserves_the_case_file(self):
+        """One malformed event must not make the whole workspace disappear."""
+        rendered = self._render("f5", "RD-0101")
+        self.assertFalse(rendered["workspaceHidden"])
+        self.assertEqual(11, rendered["eventRows"])
+        self.assertEqual(10, rendered["validEventRows"])
+        self.assertEqual(1, rendered["malformedEventRows"])
+        self.assertIn("Event row 3", rendered["malformedText"])
+        self.assertNotIn("Cannot read properties of null", rendered["status"])
+
 
 if __name__ == "__main__":
     unittest.main()
