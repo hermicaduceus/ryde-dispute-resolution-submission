@@ -39,6 +39,15 @@ from .schemas import (
 )
 
 CASE_FILE_NAME = "case_file.json"
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _policy_source_path(policy: PolicySet) -> str:
+    source = Path(policy.source_path)
+    try:
+        return str(source.resolve().relative_to(_REPO_ROOT))
+    except ValueError:
+        return source.name
 
 
 @dataclass
@@ -122,7 +131,7 @@ def run_dispute(
             "category": dispute.category,
             "llm_provider": llm.provider_name,
             "confidence_threshold": confidence_threshold,
-            "policy_path": str(policy.source_path),
+            "policy_path": _policy_source_path(policy),
             "policy_rule_ids": policy.rule_ids(),
         },
     )
@@ -212,7 +221,7 @@ def run_dispute(
         category=dispute.category,
         generated_at=_now(),
         confidence_threshold=confidence_threshold,
-        policy_path=str(policy.source_path),
+        policy_path=_policy_source_path(policy),
         policy_rule_ids=policy.rule_ids(),
         intake=_intake_section(dispute),
         evidence_pack=pack.to_dict(),
@@ -283,7 +292,7 @@ def _human_review(
         category=dispute.category,
         generated_at=_now(),
         confidence_threshold=threshold,
-        policy_path=str(policy.source_path),
+        policy_path=_policy_source_path(policy),
         policy_rule_ids=policy.rule_ids(),
         intake=_intake_section(dispute),
         evidence_pack=None,
