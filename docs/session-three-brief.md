@@ -1,5 +1,11 @@
 # Build session three — brief
 
+> **SUPERSEDED 2026-09-22 (late). This brief is CLOSED — all five items were fixed, reviewed
+> and verified.** Build head `62df2c3`, suite 189 tests. Round one shipped `a963410`→`239fb0e`;
+> two review rounds then found five more defects (including a MAJOR: the F4 guard below was
+> shape-incomplete and still admitted `[]`, `{}` and `[1,2]`), closed by `5e593c8`→`3c05863`.
+> Kept as the record of what was asked for and why. **Do not work from it.**
+
 **Status at handoff: 2026-09-22, after session two.** Head `bc3d751`. Suite 178 tests, green.
 `ui/` now holds `index.html`, `app.js`, `styles.css`.
 
