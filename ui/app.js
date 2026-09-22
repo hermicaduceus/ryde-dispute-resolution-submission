@@ -317,10 +317,9 @@
       notBuilt.appendChild(element("p", null, humanReview
         ? "This category was routed to human review before the Evidence Pack was built."
         : "This case file does not contain computed evidence."));
-      var routingNotes = humanReview && caseFile.resolution && Array.isArray(caseFile.resolution.notes)
-        ? caseFile.resolution.notes
-        : noteValues(null, null);
-      appendNotes(notBuilt, routingNotes);
+      if (!humanReview) {
+        appendNotes(notBuilt, noteValues(null, null));
+      }
       evidenceContent.appendChild(notBuilt);
       return;
     }
@@ -585,6 +584,7 @@
   }
 
   function renderHumanReviewResolution(caseFile, resolution) {
+    var wrapper = element("div", "withheld-layout");
     var card = element("article", "resolution-card outcome-human-review");
     card.dataset.audience = "parties";
     appendOutcomeHeader(card, "ROUTED TO HUMAN REVIEW", "outcome-human-badge", "The system declined to act outside its supported categories.");
@@ -596,9 +596,20 @@
     body.appendChild(routing);
     body.appendChild(element("p", "routing-explanation", "No Evidence Pack, advocate cases, or Judge ruling were produced for this routed category."));
     appendPartyMessage(body, resolution.party_message);
-    appendResolutionNotes(body, resolution.notes);
     card.appendChild(body);
-    return card;
+    wrapper.appendChild(card);
+
+    var humanCard = element("article", "resolution-card human-only-region");
+    humanCard.dataset.audience = "human-review-only";
+    var humanHeader = element("header", "human-only-header");
+    humanHeader.appendChild(element("span", "human-only-label", "HUMAN-ONLY — NOT DELIVERED TO PARTIES"));
+    humanHeader.appendChild(element("h3", null, "Routing notes for reviewer"));
+    humanCard.appendChild(humanHeader);
+    var humanBody = element("div", "resolution-body");
+    appendResolutionNotes(humanBody, resolution.notes);
+    humanCard.appendChild(humanBody);
+    wrapper.appendChild(humanCard);
+    return wrapper;
   }
 
   function renderResolution(caseFile) {
