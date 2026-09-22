@@ -7,7 +7,7 @@ Before you paste, run these three:
 ```bash
 cd ~/hermes-workspace/projects/ryde-build
 codebuddy --version          # expect 2.156.0 — the CLI self-updates and a bad update bricked it once
-git log --oneline -1         # expect 644d910 Add the session-two kickoff prompt and refresh the layout map
+git status --short           # expect empty — a dirty tree means an unfinished session
 python3 -m unittest discover -s tests -t .    # expect 178 tests, OK
 ```
 
