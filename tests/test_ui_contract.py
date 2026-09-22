@@ -135,6 +135,8 @@ function classes(node) {
     caseFile.resolution.notes = ["INTERNAL: candidate refund SGD 55.16 at confidence 0.86"];
   } else if (process.env.RYDE_UI_SCENARIO === "f4") {
     caseFile.resolution.ruling = null;
+  } else if (process.env.RYDE_UI_SCENARIO === "f4-shape") {
+    caseFile.resolution.ruling = JSON.parse(process.env.RYDE_UI_RULING);
   } else if (process.env.RYDE_UI_SCENARIO === "f5") {
     caseFile.events[2] = null;
   }
@@ -199,7 +201,7 @@ class UIRenderContractTest(unittest.TestCase):
         path.write_text(json.dumps(data), encoding="utf-8")
         return path
 
-    def _render(self, scenario: str, dispute_id: str) -> dict:
+    def _render(self, scenario: str, dispute_id: str, ruling_literal: str = None) -> dict:
         node = shutil.which("node")
         if not node:
             self.fail("Node is required for the UI behavioral pin")
@@ -213,6 +215,8 @@ class UIRenderContractTest(unittest.TestCase):
                     "RYDE_UI_SCENARIO": scenario,
                 }
             )
+            if ruling_literal is not None:
+                env["RYDE_UI_RULING"] = ruling_literal
             result = subprocess.run(
                 [node, "-e", _NODE_HARNESS],
                 env=env,
@@ -249,6 +253,21 @@ class UIRenderContractTest(unittest.TestCase):
         self.assertNotIn("delivered this decision", rendered["resolutionText"])
         self.assertIn("MALFORMED CASE FILE", rendered["resolutionText"])
         self.assertNotIn("55.16", rendered["resolutionText"])
+
+    def test_a_ruling_that_is_not_a_ruling_object_is_marked_malformed(self):
+        """`typeof [] === "object"` let arrays and empty objects through the F4 guard.
+
+        Only null, false, 0 and strings reached the malformed card, so a case file
+        whose ruling was [] or {} still claimed "The Judge delivered this decision to
+        the parties" over a grid of "Not present in file".
+        """
+        for literal in ("[]", "{}", "[1,2]", '"refund"', "0"):
+            with self.subTest(ruling=literal):
+                rendered = self._render("f4-shape", "RD-0101", ruling_literal=literal)
+                self.assertFalse(rendered["workspaceHidden"])
+                self.assertNotIn("delivered this decision", rendered["resolutionText"])
+                self.assertIn("MALFORMED CASE FILE", rendered["resolutionText"])
+                self.assertNotIn("Recommended amount", rendered["resolutionText"])
 
     def test_null_event_degrades_one_row_and_preserves_the_case_file(self):
         """One malformed event must not make the whole workspace disappear."""

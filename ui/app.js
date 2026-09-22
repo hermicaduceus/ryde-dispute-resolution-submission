@@ -514,6 +514,17 @@
     parent.appendChild(box);
   }
 
+  var rulingFields = ["action", "recommended_amount_sgd", "confidence", "explanation"];
+
+  function isRulingObject(ruling) {
+    if (!ruling || typeof ruling !== "object" || Array.isArray(ruling)) {
+      return false;
+    }
+    return rulingFields.every(function (field) {
+      return ruling[field] !== null && ruling[field] !== undefined;
+    });
+  }
+
   function appendRulingDetails(parent, ruling, includeCitations) {
     if (!ruling || typeof ruling !== "object") {
       return;
@@ -542,7 +553,7 @@
     var card = element("article", "resolution-card outcome-malformed");
     appendOutcomeHeader(card, "MALFORMED CASE FILE", "outcome-malformed-badge", "No delivery can be confirmed from this file.");
     var body = element("div", "resolution-body");
-    body.appendChild(element("p", "routing-explanation", "This case file records a ruled outcome but contains no ruling object, so the Judge's delivery cannot be verified."));
+    body.appendChild(element("p", "routing-explanation", "This case file records a ruled outcome but does not carry a usable ruling object, so the Judge's delivery cannot be verified."));
     var details = element("dl", "threshold-row");
     appendInfoRow(details, "Recorded outcome", resolution.outcome);
     appendInfoRow(details, "Ruling object", resolution.ruling);
@@ -552,7 +563,7 @@
   }
 
   function renderRuledResolution(resolution) {
-    if (!resolution.ruling || typeof resolution.ruling !== "object") {
+    if (!isRulingObject(resolution.ruling)) {
       return renderMalformedRuledResolution(resolution);
     }
     var card = element("article", "resolution-card outcome-ruled");
