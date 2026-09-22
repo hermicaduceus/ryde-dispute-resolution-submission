@@ -566,6 +566,7 @@
     if (!isRulingObject(resolution.ruling)) {
       return renderMalformedRuledResolution(resolution);
     }
+    var wrapper = element("div", "withheld-layout");
     var card = element("article", "resolution-card outcome-ruled");
     card.dataset.audience = "parties";
     appendOutcomeHeader(card, "RULING ISSUED", "outcome-ruled-badge", resolution.delivered_to_parties === true
@@ -579,7 +580,21 @@
     body.appendChild(threshold);
     appendPartyMessage(body, resolution.party_message);
     card.appendChild(body);
-    return card;
+    wrapper.appendChild(card);
+
+    if (Array.isArray(resolution.notes) && resolution.notes.length > 0) {
+      var humanCard = element("article", "resolution-card human-only-region");
+      humanCard.dataset.audience = "human-review-only";
+      var humanHeader = element("header", "human-only-header");
+      humanHeader.appendChild(element("span", "human-only-label", "HUMAN-ONLY — NOT DELIVERED TO PARTIES"));
+      humanHeader.appendChild(element("h3", null, "Notes for reviewer"));
+      humanCard.appendChild(humanHeader);
+      var humanBody = element("div", "resolution-body");
+      appendResolutionNotes(humanBody, resolution.notes);
+      humanCard.appendChild(humanBody);
+      wrapper.appendChild(humanCard);
+    }
+    return wrapper;
   }
 
   function renderWithheldResolution(resolution) {

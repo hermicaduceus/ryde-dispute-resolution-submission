@@ -139,6 +139,8 @@ function classes(node) {
     caseFile.resolution.ruling = JSON.parse(process.env.RYDE_UI_RULING);
   } else if (process.env.RYDE_UI_SCENARIO === "f2-flag") {
     caseFile.resolution.delivered_to_parties = false;
+  } else if (process.env.RYDE_UI_SCENARIO === "f3-ruled-notes") {
+    caseFile.resolution.notes = ["INTERNAL: candidate refund SGD 55.16 at confidence 0.86"];
   } else if (process.env.RYDE_UI_SCENARIO === "f5") {
     caseFile.events[2] = null;
   }
@@ -287,6 +289,18 @@ class UIRenderContractTest(unittest.TestCase):
         delivered = self._render("none", "RD-0101")
         self.assertIn("The Judge delivered this decision to the parties.", delivered["resolutionText"])
         self.assertIn("Delivered to parties", delivered["resolutionText"])
+
+    def test_ruled_notes_render_only_in_a_human_only_region(self):
+        """The ruled path never called appendResolutionNotes, dropping the notes.
+
+        notes are operator commentary in every outcome, so a ruled case carrying them
+        must show them to the reviewer and never inside the parties card.
+        """
+        rendered = self._render("f3-ruled-notes", "RD-0101")
+        self.assertFalse(rendered["workspaceHidden"])
+        self.assertNotIn("55.16", rendered["partyText"])
+        self.assertIn("HUMAN-ONLY", rendered["humanText"])
+        self.assertIn("55.16", rendered["humanText"])
 
     def test_null_event_degrades_one_row_and_preserves_the_case_file(self):
         """One malformed event must not make the whole workspace disappear."""
