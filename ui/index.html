@@ -4,30 +4,61 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ryde case file</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <main class="app-shell">
     <header class="app-header">
-      <p class="eyebrow">RYDE / TRUST &amp; SAFETY</p>
+      <div class="brand-row">
+        <p class="eyebrow">RYDE / TRUST &amp; SAFETY</p>
+        <p class="header-note">CASE-FILE OBSERVABILITY</p>
+      </div>
       <h1>Case file</h1>
-      <p class="intro">Load a generated case_file.json to inspect the dispute record.</p>
+      <p class="intro">A single record for the grievance, computed evidence, competing cases, and final decision.</p>
     </header>
 
     <section class="loader-panel" aria-labelledby="loader-title">
-      <h2 id="loader-title">Load a case file</h2>
+      <div class="section-heading">
+        <p class="eyebrow">INPUT</p>
+        <h2 id="loader-title">Load a case file</h2>
+      </div>
       <label for="case-picker">Case file JSON</label>
       <input id="case-picker" type="file" accept=".json,application/json">
       <p id="load-status" role="status" aria-live="polite">No case file loaded.</p>
     </section>
 
-    <section id="case-summary" hidden aria-labelledby="summary-title">
-      <div class="section-heading">
-        <p class="eyebrow">LOADED RECORD</p>
-        <h2 id="summary-title">Case metadata</h2>
-      </div>
-      <p id="loaded-file" class="loaded-file"></p>
-      <dl id="metadata-list" class="metadata-list"></dl>
-    </section>
+    <div id="case-workspace" hidden>
+      <section id="case-summary" class="story-section case-summary" aria-labelledby="summary-title">
+        <div class="section-heading">
+          <p class="eyebrow">LOADED RECORD</p>
+          <h2 id="summary-title">Case metadata</h2>
+        </div>
+        <p id="loaded-file" class="loaded-file"></p>
+        <dl id="metadata-list" class="metadata-list"></dl>
+      </section>
+
+      <section id="grievance-section" class="story-section" aria-labelledby="grievance-title">
+        <div class="section-heading">
+          <p class="section-index">01</p>
+          <div>
+            <p class="eyebrow">THE GRIEVANCE</p>
+            <h2 id="grievance-title">What was filed</h2>
+          </div>
+        </div>
+        <div id="grievance-content"></div>
+      </section>
+
+      <section id="evidence-section" class="story-section" aria-labelledby="evidence-title">
+        <div class="section-heading">
+          <p class="section-index">02</p>
+          <div>
+            <p class="eyebrow">DETERMINISTIC LAYER</p>
+            <h2 id="evidence-title">Evidence Pack</h2>
+          </div>
+        </div>
+        <div id="evidence-content"></div>
+      </section>
+    </div>
   </main>
 
   <script src="./app.js" defer></script>
