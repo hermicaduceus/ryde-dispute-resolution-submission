@@ -166,6 +166,7 @@ function classes(node) {
     humanText: humanNodes.map((node) => node.textContent).join("\n"),
     evidenceText: roots["evidence-content"].textContent,
     resolutionText: roots["resolution-content"].textContent,
+    eventCount: Array.isArray(caseFile.events) ? caseFile.events.length : 0,
     eventRows: eventRows.length,
     validEventRows: validRows.length,
     malformedEventRows: malformedRows.length,
@@ -182,25 +183,27 @@ class UIRenderContractTest(unittest.TestCase):
     """The browser must preserve audience boundaries and degrade malformed rows."""
 
     def _case_file_path(self, dispute_id: str, temporary: Path) -> Path:
-        run_files = sorted((REPO / "runs").glob("*-%s/case_file.json" % dispute_id))
-        if run_files:
-            data = json.loads(run_files[-1].read_text(encoding="utf-8"))
-        else:
-            from app.events import EventLog
-            from app.llm.mock import MockLLMClient
-            from app.pipeline import run_dispute
-            from app.policy import load_policy
-            from app.dispute import load_dispute
+        """Build the case file from the corpus on every run.
 
-            with tempfile.TemporaryDirectory() as event_tmp:
-                case = run_dispute(
-                    dispute=load_dispute(CORPUS / (dispute_id + ".json")),
-                    llm=MockLLMClient(),
-                    policy=load_policy(REPO / "docs" / "policy.md"),
-                    events=EventLog(Path(event_tmp) / "run", "ui-test"),
-                    confidence_threshold=0.65,
-                )
-                data = case.to_dict()
+        This used to prefer the newest artifact under runs/. runs/ is untracked local
+        state, so the pin could exercise a stale case file produced by pre-fix code,
+        and a local run with a different event count broke the hardcoded row counts.
+        """
+        from app.dispute import load_dispute
+        from app.events import EventLog
+        from app.llm.mock import MockLLMClient
+        from app.pipeline import run_dispute
+        from app.policy import load_policy
+
+        with tempfile.TemporaryDirectory() as event_tmp:
+            case = run_dispute(
+                dispute=load_dispute(CORPUS / (dispute_id + ".json")),
+                llm=MockLLMClient(),
+                policy=load_policy(REPO / "docs" / "policy.md"),
+                events=EventLog(Path(event_tmp) / "run", "ui-test"),
+                confidence_threshold=0.65,
+            )
+            data = case.to_dict()
         path = temporary / (dispute_id + ".json")
         path.write_text(json.dumps(data), encoding="utf-8")
         return path
@@ -306,8 +309,8 @@ class UIRenderContractTest(unittest.TestCase):
         """One malformed event must not make the whole workspace disappear."""
         rendered = self._render("f5", "RD-0101")
         self.assertFalse(rendered["workspaceHidden"])
-        self.assertEqual(11, rendered["eventRows"])
-        self.assertEqual(10, rendered["validEventRows"])
+        self.assertEqual(rendered["eventCount"], rendered["eventRows"])
+        self.assertEqual(rendered["eventCount"] - 1, rendered["validEventRows"])
         self.assertEqual(1, rendered["malformedEventRows"])
         self.assertIn("Event row 3", rendered["malformedText"])
         self.assertNotIn("Cannot read properties of null", rendered["status"])
