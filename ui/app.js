@@ -12,7 +12,8 @@
   ];
   var state = {
     caseFile: null,
-    evidenceIndex: {}
+    evidenceIndex: {},
+    policyIndex: {}
   };
 
   var picker = document.getElementById("case-picker");
@@ -22,6 +23,8 @@
   var metadataList = document.getElementById("metadata-list");
   var grievanceContent = document.getElementById("grievance-content");
   var evidenceContent = document.getElementById("evidence-content");
+  var claimsContent = document.getElementById("claims-content");
+  var policyContent = document.getElementById("policy-content");
 
   function clear(element) {
     while (element.firstChild) {
@@ -291,12 +294,161 @@
     }
   }
 
+  function policyAnchor(ruleId) {
+    return "policy-rule-" + String(ruleId).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  function appendCitation(parent, reference, kind, validation) {
+    var text = String(reference);
+    var target = kind === "evidence" ? state.evidenceIndex[text] : state.policyIndex[text];
+    var unknown = validation && (kind === "evidence"
+      ? Array.isArray(validation.unknown_evidence_refs) && validation.unknown_evidence_refs.indexOf(text) !== -1
+      : Array.isArray(validation.unknown_rule_ids) && validation.unknown_rule_ids.indexOf(text) !== -1);
+    var citation;
+    if (target && !unknown) {
+      citation = element("a", "citation citation-" + kind, text);
+      citation.href = "#" + target.id;
+      if (kind === "evidence" && (target.value === null || target.value === undefined)) {
+        citation.classList.add("citation-null");
+      }
+    } else {
+      citation = element("span", "citation citation-unresolved", text);
+      citation.title = "Citation could not be resolved in this case file.";
+    }
+    parent.appendChild(citation);
+  }
+
+  function appendCitations(parent, label, references, kind, validation) {
+    if (!Array.isArray(references) || references.length === 0) {
+      return;
+    }
+    var block = element("div", "citation-block");
+    block.appendChild(element("h4", "citation-title", label));
+    var list = element("div", "citation-list");
+    references.forEach(function (reference) {
+      appendCitation(list, reference, kind, validation);
+    });
+    block.appendChild(list);
+    parent.appendChild(block);
+  }
+
+  function appendValidation(parent, validation) {
+    if (!validation || typeof validation !== "object") {
+      return;
+    }
+    var problems = [];
+    ["unknown_evidence_refs", "unknown_rule_ids", "notes"].forEach(function (key) {
+      if (Array.isArray(validation[key])) {
+        validation[key].forEach(function (item) {
+          problems.push(humanizeKey(key) + ": " + displayValue(item));
+        });
+      }
+    });
+    if (problems.length === 0) {
+      return;
+    }
+    var box = element("div", "validation-box");
+    box.appendChild(element("h4", "validation-title", "Validation notes"));
+    var list = element("ul", "note-list");
+    problems.forEach(function (problem) {
+      list.appendChild(element("li", null, problem));
+    });
+    box.appendChild(list);
+    parent.appendChild(box);
+  }
+
+  function renderPolicyReferences(caseFile) {
+    clear(policyContent);
+    state.policyIndex = {};
+    var policy = caseFile.policy && typeof caseFile.policy === "object" ? caseFile.policy : {};
+    var ruleIds = Array.isArray(policy.rule_ids) ? policy.rule_ids : [];
+    var panel = element("div", "policy-reference");
+    panel.appendChild(element("h3", "policy-reference-title", "Policy references"));
+    panel.appendChild(element("p", "policy-source", "Source: " + displayValue(policy.source_path)));
+    if (ruleIds.length === 0) {
+      panel.appendChild(element("p", "empty-note", "No policy rule IDs were supplied in this case file."));
+      policyContent.appendChild(panel);
+      return;
+    }
+    var list = element("ul", "policy-list");
+    ruleIds.forEach(function (ruleId) {
+      var item = element("li", "policy-item", ruleId);
+      item.id = policyAnchor(ruleId);
+      item.dataset.ruleId = ruleId;
+      state.policyIndex[String(ruleId)] = { id: item.id };
+      list.appendChild(item);
+    });
+    panel.appendChild(list);
+    policyContent.appendChild(panel);
+  }
+
+  function renderClaimCard(side, claim) {
+    var card = element("article", "claim-card claim-" + side);
+    var heading = side === "rider" ? "Rider Advocate" : "Driver Advocate";
+    var header = element("header", "claim-card-header");
+    header.appendChild(element("h3", null, heading));
+    header.appendChild(element("p", "agent-label", claim ? displayValue(claim.agent) : "No advocate ran"));
+    card.appendChild(header);
+
+    if (!claim || typeof claim !== "object") {
+      card.classList.add("claim-unavailable");
+      card.appendChild(element("p", "claim-unavailable-message", "No advocate case was produced for this routed case file."));
+      return card;
+    }
+
+    var claimBody = element("div", "claim-card-body");
+    claimBody.appendChild(element("p", "claim-summary", displayValue(claim.claim_summary)));
+    claimBody.appendChild(element("h4", "claim-label", "Argument"));
+    claimBody.appendChild(element("p", "claim-argument", displayValue(claim.argument)));
+
+    var request = element("dl", "request-grid");
+    appendInfoRow(request, "Requested outcome", claim.requested_outcome);
+    appendInfoRow(request, "Requested amount", claim.requested_amount_sgd, "info-row highlight", "requested_amount_sgd");
+    claimBody.appendChild(request);
+
+    var validation = claim.validation || {};
+    appendCitations(claimBody, "Evidence cited", claim.evidence_cited, "evidence", validation);
+    appendCitations(claimBody, "Policy rules", claim.policy_rule_ids, "policy", validation);
+
+    if (Array.isArray(claim.follow_up_questions) && claim.follow_up_questions.length > 0) {
+      claimBody.appendChild(element("h4", "claim-label", "Follow-up questions"));
+      var followUps = element("ul", "question-list");
+      claim.follow_up_questions.forEach(function (question) {
+        followUps.appendChild(element("li", null, displayValue(question)));
+      });
+      claimBody.appendChild(followUps);
+    }
+
+    appendValidation(claimBody, validation);
+
+    if (claim.llm && typeof claim.llm === "object") {
+      var llmMeta = element("dl", "llm-meta");
+      appendInfoRow(llmMeta, "Provider", claim.llm.provider);
+      appendInfoRow(llmMeta, "Model", claim.llm.model);
+      appendInfoRow(llmMeta, "Finish reason", claim.llm.finish_reason);
+      claimBody.appendChild(llmMeta);
+    }
+    card.appendChild(claimBody);
+    return card;
+  }
+
+  function renderClaims(caseFile) {
+    clear(claimsContent);
+    renderPolicyReferences(caseFile);
+    var grid = element("div", "claims-grid");
+    var claims = caseFile.claims && typeof caseFile.claims === "object" ? caseFile.claims : {};
+    grid.appendChild(renderClaimCard("rider", claims.rider));
+    grid.appendChild(renderClaimCard("driver", claims.driver));
+    claimsContent.appendChild(grid);
+  }
+
   function renderCase(fileName, caseFile) {
     state.caseFile = caseFile;
     loadedFile.textContent = fileName;
     renderMetadata(caseFile);
     renderGrievance(caseFile);
     renderEvidence(caseFile);
+    renderClaims(caseFile);
     workspace.hidden = false;
     setStatus("Loaded " + fileName + ".", "success");
   }
@@ -323,6 +475,8 @@
       clear(metadataList);
       clear(grievanceContent);
       clear(evidenceContent);
+      clear(claimsContent);
+      clear(policyContent);
       setStatus(error.message, "error");
     });
   }
