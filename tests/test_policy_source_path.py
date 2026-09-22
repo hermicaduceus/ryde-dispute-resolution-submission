@@ -7,6 +7,7 @@ absolute path, putting the builder's home directory into every demo artifact.
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -49,6 +50,30 @@ class PolicySourcePathTest(unittest.TestCase):
             tmp = Path(directory)
             case = self._run("OS-0301", REPO / "docs" / "policy.md", tmp)
             self.assertEqual("docs/policy.md", case.to_dict()["policy"]["source_path"])
+
+    def test_a_relative_policy_path_does_not_depend_on_the_working_directory(self):
+        """The same input must serialise the same way wherever the CLI was invoked.
+
+        Path.resolve() anchors a relative path to the process working directory, so
+        'docs/policy.md' produced 'docs/policy.md' from the repo and 'policy.md' from
+        anywhere else.
+        """
+        from app.pipeline import _policy_source_path
+        from app.policy import PolicySet
+
+        policy = PolicySet(source_path=Path("docs/policy.md"), text="", rules=[])
+        from_repo = _policy_source_path(policy)
+
+        previous = Path.cwd()
+        with tempfile.TemporaryDirectory() as directory:
+            os.chdir(directory)
+            try:
+                from_elsewhere = _policy_source_path(policy)
+            finally:
+                os.chdir(previous)
+
+        self.assertEqual("docs/policy.md", from_repo)
+        self.assertEqual(from_repo, from_elsewhere)
 
     def test_external_policy_does_not_emit_an_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:

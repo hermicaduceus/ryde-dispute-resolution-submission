@@ -43,9 +43,17 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def _policy_source_path(policy: PolicySet) -> str:
+    """Serialise the policy path for the case file, anchored to the repo root.
+
+    Path.resolve() anchors a relative path to the process working directory, so the
+    same input produced 'docs/policy.md' from the repo and 'policy.md' from anywhere
+    else. Joining to the repo root first makes the output independent of the CWD;
+    joining an absolute path is a no-op, so an external policy is unaffected.
+    """
     source = Path(policy.source_path)
+    resolved = (_REPO_ROOT / source).resolve()
     try:
-        return str(source.resolve().relative_to(_REPO_ROOT))
+        return str(resolved.relative_to(_REPO_ROOT))
     except ValueError:
         return source.name
 
