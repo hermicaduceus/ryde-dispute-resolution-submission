@@ -568,10 +568,13 @@
     }
     var card = element("article", "resolution-card outcome-ruled");
     card.dataset.audience = "parties";
-    appendOutcomeHeader(card, "RULING ISSUED", "outcome-ruled-badge", "The Judge delivered this decision to the parties.");
+    appendOutcomeHeader(card, "RULING ISSUED", "outcome-ruled-badge", resolution.delivered_to_parties === true
+      ? "The Judge delivered this decision to the parties."
+      : "This case file records a ruled outcome but does not say the parties received it.");
     var body = element("div", "resolution-body");
     appendRulingDetails(body, resolution.ruling, true);
     var threshold = element("dl", "threshold-row");
+    appendInfoRow(threshold, "Delivered to parties", resolution.delivered_to_parties);
     appendInfoRow(threshold, "Confidence threshold", resolution.confidence_threshold, "info-row", "confidence_threshold");
     body.appendChild(threshold);
     appendPartyMessage(body, resolution.party_message);

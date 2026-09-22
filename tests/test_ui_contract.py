@@ -137,6 +137,8 @@ function classes(node) {
     caseFile.resolution.ruling = null;
   } else if (process.env.RYDE_UI_SCENARIO === "f4-shape") {
     caseFile.resolution.ruling = JSON.parse(process.env.RYDE_UI_RULING);
+  } else if (process.env.RYDE_UI_SCENARIO === "f2-flag") {
+    caseFile.resolution.delivered_to_parties = false;
   } else if (process.env.RYDE_UI_SCENARIO === "f5") {
     caseFile.events[2] = null;
   }
@@ -268,6 +270,23 @@ class UIRenderContractTest(unittest.TestCase):
                 self.assertNotIn("delivered this decision", rendered["resolutionText"])
                 self.assertIn("MALFORMED CASE FILE", rendered["resolutionText"])
                 self.assertNotIn("Recommended amount", rendered["resolutionText"])
+
+    def test_a_ruled_case_that_was_not_delivered_does_not_claim_delivery(self):
+        """The ruled header hardcoded the claim and never read the delivery flag.
+
+        resolution.delivered_to_parties is present on every outcome and the withheld
+        card displays it; the ruled card asserted delivery regardless and showed the
+        flag nowhere.
+        """
+        undelivered = self._render("f2-flag", "RD-0101")
+        self.assertFalse(undelivered["workspaceHidden"])
+        self.assertNotIn("delivered this decision", undelivered["resolutionText"])
+        self.assertIn("Delivered to parties", undelivered["resolutionText"])
+        self.assertIn("does not say the parties received it", undelivered["resolutionText"])
+
+        delivered = self._render("none", "RD-0101")
+        self.assertIn("The Judge delivered this decision to the parties.", delivered["resolutionText"])
+        self.assertIn("Delivered to parties", delivered["resolutionText"])
 
     def test_null_event_degrades_one_row_and_preserves_the_case_file(self):
         """One malformed event must not make the whole workspace disappear."""
