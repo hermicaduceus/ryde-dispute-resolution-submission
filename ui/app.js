@@ -538,7 +538,23 @@
     }
   }
 
+  function renderMalformedRuledResolution(resolution) {
+    var card = element("article", "resolution-card outcome-malformed");
+    appendOutcomeHeader(card, "MALFORMED CASE FILE", "outcome-malformed-badge", "No delivery can be confirmed from this file.");
+    var body = element("div", "resolution-body");
+    body.appendChild(element("p", "routing-explanation", "This case file records a ruled outcome but contains no ruling object, so the Judge's delivery cannot be verified."));
+    var details = element("dl", "threshold-row");
+    appendInfoRow(details, "Recorded outcome", resolution.outcome);
+    appendInfoRow(details, "Ruling object", resolution.ruling);
+    body.appendChild(details);
+    card.appendChild(body);
+    return card;
+  }
+
   function renderRuledResolution(resolution) {
+    if (!resolution.ruling || typeof resolution.ruling !== "object") {
+      return renderMalformedRuledResolution(resolution);
+    }
     var card = element("article", "resolution-card outcome-ruled");
     card.dataset.audience = "parties";
     appendOutcomeHeader(card, "RULING ISSUED", "outcome-ruled-badge", "The Judge delivered this decision to the parties.");

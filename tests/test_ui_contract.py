@@ -242,6 +242,14 @@ class UIRenderContractTest(unittest.TestCase):
         self.assertIn("55.16", rendered["humanText"])
         self.assertIn("0.86", rendered["humanText"])
 
+    def test_ruled_without_ruling_is_marked_malformed_not_delivered(self):
+        """A ruled label with no ruling object cannot support a delivery claim."""
+        rendered = self._render("f4", "RD-0101")
+        self.assertFalse(rendered["workspaceHidden"])
+        self.assertNotIn("delivered this decision", rendered["resolutionText"])
+        self.assertIn("MALFORMED CASE FILE", rendered["resolutionText"])
+        self.assertNotIn("55.16", rendered["resolutionText"])
+
 
 if __name__ == "__main__":
     unittest.main()

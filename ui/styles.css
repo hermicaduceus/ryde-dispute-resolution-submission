@@ -815,11 +815,13 @@ input[type="file"] {
   border: 1px solid #b9d3e3;
 }
 
-.outcome-unknown {
+.outcome-unknown,
+.outcome-malformed {
   border-top: 4px solid var(--red);
 }
 
-.outcome-unknown-badge {
+.outcome-unknown-badge,
+.outcome-malformed-badge {
   color: var(--red);
   background: var(--red-wash);
   border: 1px solid #e8bcbc;
