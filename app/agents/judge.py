@@ -142,6 +142,7 @@ class Judge(BaseAgent):
         # a request; this is a guarantee. ESC-4 in particular moves money, so it must not
         # depend on the LLM having read its instructions carefully.
         gate_failures = []
+        gate_summaries = []
         if ruling.confidence < confidence_threshold:
             gate_failures.append(
                 (
@@ -150,6 +151,7 @@ class Judge(BaseAgent):
                     % (ruling.confidence, confidence_threshold),
                 )
             )
+            gate_summaries.append("confidence is below the configured threshold")
         if (
             ruling.action != RulingAction.NO_ACTION.value
             and ruling.recommended_amount_sgd > autonomous_cap_sgd
@@ -161,6 +163,7 @@ class Judge(BaseAgent):
                     % (ruling.recommended_amount_sgd, autonomous_cap_sgd),
                 )
             )
+            gate_summaries.append("the recommended amount exceeds the autonomous decision cap (ESC-4)")
 
         if not gate_failures:
             self.events.emit(
@@ -189,7 +192,7 @@ class Judge(BaseAgent):
             EVENT_RULING_WITHHELD,
             from_=self.name,
             to="parties",
-            summary="Judge withheld the ruling: %s" % "; ".join(reasons),
+            summary="Judge withheld the ruling: %s" % "; ".join(gate_summaries),
             payload={
                 "dispute_id": dispute.dispute_id,
                 "confidence": ruling.confidence,
