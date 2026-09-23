@@ -44,7 +44,8 @@ PARTY_UI = REPO / "ui" / "party"
 
 PARTY_VIEW_KEYS = {"run_id", "dispute_id", "status", "message", "questions"}
 PARTY_STATUSES = {"decided", "under_review", "passed_to_support", "needs_info"}
-TRIP_KEYS_ALLOWED = {"trip_id", "label", "kind", "pickup", "dropoff", "date", "fare_sgd"}
+TRIP_KEYS_ALLOWED = {"trip_id", "label", "kind", "kind_label", "pickup", "dropoff", "date",
+                     "fare_sgd", "charge_label"}
 FORBIDDEN_PARTY_WORDS = re.compile(
     r"\b(ai|agent|agents|advocate|advocates|judge|confidence|withheld|escalat\w*|model)\b",
     re.IGNORECASE,

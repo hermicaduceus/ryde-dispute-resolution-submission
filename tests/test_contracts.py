@@ -129,10 +129,18 @@ class ResolutionTest(unittest.TestCase):
             self.assertNotIn(forbidden, lowered)
 
     def test_the_party_message_states_the_action_and_amount(self):
-        message = party_message_for_ruling(JudgeRuling.from_payload(VALID_RULING))
+        # the operator ruling 2026-09-23 (option A): the basis comes from the cited rules' plain
+        # titles, not from the Judge's explanation. "material" is RD-1's title here.
+        from pathlib import Path
+
+        from app.policy import load_policy
+
+        policy = load_policy(Path(__file__).resolve().parent.parent / "docs" / "policy.md")
+        message = party_message_for_ruling(JudgeRuling.from_payload(VALID_RULING), policy)
         self.assertIn("refund", message)
         self.assertIn("4.87", message)
         self.assertIn("material", message)
+        self.assertNotIn(VALID_RULING["explanation"], message)
 
     def test_a_no_action_message_carries_no_amount(self):
         message = party_message_for_ruling(
