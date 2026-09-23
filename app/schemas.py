@@ -38,10 +38,20 @@ PARTY_UNSAFE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+#: The rule-ID prefixes docs/policy.md actually uses. This list is the ONE owner:
+#: a new prefix added to the policy must be added here (the acceptance test derives
+#: every real rule id from the policy and goes red until it is). Matching only real
+#: prefixes (T1) keeps public tokens like the pack's own trip id TRIP-2026-09945,
+#: "Sept-3" or "covid-19" out of the filter.
+PARTY_RULE_ID_PREFIXES = ("GEN", "EV", "RD", "NS", "ESC")
+
 #: Rule IDs (RD-1, ESC-4, ...) are internal citations; a party-facing string that
 #: carries one is leaking the machinery, not explaining the decision. Case-insensitive
-#: with up to 4 digits (S2): lowercase "rd-1", "Esc-4" and "RD-1000" leaked through.
-PARTY_UNSAFE_RULE_ID_PATTERN = re.compile(r"\b[A-Z]{2,5}-\d{1,4}\b", re.IGNORECASE)
+#: with up to 4 digits, over the real prefixes only (T1).
+PARTY_UNSAFE_RULE_ID_PATTERN = re.compile(
+    r"\b(?:%s)-\d{1,4}\b" % "|".join(PARTY_RULE_ID_PREFIXES),
+    re.IGNORECASE,
+)
 
 #: Shown to the parties when the Judge does not rule. Deliberately says nothing about
 #: AI, about which way the case is leaning, or about what the confidence was.
