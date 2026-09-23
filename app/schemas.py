@@ -391,9 +391,11 @@ def _cited_rule_titles(ruling: "JudgeRuling", policy: Any) -> List[str]:
     """The plain titles of the rules a ruling rests on, safe for a party to read.
 
     At most 3; a title that cannot be resolved, is empty, or would leak the internal
-    vocabulary (the ESC family: low confidence, escalation, ...) is skipped. Titles are
-    the only policy content that crosses to the party — never IDs, never the rule text,
-    never the Judge's explanation.
+    vocabulary is skipped. Escalation rules are excluded by ID prefix before any word
+    check (S5): ESC-4's title "Amount above the autonomous cap" passes the word filter,
+    so the prefix is the only reliable gate — a ruling citing only ESC rules gets no
+    Basis line. Titles are the only policy content that crosses to the party — never
+    IDs, never the rule text, never the Judge's explanation.
     """
     if policy is None:
         return []
@@ -401,6 +403,8 @@ def _cited_rule_titles(ruling: "JudgeRuling", policy: Any) -> List[str]:
     for rule_id in ruling.cited_rule_ids:
         if len(titles) >= 3:
             break
+        if rule_id.startswith("ESC-"):
+            continue
         try:
             title = policy.rule_title(rule_id)
         except KeyError:
