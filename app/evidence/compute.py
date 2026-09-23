@@ -115,6 +115,24 @@ def _first(mapping: Dict[str, Any], *keys: str) -> Any:
     return None
 
 
+def _point_is_usable(point: Any) -> bool:
+    """Whether a GPS trace point can take part in a computed distance.
+
+    Mirrors the guards in haversine_km: not an object, coordinates missing or
+    non-numeric, values non-finite or out of range — any of these makes the point
+    unusable, and one unusable point makes the length of the whole trace unknown.
+    """
+    if not isinstance(point, dict):
+        return False
+    lat = _as_float(_first(point, "lat", "latitude"))
+    lng = _as_float(_first(point, "lng", "lon", "longitude"))
+    if lat is None or lng is None:
+        return False
+    if not (math.isfinite(lat) and math.isfinite(lng)):
+        return False
+    return -90.0 <= lat <= 90.0 and -180.0 <= lng <= 180.0
+
+
 def haversine_km(a: Dict[str, Any], b: Dict[str, Any]) -> Optional[float]:
     """Great-circle distance between two {lat, lng} points, in km.
 
@@ -192,17 +210,29 @@ def _build_route(trip: Dict[str, Any], notes: List[str]) -> RouteEvidence:
     actual_km: Optional[float] = None
     first_ts = last_ts = None
     if points:
-        legs = []
-        for previous, current in zip(points, points[1:]):
-            if not isinstance(previous, dict) or not isinstance(current, dict):
-                continue
-            leg = haversine_km(previous, current)
-            if leg is not None:
-                legs.append(leg)
-        if legs:
-            actual_km = sum(legs)
+        broken = [index for index, point in enumerate(points) if not _point_is_usable(point)]
+        if broken:
+            # One unusable point means the trace's length is unknown, not shorter: a sum
+            # over the usable remainder is a plausible wrong number, the worst thing a
+            # pack field can be. The distance is voided and no deviation is computed.
+            names = ", ".join(str(index) for index in broken)
+            notes.append(
+                "route point%s %s in the GPS trace %s unusable (not an object, or "
+                "coordinates missing, non-numeric, non-finite, or out of range); the "
+                "distance over the trace is unknown rather than partial, so no deviation "
+                "was computed"
+                % (
+                    "s" if len(broken) > 1 else "",
+                    names,
+                    "are" if len(broken) > 1 else "is",
+                )
+            )
         else:
-            notes.append("route points were present but no consecutive pair was usable")
+            legs = [haversine_km(previous, current) for previous, current in zip(points, points[1:])]
+            if legs:
+                actual_km = sum(legs)
+            else:
+                notes.append("route points were present but no consecutive pair was usable")
         timestamps = [p.get("t") for p in points if isinstance(p, dict) and isinstance(p.get("t"), str)]
         if timestamps:
             first_ts, last_ts = timestamps[0], timestamps[-1]
