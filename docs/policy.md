@@ -167,7 +167,10 @@ actual distance (`route.actual_distance_km`), the quoted or estimated distance
 the deviation cannot be measured and ESC-2 applies.
 
 Where GPS points are present, the actual distance is the haversine sum over consecutive points and
-is preferred over any distance asserted in the record.
+is preferred over any distance asserted in the record. A trace containing an unusable point — not an
+object, or coordinates missing, non-numeric, non-finite, or out of range — has an **unknown** length,
+not a shorter one: the distance fields are null with a note naming the point, no distance is
+substituted from elsewhere in the record, and ESC-2 applies.
 
 ### EV-2 — What the records must show for a no-show finding [RYDE-ACTUAL + PEER-DERIVED]
 
@@ -389,6 +392,11 @@ required by EV-1, or a no-show claim without the timestamps required by EV-2.
 
 Do not substitute a plausible figure for a missing one. An estimated deviation is an invented
 fact, and a ruling built on it cannot be audited.
+
+Enforcement (2026-09-23): for route-deviation disputes the Judge withholds any ruling whose
+`route.deviation_pct` is null. This gate is enforced in code, beside the confidence gate and the
+ESC-4 cap, and applies to route cases only — a no-show without a recorded arrival is never caught,
+because there the absence is itself the evidence (NS-4).
 
 ### ESC-3 — Irreconcilable accounts [SYNTHESISED]
 
