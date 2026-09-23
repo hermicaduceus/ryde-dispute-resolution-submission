@@ -52,26 +52,33 @@ No dependencies and no API key needed for the skeleton: it runs on a stock Pytho
 standard library only, using a deterministic mock in place of the LLM.
 
 ```bash
-python3 -m unittest discover -s tests -t .        # 178 tests
-python3 -m app.cli --dispute data/disputes/RD-0101.json
+python3 -m unittest discover -s tests -t .        # 225 tests
+python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0101
+python3 -m app.cli --pack organiser-style-v1 --dispute DISP-002
 ```
+
+`--dispute` takes either a dispute id inside the selected pack or a path to a record file
+(`python3 -m app.cli --dispute data/packs/ryde-synth-v1/disputes/RD-0101.json`). The pack
+defaults to `dataset_pack` in `app/config.json`; `--pack` overrides it for one run.
 
 That prints the agent-to-agent event strip and the ruling, and writes the run's artifacts to
 `runs/<run_id>/`: `events.jsonl` (the observable traffic), `payloads/*.json` (the full payload
 behind each event) and `case_file.json` (evidence, both claims, resolution).
 
-The corpus in `data/disputes/` has 17 labelled cases. `RD-0103` is a deviation too small to
+The corpus lives in two swappable packs under `data/packs/`: `ryde-synth-v1` (our 17 labelled
+cases, our record shape) and `organiser-style-v1` (the same 17 cases as twins in the organisers'
+shape, plus the organisers' own `DISP-002` verbatim). `RD-0103` is a deviation too small to
 matter, `NS-0203` is a driver who marked arrival 885 m from the pickup point, `RD-0109` is a
 remedy above the autonomous cap that the system refuses to issue on its own, and `OS-0301` is an
 out-of-scope filing routed to human review without an LLM call. `docs/dataset.md` maps each case
-to what it tests; `data/ground-truth.json` holds the expected outcomes, deliberately kept out of
-the records the agents see.
+to what it tests; `<pack>/ground-truth.json` holds the expected outcomes, deliberately kept out
+of the records the agents see.
 
 Two gates stand between a ruling and the parties, and **both are enforced in Python, not asked of
 the model in a prompt**: the confidence threshold and ESC-4's SGD 50 autonomous cap. Try them:
 
 ```bash
-python3 -m app.cli --dispute data/disputes/RD-0109.json   # withheld: above the cap
+python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0109   # withheld: above the cap
 ```
 
 **One caveat while the build is in progress.** Every mock string is prefixed `MOCK`, because the

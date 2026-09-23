@@ -1,22 +1,37 @@
 # Dataset — labelled dispute corpus
 
-**Version 1.0 · 17 cases · generated 2026-09-21 · policy version 1.0**
+**Version 1.1 · two packs · 17 synthesised cases + the organisers' sample · generated 2026-09-21,
+organiser twins 2026-09-23 · policy version 1.0**
 
 The corpus the system is evaluated against. Like the policy, it is **data, not code**: the
-pipeline reads dispute records from `data/disputes/`, and a real dataset drops in with no code
-change.
+pipeline reads dispute records from a **dataset pack** under `data/packs/`, and a real dataset
+drops in with no code change.
+
+A pack is a directory with `disputes/` (one JSON file per case, named `<dispute_id>.json`),
+`ground-truth.json` (the labels) and `pack.json` (the manifest). `app/config.json` names the
+default pack; `--pack <name>` selects another for one CLI run.
+
+```
+data/packs/
+├── ryde-synth-v1/        our 17 synthesised cases, our record shape
+└── organiser-style-v1/   the same 17 cases as twins in the organisers' shape,
+                          plus the organisers' own DISP-002, verbatim
+```
 
 ---
 
 ## PROVENANCE — read this first
 
-**Every case in this corpus is synthetic. It was authored by the project team. No real trip,
-rider, driver, GPS trace or payment appears anywhere in it.**
+**Every synthesised case in this corpus was authored by the project team. The one case that was
+not — the organisers' sample `DISP-002` — is reproduced byte-for-byte from the file they shared,
+and its provenance is theirs, not ours. No real trip, rider, driver, GPS trace or payment appears
+anywhere in either pack.**
 
-The challenge statement promised a sample dataset that was never supplied, and Ryde publishes no
-dispute statistics — confirmed against LTA's Point-to-Point Quality of Service releases (which
-measure safety, not fare disputes), CASE's annual complaint reports (which have no ride-hailing
-category), and Ryde Group's own SEC filings. The absence is documented, not assumed.
+The challenge statement promised a sample dataset; one sample dispute (`DISP-002`) arrived on
+2026-09-23, which is a sample rather than a corpus, and Ryde publishes no dispute statistics —
+confirmed against LTA's Point-to-Point Quality of Service releases (which measure safety, not fare
+disputes), CASE's annual complaint reports (which have no ride-hailing category), and Ryde Group's
+own SEC filings. The absence is documented, not assumed.
 
 So the corpus is built rather than collected. Its **shapes** are grounded: the dispute patterns
 are modelled on publicly reported Singapore ride-hailing disputes (a driver marking arrival from
@@ -31,12 +46,36 @@ never be presented as one.
 
 ---
 
+## The two packs
+
+**`ryde-synth-v1`** is the corpus described below: 17 synthesised cases in our own record shape,
+which is documented at the top of `app/dispute.py`.
+
+**`organiser-style-v1`** is the same 17 cases re-expressed in the shape of the organisers' sample
+(`dispute_ticket` / `trip_data` / `gps_telemetry` / `chat_logs` / `app_events`), plus `DISP-002`,
+the organisers' own no-show case, copied byte-for-byte from the file they shared and labelled from
+their stated ruling. Every synthetic case is a **twin** of its `ryde-synth-v1` counterpart: same
+facts, same numbers, different field names. `tests/test_organiser_pack.py` compares the two packs
+field by field, and `tests/test_organiser_reader.py` requires the Evidence Pack computed from a
+case and from its twin to agree on every number a ruling can rest on — a reader that maps one
+field wrong shows up there as a named mismatched field, not as a wrong ruling much later.
+
+Where the organisers' shape has no slot for something we carry (the claim amount, the intake-form
+answers, route-deviation trip fields), the case keeps it in a `ryde_extensions` block; `pack.json`
+lists exactly which fields those are. The reader maps the block back, so neither the Evidence Pack
+nor the agents need to know which pack a case came from.
+
+Each synthetic case also carries a top-level `cancellation_policy` stating the terms that govern
+it — Ryde's published 3-minute terms for our cases, the organisers' own 5 / 8 minute terms on
+their sample. That block reaches the agents as `cancellation.case_policy` on the Evidence Pack.
+
 ## Layout
 
 ```
-data/
+data/packs/<pack>/
 ├── disputes/           one JSON file per case, named <dispute_id>.json
-└── ground-truth.json   the labels, deliberately kept out of the records
+├── ground-truth.json   the labels, deliberately kept out of the records
+└── pack.json           the manifest: name, format, case count, schema extensions
 ```
 
 The labels live in a separate file on purpose. A label inside a dispute record would be visible
@@ -137,11 +176,14 @@ that shows.
 
 ## How it is generated
 
-`tools/build_corpus.py` writes both `disputes/` and `ground-truth.json`. It is a **non-app tool**:
-nothing under `app/` imports from it.
+`tools/build_corpus.py` writes both packs — `ryde-synth-v1` itself, and `organiser-style-v1` by
+transforming those records through `tools/organiser_pack.py` and copying in the organiser samples
+from `tools/organiser_samples/` as received. Both are **non-app tools**: nothing under `app/`
+imports from them.
 
 ```bash
-python3 tools/build_corpus.py
+python3 tools/build_corpus.py            # regenerate both packs into data/
+python3 tools/build_corpus.py --check    # fail if data/ differs from the generator
 ```
 
 The generator exists because every case carries fare arithmetic and a GPS polyline that must agree
@@ -205,7 +247,8 @@ Every case also runs end to end through the real pipeline without error.
 
 ## If a real dataset arrives
 
-Drop it in `data/disputes/` in the same record shape (documented in `app/dispute.py`) and point the
-pipeline at it. Keep this corpus as the **held-out labelled set**: a real dataset supplied without
-ground-truth labels cannot measure accuracy, so the synthesised labelled corpus stays useful even
-when it is no longer the primary input.
+Drop it in as a new pack — `data/packs/<name>/` with `disputes/`, `ground-truth.json` and
+`pack.json` — in either record shape (both are documented at the top of `app/dispute.py`), then set
+`dataset_pack` in `app/config.json` or pass `--pack <name>`. Keep this corpus as the **held-out
+labelled set**: a real dataset supplied without ground-truth labels cannot measure accuracy, so the
+synthesised labelled corpus stays useful even when it is no longer the primary input.
