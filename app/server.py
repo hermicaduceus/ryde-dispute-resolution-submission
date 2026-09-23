@@ -28,7 +28,9 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import re
+import shutil
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -38,7 +40,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, unquote, urlsplit
 
 from .config import load_config
-from .dispute import is_organiser_record, normalise_category, parse_dispute
+from .dispute import AGENT_CATEGORIES, is_organiser_record, normalise_category, parse_dispute
 from .events import EventLog
 from .llm import LLMClient, build_llm_client
 from .pipeline import run_dispute
@@ -544,6 +546,16 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
         if pack_record is None:
             raise _HTTPError(404, "unknown trip")
 
+        # R3/R5: the two locked categories argue from trip-specific evidence, so the
+        # trip's own category must match what the form picked. A mismatch would either
+        # crash the evidence layer (a no-show filing on a route trip) or fabricate
+        # evidence (a "route" built from a driver's waiting-around GPS). Out-of-scope
+        # categories run no evidence layer and still accept any trip. Checked before
+        # anything is created: a refused filing leaves no run directory.
+        record_category = _record_category(pack_record)
+        if filing["category"] in AGENT_CATEGORIES and record_category != filing["category"]:
+            raise _HTTPError(400, "this trip does not match the category you picked")
+
         record = _build_record(
             pack_record,
             dispute_id=_new_dispute_id(),
@@ -585,24 +597,41 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
             raise _HTTPError(404, "unknown run")
         if resolution.get("outcome") != "needs_info":
             raise _HTTPError(409, "this run did not ask for more information")
-        if (run_dir / ANSWERED_FILE_NAME).is_file():
-            raise _HTTPError(409, "this run has already been answered")
         if not asked:
             raise _HTTPError(404, "unknown run")
 
         body = self._read_body()
         cleaned = _validate_reply(body, asked)
 
-        # Attach the answers in whichever slot this record's shape carries them, then
-        # re-run: same dispute, fresh run, and the one-round gate guarantees the case
-        # now goes all the way through.
-        if is_organiser_record(record):
-            record.setdefault("ryde_extensions", {})["follow_up_answers"] = cleaned
-        else:
-            record["follow_up_answers"] = cleaned
+        # R4: claim the run atomically BEFORE anything is run. O_CREAT|O_EXCL is the
+        # whole gate — on a ThreadingHTTPServer a check-then-write between two
+        # concurrent answers lets both through; an exclusive create lets exactly one.
+        claim_path = run_dir / ANSWERED_FILE_NAME
+        try:
+            claim_fd = os.open(claim_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            raise _HTTPError(409, "this run has already been answered")
+        os.close(claim_fd)
 
-        new_case = self._run_record(state, record)
-        (run_dir / ANSWERED_FILE_NAME).write_text(
+        try:
+            # Attach the answers in whichever slot this record's shape carries them,
+            # then re-run: same dispute, fresh run, and the one-round gate guarantees
+            # the case now goes all the way through.
+            if is_organiser_record(record):
+                record.setdefault("ryde_extensions", {})["follow_up_answers"] = cleaned
+            else:
+                record["follow_up_answers"] = cleaned
+
+            new_case = self._run_record(state, record)
+        except Exception:
+            # R7: release the claim so the party can retry after the failure.
+            try:
+                claim_path.unlink()
+            except OSError:
+                pass
+            raise
+
+        claim_path.write_text(
             json.dumps({"answered_by_run": new_case.run_id, "answers": cleaned}, indent=2) + "\n",
             encoding="utf-8",
         )
@@ -611,20 +640,28 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
     def _run_record(self, state: "_ServerState", record: Dict[str, Any]):
         run_id = _new_run_id()
         run_dir = state.out_dir / run_id
-        events = EventLog(run_dir, run_id)
-        case = run_dispute(
-            dispute=parse_dispute(record),
-            llm=state.llm,
-            policy=state.policy,
-            events=events,
-            confidence_threshold=state.confidence_threshold,
-            autonomous_cap_sgd=state.autonomous_cap_sgd,
-        )
-        case.write(run_dir)
-        (run_dir / DISPUTE_FILE_NAME).write_text(
-            json.dumps(record, indent=2, default=str) + "\n", encoding="utf-8"
-        )
-        return case
+        try:
+            events = EventLog(run_dir, run_id)
+            case = run_dispute(
+                dispute=parse_dispute(record),
+                llm=state.llm,
+                policy=state.policy,
+                events=events,
+                confidence_threshold=state.confidence_threshold,
+                autonomous_cap_sgd=state.autonomous_cap_sgd,
+            )
+            case.write(run_dir)
+            (run_dir / DISPUTE_FILE_NAME).write_text(
+                json.dumps(record, indent=2, default=str) + "\n", encoding="utf-8"
+            )
+            return case
+        except Exception:
+            # R7: a crashed run must not leave a half-written directory behind — and
+            # must remove only the directory this call created, never anything else.
+            resolved = run_dir.resolve()
+            if resolved != state.out_dir.resolve() and resolved.is_relative_to(state.out_dir.resolve()):
+                shutil.rmtree(resolved, ignore_errors=True)
+            raise
 
     # ------------------------------------------------------------- static
 
