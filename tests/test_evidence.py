@@ -115,12 +115,12 @@ class DeterminismTest(unittest.TestCase):
 
 class FailureModeTest(unittest.TestCase):
     def test_route_case_without_a_trip_is_refused(self):
-        dispute = parse_dispute({"dispute_id": "X-1", "category": "route_deviation"})
+        dispute = parse_dispute({"dispute_id": "X-1", "category": "route_deviation", "filed_by": "rider"})
         with self.assertRaises(EvidenceInputError):
             build_evidence_pack(dispute)
 
     def test_no_show_case_without_a_cancellation_record_is_refused(self):
-        dispute = parse_dispute({"dispute_id": "X-2", "category": "no_show_charge"})
+        dispute = parse_dispute({"dispute_id": "X-2", "category": "no_show_charge", "filed_by": "rider"})
         with self.assertRaises(EvidenceInputError):
             build_evidence_pack(dispute)
 
