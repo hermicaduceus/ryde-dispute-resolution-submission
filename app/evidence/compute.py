@@ -477,11 +477,21 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
                 "could not be computed"
             )
 
-    fee = _as_float(_first(raw, "cancellation_fee_sgd", "fee_sgd", "no_show_fee_sgd"))
+    cancellation_fee = _as_float(_first(raw, "cancellation_fee_sgd", "fee_sgd", "no_show_fee_sgd"))
+    waiting_fee = _as_float(raw.get("waiting_fee_sgd"))
+    # The twin property: when the record states no cancellation fee, the fee it does
+    # state (a waiting fee, in the organiser shape) stands in for comparison purposes.
+    # A stated waiting fee is ALSO carried under its own name, so a record carrying
+    # both loses neither.
+    fee = cancellation_fee
     if fee is None and dispute.trip:
         fare = dispute.trip.get("fare") if isinstance(dispute.trip.get("fare"), dict) else {}
         breakdown = fare.get("breakdown") if isinstance(fare.get("breakdown"), dict) else {}
         fee = _as_float(_first(breakdown, "cancellation_sgd", "no_show_fee_sgd"))
+    if cancellation_fee is not None and waiting_fee is not None:
+        local_notes.append(
+            "the record carried both a cancellation fee and a waiting fee; both amounts are shown"
+        )
 
     # Which terms govern this case. Passed through exactly as the record states them, so
     # the agents can see that a charge was applied under, say, a 5 / 8 minute policy
@@ -503,6 +513,7 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
         rider_claims_driver_absent=_as_bool(raw.get("rider_claims_driver_absent")),
         driver_distance_from_pickup_m=_round(distance_km * 1000.0, 1) if distance_km is not None else None,
         cancellation_fee_sgd=_round(fee, 2),
+        waiting_fee_sgd=_round(waiting_fee, 2),
         case_policy=case_policy,
         notes=local_notes,
     )

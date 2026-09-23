@@ -20,7 +20,9 @@ from typing import Any, Dict, List, Optional
 #: it can distinguish from "the field was null in that case".
 #: 1.1 added service_type, the filing block, and the cancellation matching anchor.
 #: 1.2 added cancellation.case_policy and profiles.*.fraud_flags.
-EVIDENCE_SCHEMA_VERSION = "1.2"
+#: 1.3 added cancellation.waiting_fee_sgd (additive): a record carrying both a
+#: cancellation fee and a waiting fee now shows both instead of dropping one.
+EVIDENCE_SCHEMA_VERSION = "1.3"
 
 # Keys that are provenance rather than evidence: an agent citing them would be citing
 # metadata, not a fact about the trip. Excluded from field_refs().
@@ -108,6 +110,11 @@ class CancellationEvidence:
     rider_claims_driver_absent: Optional[bool]
     driver_distance_from_pickup_m: Optional[float]
     cancellation_fee_sgd: Optional[float]
+    #: The waiting-time fee the record states (NS-5's charge), when it states one.
+    #: None means the record carries no waiting fee — which is not the same as none
+    #: being charged. Kept beside cancellation_fee_sgd so a record stating both fees
+    #: loses neither; a record stating only one still resolves the twin below.
+    waiting_fee_sgd: Optional[float]
     #: Which timestamp matching_to_cancel_minutes was measured from, and its source key.
     #: Named so the Judge can see when the interval rests on booking time as a proxy
     #: rather than on a real matching event.

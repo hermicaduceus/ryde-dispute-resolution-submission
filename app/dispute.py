@@ -321,8 +321,14 @@ def _organiser_to_record(data: Dict[str, Any]) -> Dict[str, Any]:
         _copy_present(cancellation, trip_data, "driver_wait_start", "wait_started_at")
         if cancelled_at is not None:
             cancellation["cancelled_at"] = cancelled_at
-        if fee is not None:
-            cancellation["cancellation_fee_sgd"] = fee
+        # Each fee is carried under its own name, so a record stating both loses
+        # neither (schema 1.3). cancellation_fee_sgd alone keeps the twin property:
+        # with no cancellation fee stated, the fee this reader places in the fare
+        # breakdown below (the waiting fee) stands in for comparison downstream.
+        if trip_data.get("cancellation_fee") is not None:
+            cancellation["cancellation_fee_sgd"] = trip_data["cancellation_fee"]
+        if trip_data.get("waiting_fee") is not None:
+            cancellation["waiting_fee_sgd"] = trip_data["waiting_fee"]
         # Never the booking time: the pack's matching anchor names its source, and a proxy
         # anchor invented here would be indistinguishable from a real one.
         matched_at = _event_timestamp(data.get("app_events"), "driver_assigned")
