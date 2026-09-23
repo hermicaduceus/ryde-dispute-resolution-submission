@@ -4,7 +4,9 @@ Weighs both advocates' cases, applies the policy document, and issues one ruling
 confidence score and a natural-language explanation.
 
 The confidence gate is the Judge's contract, not a policy rule: a ruling whose confidence
-is below the configured threshold is not delivered to the parties. The Judge's candidate
+is below the configured threshold is not delivered to the parties. It stands beside two
+other Python-enforced gates: ESC-4 (the recommended amount above the autonomous cap) and
+ESC-2 (a route-deviation case whose deviation could not be measured). The Judge's candidate
 is still produced and recorded — that is what a human reviewer receives on escalation —
 but `Resolution.ruling` stays empty and the parties see only the neutral holding message.
 The threshold is passed in from configuration on every call; nothing here hard-codes it.
@@ -15,7 +17,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict
 
-from ..dispute import Dispute
+from ..dispute import CATEGORY_ROUTE_DEVIATION, Dispute
 from ..evidence import EvidencePack
 from ..schemas import (
     OUTCOME_RULED,
@@ -164,6 +166,23 @@ class Judge(BaseAgent):
                 )
             )
             gate_summaries.append("the recommended amount exceeds the autonomous decision cap (ESC-4)")
+        if (
+            dispute.category == CATEGORY_ROUTE_DEVIATION
+            and pack.route is not None
+            and pack.route.deviation_pct is None
+        ):
+            # ESC-2 for route cases: a ruling that cannot name the deviation it rests on
+            # is exactly the "plausible figure for a missing one" the policy forbids.
+            # Route cases only — for a no-show, a missing arrival is itself the evidence
+            # (NS-4), and gating on it would withhold the cases the policy rules.
+            gate_failures.append(
+                (
+                    "ESC-2",
+                    "route.deviation_pct is null, so the deviation a route-deviation "
+                    "ruling rests on could not be measured (EV-1, ESC-2)",
+                )
+            )
+            gate_summaries.append("the route deviation could not be measured (ESC-2)")
 
         if not gate_failures:
             self.events.emit(
