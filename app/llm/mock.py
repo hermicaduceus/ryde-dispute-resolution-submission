@@ -15,6 +15,7 @@ import json
 from typing import Any, Dict, List
 
 from .base import LLMClient, LLMError, LLMRequest, LLMResponse
+from ..schemas import INTAKE_QUESTIONS, blank_field_question
 
 MOCK_MARKER = "MOCK"
 
@@ -86,14 +87,22 @@ class MockLLMClient(LLMClient):
         # Only the filing party's advocate asks, one question per blank intake answer,
         # at most 3, and never once the party's answers are on the dispute. This keeps
         # the stop-and-ask path demoable before a real model exists; a shipped record
-        # has no blank answer, so no existing run changes outcome.
+        # has no blank answer, so no existing run changes outcome. Questions quote the
+        # field's form label (R10), never the internal key.
         follow_ups: List[str] = []
         if party == filed_by and not has_answers:
-            follow_ups = [
-                "%s follow-up: the form answer for '%s' came through empty — could you "
-                "tell us a little more there?" % (MOCK_MARKER, key)
-                for key in blank_keys
-            ]
+            labels = dict(INTAKE_QUESTIONS.get(category, ()))
+            for key in blank_keys:
+                label = labels.get(key)
+                if label:
+                    follow_ups.append(
+                        "%s follow-up: %s" % (MOCK_MARKER, blank_field_question(label))
+                    )
+                else:
+                    follow_ups.append(
+                        "%s follow-up: We didn't get an answer to one of the form "
+                        "questions. Could you tell us?" % MOCK_MARKER
+                    )
 
         cited = ", ".join(refs) if refs else "no evidence fields available"
         return {

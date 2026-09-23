@@ -76,6 +76,36 @@ OUTCOME_WITHHELD = "withheld"
 OUTCOME_HUMAN_REVIEW = "human_review"
 OUTCOME_NEEDS_INFO = "needs_info"
 
+#: The intake-form questions per category, with the exact labels the party page shows
+#: (ui/party/party.js must agree; a test reads the page and asserts it). This table is
+#: the ONE owner of the labels: the server's questionnaire validation derives from it,
+#: and template questions quote it, so a party is asked about a field by the same words
+#: everywhere.
+INTAKE_QUESTIONS: Dict[str, tuple] = {
+    "route_deviation": (
+        ("what_went_wrong", "What went wrong?"),
+        ("expected_route", "What route did the app show you, and roughly how long was it?"),
+        ("was_route_agreed", "Did you and the driver agree to take a different route?"),
+        ("asked_driver_to_stop", "Did you ask the driver to stop anywhere along the way?"),
+        ("safety_concern", "At any point were you worried for your safety?"),
+    ),
+    "no_show_charge": (
+        ("what_went_wrong", "What went wrong?"),
+        ("where_were_you", "Where were you when the trip was meant to start?"),
+        ("did_driver_contact_you", "Did the driver try to contact you?"),
+        ("safety_concern", "At any point were you worried for your safety?"),
+    ),
+}
+
+#: The code-built question sent when an intake field was left blank. The label comes
+#: from INTAKE_QUESTIONS — never the raw field key, which is internal vocabulary.
+BLANK_FIELD_QUESTION_TEMPLATE = 'We didn\'t get an answer to "%s". Could you tell us?'
+
+
+def blank_field_question(label: str) -> str:
+    """The party-facing question for one blank intake field, in plain words."""
+    return BLANK_FIELD_QUESTION_TEMPLATE % label
+
 
 class ContractError(ValueError):
     """A model response does not satisfy the contract it was asked for."""

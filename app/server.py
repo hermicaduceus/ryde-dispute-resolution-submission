@@ -45,6 +45,7 @@ from .pipeline import run_dispute
 from .policy import load_policy
 from .schemas import (
     HUMAN_REVIEW_MESSAGE,
+    INTAKE_QUESTIONS,
     NEEDS_INFO_MESSAGE,
     OUTCOME_HUMAN_REVIEW,
     OUTCOME_NEEDS_INFO,
@@ -78,22 +79,12 @@ FORM_CATEGORIES = (
     "other",
 )
 
-#: The intake questions per category, in form order. Keys must match the pack's intake
-#: vocabulary — the advocates and the evidence layer read these answers by name.
+#: The intake questions per category, in form order. Derived from INTAKE_QUESTIONS in
+#: app/schemas.py — the one owner of the labels the party page shows and the template
+#: questions quote. Keys must match the pack's intake vocabulary.
 QUESTIONNAIRES: Dict[str, Tuple[str, ...]] = {
-    "route_deviation": (
-        "what_went_wrong",
-        "expected_route",
-        "was_route_agreed",
-        "asked_driver_to_stop",
-        "safety_concern",
-    ),
-    "no_show_charge": (
-        "what_went_wrong",
-        "where_were_you",
-        "did_driver_contact_you",
-        "safety_concern",
-    ),
+    category: tuple(key for key, _label in items)
+    for category, items in INTAKE_QUESTIONS.items()
 }
 
 #: outcome -> the status word the party page shows.

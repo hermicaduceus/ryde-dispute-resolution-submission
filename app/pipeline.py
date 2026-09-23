@@ -38,6 +38,9 @@ from .schemas import (
     OUTCOME_NEEDS_INFO,
     AdvocateCase,
     Resolution,
+    blank_field_question,
+    is_party_safe,
+    INTAKE_QUESTIONS,
 )
 
 CASE_FILE_NAME = "case_file.json"
@@ -283,21 +286,48 @@ def _questions_for_party(
 ) -> List[str]:
     """The follow-up questions to send the filing party, or [] when none.
 
-    The filing party's own advocate's questions go first, then the other advocate's;
-    duplicates are dropped in order; the list is capped at 3. Only questions for the
-    filing party make sense — the other party never chats with the system either.
+    The filing party's own advocate's questions go first, then the other advocate's.
+    This is a code gate, not a pass-through (R2): a question that would leak the
+    internal vocabulary or carries a rule ID is REPLACED by a template question for a
+    blank intake field, named by its form label. No blank field left to name -> the
+    question is dropped. Duplicates are removed and the list is capped at 3; if nothing
+    survives, the run does not stop (an empty needs_info is worse than none).
     """
     if dispute.filed_by == "rider":
         collected = list(rider_case.follow_up_questions) + list(driver_case.follow_up_questions)
     else:
         collected = list(driver_case.follow_up_questions) + list(rider_case.follow_up_questions)
-    unique: List[str] = []
+
+    # Blank intake fields the template can name, in form order. Only fields this
+    # category's form actually asks about get a replacement — the template quotes the
+    # field's label, and the label table is the one owner of those words.
+    blank_keys = [
+        key
+        for key, _label in INTAKE_QUESTIONS.get(dispute.category, ())
+        if isinstance(dispute.intake.get(key), str) and not dispute.intake[key].strip()
+    ]
+    used_blank_keys: set = set()
+
+    gated: List[str] = []
     for question in collected:
-        if question.strip() and question not in unique:
-            unique.append(question)
-        if len(unique) >= 3:
+        if len(gated) >= 3:
             break
-    return unique[:3]
+        text = (question or "").strip()
+        if not text:
+            continue
+        if not is_party_safe(text):
+            replacement = None
+            for key in blank_keys:
+                if key not in used_blank_keys:
+                    used_blank_keys.add(key)
+                    replacement = blank_field_question(dict(INTAKE_QUESTIONS[dispute.category])[key])
+                    break
+            if replacement is None:
+                continue
+            text = replacement
+        if text not in gated:
+            gated.append(text)
+    return gated[:3]
 
 
 def _needs_info(
