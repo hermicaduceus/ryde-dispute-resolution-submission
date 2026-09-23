@@ -1,7 +1,13 @@
 """Command-line entry point.
 
-    python -m app.cli --dispute tests/fixtures/dispute_route_deviation.json
+    python -m app.cli --dispute NS-0201                       # id in the default pack
+    python -m app.cli --pack ryde-synth-v1 --dispute RD-0101   # id in a named pack
+    python -m app.cli --dispute data/packs/ryde-synth-v1/disputes/RD-0101.json
     python -m app.cli --dispute <path> --policy docs/policy.md --llm tencent
+
+--dispute takes either a path to a record file, as it always has, or a bare dispute id,
+which is looked up as <pack_dir>/disputes/<id>.json in the selected pack. The pack comes
+from app/config.json unless --pack names another one for this run.
 
 Runs one dispute through the full pipeline and writes the run's artifacts:
 
@@ -21,7 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Sequence
 
-from .config import ConfigError, load_config
+from .config import ConfigError, load_config, resolve_pack_dir
 from .dispute import DisputeError, load_dispute
 from .events import EventLog
 from .llm import LLMError, build_llm_client
@@ -37,7 +43,16 @@ def build_parser() -> argparse.ArgumentParser:
         prog="python -m app.cli",
         description="Run one ride-hailing dispute through the multi-agent resolution pipeline.",
     )
-    parser.add_argument("--dispute", required=True, help="path to one dispute JSON file")
+    parser.add_argument(
+        "--dispute",
+        required=True,
+        help="a dispute id within the selected pack (e.g. NS-0201), or a path to a record file",
+    )
+    parser.add_argument(
+        "--pack",
+        default=None,
+        help="dataset pack to read disputes from, under data/packs/ (default: app/config.json)",
+    )
     parser.add_argument(
         "--policy", default=None, help="path to the policy document (default: app/config.json)"
     )
@@ -56,12 +71,26 @@ def _slug(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "-", value).strip("-") or "run"
 
 
+def dispute_path(value: str, pack_dir: Path) -> Path:
+    """Where --dispute points: a record file, or an id inside the selected pack.
+
+    Anything that names a file — an existing path, a path separator, or a .json suffix —
+    is used as given, so every command that worked before still means what it meant. A
+    bare token is a dispute id, which keeps the demo's commands short and makes the pack
+    the only place a case can come from.
+    """
+    if value.endswith(".json") or "/" in value or Path(value).exists():
+        return Path(value)
+    return Path(pack_dir) / "disputes" / ("%s.json" % value)
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = build_parser().parse_args(argv)
 
     try:
         config = load_config()
-        dispute = load_dispute(Path(args.dispute))
+        pack_dir = resolve_pack_dir(args.pack) if args.pack else config.dataset_pack_dir
+        dispute = load_dispute(dispute_path(args.dispute, pack_dir))
         policy = load_policy(Path(args.policy) if args.policy else config.policy_path)
         provider = args.llm or config.llm.provider
         llm = (
