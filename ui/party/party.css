@@ -1,0 +1,223 @@
+/* Party-facing dispute form. Deliberately plain: one column, large targets,
+   clear states. Kept separate from the operator console. */
+
+:root {
+  --ink: #1d2733;
+  --muted: #5c6b7a;
+  --line: #d8dfe6;
+  --paper: #f6f8fa;
+  --card: #ffffff;
+  --accent: #0f6b5f;
+  --accent-ink: #ffffff;
+  --error: #a03024;
+  --ok: #0f6b5f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.party-shell {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.party-header .eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.party-header h1 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.intro {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+}
+
+.demo-note {
+  margin: 0 0 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-left: 3px solid var(--line);
+  padding-left: 0.6rem;
+}
+
+.step {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.step h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.9rem;
+  font-size: 1.15rem;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.9rem;
+}
+
+.hint {
+  margin: -0.4rem 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.option-grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.option-card {
+  text-align: left;
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  font: inherit;
+  cursor: pointer;
+}
+
+.option-card:hover {
+  border-color: var(--accent);
+}
+
+.option-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(15, 107, 95, 0.25);
+}
+
+.trip-card strong {
+  display: block;
+}
+
+.trip-meta {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.loading {
+  color: var(--muted);
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.field-note {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+textarea,
+input[type="number"] {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+textarea:focus,
+input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+button {
+  font: inherit;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(0.97);
+}
+
+.error {
+  color: var(--error);
+  margin: 0.6rem 0 0;
+}
+
+.outcome-message {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+}
+
+.reference {
+  color: var(--muted);
+}
+
+.reference strong {
+  color: var(--ink);
+  letter-spacing: 0.03em;
+}
+
+.status-line {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#question-boxes .field label {
+  white-space: pre-line;
+}
