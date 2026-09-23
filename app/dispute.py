@@ -69,6 +69,10 @@ substitutions are deliberately never made, because each one would silently chang
   * driver_gps_at_arrival comes from the gps_telemetry row whose status is "arrived", or
     is left out. A missing arrival position is what escalates NS-0205; a position
     borrowed from the pickup point or the last row would rule the case instead.
+  * rider_claims_driver_absent comes from ryde_extensions, or is left out. Whether the
+    rider says the driver never came is never inferred from who filed the dispute: the
+    rider's own words stay in claim.text for the Advocates, and the structured field
+    says "not stated" unless the record states it (the session-five review).
 
 Routing: only the two locked categories reach the agents. Anything else — including the
 form's "other" option, the statement's out-of-scope categories, and any value the corpus
@@ -327,11 +331,10 @@ def _organiser_to_record(data: Dict[str, Any]) -> Dict[str, Any]:
         cancellation["driver_marked_no_show"] = trip_data.get("cancellation_reason") == "rider_no_show"
         if "rider_claims_driver_absent" in extensions:
             cancellation["rider_claims_driver_absent"] = extensions["rider_claims_driver_absent"]
-        else:
-            # No extension block: a rider disputing a no-show charge is contesting it.
-            cancellation["rider_claims_driver_absent"] = (
-                ticket.get("dispute_type") == "no_show_charge" and ticket.get("filed_by") == "rider"
-            )
+        # Never inferred: whether the rider says the driver never came is a structured
+        # fact only when the record states one (in ryde_extensions). Without it the field
+        # stays unset and the pack reports None — the rider's own words remain in
+        # claim.text, where the Advocates read them.
         pickup = _object(trip_data.get("pickup_location"))
         if "lat" in pickup and "lng" in pickup:
             cancellation["pickup_point"] = {"lat": pickup.get("lat"), "lng": pickup.get("lng")}
