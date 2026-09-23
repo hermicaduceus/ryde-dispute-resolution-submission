@@ -91,6 +91,20 @@ class OrganiserReaderEquivalenceTests(unittest.TestCase):
                         else:
                             self.assertEqual(want, got)
 
+    def test_the_filing_window_is_established_from_either_shape(self):
+        # The organiser shape files the date under dispute_ticket, ours at the top level.
+        # Reading it from the raw record nulled the GEN-6 window for every organiser record
+        # while the suite stayed green (found in build session four, pinned here).
+        for synth_path in sorted(SYNTH.glob("*.json")):
+            if not load_dispute(synth_path).is_agent_handled:
+                continue
+            a, b = _pack(synth_path)["filing"], _pack(ORG / synth_path.name)["filing"]
+            for name in ("filed_at", "trip_reference_at", "days_since_trip", "window_established"):
+                with self.subTest(dispute_id=synth_path.stem, field="filing.%s" % name):
+                    self.assertEqual(a[name], b[name])
+            with self.subTest(dispute_id=synth_path.stem, field="filing.window_established is true"):
+                self.assertIs(True, b["window_established"])
+
     def test_profiles_yield_the_same_numbers(self):
         for synth_path in sorted(SYNTH.glob("*.json")):
             if not load_dispute(synth_path).is_agent_handled:
