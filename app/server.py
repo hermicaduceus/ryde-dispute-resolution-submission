@@ -680,11 +680,11 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
 
         try:
             _write_answered_record(claim_path, new_case.run_id, cleaned)
-        except OSError as exc:
-            # S4: the round-two run already succeeded, so the answer happened —
-            # the party gets their ruling even if the bookkeeping write failed.
-            # The claim file already exists (empty), so the run stays answered
-            # and a retry cannot rule twice.
+        except Exception as exc:
+            # S4/T3: the round-two run already succeeded, so the answer happened —
+            # the party gets their ruling even if the bookkeeping write failed for
+            # any reason, not only an OSError. The claim file already exists
+            # (empty), so the run stays answered and a retry cannot rule twice.
             print("answered.json write failed for run %s: %s" % (run_id, exc), file=sys.stderr)
         self._send_json(200, party_view(new_case.to_dict()))
 
