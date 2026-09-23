@@ -440,6 +440,12 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
         breakdown = fare.get("breakdown") if isinstance(fare.get("breakdown"), dict) else {}
         fee = _as_float(_first(breakdown, "cancellation_sgd", "no_show_fee_sgd"))
 
+    # Which terms govern this case. Passed through exactly as the record states them, so
+    # the agents can see that a charge was applied under, say, a 5 / 8 minute policy
+    # rather than the 3-minute one they may know from elsewhere. This layer does not
+    # reconcile the two: reading a rule out of a document is the Judge's job.
+    case_policy = raw.get("case_policy") if isinstance(raw.get("case_policy"), dict) else None
+
     notes.extend(local_notes)
     return CancellationEvidence(
         driver_arrived_at=arrived_at if isinstance(arrived_at, str) else None,
@@ -454,6 +460,7 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
         rider_claims_driver_absent=_as_bool(raw.get("rider_claims_driver_absent")),
         driver_distance_from_pickup_m=_round(distance_km * 1000.0, 1) if distance_km is not None else None,
         cancellation_fee_sgd=_round(fee, 2),
+        case_policy=case_policy,
         notes=local_notes,
     )
 
@@ -554,6 +561,7 @@ def _build_profile(party: str, raw: Any) -> Optional[PartyProfile]:
         upheld_rate=_round(upheld_rate, 4),
         dispute_rate=_round(dispute_rate, 4),
         rating=_round(_as_float(raw.get("rating")), 2),
+        fraud_flags=_as_int(raw.get("fraud_flags")),
     )
 
 
@@ -623,7 +631,11 @@ def _build_filing(dispute: Dispute, notes: List[str]) -> FilingEvidence:
     decline, and it can only take that path if it can see the window is unverifiable.
     """
     local: List[str] = []
-    filed_at = dispute.raw.get("filed_at") if isinstance(dispute.raw, dict) else None
+    # From the parsed dispute, not from dispute.raw: the two record shapes file the date
+    # in different places (top level vs dispute_ticket), and reading the parsed field is
+    # what lets a GEN-6 filing window be established for either one. Reading raw here
+    # silently nulled the window for every organiser-format record.
+    filed_at = dispute.filed_at
     filed_at = filed_at if isinstance(filed_at, str) and filed_at.strip() else None
 
     trip = dispute.trip or {}

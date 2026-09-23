@@ -19,7 +19,8 @@ from typing import Any, Dict, List, Optional
 #: them apart by this string alone, and "the new field is simply absent" is not a signal
 #: it can distinguish from "the field was null in that case".
 #: 1.1 added service_type, the filing block, and the cancellation matching anchor.
-EVIDENCE_SCHEMA_VERSION = "1.1"
+#: 1.2 added cancellation.case_policy and profiles.*.fraud_flags.
+EVIDENCE_SCHEMA_VERSION = "1.2"
 
 # Keys that are provenance rather than evidence: an agent citing them would be citing
 # metadata, not a fact about the trip. Excluded from field_refs().
@@ -112,6 +113,11 @@ class CancellationEvidence:
     #: rather than on a real matching event.
     matching_anchor_at: Optional[str] = None
     matching_anchor_source: Optional[str] = None
+    #: The cancellation terms that govern this case, as the record states them (the
+    #: organisers' pack carries 5 / 8 minute terms on their sample, Ryde's own 3-minute
+    #: terms elsewhere). Passed through untouched, never merged with or checked against
+    #: docs/policy.md: which document governs is the Judge's call, not this layer's.
+    case_policy: Optional[Dict[str, Any]] = None
     notes: List[str] = field(default_factory=list)
 
 
@@ -166,6 +172,10 @@ class PartyProfile:
     upheld_rate: Optional[float]
     dispute_rate: Optional[float]
     rating: Optional[float]
+    #: Platform fraud flags against the party, when the record carries them. None means
+    #: the record does not say, which is not the same as zero — an agent may not read
+    #: silence as a clean record.
+    fraud_flags: Optional[int] = None
 
 
 @dataclass(frozen=True)
