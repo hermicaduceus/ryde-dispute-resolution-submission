@@ -115,6 +115,18 @@
       });
       card.classList.add("selected");
       document.getElementById("category-next").disabled = false;
+      // Changing the category resets everything downstream (R3 page side): the trip
+      // list belongs to the category, so a trip picked for one category must never
+      // survive a switch to another.
+      state.tripId = null;
+      while (tripOptions.firstChild) {
+        tripOptions.removeChild(tripOptions.firstChild);
+      }
+      document.getElementById("trip-next").disabled = true;
+      clearError("trip-error");
+      clearError("details-error");
+      hide(stepTrip);
+      hide(stepDetails);
     });
     categoryOptions.appendChild(card);
   });
@@ -147,13 +159,18 @@
           return;
         }
         state.trips.forEach(function (trip) {
+          var meta = [trip.date, trip.kind_label].filter(Boolean).join(" · ");
           var lines = [
             element("strong", null, trip.label),
-            element("span", "trip-meta", [trip.date, trip.kind].filter(Boolean).join(" · "))
+            element("span", "trip-meta", meta)
           ];
+          var charge = "";
+          if (trip.fare_sgd !== null && trip.fare_sgd !== undefined) {
+            charge = " · SGD " + Number(trip.fare_sgd).toFixed(2)
+              + (trip.charge_label ? " " + trip.charge_label : "");
+          }
           var detail = element("span", "trip-meta", "");
-          detail.textContent = "Trip " + trip.trip_id +
-            (trip.fare_sgd ? " · SGD " + Number(trip.fare_sgd).toFixed(2) : "");
+          detail.textContent = "Trip " + trip.trip_id + charge;
           var card = element("button", "option-card trip-card");
           card.type = "button";
           lines.forEach(function (line) { card.appendChild(line); });

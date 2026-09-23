@@ -215,17 +215,25 @@
     }
     article.appendChild(answers);
 
+    // R6: a type check is not a shape check. Only a non-array object with non-empty
+    // string question and answer fields renders; every other shape — arrays, empty
+    // objects, numeric or missing fields, null, strings, numbers — is skipped.
     var followUps = intake.follow_up_answers;
-    if (Array.isArray(followUps) && followUps.length > 0) {
-      var followHeading = element("h3", "subsection-title", "Follow-up answers (round two)");
-      article.appendChild(followHeading);
-      var followList = element("dl", "answers-list");
-      followUps.forEach(function (item) {
-        if (item && typeof item === "object") {
-          appendInfoRow(followList, displayValue(item.question), displayValue(item.answer), "info-row");
-        }
+    if (Array.isArray(followUps)) {
+      var validFollowUps = followUps.filter(function (item) {
+        return item !== null && typeof item === "object" && !Array.isArray(item)
+          && typeof item.question === "string" && item.question.trim() !== ""
+          && typeof item.answer === "string" && item.answer.trim() !== "";
       });
-      article.appendChild(followList);
+      if (validFollowUps.length > 0) {
+        var followHeading = element("h3", "subsection-title", "Follow-up answers (round two)");
+        article.appendChild(followHeading);
+        var followList = element("dl", "answers-list");
+        validFollowUps.forEach(function (item) {
+          appendInfoRow(followList, displayValue(item.question), displayValue(item.answer), "info-row");
+        });
+        article.appendChild(followList);
+      }
     }
     grievanceContent.appendChild(article);
   }

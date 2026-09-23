@@ -173,6 +173,31 @@ def _record_category(record: Dict[str, Any]) -> str:
     return normalise_category(record.get("category"))
 
 
+#: Plain words for the trip's category (R9): the page never shows raw kind values.
+KIND_LABELS = {
+    "route_deviation": "Route complaint",
+    "no_show_charge": "No-show charge",
+    "other": "Other",
+}
+
+
+def _charge(fare: Any, cancellation_fee: Any, waiting_fee: Any) -> Tuple[Optional[float], Optional[str]]:
+    """The amount a trip will cost the party and what that amount IS (R8).
+
+    A fare and a fee are different charges; collapsing them under one unlabelled
+    number told the party their no-show 'fare' was 6.61. Returns (None, None) when no
+    charge is known — never a zero pretending to be a price.
+    """
+    if isinstance(fare, dict):
+        charged = fare.get("charged_sgd")
+        if isinstance(charged, (int, float)) and not isinstance(charged, bool):
+            return round(float(charged), 2), "fare"
+    for value, label in ((cancellation_fee, "cancellation fee"), (waiting_fee, "waiting fee")):
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return round(float(value), 2), label
+    return None, None
+
+
 def _trip_summary(record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """The party-facing facts of one pack record's trip. No names, profiles or traces."""
     if is_organiser_record(record):
@@ -182,18 +207,20 @@ def _trip_summary(record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         pickup_name = pickup.get("name") if isinstance(pickup.get("name"), str) else None
         dropoff_name = dropoff.get("name") if isinstance(dropoff.get("name"), str) else None
         date = trip.get("requested_time") or trip.get("pickup_time")
-        fare = trip.get("fare") if isinstance(trip.get("fare"), dict) else {}
-        fare_sgd = fare.get("charged_sgd")
-        if not isinstance(fare_sgd, (int, float)) or isinstance(fare_sgd, bool):
-            fare_sgd = trip.get("cancellation_fee", trip.get("waiting_fee"))
+        fare_sgd, charge_label = _charge(
+            trip.get("fare") if isinstance(trip.get("fare"), dict) else None,
+            trip.get("cancellation_fee"),
+            trip.get("waiting_fee"),
+        )
         trip_id = trip.get("trip_id")
         kind = normalise_category(record.get("dispute_ticket", {}).get("dispute_type"))
     else:
         trip = record.get("trip") if isinstance(record.get("trip"), dict) else {}
         pickup_name = dropoff_name = None
         date = trip.get("requested_at") or trip.get("pickup_at")
-        fare = trip.get("fare") if isinstance(trip.get("fare"), dict) else {}
-        fare_sgd = fare.get("charged_sgd")
+        fare_sgd, charge_label = _charge(
+            trip.get("fare") if isinstance(trip.get("fare"), dict) else None, None, None
+        )
         trip_id = trip.get("trip_id")
         kind = normalise_category(record.get("category"))
 
@@ -207,12 +234,12 @@ def _trip_summary(record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "trip_id": trip_id,
         "label": label,
         "kind": kind,
+        "kind_label": KIND_LABELS.get(kind) or "Other",
         "pickup": pickup_name or "",
         "dropoff": dropoff_name or "",
         "date": date[:10] if isinstance(date, str) and date else "",
-        "fare_sgd": round(float(fare_sgd), 2)
-        if isinstance(fare_sgd, (int, float)) and not isinstance(fare_sgd, bool)
-        else 0.0,
+        "fare_sgd": fare_sgd,
+        "charge_label": charge_label,
     }
 
 
