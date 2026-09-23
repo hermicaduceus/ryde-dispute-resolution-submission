@@ -20,6 +20,7 @@ and this module only moves the case between them and records what happened.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -281,53 +282,58 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def _normalised_question(text: str) -> str:
+    """The dedup key for a party-facing question (S3): lowercase, punctuation
+    dropped, whitespace collapsed. "Where were you?" and "where were you" are
+    the same question to a party; the first wording is the one that stays."""
+    return " ".join(re.sub(r"[^\w\s]", "", text.lower()).split())
+
+
 def _questions_for_party(
     dispute: Dispute, rider_case: AdvocateCase, driver_case: AdvocateCase
 ) -> List[str]:
     """The follow-up questions to send the filing party, or [] when none.
 
-    The filing party's own advocate's questions go first, then the other advocate's.
-    This is a code gate, not a pass-through (R2): a question that would leak the
-    internal vocabulary or carries a rule ID is REPLACED by a template question for a
-    blank intake field, named by its form label. No blank field left to name -> the
-    question is dropped. Duplicates are removed and the list is capped at 3; if nothing
-    survives, the run does not stop (an empty needs_info is worse than none).
+    Safe model questions come first, the filing party's advocate's before the
+    other advocate's (S3). Template questions for blank intake fields are a
+    FALLBACK, emitted only when no safe model question survives — a safe
+    question is never doubled by a template for the field it already asks
+    about. Near-duplicates collapse on a normalised form (lowercase,
+    punctuation dropped, whitespace collapsed), keeping the first original
+    wording. The list is capped at 3; if nothing survives, the run does not
+    stop (an empty needs_info is worse than none).
     """
     if dispute.filed_by == "rider":
         collected = list(rider_case.follow_up_questions) + list(driver_case.follow_up_questions)
     else:
         collected = list(driver_case.follow_up_questions) + list(rider_case.follow_up_questions)
 
-    # Blank intake fields the template can name, in form order. Only fields this
-    # category's form actually asks about get a replacement — the template quotes the
-    # field's label, and the label table is the one owner of those words.
-    blank_keys = [
-        key
-        for key, _label in INTAKE_QUESTIONS.get(dispute.category, ())
-        if isinstance(dispute.intake.get(key), str) and not dispute.intake[key].strip()
-    ]
-    used_blank_keys: set = set()
-
     gated: List[str] = []
+    seen: set = set()
     for question in collected:
         if len(gated) >= 3:
             break
         text = (question or "").strip()
-        if not text:
+        if not text or not is_party_safe(text):
             continue
-        if not is_party_safe(text):
-            replacement = None
-            for key in blank_keys:
-                if key not in used_blank_keys:
-                    used_blank_keys.add(key)
-                    replacement = blank_field_question(dict(INTAKE_QUESTIONS[dispute.category])[key])
-                    break
-            if replacement is None:
-                continue
-            text = replacement
-        if text not in gated:
-            gated.append(text)
-    return gated[:3]
+        key = _normalised_question(text)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        gated.append(text)
+
+    if gated:
+        return gated
+
+    # Fallback: nothing the advocates wrote is safe to send. Ask about the blank
+    # intake fields in code-built words, one per field, in form order — the label
+    # table is the one owner of those words.
+    labels = dict(INTAKE_QUESTIONS.get(dispute.category, ()))
+    return [
+        blank_field_question(labels[key])
+        for key in labels
+        if isinstance(dispute.intake.get(key), str) and not dispute.intake[key].strip()
+    ][:3]
 
 
 def _needs_info(
