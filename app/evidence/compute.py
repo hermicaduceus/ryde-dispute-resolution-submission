@@ -455,14 +455,27 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
     elif matching_anchor_source == "trip.requested_at":
         local_notes.append(MATCHING_ANCHOR_PROXY_NOTE)
 
-    pickup = raw.get("pickup_point") if isinstance(raw.get("pickup_point"), dict) else {}
-    driver_position = raw.get("driver_gps_at_arrival") if isinstance(raw.get("driver_gps_at_arrival"), dict) else {}
-    distance_km = haversine_km(driver_position, pickup) if pickup and driver_position else None
-    if not pickup or not driver_position:
+    # Absent is not unusable. A block the record does not carry gets today's absence
+    # note; a block that IS there but whose coordinates fail haversine_km is a broken
+    # record, and the note must say so — "absent" would misstate what was filed.
+    pickup_block = raw.get("pickup_point")
+    driver_block = raw.get("driver_gps_at_arrival")
+    pickup = pickup_block if isinstance(pickup_block, dict) and pickup_block else None
+    driver_position = driver_block if isinstance(driver_block, dict) and driver_block else None
+    distance_km = None
+    if pickup is None or driver_position is None:
         local_notes.append(
             "no driver position at arrival and/or pickup point in the record, "
             "so the distance between them could not be computed"
         )
+    else:
+        distance_km = haversine_km(driver_position, pickup)
+        if distance_km is None:
+            local_notes.append(
+                "the coordinates recorded for the driver position at arrival and/or the "
+                "pickup point were present but unusable, so the distance between them "
+                "could not be computed"
+            )
 
     fee = _as_float(_first(raw, "cancellation_fee_sgd", "fee_sgd", "no_show_fee_sgd"))
     if fee is None and dispute.trip:
