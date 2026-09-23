@@ -31,10 +31,15 @@ from typing import Any, Dict, List, Optional
 #: mechanics, the withholding and escalation mechanics. This is the same banned-word set
 #: the acceptance tests use; code that composes or relays a party-facing string checks
 #: against it and fails closed rather than shipping the word. Stem-shaped, not exact
-#: words (S2): "models", "judges", "withhold", "judgement", "confident", "advocacy"
-#: leaked through an exact-word list.
+#: words (S2, widened T2): "models", "judges", "withhold", "judgement", "confident",
+#: "advocacy" leaked through an exact-word list; "agentic", "modelling"/"modelled",
+#: "A.I." and the misspellings "withold"/"witheld" leaked through the first stems.
+#: Deliberately `agent\w*`, NOT `agen\w*` — that would block "agency" — and the
+#: A.I. alternative sits outside the \b group, because after a literal dot a word
+#: boundary does not behave the way it does after a letter.
 PARTY_UNSAFE_PATTERN = re.compile(
-    r"\b(ai|agents?|advoca\w*|judg\w*|confiden\w*|withh[eo]ld\w*|escalat\w*|models?)\b",
+    r"\b(ai|agent\w*|advoca\w*|judg\w*|confiden\w*|withh?[eo]ld\w*|escalat\w*|model\w*)\b"
+    r"|\ba\.\s?i\.",
     re.IGNORECASE,
 )
 
