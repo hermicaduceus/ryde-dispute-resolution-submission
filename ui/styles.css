@@ -815,6 +815,16 @@ input[type="file"] {
   border: 1px solid #b9d3e3;
 }
 
+.outcome-needs-info {
+  border-top: 4px solid var(--blue);
+}
+
+.outcome-needs-badge {
+  color: var(--blue);
+  background: var(--blue-wash);
+  border: 1px solid #b9d3e3;
+}
+
 .outcome-unknown,
 .outcome-malformed {
   border-top: 4px solid var(--red);

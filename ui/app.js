@@ -214,6 +214,19 @@
       });
     }
     article.appendChild(answers);
+
+    var followUps = intake.follow_up_answers;
+    if (Array.isArray(followUps) && followUps.length > 0) {
+      var followHeading = element("h3", "subsection-title", "Follow-up answers (round two)");
+      article.appendChild(followHeading);
+      var followList = element("dl", "answers-list");
+      followUps.forEach(function (item) {
+        if (item && typeof item === "object") {
+          appendInfoRow(followList, displayValue(item.question), displayValue(item.answer), "info-row");
+        }
+      });
+      article.appendChild(followList);
+    }
     grievanceContent.appendChild(article);
   }
 
@@ -657,6 +670,49 @@
     return wrapper;
   }
 
+  function renderNeedsInfoResolution(caseFile, resolution) {
+    var wrapper = element("div", "withheld-layout");
+    var card = element("article", "resolution-card outcome-needs-info");
+    card.dataset.audience = "parties";
+    appendOutcomeHeader(card, "WAITING ON THE PARTY", "outcome-needs-badge",
+      "The run stopped before the Judge: the filing party is being asked follow-up questions.");
+    var body = element("div", "resolution-body");
+    var questions = Array.isArray(resolution.questions_for_party) ? resolution.questions_for_party : [];
+    if (questions.length > 0) {
+      body.appendChild(element("h4", "resolution-label", "Questions asked of the filing party"));
+      var list = element("ul", "question-list");
+      questions.forEach(function (question) {
+        list.appendChild(element("li", null, displayValue(question)));
+      });
+      body.appendChild(list);
+    } else {
+      body.appendChild(element("p", "routing-explanation", "No questions were recorded on this case file."));
+    }
+    var facts = element("dl", "threshold-row");
+    appendInfoRow(facts, "Questions asked", questions.length);
+    appendInfoRow(facts, "Judge ran", false);
+    appendInfoRow(facts, "Round", Array.isArray(caseFile.intake && caseFile.intake.follow_up_answers)
+      && caseFile.intake.follow_up_answers.length > 0 ? 2 : 1);
+    body.appendChild(facts);
+    appendPartyMessage(body, resolution.party_message);
+    card.appendChild(body);
+    wrapper.appendChild(card);
+
+    if (Array.isArray(resolution.notes) && resolution.notes.length > 0) {
+      var humanCard = element("article", "resolution-card human-only-region");
+      humanCard.dataset.audience = "human-review-only";
+      var humanHeader = element("header", "human-only-header");
+      humanHeader.appendChild(element("span", "human-only-label", "HUMAN-ONLY — NOT DELIVERED TO PARTIES"));
+      humanHeader.appendChild(element("h3", null, "Notes for reviewer"));
+      humanCard.appendChild(humanHeader);
+      var humanBody = element("div", "resolution-body");
+      appendResolutionNotes(humanBody, resolution.notes);
+      humanCard.appendChild(humanBody);
+      wrapper.appendChild(humanCard);
+    }
+    return wrapper;
+  }
+
   function renderResolution(caseFile) {
     clear(resolutionContent);
     var resolution = caseFile.resolution && typeof caseFile.resolution === "object"
@@ -668,6 +724,8 @@
       resolutionContent.appendChild(renderWithheldResolution(resolution));
     } else if (resolution.outcome === "human_review") {
       resolutionContent.appendChild(renderHumanReviewResolution(caseFile, resolution));
+    } else if (resolution.outcome === "needs_info") {
+      resolutionContent.appendChild(renderNeedsInfoResolution(caseFile, resolution));
     } else {
       var warning = element("article", "resolution-card outcome-unknown");
       appendOutcomeHeader(warning, "UNKNOWN OUTCOME", "outcome-unknown-badge", "Operator attention required.");
