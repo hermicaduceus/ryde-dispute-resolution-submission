@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import re
 import unittest
+from pathlib import Path
 from unittest import mock
 
 from app.policy import load_policy
@@ -188,7 +189,16 @@ class S4BookkeepingFailureDoesNotBrickOrDuplicate(unittest.TestCase):
             _, first = server.json("POST", "/api/disputes", _filing(trips["trips"][0]["trip_id"], answers=answers))
             self.assertEqual("needs_info", first["status"], first)
             reply = {"answers": [{"question": q, "answer": "The expressway."} for q in first["questions"]]}
-            with mock.patch("app.server._write_answered_record", side_effect=OSError("disk full")):
+            # Patch the write itself, not a named helper: the pin must fail on the
+            # behaviour (500 + bricked run), not on a missing function name.
+            original = Path.write_text
+
+            def failing_write(path, *args, **kwargs):
+                if path.name == "answered.json":
+                    raise OSError("disk full")
+                return original(path, *args, **kwargs)
+
+            with mock.patch.object(Path, "write_text", failing_write):
                 status, second = server.json("POST", "/api/disputes/%s/answers" % first["run_id"], reply)
             self.assertEqual(200, status, second)
             self.assertIn(second["status"], ("decided", "under_review"))
