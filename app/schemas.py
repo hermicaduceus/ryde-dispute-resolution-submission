@@ -38,9 +38,19 @@ HUMAN_REVIEW_MESSAGE = (
     "Thank you for your report. It has been passed to our support team, who will follow up with you."
 )
 
+#: Shown to the parties when the run stops to ask the filing party for more information.
+#: Deliberately says nothing about AI, about which way the case is leaning, or about any
+#: internal step: the party is asked for a little more, and nothing else.
+NEEDS_INFO_MESSAGE = (
+    "Thank you — we need a little more information before we can continue with your case. "
+    "Please answer the questions below and submit them, and we will take a fresh look as "
+    "soon as your answers arrive."
+)
+
 OUTCOME_RULED = "ruled"
 OUTCOME_WITHHELD = "withheld"
 OUTCOME_HUMAN_REVIEW = "human_review"
+OUTCOME_NEEDS_INFO = "needs_info"
 
 
 class ContractError(ValueError):
@@ -298,6 +308,9 @@ class Resolution:
     ruling: Optional[JudgeRuling] = None
     withheld_candidate: Optional[JudgeRuling] = None
     escalated_for_human_review: bool = False
+    #: Targeted questions for the filing party. Populated only for OUTCOME_NEEDS_INFO;
+    #: always serialised ([] when none) so every consumer can read the field unguarded.
+    questions_for_party: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
 
     @property
@@ -313,6 +326,7 @@ class Resolution:
             "confidence_threshold": self.confidence_threshold,
             "delivered_to_parties": self.delivered_to_parties,
             "escalated_for_human_review": self.escalated_for_human_review,
+            "questions_for_party": list(self.questions_for_party),
             "ruling": self.ruling.to_dict() if self.ruling else None,
             "withheld_candidate": self.withheld_candidate.to_dict() if self.withheld_candidate else None,
             "notes": list(self.notes),

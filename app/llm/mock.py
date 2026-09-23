@@ -72,6 +72,9 @@ class MockLLMClient(LLMClient):
         refs = _pick(meta.get("available_evidence_refs"), 3)
         rule_ids = _pick(meta.get("available_rule_ids"), 2)
         claim_amount = float(meta.get("claim_amount_sgd") or 0.0)
+        filed_by = str(meta.get("filed_by") or "rider")
+        blank_keys = _pick(meta.get("blank_intake_questions"), 3)
+        has_answers = bool(meta.get("has_follow_up_answers"))
 
         if party == "rider":
             requested_outcome = "refund"
@@ -79,6 +82,18 @@ class MockLLMClient(LLMClient):
         else:
             requested_outcome = "no action"
             requested_amount = 0.0
+
+        # Only the filing party's advocate asks, one question per blank intake answer,
+        # at most 3, and never once the party's answers are on the dispute. This keeps
+        # the stop-and-ask path demoable before a real model exists; a shipped record
+        # has no blank answer, so no existing run changes outcome.
+        follow_ups: List[str] = []
+        if party == filed_by and not has_answers:
+            follow_ups = [
+                "%s follow-up: the form answer for '%s' came through empty — could you "
+                "tell us a little more there?" % (MOCK_MARKER, key)
+                for key in blank_keys
+            ]
 
         cited = ", ".join(refs) if refs else "no evidence fields available"
         return {
@@ -96,7 +111,7 @@ class MockLLMClient(LLMClient):
             ),
             "requested_outcome": requested_outcome,
             "requested_amount_sgd": requested_amount,
-            "follow_up_questions": [],
+            "follow_up_questions": follow_ups,
         }
 
     def _judge_response(self, request: LLMRequest) -> Dict[str, Any]:

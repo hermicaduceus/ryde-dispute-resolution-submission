@@ -15,7 +15,7 @@ The threshold is passed in from configuration on every call; nothing here hard-c
 from __future__ import annotations
 
 import json
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from ..dispute import CATEGORY_ROUTE_DEVIATION, Dispute
 from ..evidence import EvidencePack
@@ -108,8 +108,13 @@ class Judge(BaseAgent):
         *,
         confidence_threshold: float,
         autonomous_cap_sgd: float = 50.00,
+        extra_notes: Optional[List[str]] = None,
     ) -> Resolution:
-        """Deliberate, then either issue the ruling or withhold it behind the gate."""
+        """Deliberate, then either issue the ruling or withhold it behind the gate.
+
+        `extra_notes` carries pipeline-level observations (the one-round follow-up gate)
+        onto the resolution, whichever way the ruling goes.
+        """
         payload, llm_info = self._ask(
             system_prompt=self.system_prompt(),
             user_prompt=self.user_prompt(dispute, pack, rider_case, driver_case),
@@ -204,6 +209,7 @@ class Judge(BaseAgent):
                 party_message=party_message_for_ruling(ruling),
                 confidence_threshold=confidence_threshold,
                 ruling=ruling,
+                notes=list(extra_notes or []),
             )
 
         reasons = [reason for _gate, reason in gate_failures]
@@ -229,7 +235,8 @@ class Judge(BaseAgent):
             confidence_threshold=confidence_threshold,
             withheld_candidate=ruling,
             escalated_for_human_review=True,
-            notes=["the ruling was not delivered: %s" % reason for reason in reasons],
+            notes=["the ruling was not delivered: %s" % reason for reason in reasons]
+            + list(extra_notes or []),
         )
 
 

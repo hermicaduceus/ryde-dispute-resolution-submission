@@ -55,7 +55,19 @@ def dispute_block(dispute: Dispute) -> str:
     if dispute.intake:
         lines.append("intake_form_answers:")
         lines.append(_json_block(dispute.intake))
+    if dispute.follow_up_answers:
+        lines.append("follow_up_answers_from_the_party:")
+        lines.append(_json_block(dispute.follow_up_answers))
     return "\n".join(lines)
+
+
+def blank_intake_questions(dispute: Dispute) -> List[str]:
+    """Intake keys whose answer is present but empty after trimming, in form order."""
+    return [
+        key
+        for key, value in dispute.intake.items()
+        if isinstance(value, str) and not value.strip()
+    ]
 
 
 def evidence_block(pack: EvidencePack) -> str:
@@ -220,6 +232,9 @@ class AdvocateAgent(BaseAgent):
                 "claim_amount_sgd": dispute.claim_amount_sgd,
                 "available_evidence_refs": pack.field_refs(),
                 "available_rule_ids": self.policy.rule_ids(),
+                "filed_by": dispute.filed_by,
+                "blank_intake_questions": blank_intake_questions(dispute),
+                "has_follow_up_answers": bool(dispute.follow_up_answers),
             },
         )
 
@@ -248,7 +263,11 @@ class AdvocateAgent(BaseAgent):
             payload=case.to_dict(),
         )
 
-        if case.follow_up_questions:
+        # The one-round gate, half one: a dispute that already carries the party's
+        # answers never asks again, so the questions this advocate wanted are recorded
+        # on its case but no request goes to the party. The pipeline enforces half two
+        # (the Judge always runs when answers are present).
+        if case.follow_up_questions and not dispute.follow_up_answers:
             self.events.emit(
                 "advocate.follow_up_requested",
                 from_=self.name,

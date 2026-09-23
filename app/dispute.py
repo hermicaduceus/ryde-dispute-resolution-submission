@@ -141,6 +141,10 @@ class Dispute:
     cancellation: Dict[str, Any] = field(default_factory=dict)
     chat_log: List[Dict[str, Any]] = field(default_factory=list)
     profiles: Dict[str, Any] = field(default_factory=dict)
+    #: The filing party's round-two answers, when the run stopped to ask for them.
+    #: Present answers are the one-round gate: a dispute that carries them never stops
+    #: for questions again. Empty until the party has answered.
+    follow_up_answers: List[Dict[str, str]] = field(default_factory=list)
     raw: Dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -384,6 +388,9 @@ def _organiser_to_record(data: Dict[str, Any]) -> Dict[str, Any]:
         "cancellation": cancellation,
         "chat_log": chat_log,
         "profiles": profiles,
+        # Their shape has no slot for the party's round-two answers either; our
+        # extension block is the one place they can arrive.
+        "follow_up_answers": extensions.get("follow_up_answers"),
     }
 
 
@@ -397,6 +404,31 @@ def parse_dispute(data: Any) -> Dispute:
     # `raw` keeps the record exactly as it arrived, whichever shape that was: the case
     # file's grievance section and the filed-dispute event show what was actually filed.
     return _parse_record(_organiser_to_record(data) if is_organiser_record(data) else data, raw=data)
+
+
+def _follow_up_answers(value: Any) -> List[Dict[str, str]]:
+    """Validate the party's round-two answers, or [] when the record carries none.
+
+    Each entry must be an object with a string question and a string answer. Anything
+    else is a broken record: coercing it would put words in the party's mouth on the
+    file the advocates and the Judge read.
+    """
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise DisputeError("follow_up_answers must be a list of {question, answer} objects")
+    answers: List[Dict[str, str]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            raise DisputeError("follow_up_answers entries must be objects with question and answer")
+        question = item.get("question")
+        answer = item.get("answer")
+        if not isinstance(question, str) or not isinstance(answer, str):
+            raise DisputeError(
+                "follow_up_answers entries need a string 'question' and a string 'answer'"
+            )
+        answers.append({"question": question, "answer": answer})
+    return answers
 
 
 def _parse_record(data: Dict[str, Any], raw: Dict[str, Any]) -> Dispute:
@@ -433,6 +465,7 @@ def _parse_record(data: Dict[str, Any], raw: Dict[str, Any]) -> Dispute:
         cancellation=_mapping(data.get("cancellation"), "cancellation"),
         chat_log=[item for item in chat_log if isinstance(item, dict)],
         profiles=_mapping(data.get("profiles"), "profiles"),
+        follow_up_answers=_follow_up_answers(data.get("follow_up_answers")),
         raw=dict(raw),
     )
 

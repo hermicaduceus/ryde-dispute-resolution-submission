@@ -33,7 +33,9 @@ from .llm import LLMClient
 from .policy import PolicySet
 from .schemas import (
     HUMAN_REVIEW_MESSAGE,
+    NEEDS_INFO_MESSAGE,
     OUTCOME_HUMAN_REVIEW,
+    OUTCOME_NEEDS_INFO,
     AdvocateCase,
     Resolution,
 )
@@ -115,6 +117,7 @@ def _intake_section(dispute: Dispute) -> Dict[str, Any]:
         "claim_text": dispute.claim_text,
         "claim_amount_sgd": dispute.claim_amount_sgd,
         "form_answers": dict(dispute.intake),
+        "follow_up_answers": [dict(answer) for answer in dispute.follow_up_answers],
     }
 
 
@@ -187,6 +190,32 @@ def run_dispute(
     rider_case = rider.run(dispute, pack)
     driver_case = driver.run(dispute, pack)
 
+    # -------------------------------------------------- stop and ask (one round)
+    # Enforced in code, not in a prompt: when the advocates need more from the filing
+    # party the run stops here, before the Judge. A dispute that already carries the
+    # party's answers never stops again — the Judge always runs, and the advocates'
+    # fresh questions are recorded but not sent.
+    questions = _questions_for_party(dispute, rider_case, driver_case)
+    if questions and not dispute.follow_up_answers:
+        return _needs_info(
+            dispute=dispute,
+            events=events,
+            policy=policy,
+            pack=pack,
+            threshold=confidence_threshold,
+            rider_case=rider_case,
+            driver_case=driver_case,
+            questions=questions,
+        )
+
+    extra_notes: List[str] = []
+    if questions:
+        extra_notes.append(
+            "follow-up questions were requested by the advocates but not sent to the "
+            "party: the dispute already carries the party's follow-up answers, and a "
+            "dispute is asked at most once (one-round gate)"
+        )
+
     events.emit(
         EventType.JUDGE_DELIBERATION_STARTED,
         from_=Actor.SYSTEM,
@@ -209,6 +238,7 @@ def run_dispute(
         driver_case,
         confidence_threshold=confidence_threshold,
         autonomous_cap_sgd=autonomous_cap_sgd,
+        extra_notes=extra_notes or None,
     )
 
     events.emit(
@@ -246,6 +276,88 @@ def run_dispute(
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _questions_for_party(
+    dispute: Dispute, rider_case: AdvocateCase, driver_case: AdvocateCase
+) -> List[str]:
+    """The follow-up questions to send the filing party, or [] when none.
+
+    The filing party's own advocate's questions go first, then the other advocate's;
+    duplicates are dropped in order; the list is capped at 3. Only questions for the
+    filing party make sense — the other party never chats with the system either.
+    """
+    if dispute.filed_by == "rider":
+        collected = list(rider_case.follow_up_questions) + list(driver_case.follow_up_questions)
+    else:
+        collected = list(driver_case.follow_up_questions) + list(rider_case.follow_up_questions)
+    unique: List[str] = []
+    for question in collected:
+        if question.strip() and question not in unique:
+            unique.append(question)
+        if len(unique) >= 3:
+            break
+    return unique[:3]
+
+
+def _needs_info(
+    *,
+    dispute: Dispute,
+    events: EventLog,
+    policy: PolicySet,
+    pack: Any,
+    threshold: float,
+    rider_case: AdvocateCase,
+    driver_case: AdvocateCase,
+    questions: List[str],
+) -> CaseFile:
+    """The fourth outcome: the run stops before the Judge and asks the party.
+
+    The evidence pack and both advocate cases stay on the file — the work done so far
+    is not thrown away, it is what the next round will pick up.
+    """
+    resolution = Resolution(
+        dispute_id=dispute.dispute_id,
+        outcome=OUTCOME_NEEDS_INFO,
+        party_message=NEEDS_INFO_MESSAGE,
+        confidence_threshold=threshold,
+        escalated_for_human_review=False,
+        questions_for_party=questions,
+        notes=[
+            "the run stopped before the Judge: the filing party is being asked %d "
+            "follow-up question(s)" % len(questions)
+        ],
+    )
+    events.emit(
+        EventType.PARTY_NOTIFIED,
+        from_=Actor.SYSTEM,
+        to=Actor.PARTIES,
+        summary="the filing party has been asked %d follow-up question(s); the case waits for their answers"
+        % len(questions),
+        payload={
+            "dispute_id": dispute.dispute_id,
+            "outcome": resolution.outcome,
+            "message": resolution.party_message,
+            "questions_for_party": list(questions),
+        },
+    )
+
+    case_file = CaseFile(
+        run_id=events.run_id,
+        dispute_id=dispute.dispute_id,
+        category=dispute.category,
+        generated_at=_now(),
+        confidence_threshold=threshold,
+        policy_path=_policy_source_path(policy),
+        policy_rule_ids=policy.rule_ids(),
+        intake=_intake_section(dispute),
+        evidence_pack=pack.to_dict(),
+        rider_case=rider_case.to_dict(),
+        driver_case=driver_case.to_dict(),
+        resolution=resolution.to_dict(),
+    )
+    _complete(events, case_file, resolution)
+    return case_file
 
 
 def _requested(case: AdvocateCase) -> Dict[str, Any]:
