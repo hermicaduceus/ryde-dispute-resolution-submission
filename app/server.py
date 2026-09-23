@@ -434,6 +434,20 @@ def _validate_reply(body: Dict[str, Any], asked: List[str]) -> List[Dict[str, st
     return cleaned
 
 
+def _write_answered_record(claim_path: Path, new_run_id: str, cleaned: List[Dict[str, str]]) -> None:
+    """Record which run answered a claimed follow-up round (S4).
+
+    Module-level so a test can patch it: when this write fails the round-two
+    run has already succeeded, so the caller answers 200 with the ruling and
+    keeps the (empty) claim file — the run stays answered, no retry can rule
+    twice.
+    """
+    claim_path.write_text(
+        json.dumps({"answered_by_run": new_run_id, "answers": cleaned}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 # ------------------------------------------------------------------------ handler
 
 
@@ -664,10 +678,14 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
                 pass
             raise
 
-        claim_path.write_text(
-            json.dumps({"answered_by_run": new_case.run_id, "answers": cleaned}, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        try:
+            _write_answered_record(claim_path, new_case.run_id, cleaned)
+        except OSError as exc:
+            # S4: the round-two run already succeeded, so the answer happened —
+            # the party gets their ruling even if the bookkeeping write failed.
+            # The claim file already exists (empty), so the run stays answered
+            # and a retry cannot rule twice.
+            print("answered.json write failed for run %s: %s" % (run_id, exc), file=sys.stderr)
         self._send_json(200, party_view(new_case.to_dict()))
 
     def _run_record(self, state: "_ServerState", record: Dict[str, Any]):
