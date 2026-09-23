@@ -9,7 +9,7 @@ Shape 1 — Ryde's own (the intake form's output, and data/packs/ryde-synth-v1/)
 {
   "dispute_id": "RD-0001",                    required, string
   "category": "route_deviation",              required; see routing below
-  "filed_by": "rider",                        "rider" | "driver"
+  "filed_by": "rider",                        required; "rider" | "driver" (case/space tolerant)
   "filed_at": "2026-09-20T09:15:00+08:00",
   "claim":  {"text": "...", "amount_sgd": 6.40},
   "intake": {"<form question>": "<answer>"},  raw intake-form answers, pass-through
@@ -37,7 +37,7 @@ Shape 1 — Ryde's own (the intake form's output, and data/packs/ryde-synth-v1/)
   "profiles": {"rider": {...}, "driver": {...}}
 }
 
-Everything except dispute_id and category is optional; missing blocks produce an
+Everything except dispute_id, category and filed_by is optional; missing blocks produce an
 Evidence Pack with null fields and an explanatory note, rather than a guess.
 
 Shape 2 — the organisers' (data/packs/organiser-style-v1/, and their own DISP-002):
@@ -401,9 +401,14 @@ def _parse_record(data: Dict[str, Any], raw: Dict[str, Any]) -> Dispute:
     submitted_category = data.get("category")
     category = normalise_category(submitted_category)
 
-    filed_by = data.get("filed_by") or "rider"
+    raw_filed_by = data.get("filed_by")
+    if not isinstance(raw_filed_by, str) or not raw_filed_by.strip():
+        raise DisputeError(
+            "filed_by is required and must be 'rider' or 'driver', not %r" % (raw_filed_by,)
+        )
+    filed_by = raw_filed_by.strip().lower()
     if filed_by not in ("rider", "driver"):
-        filed_by = "rider"
+        raise DisputeError("filed_by must be 'rider' or 'driver', not %r" % raw_filed_by)
 
     chat_log = data.get("chat_log") or []
     if not isinstance(chat_log, list):
