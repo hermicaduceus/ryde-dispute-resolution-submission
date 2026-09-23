@@ -6,14 +6,19 @@ IDs agents must cite, and fails loudly when the file is missing — a run withou
 not a run this system is willing to make.
 
 Rule definition convention accepted by the loader (a line *begins* a rule when the rule
-ID is its first token, after any markdown decoration):
+ID is its first token, after any markdown decoration, and is not simply a wrapped
+sentence that happens to continue with the ID):
 
     ### RD-1 — Route deviation threshold      heading style
     **RD-1** Route deviation threshold        bold style
     | RD-1 | Route deviation threshold | ...  table-row style
 
 A rule ID that appears mid-sentence is a cross-reference, not a definition, and is
-ignored. If an ID is defined twice, the first definition wins.
+ignored. A line that starts with the ID but continues as prose ("ESC-4 cap, and
+applies to route cases only — ...", a wrapped sentence from the previous paragraph) is
+a cross-reference too, not a definition: real definitions are followed by a separator
+(em dash, closing bold, table pipe), never by a lowercase continuation word. If an ID
+is defined twice, the first definition wins.
 
 The loader exposes rule IDs and rule text. Evaluating the machine-checkable preconditions
 against an Evidence Pack is a later capability; nothing here interprets policy.
@@ -29,8 +34,9 @@ from typing import Dict, Iterable, List, Optional
 #: Rule IDs look like RD-1, NS-2, GEN-1 — 2-5 capitals, a hyphen, a number.
 RULE_ID_PATTERN = re.compile(r"\b([A-Z]{2,5}-\d{1,3})\b")
 
-#: A line defines a rule only when its first token is the rule ID.
-_DEFINITION_PATTERN = re.compile(r"^[\s#*|>\-]*([A-Z]{2,5}-\d{1,3})\b")
+#: A line defines a rule only when its first token is the rule ID, followed by a
+#: separator rather than a continuation word (see the module docstring).
+_DEFINITION_PATTERN = re.compile(r"^[\s#*|>\-]*([A-Z]{2,5}-\d{1,3})\b(?!\s[a-z])")
 
 
 class PolicyError(RuntimeError):
@@ -65,6 +71,22 @@ class PolicySet:
             if rule.rule_id == rule_id:
                 return rule.text
         raise KeyError("no rule %r in %s" % (rule_id, self.source_path))
+
+    def rule_title(self, rule_id: str) -> str:
+        """The rule's plain heading title, for party-facing citations.
+
+        From the definition line's text after the em dash, with the rule ID and any
+        provenance tag `[...]` stripped: '### RD-1 — When a deviation is material
+        [SYNTHESISED]' -> 'When a deviation is material'. Raises KeyError for an
+        unknown ID, like rule_text.
+        """
+        text = self.rule_text(rule_id)
+        first_line = text.splitlines()[0] if text else ""
+        # Provenance tags first, so a tag containing the ID cannot confuse the next step.
+        line = re.sub(r"\[[^\]]*\]", "", first_line)
+        line = re.sub(r"^[#*\s|>\-]+", "", line)
+        line = re.sub(r"^%s\b" % re.escape(rule_id), "", line, count=1)
+        return line.lstrip("—–-:|* \t").strip()
 
     def unknown_rule_ids(self, cited: Iterable[str]) -> List[str]:
         """Which of the cited IDs are not in the document — i.e. invented by a model."""

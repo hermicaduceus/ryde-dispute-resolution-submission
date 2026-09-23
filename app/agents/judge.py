@@ -206,7 +206,7 @@ class Judge(BaseAgent):
             return Resolution(
                 dispute_id=dispute.dispute_id,
                 outcome=OUTCOME_RULED,
-                party_message=party_message_for_ruling(ruling),
+                party_message=party_message_for_ruling(ruling, self.policy),
                 confidence_threshold=confidence_threshold,
                 ruling=ruling,
                 notes=list(extra_notes or []),

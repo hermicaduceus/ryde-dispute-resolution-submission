@@ -45,11 +45,13 @@ from .pipeline import run_dispute
 from .policy import load_policy
 from .schemas import (
     HUMAN_REVIEW_MESSAGE,
+    NEEDS_INFO_MESSAGE,
     OUTCOME_HUMAN_REVIEW,
     OUTCOME_NEEDS_INFO,
     OUTCOME_RULED,
     OUTCOME_WITHHELD,
     UNDER_REVIEW_MESSAGE,
+    is_party_safe,
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -149,6 +151,13 @@ def party_view(case_file: Any) -> Dict[str, Any]:
         questions = resolution.get("questions_for_party", [])
         if not isinstance(questions, list) or not all(isinstance(q, str) for q in questions):
             raise _MalformedCaseFile
+        # Second line of defence (R1): a decided or needs-info message that carries the
+        # internal vocabulary fails closed. The message builder in app/schemas.py should
+        # never produce one, but a planted or stale case file does not get the benefit
+        # of the doubt.
+        if status in ("decided", "needs_info"):
+            if not is_party_safe(message) or not all(is_party_safe(q) for q in questions):
+                raise _MalformedCaseFile
         # Only the needs-info view carries questions, and a withheld ruling always
         # shows the canonical neutral message, never whatever the file contains.
         return {

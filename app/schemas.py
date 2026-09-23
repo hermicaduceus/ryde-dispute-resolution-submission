@@ -27,11 +27,35 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+#: The vocabulary a party must never read: the internal system's names, the confidence
+#: mechanics, the withholding and escalation mechanics. This is the same banned-word set
+#: the acceptance tests use; code that composes or relays a party-facing string checks
+#: against it and fails closed rather than shipping the word.
+PARTY_UNSAFE_PATTERN = re.compile(
+    r"\b(ai|agent|agents|advocate|advocates|judge|confidence|withheld|escalat\w*|model)\b",
+    re.IGNORECASE,
+)
+
+#: Rule IDs (RD-1, ESC-4, ...) are internal citations; a party-facing string that
+#: carries one is leaking the machinery, not explaining the decision.
+PARTY_UNSAFE_RULE_ID_PATTERN = re.compile(r"\b[A-Z]{2,5}-\d{1,3}\b")
+
 #: Shown to the parties when the Judge does not rule. Deliberately says nothing about
 #: AI, about which way the case is leaning, or about what the confidence was.
 UNDER_REVIEW_MESSAGE = (
     "Your case is still under review. We will let you know as soon as a decision is made."
 )
+
+
+def is_party_safe(text: Any) -> bool:
+    """True when a string carries nothing a party must not read.
+
+    Checks the banned internal vocabulary and rule-ID-shaped tokens. Used by every
+    code path that composes or relays a party-facing message or question.
+    """
+    if not isinstance(text, str):
+        return False
+    return not PARTY_UNSAFE_PATTERN.search(text) and not PARTY_UNSAFE_RULE_ID_PATTERN.search(text)
 
 #: Shown to the parties when the intake category is outside the two the agents handle.
 HUMAN_REVIEW_MESSAGE = (
@@ -333,12 +357,45 @@ class Resolution:
         }
 
 
-def party_message_for_ruling(ruling: JudgeRuling) -> str:
-    """The message both parties receive when a ruling is issued."""
+def _cited_rule_titles(ruling: "JudgeRuling", policy: Any) -> List[str]:
+    """The plain titles of the rules a ruling rests on, safe for a party to read.
+
+    At most 3; a title that cannot be resolved, is empty, or would leak the internal
+    vocabulary (the ESC family: low confidence, escalation, ...) is skipped. Titles are
+    the only policy content that crosses to the party — never IDs, never the rule text,
+    never the Judge's explanation.
+    """
+    if policy is None:
+        return []
+    titles: List[str] = []
+    for rule_id in ruling.cited_rule_ids:
+        if len(titles) >= 3:
+            break
+        try:
+            title = policy.rule_title(rule_id)
+        except KeyError:
+            continue
+        title = (title or "").strip()
+        if not title or not is_party_safe(title):
+            continue
+        titles.append(title)
+    return titles
+
+
+def party_message_for_ruling(ruling: "JudgeRuling", policy: Any = None) -> str:
+    """The message both parties receive when a ruling is issued.
+
+    Built in code from structured fields only (the operator ruling 2026-09-23, option A): the
+    action, the amount for a money ruling, and the plain titles of the cited policy
+    rules. The Judge's explanation is never relayed — it stays on
+    resolution.ruling.explanation for the operator console. With no policy the message
+    is action and amount alone.
+    """
     if ruling.action == RulingAction.NO_ACTION.value:
-        return "Decision: no action. %s" % ruling.explanation
-    return "Decision: %s of SGD %.2f. %s" % (
-        ruling.action,
-        ruling.recommended_amount_sgd,
-        ruling.explanation,
-    )
+        message = "Decision: no action."
+    else:
+        message = "Decision: %s of SGD %.2f." % (ruling.action, ruling.recommended_amount_sgd)
+    titles = _cited_rule_titles(ruling, policy)
+    if titles:
+        message += " Basis: %s." % "; ".join(titles)
+    return message
