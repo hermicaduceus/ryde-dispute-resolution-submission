@@ -1,8 +1,11 @@
 """Runtime configuration: settings from app/config.json, secrets from the environment.
 
 Split rule (keeps the public repo clean):
-  * settings   -> app/config.json   (committed; threshold, provider, paths)
+  * settings   -> app/config.json   (committed; threshold, provider, paths, dataset pack)
   * secrets    -> .env / environment (never committed; API keys only)
+
+The dataset pack names which corpus under data/packs/ the CLI reads disputes from;
+`resolve_pack_dir` turns the name into a path and refuses an unknown one.
 
 The confidence threshold is read from config and passed explicitly into the pipeline.
 It is never hard-coded in agent logic, so the demo can change it live by editing the
@@ -23,6 +26,12 @@ from typing import Any, Dict, Optional
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG_PATH = REPO_ROOT / "app" / "config.json"
 DEFAULT_ENV_PATH = REPO_ROOT / ".env"
+
+#: Where the swappable dispute corpora live, and which one runs unless config says
+#: otherwise. A pack is a directory holding disputes/, ground-truth.json and pack.json;
+#: swapping one in is a directory copy, never a code change.
+DATASET_PACKS_DIR = REPO_ROOT / "data" / "packs"
+DEFAULT_DATASET_PACK = "organiser-style-v1"
 
 
 class ConfigError(RuntimeError):
@@ -96,6 +105,9 @@ class Config:
     policy_path: Path
     out_dir: Path
     source_path: Path
+    #: The dataset pack to read disputes from: its name, and its resolved directory.
+    dataset_pack: str
+    dataset_pack_dir: Path
 
 
 def _require_mapping(data: Dict[str, Any], key: str, where: str) -> Dict[str, Any]:
@@ -110,6 +122,30 @@ def _resolve_path(value: Any, key: str, where: str) -> Path:
         raise ConfigError("%s: paths.%s must be a non-empty string, got %r" % (where, key, value))
     path = Path(value.strip())
     return path if path.is_absolute() else (REPO_ROOT / path).resolve()
+
+
+def _pack_name(value: Any) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ConfigError("dataset_pack must be a non-empty pack name, got %r" % (value,))
+    return value.strip()
+
+
+def resolve_pack_dir(name: str) -> Path:
+    """Resolve a dataset pack name to its directory under data/packs/.
+
+    Raises ConfigError for a name that is not a pack, listing what is available: a run
+    against a pack that does not exist must fail before it reads anything, not part-way
+    through with a missing dispute file.
+    """
+    pack_name = _pack_name(name)
+    path = (DATASET_PACKS_DIR / pack_name).resolve()
+    if not (path / "disputes").is_dir():
+        available = ", ".join(sorted(p.name for p in DATASET_PACKS_DIR.glob("*") if (p / "disputes").is_dir()))
+        raise ConfigError(
+            "unknown dataset pack %r: %s has no disputes/ directory. Available packs: %s"
+            % (pack_name, path, available or "(none)")
+        )
+    return path
 
 
 def load_config(path: Optional[Path] = None) -> Config:
@@ -169,6 +205,11 @@ def load_config(path: Optional[Path] = None) -> Config:
     policy_path = _resolve_path(paths_raw.get("policy"), "policy", where)
     out_dir = _resolve_path(paths_raw.get("out_dir"), "out_dir", where)
 
+    # Which corpus to run on. Defaulted rather than required, so a config file written
+    # before the packs existed still loads and still names a real pack.
+    pack_name = _pack_name(data.get("dataset_pack", DEFAULT_DATASET_PACK))
+    pack_dir = resolve_pack_dir(pack_name)
+
     llm = LLMSettings(
         provider=provider.strip(),
         endpoint=str(llm_raw.get("endpoint", "") or ""),
@@ -185,4 +226,6 @@ def load_config(path: Optional[Path] = None) -> Config:
         policy_path=policy_path,
         out_dir=out_dir,
         source_path=config_path.resolve(),
+        dataset_pack=pack_name,
+        dataset_pack_dir=pack_dir,
     )

@@ -6,6 +6,9 @@
     "autonomous_cap_sgd: policy ESC-4. A remedy above this amount is prepared but never",
     "issued autonomously -- it is withheld for a human, exactly like a low-confidence",
     "ruling. Enforced in app/agents/judge.py, not asked of the model in a prompt.",
+    "dataset_pack: which corpus under data/packs/ the CLI reads disputes from. The pack",
+    "holds disputes/, ground-truth.json and pack.json; swapping corpora is a directory",
+    "copy, never a code change. Override for one run with --pack <name>.",
     "llm.endpoint / llm.model: placeholders. The Tencent service name and endpoint are not",
     "pinned yet -- see the TODO in app/llm/tencent.py. The API key never goes here: it lives",
     "in .env as TENCENT_LLM_API_KEY and .env is never committed."
@@ -13,6 +16,7 @@
 
   "confidence_threshold": 0.65,
   "autonomous_cap_sgd": 50.00,
+  "dataset_pack": "organiser-style-v1",
 
   "llm": {
     "provider": "mock",
