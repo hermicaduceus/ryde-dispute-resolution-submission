@@ -30,15 +30,18 @@ from typing import Any, Dict, List, Optional
 #: The vocabulary a party must never read: the internal system's names, the confidence
 #: mechanics, the withholding and escalation mechanics. This is the same banned-word set
 #: the acceptance tests use; code that composes or relays a party-facing string checks
-#: against it and fails closed rather than shipping the word.
+#: against it and fails closed rather than shipping the word. Stem-shaped, not exact
+#: words (S2): "models", "judges", "withhold", "judgement", "confident", "advocacy"
+#: leaked through an exact-word list.
 PARTY_UNSAFE_PATTERN = re.compile(
-    r"\b(ai|agent|agents|advocate|advocates|judge|confidence|withheld|escalat\w*|model)\b",
+    r"\b(ai|agents?|advoca\w*|judg\w*|confiden\w*|withh[eo]ld\w*|escalat\w*|models?)\b",
     re.IGNORECASE,
 )
 
 #: Rule IDs (RD-1, ESC-4, ...) are internal citations; a party-facing string that
-#: carries one is leaking the machinery, not explaining the decision.
-PARTY_UNSAFE_RULE_ID_PATTERN = re.compile(r"\b[A-Z]{2,5}-\d{1,3}\b")
+#: carries one is leaking the machinery, not explaining the decision. Case-insensitive
+#: with up to 4 digits (S2): lowercase "rd-1", "Esc-4" and "RD-1000" leaked through.
+PARTY_UNSAFE_RULE_ID_PATTERN = re.compile(r"\b[A-Z]{2,5}-\d{1,4}\b", re.IGNORECASE)
 
 #: Shown to the parties when the Judge does not rule. Deliberately says nothing about
 #: AI, about which way the case is leaning, or about what the confidence was.
