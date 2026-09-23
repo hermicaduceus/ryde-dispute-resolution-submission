@@ -122,10 +122,12 @@ def party_view(case_file: Any) -> Dict[str, Any]:
     """The only shape of a case file the party is ever handed.
 
     Built from an allowlist and failing closed: any malformed input — not a non-array
-    object, a missing or empty party_message, an unknown outcome, questions_for_party
-    that is not a list of strings — returns the neutral under-review view with no
-    questions. A withheld ruling's amount and the Judge's confidence are structurally
-    absent from everything this function returns.
+    object, an unknown outcome, questions_for_party that is not a list of strings, a
+    decided file with a missing or empty party_message — returns the neutral
+    under-review view with no questions. A non-decision status never shows the file's
+    message (S1), so a blank one there costs nothing and must not cost the safe
+    questions too (T4). A withheld ruling's amount and the Judge's confidence are
+    structurally absent from everything this function returns.
     """
     run_id = case_file.get("run_id") if isinstance(case_file, dict) else None
     dispute_id = case_file.get("dispute_id") if isinstance(case_file, dict) else None
@@ -136,10 +138,14 @@ def party_view(case_file: Any) -> Dict[str, Any]:
         if not isinstance(resolution, dict):
             raise _MalformedCaseFile
         message = resolution.get("party_message")
-        if not isinstance(message, str) or not message.strip():
-            raise _MalformedCaseFile
         status = PARTY_STATUS_BY_OUTCOME.get(resolution.get("outcome"))
         if status is None:
+            raise _MalformedCaseFile
+        # T4: only a decision shows the file's text, so only a decision needs a
+        # non-blank one. Rejecting a blank message for every status would throw
+        # away a needs-info file's safe questions over a string that is never
+        # displayed.
+        if status == "decided" and (not isinstance(message, str) or not message.strip()):
             raise _MalformedCaseFile
         questions = resolution.get("questions_for_party", [])
         if not isinstance(questions, list) or not all(isinstance(q, str) for q in questions):
