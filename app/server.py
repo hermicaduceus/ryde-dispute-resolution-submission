@@ -144,20 +144,26 @@ def party_view(case_file: Any) -> Dict[str, Any]:
         questions = resolution.get("questions_for_party", [])
         if not isinstance(questions, list) or not all(isinstance(q, str) for q in questions):
             raise _MalformedCaseFile
-        # Second line of defence (R1): a decided or needs-info message that carries the
-        # internal vocabulary fails closed. The message builder in app/schemas.py should
-        # never produce one, but a planted or stale case file does not get the benefit
-        # of the doubt.
-        if status in ("decided", "needs_info"):
-            if not is_party_safe(message) or not all(is_party_safe(q) for q in questions):
-                raise _MalformedCaseFile
-        # Only the needs-info view carries questions, and a withheld ruling always
-        # shows the canonical neutral message, never whatever the file contains.
+        # Second line of defence (R1/S1): a decided message that carries the
+        # internal vocabulary fails closed. The message builder in app/schemas.py
+        # should never produce one, but a planted or stale case file does not get
+        # the benefit of the doubt. The needs-info questions keep the same check.
+        if status == "decided" and not is_party_safe(message):
+            raise _MalformedCaseFile
+        if status == "needs_info" and not all(is_party_safe(q) for q in questions):
+            raise _MalformedCaseFile
+        # Only a decision's message may vary (S1): every other status shows its
+        # canonical constant, never the text a stale or planted file carries.
+        canonical_message = {
+            "under_review": UNDER_REVIEW_MESSAGE,
+            "passed_to_support": HUMAN_REVIEW_MESSAGE,
+            "needs_info": NEEDS_INFO_MESSAGE,
+        }.get(status, message)
         return {
             "run_id": run_id if isinstance(run_id, str) else "",
             "dispute_id": dispute_id if isinstance(dispute_id, str) else "",
             "status": status,
-            "message": UNDER_REVIEW_MESSAGE if status == "under_review" else message,
+            "message": canonical_message,
             "questions": list(questions) if status == "needs_info" else [],
         }
     except _MalformedCaseFile:

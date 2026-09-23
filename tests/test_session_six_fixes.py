@@ -157,20 +157,45 @@ class R1DecisionMessageIsBuiltInCode(unittest.TestCase):
             server.close()
 
     def test_party_view_fails_closed_on_a_leaky_planted_message(self):
+        # Updated in fix round two (S1): a needs-info file's message is never
+        # relayed at any more — the view shows the canonical constant and keeps
+        # safe questions, so a leaky message there is no longer grounds to fail
+        # the whole view closed. The decided message still fails closed, and a
+        # needs-info run's QUESTIONS keep their check (leaky question -> closed).
         from app.server import party_view
-        from app.schemas import UNDER_REVIEW_MESSAGE
+        from app.schemas import NEEDS_INFO_MESSAGE, UNDER_REVIEW_MESSAGE
 
-        for outcome, extra in (("ruled", {}), ("needs_info", {"questions_for_party": ["Where were you?"]})):
-            with self.subTest(outcome=outcome):
-                case = {
-                    "run_id": "r", "dispute_id": "d",
-                    "resolution": dict({"outcome": outcome,
-                                        "party_message": "Decision: refund. The Judge was confident."}, **extra),
-                }
-                view = party_view(case)
-                self.assertEqual("under_review", view["status"])
-                self.assertEqual(UNDER_REVIEW_MESSAGE, view["message"])
-                self.assertEqual([], view["questions"])
+        case = {
+            "run_id": "r", "dispute_id": "d",
+            "resolution": {"outcome": "ruled",
+                           "party_message": "Decision: refund. The Judge was confident."},
+        }
+        view = party_view(case)
+        self.assertEqual("under_review", view["status"])
+        self.assertEqual(UNDER_REVIEW_MESSAGE, view["message"])
+        self.assertEqual([], view["questions"])
+
+        case = {
+            "run_id": "r", "dispute_id": "d",
+            "resolution": {"outcome": "needs_info",
+                           "party_message": "Decision: refund. The Judge was confident.",
+                           "questions_for_party": ["Where were you?"]},
+        }
+        view = party_view(case)
+        self.assertEqual("needs_info", view["status"])
+        self.assertEqual(NEEDS_INFO_MESSAGE, view["message"])
+        self.assertEqual(["Where were you?"], view["questions"])
+
+        case = {
+            "run_id": "r", "dispute_id": "d",
+            "resolution": {"outcome": "needs_info",
+                           "party_message": "We will look into it.",
+                           "questions_for_party": ["Why did the Judge escalate?"]},
+        }
+        view = party_view(case)
+        self.assertEqual("under_review", view["status"])
+        self.assertEqual(UNDER_REVIEW_MESSAGE, view["message"])
+        self.assertEqual([], view["questions"])
 
 
 # ---------------------------------------------------------------- R2 questions
