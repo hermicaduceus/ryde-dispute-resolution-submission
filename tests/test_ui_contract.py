@@ -19,7 +19,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 UI_SOURCE = REPO / "ui" / "app.js"
-CORPUS = REPO / "data" / "disputes"
+CORPUS = REPO / "data" / "packs" / "ryde-synth-v1" / "disputes"
 
 _NODE_HARNESS = r'''
 "use strict";

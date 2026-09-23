@@ -1,0 +1,186 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "NS-0203",
+    "trip_id": "T-NS0203",
+    "filed_by": "rider",
+    "dispute_type": "no_show_charge",
+    "description": "The driver never came to the pickup point but I was charged a no-show fee. He said he arrived, but he was never outside my block, and I was standing at the pickup point the whole time. There were no calls, just the arrival notification. This charge is completely unfair and I want it reversed.",
+    "filed_at": "2026-09-14T20:13:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6003",
+    "name": "Ravindran s/o Muthu",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3003",
+    "name": "Clara Lim Si Ying",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.55,
+    "dispute_history": {
+      "total_disputes": 22,
+      "upheld_against": 11,
+      "rejected": 11
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SLB 5608 D)"
+  },
+  "trip_data": {
+    "trip_id": "T-NS0203",
+    "rider_id": "R-6003",
+    "driver_id": "D-3003",
+    "pickup_location": {
+      "name": "Orchard Boulevard",
+      "lat": 1.3048,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Junction 8, Bishan",
+      "lat": 1.3502,
+      "lng": 103.8488
+    },
+    "requested_time": "2026-09-14T18:59:20+08:00",
+    "driver_arrival_time": "2026-09-14T19:06:00+08:00",
+    "driver_wait_start": "2026-09-14T19:06:00+08:00",
+    "cancellation_time": "2026-09-14T19:13:00+08:00",
+    "cancellation_fee": 6.61,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T19:01:00+08:00",
+      "lat": 1.327228,
+      "lng": 103.8318,
+      "speed_kmh": 34,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-14T19:04:00+08:00",
+      "lat": 1.31728,
+      "lng": 103.8318,
+      "speed_kmh": 14,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "lat": 1.312758,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-09-14T19:08:00+08:00",
+      "lat": 1.312758,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-14T19:10:00+08:00",
+      "lat": 1.312758,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-14T19:12:00+08:00",
+      "lat": 1.312758,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-14T19:13:00+08:00",
+      "lat": 1.312758,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I have arrived."
+    },
+    {
+      "timestamp": "2026-09-14T19:08:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I am at the pickup point and you are not here."
+    },
+    {
+      "timestamp": "2026-09-14T19:10:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I can see the map, you did not arrive."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T18:59:20+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6003 booked trip T-NS0203 from Orchard Boulevard to Junction 8, Bishan."
+    },
+    {
+      "timestamp": "2026-09-14T19:00:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3003 (Toyota Prius (SLB 5608 D)) assigned."
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver marked arrival (\"I'm Here\")."
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started."
+    },
+    {
+      "timestamp": "2026-09-14T19:13:00+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Trip cancelled by driver. Reason: rider_no_show."
+    },
+    {
+      "timestamp": "2026-09-14T19:13:00+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$6.61 cancellation fee charged to rider payment method."
+    }
+  ],
+  "cancellation_policy": {
+    "free_cancellation_window_min": 3,
+    "free_wait_time_min": 3,
+    "no_show_threshold_min": 3,
+    "cancellation_fee_after_wait": 6.61,
+    "waiting_fee_after_wait": 5.0,
+    "source": "Ryde published cancellation and waiting fee policy (docs/policy.md parameters)"
+  },
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "The driver never came to the pickup point but charged me a no-show.",
+      "amount_sgd": 6.61
+    },
+    "intake": {
+      "what_went_wrong": "Driver said he arrived but he was never outside my block.",
+      "where_were_you": "Standing at the pickup point the whole time.",
+      "did_driver_contact_you": "No calls, just the arrival notification.",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX",
+    "rider_claims_driver_absent": true
+  }
+}

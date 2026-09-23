@@ -1,0 +1,233 @@
+{
+  "_readme": [
+    "Ground truth for the synthesised corpus in disputes/.",
+    "Deliberately kept OUT of the dispute records: a label inside the input would be",
+    "visible to the agents and would make any accuracy measurement worthless.",
+    "expected_outcome is one of: ruled | escalated | human_review.",
+    "decisive_rule_ids are the rules a correct ruling must rest on, from docs/policy.md."
+  ],
+  "policy_version": "1.0",
+  "case_count": 18,
+  "cases": [
+    {
+      "dispute_id": "RD-0101",
+      "category": "route_deviation",
+      "expected_outcome": "ruled",
+      "expected_action": "refund",
+      "expected_amount_sgd": 5.81,
+      "decisive_rule_ids": [
+        "RD-1",
+        "RD-2",
+        "RD-3"
+      ],
+      "rationale": "50% / 3.2 km deviation clears both limbs of RD-1. The rider questioned the route while it was happening and the driver gave no reason RD-2 recognises, so the deviation is unjustified and the fare delta is refunded."
+    },
+    {
+      "dispute_id": "RD-0102",
+      "category": "route_deviation",
+      "expected_outcome": "ruled",
+      "expected_action": "no action",
+      "expected_amount_sgd": 0.0,
+      "decisive_rule_ids": [
+        "RD-1",
+        "RD-2"
+      ],
+      "rationale": "The deviation is material, but the rider asked for the extra stop in the chat and confirmed it on the intake form. RD-2 makes an agreed route change a justified deviation, so the higher fare stands."
+    },
+    {
+      "dispute_id": "RD-0103",
+      "category": "route_deviation",
+      "expected_outcome": "ruled",
+      "expected_action": "no action",
+      "expected_amount_sgd": 0.0,
+      "decisive_rule_ids": [
+        "RD-1"
+      ],
+      "rationale": "6% / 0.3 km is below both limbs of RD-1, so the deviation is immaterial and no remedy arises. The rider's high dispute rate is context only and is not the reason the claim fails (GEN-8)."
+    },
+    {
+      "dispute_id": "RD-0104",
+      "category": "route_deviation",
+      "expected_outcome": "ruled",
+      "expected_action": "refund",
+      "expected_amount_sgd": 7.7,
+      "decisive_rule_ids": [
+        "RD-1",
+        "RD-3"
+      ],
+      "rationale": "20% is at the first limb's threshold but 6.5 km independently clears RD-1's gross limb, which exists precisely for long trips where a percentage understates the detour. Unjustified, so the delta is refunded."
+    },
+    {
+      "dispute_id": "RD-0105",
+      "category": "route_deviation",
+      "expected_outcome": "ruled",
+      "expected_action": "no action",
+      "expected_amount_sgd": 0.0,
+      "decisive_rule_ids": [
+        "RD-1",
+        "RD-4"
+      ],
+      "rationale": "The deviation is material and unjustified, but the rider was charged the quoted fixed fare: charged_sgd equals recomputed_estimated_route_sgd. RD-4 says a rider who paid the quoted price was not overcharged. The routing is recorded under GEN-7."
+    },
+    {
+      "dispute_id": "RD-0106",
+      "category": "route_deviation",
+      "expected_outcome": "ruled",
+      "expected_action": "refund",
+      "expected_amount_sgd": 3.4,
+      "decisive_rule_ids": [
+        "EV-3",
+        "RD-5"
+      ],
+      "rationale": "No material deviation, but the breakdown does not sum to the amount charged (breakdown_consistent is false) and the charge exceeds the recomputed fare by the same 3.40. RD-5 refunds a pricing error independent of routing; fare accuracy is the operator's responsibility, not the driver's."
+    },
+    {
+      "dispute_id": "RD-0107",
+      "category": "route_deviation",
+      "expected_outcome": "ruled",
+      "expected_action": "no action",
+      "expected_amount_sgd": 0.0,
+      "decisive_rule_ids": [
+        "RD-1",
+        "RD-6"
+      ],
+      "rationale": "86% duration overrun with a 3% distance variance. RD-6: a trip that took longer without travelling further is a traffic outcome, and the chat shows both parties attributing it to an accident. The time charge stands."
+    },
+    {
+      "dispute_id": "RD-0108",
+      "category": "route_deviation",
+      "expected_outcome": "escalated",
+      "expected_action": null,
+      "expected_amount_sgd": null,
+      "decisive_rule_ids": [
+        "EV-1",
+        "ESC-2"
+      ],
+      "rationale": "The record has no estimated distance, so route.deviation_km and deviation_pct are both null and RD-1 cannot be tested. EV-1 requires all three inputs; ESC-2 sends it to a human rather than inventing a baseline."
+    },
+    {
+      "dispute_id": "RD-0109",
+      "category": "route_deviation",
+      "expected_outcome": "escalated",
+      "expected_action": null,
+      "expected_amount_sgd": null,
+      "decisive_rule_ids": [
+        "RD-1",
+        "RD-3",
+        "ESC-4"
+      ],
+      "rationale": "The deviation is material and unjustified and the delta exceeds the SGD 50 autonomous cap, so ESC-4 prepares the ruling as a recommendation but sends it to a human. The merits are clear; the amount is what withholds it."
+    },
+    {
+      "dispute_id": "NS-0201",
+      "category": "no_show_charge",
+      "expected_outcome": "ruled",
+      "expected_action": "no action",
+      "expected_amount_sgd": 0.0,
+      "decisive_rule_ids": [
+        "NS-1",
+        "NS-2",
+        "NS-3"
+      ],
+      "rationale": "The driver was 18 m from the booked pickup point and waited 5.5 minutes, so both preconditions in NS-2 and NS-3 are met and the fee was earned. The rider being nearly ready does not unmake a valid charge."
+    },
+    {
+      "dispute_id": "NS-0202",
+      "category": "no_show_charge",
+      "expected_outcome": "ruled",
+      "expected_action": "refund",
+      "expected_amount_sgd": 6.61,
+      "decisive_rule_ids": [
+        "NS-2",
+        "GEN-3"
+      ],
+      "rationale": "The driver was at the pickup point but waited only 1.5 minutes, short of the 3 minutes NS-2 requires. Under GEN-3 the records must positively support the charge; here they refute it, so the fee is refunded in full."
+    },
+    {
+      "dispute_id": "NS-0203",
+      "category": "no_show_charge",
+      "expected_outcome": "ruled",
+      "expected_action": "refund",
+      "expected_amount_sgd": 6.61,
+      "decisive_rule_ids": [
+        "NS-3",
+        "GEN-7"
+      ],
+      "rationale": "The driver marked arrival 880 m from the booked pickup point, well beyond the 500 m limit in NS-3, so the wait never started and the fee is invalid however long the clock ran. The pattern is flagged under GEN-7 for the platform's own enforcement."
+    },
+    {
+      "dispute_id": "NS-0204",
+      "category": "no_show_charge",
+      "expected_outcome": "ruled",
+      "expected_action": "refund",
+      "expected_amount_sgd": 6.61,
+      "decisive_rule_ids": [
+        "NS-4",
+        "GEN-3"
+      ],
+      "rationale": "No arrival was ever recorded and the driver never marked a no-show. Under NS-4 a rider whose driver did not arrive owes nothing, and the fee is refunded. The stationary-and-unresponsive pattern is recorded under GEN-7."
+    },
+    {
+      "dispute_id": "NS-0205",
+      "category": "no_show_charge",
+      "expected_outcome": "escalated",
+      "expected_action": null,
+      "expected_amount_sgd": null,
+      "decisive_rule_ids": [
+        "NS-6",
+        "ESC-3"
+      ],
+      "rationale": "Both parties assert incompatible facts and the driver's position at arrival was never recorded, so NS-3 cannot settle it. The wait alone clears NS-2, which makes the charge arguable rather than proven. NS-6 routes it to ESC-3."
+    },
+    {
+      "dispute_id": "NS-0206",
+      "category": "no_show_charge",
+      "expected_outcome": "ruled",
+      "expected_action": "refund",
+      "expected_amount_sgd": 6.61,
+      "decisive_rule_ids": [
+        "NS-1",
+        "GEN-3"
+      ],
+      "rationale": "The cancellation came 2 minutes after matching, inside Ryde's published 3-minute free window, and no arrival was recorded. NS-1 makes the fee unchargeable and it is refunded in full."
+    },
+    {
+      "dispute_id": "NS-0207",
+      "category": "no_show_charge",
+      "expected_outcome": "ruled",
+      "expected_action": "no action",
+      "expected_amount_sgd": 0.0,
+      "decisive_rule_ids": [
+        "NS-5",
+        "NS-3"
+      ],
+      "rationale": "The driver was 30 m from the pickup point and waited 6 minutes before the rider boarded, and the trip completed. NS-5 makes the waiting fee chargeable on exactly those facts."
+    },
+    {
+      "dispute_id": "OS-0301",
+      "category": "Property Damage / Mess",
+      "expected_outcome": "human_review",
+      "expected_action": null,
+      "expected_amount_sgd": null,
+      "decisive_rule_ids": [
+        "GEN-1",
+        "ESC-1"
+      ],
+      "rationale": "Property damage and cleaning are outside the two categories this policy covers. GEN-1 scopes it out and ESC-1 routes it to the support queue with a neutral acknowledgement, without an agent ruling."
+    },
+    {
+      "dispute_id": "DISP-002",
+      "category": "no_show_charge",
+      "expected_outcome": "ruled",
+      "expected_action": "no action",
+      "expected_amount_sgd": 0.0,
+      "decisive_rule_ids": [
+        "NS-2",
+        "NS-3",
+        "NS-6"
+      ],
+      "label_source": "organiser (sample states: Cancellation charge UPHELD)",
+      "rationale": "Contested no-show settled by telemetry, as NS-6 requires: the driver's arrival point is the booked pickup point (0 m, NS-3) and the driver waited 8.0 minutes from arrival (08:43) to cancellation (08:51). The case carries its own cancellation_policy (5 min free wait, 8 min no-show threshold, $5.00 fee), which supersedes the Ryde parameters for this trip. Two fragilities a correct ruling must handle explicitly: the wait EQUALS the 8-minute threshold rather than exceeding it (the sample's own event log treats reaching it as sufficient), and the booking was scheduled for 08:45, so measured from the scheduled time the wait is only 6 minutes. The charge stands only when the wait runs from arrival."
+    }
+  ]
+}

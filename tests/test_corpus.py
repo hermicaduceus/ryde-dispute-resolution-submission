@@ -21,7 +21,7 @@ from app.evidence import build_evidence_pack
 from app.policy import load_policy
 
 REPO = Path(__file__).resolve().parent.parent
-DATA = REPO / "data"
+DATA = REPO / "data" / "packs" / "ryde-synth-v1"
 DISPUTES = DATA / "disputes"
 GROUND_TRUTH = DATA / "ground-truth.json"
 POLICY = REPO / "docs" / "policy.md"

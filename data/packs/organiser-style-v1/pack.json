@@ -1,0 +1,12 @@
+{
+  "name": "organiser-style-v1",
+  "format": "organiser-v1",
+  "description": "The 17 synthesised cases re-expressed in the organisers' sample-dataset shape, plus the organisers' own sample case(s) verbatim.",
+  "provenance": "Organiser samples (DISP-*) are copied unmodified from the file the organisers shared. Every other case is synthetic, generated from ryde-synth-v1 by tools/organiser_pack.py: same numbers, organiser field names, model-drafted free-text descriptions reviewed by the team.",
+  "schema_extensions": [
+    "trip_data carries our route-deviation fields (estimated_distance_km, estimated_duration_min, pickup_time, dropoff_time, fare): the organiser sample is a no-show and has no slot for them.",
+    "ryde_extensions carries the claim amount, intake-form answers and rider_claims_driver_absent, which the organiser ticket has no slot for.",
+    "cancellation_policy on synthetic cases carries Ryde's published terms (the docs/policy.md parameters); on organiser samples it carries the organisers' own terms and governs that case."
+  ],
+  "case_count": 18
+}

@@ -1,0 +1,196 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "RD-0107",
+    "trip_id": "T-RD0107",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The trip took nearly twice as long as the app estimated and it cost me more. I had agreed to the route and the app said it should have taken about 22 minutes, but it dragged on far longer than that. I didn't ask the driver to stop anywhere. I want the extra fare refunded.",
+    "filed_at": "2026-09-14T12:11:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5007",
+    "name": "Rajesh Kumar",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-2007",
+    "name": "Peter Fernandez",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Nissan Sylphy (SDR 5548 J)"
+  },
+  "trip_data": {
+    "trip_id": "T-RD0107",
+    "rider_id": "R-5007",
+    "driver_id": "D-2007",
+    "pickup_location": {
+      "name": "Dhoby Ghaut",
+      "lat": 1.2989,
+      "lng": 103.8456
+    },
+    "dropoff_location": {
+      "name": "Lorong Ah Soo",
+      "lat": 1.351946,
+      "lng": 103.883684
+    },
+    "requested_time": "2026-09-14T09:26:00+08:00",
+    "pickup_time": "2026-09-14T09:30:00+08:00",
+    "dropoff_time": "2026-09-14T10:11:00+08:00",
+    "estimated_duration_min": 22,
+    "estimated_distance_km": 7.1,
+    "fare": {
+      "charged_sgd": 19.29,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 5.84,
+        "time_sgd": 10.25
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "lat": 1.2989,
+      "lng": 103.8456,
+      "speed_kmh": 0,
+      "status": "picked_up"
+    },
+    {
+      "timestamp": "2026-09-14T09:34:33.333333+08:00",
+      "lat": 1.304405,
+      "lng": 103.850387,
+      "speed_kmh": 11,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:39:06.666667+08:00",
+      "lat": 1.310785,
+      "lng": 103.853924,
+      "speed_kmh": 11,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:43:40+08:00",
+      "lat": 1.31629,
+      "lng": 103.858711,
+      "speed_kmh": 11,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:48:13.333333+08:00",
+      "lat": 1.32267,
+      "lng": 103.862248,
+      "speed_kmh": 11,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:52:46.666667+08:00",
+      "lat": 1.328175,
+      "lng": 103.867035,
+      "speed_kmh": 11,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:57:20+08:00",
+      "lat": 1.334555,
+      "lng": 103.870573,
+      "speed_kmh": 11,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:01:53.333333+08:00",
+      "lat": 1.340061,
+      "lng": 103.87536,
+      "speed_kmh": 11,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:06:26.666667+08:00",
+      "lat": 1.34644,
+      "lng": 103.878897,
+      "speed_kmh": 11,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:11:00+08:00",
+      "lat": 1.351946,
+      "lng": 103.883684,
+      "speed_kmh": 11,
+      "status": "dropped_off"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T09:50:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Traffic is terrible today."
+    },
+    {
+      "timestamp": "2026-09-14T09:51:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Yes, accident ahead. Sorry."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T09:26:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5007 booked trip T-RD0107 from Dhoby Ghaut to Lorong Ah Soo."
+    },
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Live tracking enabled."
+    },
+    {
+      "timestamp": "2026-09-14T10:11:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Rider dropped off. Trip status: completed."
+    },
+    {
+      "timestamp": "2026-09-14T10:11:00+08:00",
+      "event_type": "fare_charged",
+      "details": "$19.29 charged to rider payment method."
+    }
+  ],
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "Trip took nearly twice as long as the estimate and cost more.",
+      "amount_sgd": 4.91
+    },
+    "intake": {
+      "what_went_wrong": "The trip took far longer than the app said it would.",
+      "expected_route": "Same route, but it should have been about 22 minutes.",
+      "was_route_agreed": "Yes",
+      "asked_driver_to_stop": "No",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX"
+  }
+}

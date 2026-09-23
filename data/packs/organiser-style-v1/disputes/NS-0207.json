@@ -1,0 +1,178 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "NS-0207",
+    "trip_id": "T-NS0207",
+    "filed_by": "rider",
+    "dispute_type": "no_show_charge",
+    "description": "I was charged a waiting fee even though the trip went ahead. The driver messaged when he arrived, and I came down about 6 minutes after that, yet there is an extra charge on my receipt for waiting time. The trip happened, so the waiting fee makes no sense to me. I want the extra charge removed.",
+    "filed_at": "2026-09-14T20:12:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6007",
+    "name": "Kelvin Leong Chee Keong",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3007",
+    "name": "Priya Selvam",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Avante (SKM 9215 E)"
+  },
+  "trip_data": {
+    "trip_id": "T-NS0207",
+    "rider_id": "R-6007",
+    "driver_id": "D-3007",
+    "pickup_location": {
+      "name": "Orchard Boulevard",
+      "lat": 1.3048,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "requested_time": "2026-09-14T18:59:20+08:00",
+    "driver_arrival_time": "2026-09-14T19:06:00+08:00",
+    "driver_wait_start": "2026-09-14T19:06:00+08:00",
+    "rider_boarded_time": "2026-09-14T19:12:00+08:00",
+    "waiting_fee": 5.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T19:01:00+08:00",
+      "lat": 1.319541,
+      "lng": 103.8318,
+      "speed_kmh": 34,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-14T19:04:00+08:00",
+      "lat": 1.309593,
+      "lng": 103.8318,
+      "speed_kmh": 14,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "lat": 1.305071,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-09-14T19:08:00+08:00",
+      "lat": 1.305071,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-14T19:10:00+08:00",
+      "lat": 1.305071,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-14T19:12:00+08:00",
+      "lat": 1.305071,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "rider_boarded"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am here at the entrance."
+    },
+    {
+      "timestamp": "2026-09-14T19:12:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry, coming now."
+    },
+    {
+      "timestamp": "2026-09-14T19:13:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "No problem."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T18:59:20+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6007 booked trip T-NS0207 from Orchard Boulevard to Marina Bay Sands."
+    },
+    {
+      "timestamp": "2026-09-14T19:00:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3007 (Hyundai Avante (SKM 9215 E)) assigned."
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver marked arrival (\"I'm Here\")."
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started."
+    },
+    {
+      "timestamp": "2026-09-14T19:12:00+08:00",
+      "event_type": "rider_boarded",
+      "details": "Rider boarded. Trip started."
+    },
+    {
+      "timestamp": "2026-09-14T19:12:00+08:00",
+      "event_type": "waiting_fee_applied",
+      "details": "$5.00 waiting fee added to the trip fare."
+    }
+  ],
+  "cancellation_policy": {
+    "free_cancellation_window_min": 3,
+    "free_wait_time_min": 3,
+    "no_show_threshold_min": 3,
+    "cancellation_fee_after_wait": 6.61,
+    "waiting_fee_after_wait": 5.0,
+    "source": "Ryde published cancellation and waiting fee policy (docs/policy.md parameters)"
+  },
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "I was charged a waiting fee even though the trip went ahead.",
+      "amount_sgd": 5.0
+    },
+    "intake": {
+      "what_went_wrong": "Extra charge on the receipt for waiting time.",
+      "where_were_you": "I came down about 6 minutes after he arrived.",
+      "did_driver_contact_you": "Yes, he messaged when he arrived.",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX",
+    "rider_claims_driver_absent": false
+  }
+}

@@ -37,7 +37,7 @@ from app.schemas import (
 from tests.support import DEFAULT_THRESHOLD, load_fixture_dispute, run_fixture
 
 REPO = Path(__file__).resolve().parent.parent
-CORPUS = REPO / "data" / "disputes"
+CORPUS = REPO / "data" / "packs" / "ryde-synth-v1" / "disputes"
 
 
 def _load_record(name: str) -> dict:

@@ -19,7 +19,7 @@ from app.pipeline import run_dispute
 from app.policy import load_policy
 
 REPO = Path(__file__).resolve().parent.parent
-CORPUS = REPO / "data" / "disputes"
+CORPUS = REPO / "data" / "packs" / "ryde-synth-v1" / "disputes"
 
 
 class PolicySourcePathTest(unittest.TestCase):

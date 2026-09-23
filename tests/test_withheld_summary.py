@@ -26,7 +26,7 @@ class WithheldSummaryTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             tmp = Path(directory)
             case = run_dispute(
-                dispute=load_dispute(REPO / "data" / "disputes" / "RD-0109.json"),
+                dispute=load_dispute(REPO / "data" / "packs" / "ryde-synth-v1" / "disputes" / "RD-0109.json"),
                 llm=MockLLMClient(),
                 policy=load_policy(REPO / "docs" / "policy.md"),
                 events=EventLog(tmp / "run", "withheld-summary-test"),

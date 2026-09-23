@@ -24,7 +24,7 @@ from app.evidence import build_evidence_pack
 from app.schemas import ContractError, JudgeRuling
 
 REPO = Path(__file__).resolve().parent.parent
-CORPUS = REPO / "data" / "disputes"
+CORPUS = REPO / "data" / "packs" / "ryde-synth-v1" / "disputes"
 
 #: Sentinel meaning "remove this key entirely", distinct from setting it to None.
 _ABSENT = object()

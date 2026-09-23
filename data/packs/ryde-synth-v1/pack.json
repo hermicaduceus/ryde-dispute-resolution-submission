@@ -1,0 +1,7 @@
+{
+  "name": "ryde-synth-v1",
+  "format": "ryde-v1",
+  "description": "The synthesised 17-case corpus in the project's own record format.",
+  "provenance": "Synthetic, authored by the project team. See docs/dataset.md.",
+  "case_count": 17
+}

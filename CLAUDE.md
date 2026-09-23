@@ -14,6 +14,14 @@ that claim becomes dishonest and the project can be disqualified.
 If a fix genuinely requires changing `app/` or `ui/`: stop and report the needed change to
 the operator instead of making it.
 
+**One carve-out: generated data.** `data/` may change, but only as the output of running
+`tools/build_corpus.py`. Never hand-edit a file under `data/`: edit the generator (or the
+prose/sample inputs it reads under `tools/`) and re-run it, so every dispute record and every
+ground-truth label stays reproducible from code. The one file under `data/` that is not
+generated is an organiser-supplied sample, copied in verbatim and never modified. (Amended
+2026-09-23 by operator ruling: the corpus was already produced this way, and the rule now
+says so.)
+
 ## Why this exists
 
 The competition mandates proof of product usage (screenshots of CodeBuddy/WorkBuddy chat logs,

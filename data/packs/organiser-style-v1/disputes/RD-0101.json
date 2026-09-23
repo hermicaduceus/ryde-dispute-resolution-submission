@@ -1,0 +1,202 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "RD-0101",
+    "trip_id": "T-RD0101",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver completely ignored the route the app showed and drove a long way round instead. The app had shown about 6.4 km via the expressway, but he took a much longer way and I ended up paying more than the quoted fare. I never agreed to any different route and I didn't ask him to stop anywhere. I want a refund of the extra I was charged.",
+    "filed_at": "2026-09-14T12:01:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5001",
+    "name": "Tan Wei Ming",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-2001",
+    "name": "Daniel Wong",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SKP 4821 H)"
+  },
+  "trip_data": {
+    "trip_id": "T-RD0101",
+    "rider_id": "R-5001",
+    "driver_id": "D-2001",
+    "pickup_location": {
+      "name": "Dhoby Ghaut",
+      "lat": 1.2989,
+      "lng": 103.8456
+    },
+    "dropoff_location": {
+      "name": "Hougang Avenue 5",
+      "lat": 1.368659,
+      "lng": 103.895683
+    },
+    "requested_time": "2026-09-14T09:26:00+08:00",
+    "pickup_time": "2026-09-14T09:30:00+08:00",
+    "dropoff_time": "2026-09-14T10:01:00+08:00",
+    "estimated_duration_min": 18,
+    "estimated_distance_km": 6.4,
+    "fare": {
+      "charged_sgd": 18.63,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 7.68,
+        "time_sgd": 7.75
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "lat": 1.2989,
+      "lng": 103.8456,
+      "speed_kmh": 0,
+      "status": "picked_up"
+    },
+    {
+      "timestamp": "2026-09-14T09:33:26.666667+08:00",
+      "lat": 1.30614,
+      "lng": 103.851895,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:36:53.333333+08:00",
+      "lat": 1.31453,
+      "lng": 103.856547,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:40:20+08:00",
+      "lat": 1.321769,
+      "lng": 103.862842,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:43:46.666667+08:00",
+      "lat": 1.330159,
+      "lng": 103.867494,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:47:13.333333+08:00",
+      "lat": 1.337399,
+      "lng": 103.873789,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:50:40+08:00",
+      "lat": 1.345789,
+      "lng": 103.878441,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:54:06.666667+08:00",
+      "lat": 1.353029,
+      "lng": 103.884736,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:57:33.333333+08:00",
+      "lat": 1.361419,
+      "lng": 103.889388,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:01:00+08:00",
+      "lat": 1.368659,
+      "lng": 103.895683,
+      "speed_kmh": 19,
+      "status": "dropped_off"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T09:32:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why are we going this way? The app showed the expressway."
+    },
+    {
+      "timestamp": "2026-09-14T09:34:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "This way is better."
+    },
+    {
+      "timestamp": "2026-09-14T09:55:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "This is much longer than the estimate."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T09:26:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5001 booked trip T-RD0101 from Dhoby Ghaut to Hougang Avenue 5."
+    },
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Live tracking enabled."
+    },
+    {
+      "timestamp": "2026-09-14T10:01:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Rider dropped off. Trip status: completed."
+    },
+    {
+      "timestamp": "2026-09-14T10:01:00+08:00",
+      "event_type": "fare_charged",
+      "details": "$18.63 charged to rider payment method."
+    }
+  ],
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "The driver took a much longer way round and I paid more than the app quoted.",
+      "amount_sgd": 5.81
+    },
+    "intake": {
+      "what_went_wrong": "Driver ignored the route in the app and drove a long way round.",
+      "expected_route": "The app showed about 6.4 km via the expressway.",
+      "was_route_agreed": "No",
+      "asked_driver_to_stop": "No",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX"
+  }
+}

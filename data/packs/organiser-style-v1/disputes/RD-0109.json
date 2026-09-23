@@ -1,0 +1,272 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "RD-0109",
+    "trip_id": "T-RD0109",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver went a very long way round on what was already an expensive surge-priced trip \u2014 he drove nearly twice the distance. The direct route should have been about 31 km, but this felt endless and the fare stung even before the detour. I never agreed to a different route and I didn't ask him to stop. I want the extra distance refunded.",
+    "filed_at": "2026-09-14T13:14:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5009",
+    "name": "Priya Nair",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-2009",
+    "name": "Suresh Pillai",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Stream (SMA 9715 C)"
+  },
+  "trip_data": {
+    "trip_id": "T-RD0109",
+    "rider_id": "R-5009",
+    "driver_id": "D-2009",
+    "pickup_location": {
+      "name": "Changi Airport Terminal 3",
+      "lat": 1.3575,
+      "lng": 103.988
+    },
+    "dropoff_location": {
+      "name": "Ang Mo Kio (Kebun Baru)",
+      "lat": 1.372078,
+      "lng": 103.835165
+    },
+    "requested_time": "2026-09-14T09:26:00+08:00",
+    "pickup_time": "2026-09-14T09:30:00+08:00",
+    "dropoff_time": "2026-09-14T11:14:00+08:00",
+    "estimated_duration_min": 52,
+    "estimated_distance_km": 31.0,
+    "fare": {
+      "charged_sgd": 112.56,
+      "breakdown": {
+        "base_sgd": 4.48,
+        "distance_sgd": 71.68,
+        "time_sgd": 36.4
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.4
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "lat": 1.3575,
+      "lng": 103.988,
+      "speed_kmh": 0,
+      "status": "picked_up"
+    },
+    {
+      "timestamp": "2026-09-14T09:35:28.421053+08:00",
+      "lat": 1.359085,
+      "lng": 103.95774,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:40:56.842105+08:00",
+      "lat": 1.354346,
+      "lng": 103.927812,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:46:25.263158+08:00",
+      "lat": 1.355931,
+      "lng": 103.897552,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:51:53.684211+08:00",
+      "lat": 1.351192,
+      "lng": 103.867624,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:57:22.105263+08:00",
+      "lat": 1.352778,
+      "lng": 103.837364,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:02:50.526316+08:00",
+      "lat": 1.348039,
+      "lng": 103.807436,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:08:18.947368+08:00",
+      "lat": 1.349624,
+      "lng": 103.777176,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:13:47.368421+08:00",
+      "lat": 1.344885,
+      "lng": 103.747248,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:19:15.789474+08:00",
+      "lat": 1.34647,
+      "lng": 103.716988,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:24:44.210526+08:00",
+      "lat": 1.341731,
+      "lng": 103.68706,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:30:12.631579+08:00",
+      "lat": 1.343316,
+      "lng": 103.6568,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:35:41.052632+08:00",
+      "lat": 1.338577,
+      "lng": 103.626872,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:41:09.473684+08:00",
+      "lat": 1.34069,
+      "lng": 103.657099,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:46:37.894737+08:00",
+      "lat": 1.34904,
+      "lng": 103.686227,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:52:06.315789+08:00",
+      "lat": 1.351153,
+      "lng": 103.716454,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:57:34.736842+08:00",
+      "lat": 1.359502,
+      "lng": 103.745582,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T11:03:03.157895+08:00",
+      "lat": 1.361615,
+      "lng": 103.77581,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T11:08:31.578947+08:00",
+      "lat": 1.369965,
+      "lng": 103.804937,
+      "speed_kmh": 37,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T11:14:00+08:00",
+      "lat": 1.372078,
+      "lng": 103.835165,
+      "speed_kmh": 37,
+      "status": "dropped_off"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T10:10:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Where are we going? This is not the route."
+    },
+    {
+      "timestamp": "2026-09-14T10:12:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Ok."
+    },
+    {
+      "timestamp": "2026-09-14T11:00:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I will report this, it is unacceptable."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T09:26:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5009 booked trip T-RD0109 from Changi Airport Terminal 3 to Ang Mo Kio (Kebun Baru)."
+    },
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Live tracking enabled."
+    },
+    {
+      "timestamp": "2026-09-14T11:14:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Rider dropped off. Trip status: completed."
+    },
+    {
+      "timestamp": "2026-09-14T11:14:00+08:00",
+      "event_type": "fare_charged",
+      "details": "$112.56 charged to rider payment method."
+    }
+  ],
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "Driver drove nearly twice the distance on a long surge-priced trip.",
+      "amount_sgd": 55.16
+    },
+    "intake": {
+      "what_went_wrong": "Driver went a very long way round on an already expensive trip.",
+      "expected_route": "About 31 km direct.",
+      "was_route_agreed": "No",
+      "asked_driver_to_stop": "No",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX"
+  }
+}

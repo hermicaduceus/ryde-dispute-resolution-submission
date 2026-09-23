@@ -1,0 +1,179 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "NS-0201",
+    "trip_id": "T-NS0201",
+    "filed_by": "rider",
+    "dispute_type": "no_show_charge",
+    "description": "I was charged a no-show fee but I was still on my way down. I was in the lift, about 2 minutes away, when the driver messaged that he had arrived. Being charged for a no-show when I was coming down to the lobby is completely unfair. I want this charge reversed immediately.",
+    "filed_at": "2026-09-14T20:11:30+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6001",
+    "name": "Marcus Tan Wei Ming",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3001",
+    "name": "Ahmad Zulkifli bin Rahmat",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SLA 7730 K)"
+  },
+  "trip_data": {
+    "trip_id": "T-NS0201",
+    "rider_id": "R-6001",
+    "driver_id": "D-3001",
+    "pickup_location": {
+      "name": "Orchard Boulevard",
+      "lat": 1.3048,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "VivoCity",
+      "lat": 1.2644,
+      "lng": 103.8222
+    },
+    "requested_time": "2026-09-14T18:59:20+08:00",
+    "driver_arrival_time": "2026-09-14T19:06:00+08:00",
+    "driver_wait_start": "2026-09-14T19:06:00+08:00",
+    "cancellation_time": "2026-09-14T19:11:30+08:00",
+    "cancellation_fee": 6.61,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T19:01:00+08:00",
+      "lat": 1.319433,
+      "lng": 103.8318,
+      "speed_kmh": 34,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-14T19:04:00+08:00",
+      "lat": 1.309485,
+      "lng": 103.8318,
+      "speed_kmh": 14,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "lat": 1.304963,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-09-14T19:08:00+08:00",
+      "lat": 1.304963,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-14T19:10:00+08:00",
+      "lat": 1.304963,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-14T19:11:30+08:00",
+      "lat": 1.304963,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am here at the lobby."
+    },
+    {
+      "timestamp": "2026-09-14T19:09:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hello, are you coming?"
+    },
+    {
+      "timestamp": "2026-09-14T19:11:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I have waited more than 5 minutes, I need to cancel."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T18:59:20+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6001 booked trip T-NS0201 from Orchard Boulevard to VivoCity."
+    },
+    {
+      "timestamp": "2026-09-14T19:00:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3001 (Honda Vezel (SLA 7730 K)) assigned."
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver marked arrival (\"I'm Here\")."
+    },
+    {
+      "timestamp": "2026-09-14T19:06:00+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started."
+    },
+    {
+      "timestamp": "2026-09-14T19:11:30+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Trip cancelled by driver. Reason: rider_no_show."
+    },
+    {
+      "timestamp": "2026-09-14T19:11:30+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$6.61 cancellation fee charged to rider payment method."
+    }
+  ],
+  "cancellation_policy": {
+    "free_cancellation_window_min": 3,
+    "free_wait_time_min": 3,
+    "no_show_threshold_min": 3,
+    "cancellation_fee_after_wait": 6.61,
+    "waiting_fee_after_wait": 5.0,
+    "source": "Ryde published cancellation and waiting fee policy (docs/policy.md parameters)"
+  },
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "I was charged a no-show fee but I was on my way down.",
+      "amount_sgd": 6.61
+    },
+    "intake": {
+      "what_went_wrong": "Charged a cancellation fee when I was coming down to the lobby.",
+      "where_were_you": "In the lift, about 2 minutes away.",
+      "did_driver_contact_you": "He messaged that he had arrived.",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX",
+    "rider_claims_driver_absent": true
+  }
+}

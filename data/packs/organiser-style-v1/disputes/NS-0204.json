@@ -1,0 +1,124 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "NS-0204",
+    "trip_id": "T-NS0204",
+    "filed_by": "rider",
+    "dispute_type": "no_show_charge",
+    "description": "I waited 20 minutes at the pickup point from the start and the driver never moved towards me. He never responded to any of my messages either. I had to cancel it myself because he simply never arrived, and now I'm being charged for it. Please reverse this unfair charge.",
+    "filed_at": "2026-09-14T20:22:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6004",
+    "name": "Eugene D'Souza",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-3004",
+    "name": "Muhammad Faizal bin Kamarudin",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 18,
+      "upheld_against": 9,
+      "rejected": 9
+    },
+    "fraud_flags": 0,
+    "vehicle": "Nissan Sylphy (SGE 4471 M)"
+  },
+  "trip_data": {
+    "trip_id": "T-NS0204",
+    "rider_id": "R-6004",
+    "driver_id": "D-3004",
+    "pickup_location": {
+      "name": "Orchard Boulevard",
+      "lat": 1.3048,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Tampines Mall",
+      "lat": 1.3525,
+      "lng": 103.9447
+    },
+    "requested_time": "2026-09-14T18:59:20+08:00",
+    "cancellation_time": "2026-09-14T19:22:00+08:00",
+    "cancellation_fee": 6.61,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T19:08:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Are you on the way?"
+    },
+    {
+      "timestamp": "2026-09-14T19:15:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "You have not moved for 10 minutes."
+    },
+    {
+      "timestamp": "2026-09-14T19:20:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I am cancelling, you never arrived."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T18:59:20+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6004 booked trip T-NS0204 from Orchard Boulevard to Tampines Mall."
+    },
+    {
+      "timestamp": "2026-09-14T19:00:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3004 (Nissan Sylphy (SGE 4471 M)) assigned."
+    },
+    {
+      "timestamp": "2026-09-14T19:22:00+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Trip cancelled by rider. Reason: rider_cancelled."
+    },
+    {
+      "timestamp": "2026-09-14T19:22:00+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$6.61 cancellation fee charged to rider payment method."
+    }
+  ],
+  "cancellation_policy": {
+    "free_cancellation_window_min": 3,
+    "free_wait_time_min": 3,
+    "no_show_threshold_min": 3,
+    "cancellation_fee_after_wait": 6.61,
+    "waiting_fee_after_wait": 5.0,
+    "source": "Ryde published cancellation and waiting fee policy (docs/policy.md parameters)"
+  },
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "The driver never arrived and I was charged for cancelling.",
+      "amount_sgd": 6.61
+    },
+    "intake": {
+      "what_went_wrong": "Waited 20 minutes, driver never moved towards me, so I cancelled.",
+      "where_were_you": "At the pickup point from the start.",
+      "did_driver_contact_you": "No response to any message.",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX",
+    "rider_claims_driver_absent": true
+  }
+}

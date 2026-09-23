@@ -1,0 +1,238 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "RD-0104",
+    "trip_id": "T-RD0104",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "This was a long trip to the airport and the driver left the expressway and went a long way round instead of taking the direct expressway route the app showed. It cost me more than it should have. I never agreed to a detour and I didn't ask him to stop. I want the extra cost refunded.",
+    "filed_at": "2026-09-14T12:24:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5004",
+    "name": "Cheryl Anne D'Souza",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2004",
+    "name": "Ravi Chandran",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Alphard (SGM 7743 P)"
+  },
+  "trip_data": {
+    "trip_id": "T-RD0104",
+    "rider_id": "R-5004",
+    "driver_id": "D-2004",
+    "pickup_location": {
+      "name": "Tuas Avenue 13",
+      "lat": 1.323,
+      "lng": 103.64
+    },
+    "dropoff_location": {
+      "name": "Changi Airport Terminal 1",
+      "lat": 1.363082,
+      "lng": 103.986607
+    },
+    "requested_time": "2026-09-14T09:26:00+08:00",
+    "pickup_time": "2026-09-14T09:30:00+08:00",
+    "dropoff_time": "2026-09-14T10:24:00+08:00",
+    "estimated_duration_min": 44,
+    "estimated_distance_km": 32.5,
+    "fare": {
+      "charged_sgd": 47.9,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 31.2,
+        "time_sgd": 13.5
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "lat": 1.323,
+      "lng": 103.64,
+      "speed_kmh": 0,
+      "status": "picked_up"
+    },
+    {
+      "timestamp": "2026-09-14T09:33:36+08:00",
+      "lat": 1.323408,
+      "lng": 103.663385,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:37:12+08:00",
+      "lat": 1.328668,
+      "lng": 103.686174,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:40:48+08:00",
+      "lat": 1.329076,
+      "lng": 103.709559,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:44:24+08:00",
+      "lat": 1.334335,
+      "lng": 103.732348,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:48:00+08:00",
+      "lat": 1.334743,
+      "lng": 103.755734,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:51:36+08:00",
+      "lat": 1.340003,
+      "lng": 103.778523,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:55:12+08:00",
+      "lat": 1.340411,
+      "lng": 103.801908,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:58:48+08:00",
+      "lat": 1.345671,
+      "lng": 103.824697,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:02:24+08:00",
+      "lat": 1.346079,
+      "lng": 103.848083,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:06:00+08:00",
+      "lat": 1.351339,
+      "lng": 103.870872,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:09:36+08:00",
+      "lat": 1.351747,
+      "lng": 103.894257,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:13:12+08:00",
+      "lat": 1.357006,
+      "lng": 103.917047,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:16:48+08:00",
+      "lat": 1.357414,
+      "lng": 103.940432,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:20:24+08:00",
+      "lat": 1.362674,
+      "lng": 103.963221,
+      "speed_kmh": 43,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:24:00+08:00",
+      "lat": 1.363082,
+      "lng": 103.986607,
+      "speed_kmh": 43,
+      "status": "dropped_off"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T09:52:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why did we come off the expressway?"
+    },
+    {
+      "timestamp": "2026-09-14T09:54:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Ok."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T09:26:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5004 booked trip T-RD0104 from Tuas Avenue 13 to Changi Airport Terminal 1."
+    },
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Live tracking enabled."
+    },
+    {
+      "timestamp": "2026-09-14T10:24:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Rider dropped off. Trip status: completed."
+    },
+    {
+      "timestamp": "2026-09-14T10:24:00+08:00",
+      "event_type": "fare_charged",
+      "details": "$47.90 charged to rider payment method."
+    }
+  ],
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "Long airport trip went well out of the way and cost more.",
+      "amount_sgd": 7.7
+    },
+    "intake": {
+      "what_went_wrong": "Driver left the expressway and went a long way round.",
+      "expected_route": "Direct expressway route to the airport.",
+      "was_route_agreed": "No",
+      "asked_driver_to_stop": "No",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeXL"
+  }
+}

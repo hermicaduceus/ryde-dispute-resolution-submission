@@ -913,40 +913,144 @@ def build_cases() -> List[Dict[str, Any]]:
 # ------------------------------------------------------------------------------ write
 
 
-def write_corpus(target: Path) -> Dict[str, Any]:
-    cases = build_cases()
-    disputes_dir = target / "disputes"
+SYNTH_PACK = "ryde-synth-v1"
+
+# The first line is the 2026-09-21 wording, kept so ryde-synth-v1 stays byte-identical to the
+# corpus it replaced.
+_LABEL_README = [
+    "Ground truth for the synthesised corpus in disputes/.",
+    "Deliberately kept OUT of the dispute records: a label inside the input would be",
+    "visible to the agents and would make any accuracy measurement worthless.",
+    "expected_outcome is one of: ruled | escalated | human_review.",
+    "decisive_rule_ids are the rules a correct ruling must rest on, from docs/policy.md.",
+]
+
+
+def _write_pack(pack_dir: Path, manifest: Dict[str, Any], files: List[tuple], labels: List[Dict[str, Any]]) -> None:
+    """Write one pack: disputes/<id>.json, ground-truth.json and pack.json.
+
+    `files` is a list of (dispute_id, text) so an organiser sample can be written
+    byte-for-byte rather than re-serialised.
+    """
+    disputes_dir = pack_dir / "disputes"
     disputes_dir.mkdir(parents=True, exist_ok=True)
-
-    for case in cases:
-        record = case["record"]
-        path = disputes_dir / ("%s.json" % record["dispute_id"])
-        path.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
-
-    labels = {
-        "_readme": [
-            "Ground truth for the synthesised corpus in disputes/.",
-            "Deliberately kept OUT of the dispute records: a label inside the input would be",
-            "visible to the agents and would make any accuracy measurement worthless.",
-            "expected_outcome is one of: ruled | escalated | human_review.",
-            "decisive_rule_ids are the rules a correct ruling must rest on, from docs/policy.md.",
-        ],
+    for stale in disputes_dir.glob("*.json"):
+        stale.unlink()
+    for dispute_id, text in files:
+        (disputes_dir / ("%s.json" % dispute_id)).write_text(text, encoding="utf-8")
+    ground_truth = {
+        "_readme": _LABEL_README,
         "policy_version": "1.0",
-        "case_count": len(cases),
-        "cases": [case["label"] for case in cases],
+        "case_count": len(labels),
+        "cases": labels,
     }
-    (target / "ground-truth.json").write_text(json.dumps(labels, indent=2) + "\n", encoding="utf-8")
+    (pack_dir / "ground-truth.json").write_text(json.dumps(ground_truth, indent=2) + "\n", encoding="utf-8")
+    manifest = dict(manifest, case_count=len(files))
+    (pack_dir / "pack.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
-    return {"count": len(cases), "dir": str(disputes_dir)}
+
+def write_corpus(target: Path) -> Dict[str, Any]:
+    """Write every dataset pack under <target>/packs/."""
+    import organiser_pack as org  # tools/ sibling; imported late so --help works without it
+
+    cases = build_cases()
+    packs = target / "packs"
+
+    # -- ryde-synth-v1: our own record format, unchanged since 2026-09-21.
+    _write_pack(
+        packs / SYNTH_PACK,
+        {
+            "name": SYNTH_PACK,
+            "format": "ryde-v1",
+            "description": "The synthesised 17-case corpus in the project's own record format.",
+            "provenance": "Synthetic, authored by the project team. See docs/dataset.md.",
+        },
+        [(c["record"]["dispute_id"], json.dumps(c["record"], indent=2) + "\n") for c in cases],
+        [c["label"] for c in cases],
+    )
+
+    # -- organiser-style-v1: the same 17 cases in the organisers' sample shape, plus the
+    #    organisers' own sample(s) verbatim.
+    prose = org.load_prose()
+    missing = [c["record"]["dispute_id"] for c in cases if c["record"]["dispute_id"] not in prose]
+    if missing:
+        raise SystemExit("organiser prose missing for: %s" % ", ".join(missing))
+    files = [
+        (c["record"]["dispute_id"], json.dumps(org.to_organiser_record(c["record"], prose[c["record"]["dispute_id"]], i), indent=2) + "\n")
+        for i, c in enumerate(cases)
+    ]
+    labels = [c["label"] for c in cases]
+    for dispute_id, raw in org.organiser_samples():
+        if dispute_id not in org.ORGANISER_LABELS:
+            raise SystemExit("organiser sample %s has no label in organiser_pack.ORGANISER_LABELS" % dispute_id)
+        files.append((dispute_id, raw))
+        labels.append(org.ORGANISER_LABELS[dispute_id])
+    _write_pack(
+        packs / org.PACK_NAME,
+        {
+            "name": org.PACK_NAME,
+            "format": org.PACK_FORMAT,
+            "description": (
+                "The 17 synthesised cases re-expressed in the organisers' sample-dataset shape, "
+                "plus the organisers' own sample case(s) verbatim."
+            ),
+            "provenance": (
+                "Organiser samples (DISP-*) are copied unmodified from the file the organisers "
+                "shared. Every other case is synthetic, generated from ryde-synth-v1 by "
+                "tools/organiser_pack.py: same numbers, organiser field names, model-drafted "
+                "free-text descriptions reviewed by the team."
+            ),
+            "schema_extensions": [
+                "trip_data carries our route-deviation fields (estimated_distance_km, "
+                "estimated_duration_min, pickup_time, dropoff_time, fare): the organiser sample "
+                "is a no-show and has no slot for them.",
+                "ryde_extensions carries the claim amount, intake-form answers and "
+                "rider_claims_driver_absent, which the organiser ticket has no slot for.",
+                "cancellation_policy on synthetic cases carries Ryde's published terms (the "
+                "docs/policy.md parameters); on organiser samples it carries the organisers' own "
+                "terms and governs that case.",
+            ],
+        },
+        files,
+        labels,
+    )
+
+    return {"packs": sorted(p.name for p in packs.iterdir() if p.is_dir()), "count": len(files)}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", default=str(DATA), help="output directory (default: data/)")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="regenerate into a temp dir and fail if anything differs from data/",
+    )
     args = parser.parse_args()
 
+    if args.check:
+        import filecmp
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            write_corpus(Path(tmp))
+            fresh, current = Path(tmp) / "packs", Path(args.out) / "packs"
+            diffs: List[str] = []
+
+            def walk(cmp, rel=""):
+                diffs.extend("%s%s" % (rel, n) for n in cmp.left_only + cmp.right_only + cmp.diff_files)
+                for name, sub in cmp.subdirs.items():
+                    walk(sub, "%s%s/" % (rel, name))
+
+            walk(filecmp.dircmp(str(fresh), str(current)))
+            if diffs:
+                print("data/ is stale; differs from the generator in:\n  " + "\n  ".join(diffs))
+                return 1
+        print("data/ matches the generator")
+        return 0
+
     result = write_corpus(Path(args.out))
-    print("wrote %d disputes to %s" % (result["count"], result["dir"]))
+    print("wrote packs %s (organiser pack: %d disputes)" % (", ".join(result["packs"]), result["count"]))
     return 0
 
 

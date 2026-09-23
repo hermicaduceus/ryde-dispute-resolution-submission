@@ -1,0 +1,190 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "RD-0103",
+    "trip_id": "T-RD0103",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver didn't take the exact route the app displayed when I booked. I never agreed to any change and I didn't ask him to stop anywhere either. It might sound small, but the app is supposed to show you the route you're getting and he just went his own way. I want this reviewed and the fare corrected.",
+    "filed_at": "2026-09-14T11:47:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5003",
+    "name": "Arjun Menon",
+    "account_age_days": 640,
+    "total_trips": 60,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 9,
+      "upheld": 1,
+      "rejected": 8
+    },
+    "fraud_flags": 0,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-2003",
+    "name": "Ahmad Zaki",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SDN 1208 K)"
+  },
+  "trip_data": {
+    "trip_id": "T-RD0103",
+    "rider_id": "R-5003",
+    "driver_id": "D-2003",
+    "pickup_location": {
+      "name": "Dhoby Ghaut",
+      "lat": 1.2989,
+      "lng": 103.8456
+    },
+    "dropoff_location": {
+      "name": "Upper Aljunied Road",
+      "lat": 1.337413,
+      "lng": 103.87325
+    },
+    "requested_time": "2026-09-14T09:26:00+08:00",
+    "pickup_time": "2026-09-14T09:30:00+08:00",
+    "dropoff_time": "2026-09-14T09:47:00+08:00",
+    "estimated_duration_min": 15,
+    "estimated_distance_km": 5.0,
+    "fare": {
+      "charged_sgd": 11.69,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 4.24,
+        "time_sgd": 4.25
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "lat": 1.2989,
+      "lng": 103.8456,
+      "speed_kmh": 0,
+      "status": "picked_up"
+    },
+    {
+      "timestamp": "2026-09-14T09:31:53.333333+08:00",
+      "lat": 1.302897,
+      "lng": 103.849075,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:33:46.666667+08:00",
+      "lat": 1.307529,
+      "lng": 103.851644,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:35:40+08:00",
+      "lat": 1.311526,
+      "lng": 103.855119,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:37:33.333333+08:00",
+      "lat": 1.316158,
+      "lng": 103.857687,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:39:26.666667+08:00",
+      "lat": 1.320155,
+      "lng": 103.861163,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:41:20+08:00",
+      "lat": 1.324787,
+      "lng": 103.863731,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:43:13.333333+08:00",
+      "lat": 1.328784,
+      "lng": 103.867206,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:45:06.666667+08:00",
+      "lat": 1.333416,
+      "lng": 103.869775,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:47:00+08:00",
+      "lat": 1.337413,
+      "lng": 103.87325,
+      "speed_kmh": 19,
+      "status": "dropped_off"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T09:47:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "We are here, thank you."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T09:26:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5003 booked trip T-RD0103 from Dhoby Ghaut to Upper Aljunied Road."
+    },
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Live tracking enabled."
+    },
+    {
+      "timestamp": "2026-09-14T09:47:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Rider dropped off. Trip status: completed."
+    },
+    {
+      "timestamp": "2026-09-14T09:47:00+08:00",
+      "event_type": "fare_charged",
+      "details": "$11.69 charged to rider payment method."
+    }
+  ],
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "Driver did not take the exact route in the app.",
+      "amount_sgd": 0.74
+    },
+    "intake": {
+      "what_went_wrong": "The route was not identical to the one the app showed.",
+      "expected_route": "The route the app displayed at booking.",
+      "was_route_agreed": "No",
+      "asked_driver_to_stop": "No",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX"
+  }
+}

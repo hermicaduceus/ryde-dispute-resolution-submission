@@ -1,0 +1,189 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "RD-0108",
+    "trip_id": "T-RD0108",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "I think the driver went a long way round \u2014 the whole trip just felt much longer than it should have been. Honestly, I don't remember exactly what the app showed for the route, so I can't compare it directly, but something felt off. I never agreed to any different route and I didn't ask him to stop. I'd like the trip reviewed and the fare looked at.",
+    "filed_at": "2026-09-14T12:06:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5008",
+    "name": "Marcus Foo",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2008",
+    "name": "Kwok Wai Lun",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Sienta (SGP 8364 E)"
+  },
+  "trip_data": {
+    "trip_id": "T-RD0108",
+    "rider_id": "R-5008",
+    "driver_id": "D-2008",
+    "pickup_location": {
+      "name": "Dhoby Ghaut",
+      "lat": 1.2989,
+      "lng": 103.8456
+    },
+    "dropoff_location": {
+      "name": "Rivervale, Sengkang",
+      "lat": 1.389732,
+      "lng": 103.910813
+    },
+    "requested_time": "2026-09-14T09:26:00+08:00",
+    "pickup_time": "2026-09-14T09:30:00+08:00",
+    "dropoff_time": "2026-09-14T10:06:00+08:00",
+    "estimated_duration_min": 22,
+    "fare": {
+      "charged_sgd": 22.2,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 10.0,
+        "time_sgd": 9.0
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "lat": 1.2989,
+      "lng": 103.8456,
+      "speed_kmh": 0,
+      "status": "picked_up"
+    },
+    {
+      "timestamp": "2026-09-14T09:34:00+08:00",
+      "lat": 1.308327,
+      "lng": 103.853797,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:38:00+08:00",
+      "lat": 1.319251,
+      "lng": 103.859854,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:42:00+08:00",
+      "lat": 1.328678,
+      "lng": 103.868051,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:46:00+08:00",
+      "lat": 1.339602,
+      "lng": 103.874108,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:50:00+08:00",
+      "lat": 1.349029,
+      "lng": 103.882305,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:54:00+08:00",
+      "lat": 1.359954,
+      "lng": 103.888362,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:58:00+08:00",
+      "lat": 1.36938,
+      "lng": 103.896559,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:02:00+08:00",
+      "lat": 1.380305,
+      "lng": 103.902616,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T10:06:00+08:00",
+      "lat": 1.389732,
+      "lng": 103.910813,
+      "speed_kmh": 21,
+      "status": "dropped_off"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T09:58:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "That felt longer than it should be."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T09:26:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5008 booked trip T-RD0108 from Dhoby Ghaut to Rivervale, Sengkang."
+    },
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Live tracking enabled."
+    },
+    {
+      "timestamp": "2026-09-14T10:06:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Rider dropped off. Trip status: completed."
+    },
+    {
+      "timestamp": "2026-09-14T10:06:00+08:00",
+      "event_type": "fare_charged",
+      "details": "$22.20 charged to rider payment method."
+    }
+  ],
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "I think the driver went a long way round but I am not sure what was quoted.",
+      "amount_sgd": 7.1
+    },
+    "intake": {
+      "what_went_wrong": "The trip felt much longer than it should have been.",
+      "expected_route": "I do not remember what the app showed.",
+      "was_route_agreed": "No",
+      "asked_driver_to_stop": "No",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX"
+  }
+}

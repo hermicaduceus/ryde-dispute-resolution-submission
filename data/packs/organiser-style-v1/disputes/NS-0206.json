@@ -1,0 +1,105 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "NS-0206",
+    "trip_id": "T-NS0206",
+    "filed_by": "rider",
+    "dispute_type": "no_show_charge",
+    "description": "I cancelled within two minutes of booking because my plans changed, and I was still charged. I was at home and the driver had not even started coming, and he never contacted me at all. Being charged a cancellation fee for that is completely unfair. I want the charge removed.",
+    "filed_at": "2026-09-14T20:02:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6006",
+    "name": "Farah binte Ahmad",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-3006",
+    "name": "Daniel Wong Kah Seng",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Harrier (SJH 6742 C)"
+  },
+  "trip_data": {
+    "trip_id": "T-NS0206",
+    "rider_id": "R-6006",
+    "driver_id": "D-3006",
+    "pickup_location": {
+      "name": "Orchard Boulevard",
+      "lat": 1.3048,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Holland Village",
+      "lat": 1.3111,
+      "lng": 103.7958
+    },
+    "requested_time": "2026-09-14T18:59:20+08:00",
+    "cancellation_time": "2026-09-14T19:02:00+08:00",
+    "cancellation_fee": 6.61,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T18:59:20+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6006 booked trip T-NS0206 from Orchard Boulevard to Holland Village."
+    },
+    {
+      "timestamp": "2026-09-14T19:00:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3006 (Toyota Harrier (SJH 6742 C)) assigned."
+    },
+    {
+      "timestamp": "2026-09-14T19:02:00+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Trip cancelled by rider. Reason: rider_cancelled."
+    },
+    {
+      "timestamp": "2026-09-14T19:02:00+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$6.61 cancellation fee charged to rider payment method."
+    }
+  ],
+  "cancellation_policy": {
+    "free_cancellation_window_min": 3,
+    "free_wait_time_min": 3,
+    "no_show_threshold_min": 3,
+    "cancellation_fee_after_wait": 6.61,
+    "waiting_fee_after_wait": 5.0,
+    "source": "Ryde published cancellation and waiting fee policy (docs/policy.md parameters)"
+  },
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "I cancelled within two minutes of booking and was still charged.",
+      "amount_sgd": 6.61
+    },
+    "intake": {
+      "what_went_wrong": "Cancelled almost straight away because my plans changed.",
+      "where_were_you": "At home, the driver had not started coming.",
+      "did_driver_contact_you": "No",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX",
+    "rider_claims_driver_absent": false
+  }
+}

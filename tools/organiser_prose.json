@@ -1,0 +1,112 @@
+{
+  "_readme": [
+    "Free-text fields for the organiser-style pack (tools/organiser_pack.py).",
+    "Drafted 2026-09-23 by two glm-5.3-flash subagents from each case's claim text and intake",
+    "answers only, then reviewed by the planner: three descriptions corrected for added or wrong facts",
+    "(RD-0102 'in the app', NS-0206 'no-show' -> 'cancellation', OS-0301 'cleaning up'), one",
+    "duplicate name and two confusable plates replaced. Names and plates are fictional.",
+    "The generator refuses any description that introduces a number its source never states."
+  ],
+  "NS-0201": {
+    "description": "I was charged a no-show fee but I was still on my way down. I was in the lift, about 2 minutes away, when the driver messaged that he had arrived. Being charged for a no-show when I was coming down to the lobby is completely unfair. I want this charge reversed immediately.",
+    "rider_name": "Marcus Tan Wei Ming",
+    "driver_name": "Ahmad Zulkifli bin Rahmat",
+    "vehicle": "Honda Vezel (SLA 7730 K)"
+  },
+  "NS-0202": {
+    "description": "The driver cancelled almost immediately and I was still charged. He sent one message saying he arrived, then cancelled about a minute after — and I was walking out of the building and could see the car. How is that a no-show on my part? I want this charge taken off.",
+    "rider_name": "Siti Nurhaliza binte Osman",
+    "driver_name": "Ravi Menon",
+    "vehicle": "Toyota Wish (SLK 2314 J)"
+  },
+  "NS-0203": {
+    "description": "The driver never came to the pickup point but I was charged a no-show fee. He said he arrived, but he was never outside my block, and I was standing at the pickup point the whole time. There were no calls, just the arrival notification. This charge is completely unfair and I want it reversed.",
+    "rider_name": "Ravindran s/o Muthu",
+    "driver_name": "Clara Lim Si Ying",
+    "vehicle": "Toyota Prius (SLB 5608 D)"
+  },
+  "NS-0204": {
+    "description": "I waited 20 minutes at the pickup point from the start and the driver never moved towards me. He never responded to any of my messages either. I had to cancel it myself because he simply never arrived, and now I'm being charged for it. Please reverse this unfair charge.",
+    "rider_name": "Eugene D'Souza",
+    "driver_name": "Muhammad Faizal bin Kamarudin",
+    "vehicle": "Nissan Sylphy (SGE 4471 M)"
+  },
+  "NS-0205": {
+    "description": "The driver says I did not show up, but I say he was not there. I was at the taxi stand as booked and the driver was not. He messaged that he was waiting, but I did not see him anywhere. I want this no-show charge reversed.",
+    "rider_name": "Tan Hui Ling Grace",
+    "driver_name": "Arjun Kumar Nair",
+    "vehicle": "Honda Shuttle (SGX 1083 P)"
+  },
+  "NS-0206": {
+    "description": "I cancelled within two minutes of booking because my plans changed, and I was still charged. I was at home and the driver had not even started coming, and he never contacted me at all. Being charged a cancellation fee for that is completely unfair. I want the charge removed.",
+    "rider_name": "Farah binte Ahmad",
+    "driver_name": "Daniel Wong Kah Seng",
+    "vehicle": "Toyota Harrier (SJH 6742 C)"
+  },
+  "NS-0207": {
+    "description": "I was charged a waiting fee even though the trip went ahead. The driver messaged when he arrived, and I came down about 6 minutes after that, yet there is an extra charge on my receipt for waiting time. The trip happened, so the waiting fee makes no sense to me. I want the extra charge removed.",
+    "rider_name": "Kelvin Leong Chee Keong",
+    "driver_name": "Priya Selvam",
+    "vehicle": "Hyundai Avante (SKM 9215 E)"
+  },
+  "OS-0301": {
+    "description": "My passenger was sick in the back seat and left a real mess in my car at the drop-off point. Because of it I lost the rest of my shift. This shouldn't come out of my pocket, so I want the cleaning fee paid.",
+    "rider_name": "Desmond Chia Beng Hoe",
+    "driver_name": "Jason Pereira",
+    "vehicle": "Toyota Vellfire (SLT 3388 B)"
+  },
+  "RD-0101": {
+    "description": "The driver completely ignored the route the app showed and drove a long way round instead. The app had shown about 6.4 km via the expressway, but he took a much longer way and I ended up paying more than the quoted fare. I never agreed to any different route and I didn't ask him to stop anywhere. I want a refund of the extra I was charged.",
+    "rider_name": "Tan Wei Ming",
+    "driver_name": "Daniel Wong",
+    "vehicle": "Toyota Corolla Altis (SKP 4821 H)"
+  },
+  "RD-0102": {
+    "description": "My final fare came out higher than what the app quoted when I booked. To be upfront, I did ask the driver to drop my colleague first and I added a stop, so the route wasn't the direct route to my original drop-off — but the fare was still more than the quote and that doesn't feel right. I want the difference refunded.",
+    "rider_name": "Nurul Aisyah Binte Rahman",
+    "driver_name": "Vincent Lee",
+    "vehicle": "Honda Vezel (SJC 9357 G)"
+  },
+  "RD-0103": {
+    "description": "The driver didn't take the exact route the app displayed when I booked. I never agreed to any change and I didn't ask him to stop anywhere either. It might sound small, but the app is supposed to show you the route you're getting and he just went his own way. I want this reviewed and the fare corrected.",
+    "rider_name": "Arjun Menon",
+    "driver_name": "Ahmad Zaki",
+    "vehicle": "Toyota Wish (SDN 1208 K)"
+  },
+  "RD-0104": {
+    "description": "This was a long trip to the airport and the driver left the expressway and went a long way round instead of taking the direct expressway route the app showed. It cost me more than it should have. I never agreed to a detour and I didn't ask him to stop. I want the extra cost refunded.",
+    "rider_name": "Cheryl Anne D'Souza",
+    "driver_name": "Ravi Chandran",
+    "vehicle": "Toyota Alphard (SGM 7743 P)"
+  },
+  "RD-0105": {
+    "description": "The driver drove much further than the route the app showed — it should have been about 7 km direct. Instead he took a longer route and I paid for distance I never should have travelled. I never agreed to a different route and I didn't ask him to stop. I want the extra distance refunded.",
+    "rider_name": "Lim Chee Keong",
+    "driver_name": "Goh Beng Huat",
+    "vehicle": "Honda Shuttle (SFT 6612 D)"
+  },
+  "RD-0106": {
+    "description": "This isn't actually about the route — the route was agreed and fine. The problem is the bill: my receipt total is more than the items listed on it add up to, and I was charged more than the parts listed. A receipt that doesn't match its own line items is just not acceptable. I want the bill corrected and the difference refunded.",
+    "rider_name": "Siti Halimah Binte Osman",
+    "driver_name": "Farhan Ismail",
+    "vehicle": "Hyundai Avante (SKT 2290 L)"
+  },
+  "RD-0107": {
+    "description": "The trip took nearly twice as long as the app estimated and it cost me more. I had agreed to the route and the app said it should have taken about 22 minutes, but it dragged on far longer than that. I didn't ask the driver to stop anywhere. I want the extra fare refunded.",
+    "rider_name": "Rajesh Kumar",
+    "driver_name": "Peter Fernandez",
+    "vehicle": "Nissan Sylphy (SDR 5548 J)"
+  },
+  "RD-0108": {
+    "description": "I think the driver went a long way round — the whole trip just felt much longer than it should have been. Honestly, I don't remember exactly what the app showed for the route, so I can't compare it directly, but something felt off. I never agreed to any different route and I didn't ask him to stop. I'd like the trip reviewed and the fare looked at.",
+    "rider_name": "Marcus Foo",
+    "driver_name": "Kwok Wai Lun",
+    "vehicle": "Toyota Sienta (SGP 8364 E)"
+  },
+  "RD-0109": {
+    "description": "The driver went a very long way round on what was already an expensive surge-priced trip — he drove nearly twice the distance. The direct route should have been about 31 km, but this felt endless and the fare stung even before the detour. I never agreed to a different route and I didn't ask him to stop. I want the extra distance refunded.",
+    "rider_name": "Priya Nair",
+    "driver_name": "Suresh Pillai",
+    "vehicle": "Honda Stream (SMA 9715 C)"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "OS-0301",
+    "trip_id": "T-OS0301",
+    "filed_by": "driver",
+    "dispute_type": "Property Damage / Mess",
+    "description": "My passenger was sick in the back seat and left a real mess in my car at the drop-off point. Because of it I lost the rest of my shift. This shouldn't come out of my pocket, so I want the cleaning fee paid.",
+    "filed_at": "2026-09-14T20:06:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7001",
+    "name": "Desmond Chia Beng Hoe",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-4001",
+    "name": "Jason Pereira",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Vellfire (SLT 3388 B)"
+  },
+  "trip_data": {
+    "trip_id": "T-OS0301",
+    "rider_id": "R-7001",
+    "driver_id": "D-4001",
+    "pickup_location": {
+      "name": "Orchard Boulevard",
+      "lat": 1.3048,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Toa Payoh Central",
+      "lat": 1.3326,
+      "lng": 103.8474
+    },
+    "requested_time": "2026-09-14T18:59:20+08:00"
+  },
+  "gps_telemetry": [],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T18:59:20+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7001 booked trip T-OS0301 from Orchard Boulevard to Toa Payoh Central."
+    }
+  ],
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "The rider left a mess in my car and I want the cleaning fee.",
+      "amount_sgd": 120.0
+    },
+    "intake": {
+      "what_went_wrong": "Passenger was sick in the back seat and I lost the rest of my shift.",
+      "where_were_you": "At the drop-off point.",
+      "did_driver_contact_you": "n/a",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX"
+  }
+}

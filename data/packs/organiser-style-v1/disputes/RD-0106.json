@@ -1,0 +1,190 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "RD-0106",
+    "trip_id": "T-RD0106",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "This isn't actually about the route \u2014 the route was agreed and fine. The problem is the bill: my receipt total is more than the items listed on it add up to, and I was charged more than the parts listed. A receipt that doesn't match its own line items is just not acceptable. I want the bill corrected and the difference refunded.",
+    "filed_at": "2026-09-14T11:54:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5006",
+    "name": "Siti Halimah Binte Osman",
+    "account_age_days": 640,
+    "total_trips": 180,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2006",
+    "name": "Farhan Ismail",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.72,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Avante (SKT 2290 L)"
+  },
+  "trip_data": {
+    "trip_id": "T-RD0106",
+    "rider_id": "R-5006",
+    "driver_id": "D-2006",
+    "pickup_location": {
+      "name": "Dhoby Ghaut",
+      "lat": 1.2989,
+      "lng": 103.8456
+    },
+    "dropoff_location": {
+      "name": "Hougang Street 21",
+      "lat": 1.358486,
+      "lng": 103.888379
+    },
+    "requested_time": "2026-09-14T09:26:00+08:00",
+    "pickup_time": "2026-09-14T09:30:00+08:00",
+    "dropoff_time": "2026-09-14T09:54:00+08:00",
+    "estimated_duration_min": 22,
+    "estimated_distance_km": 8.0,
+    "fare": {
+      "charged_sgd": 19.16,
+      "breakdown": {
+        "base_sgd": 3.2,
+        "distance_sgd": 6.56,
+        "time_sgd": 6.0
+      },
+      "rates": {
+        "base_sgd": 3.2,
+        "per_km_sgd": 0.8,
+        "per_min_sgd": 0.25,
+        "surge_multiplier": 1.0
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "lat": 1.2989,
+      "lng": 103.8456,
+      "speed_kmh": 0,
+      "status": "picked_up"
+    },
+    {
+      "timestamp": "2026-09-14T09:32:40+08:00",
+      "lat": 1.305084,
+      "lng": 103.850977,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:35:20+08:00",
+      "lat": 1.31225,
+      "lng": 103.85495,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:38:00+08:00",
+      "lat": 1.318434,
+      "lng": 103.860328,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:40:40+08:00",
+      "lat": 1.325601,
+      "lng": 103.864301,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:43:20+08:00",
+      "lat": 1.331785,
+      "lng": 103.869678,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:46:00+08:00",
+      "lat": 1.338951,
+      "lng": 103.873652,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:48:40+08:00",
+      "lat": 1.345135,
+      "lng": 103.879029,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:51:20+08:00",
+      "lat": 1.352302,
+      "lng": 103.883002,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T09:54:00+08:00",
+      "lat": 1.358486,
+      "lng": 103.888379,
+      "speed_kmh": 20,
+      "status": "dropped_off"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T09:54:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T09:26:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5006 booked trip T-RD0106 from Dhoby Ghaut to Hougang Street 21."
+    },
+    {
+      "timestamp": "2026-09-14T09:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Live tracking enabled."
+    },
+    {
+      "timestamp": "2026-09-14T09:54:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Rider dropped off. Trip status: completed."
+    },
+    {
+      "timestamp": "2026-09-14T09:54:00+08:00",
+      "event_type": "fare_charged",
+      "details": "$19.16 charged to rider payment method."
+    }
+  ],
+  "ryde_extensions": {
+    "_note": "Fields our corpus carries that the organiser sample has no slot for. A reader that only knows the organiser schema can ignore this block.",
+    "claim": {
+      "text": "The receipt does not add up. I was charged more than the parts listed.",
+      "amount_sgd": 0.66
+    },
+    "intake": {
+      "what_went_wrong": "The total on my receipt is more than the items listed on it.",
+      "expected_route": "Route was fine, the problem is the bill.",
+      "was_route_agreed": "Yes",
+      "asked_driver_to_stop": "No",
+      "safety_concern": "No"
+    },
+    "service_type": "RydeX"
+  }
+}
