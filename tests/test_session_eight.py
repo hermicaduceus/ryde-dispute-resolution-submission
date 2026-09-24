@@ -163,6 +163,54 @@ class W13Pipeline(unittest.TestCase):
         notes = " ".join(case["claims"]["rider"]["validation"]["notes"])
         self.assertIn("made_up", notes)
 
+    # Session eight review round (glm-5.3, reproduced by the planner). The W13 hole is a model
+    # putting a sentence where an id belongs; behaviour was right, nothing pinned it.
+
+    def test_a_sentence_smuggled_into_the_slots_never_reaches_the_party(self):
+        smuggled = PARAPHRASE_LEAKS + [EXPECTED_BANK["route_deviation"]["route_shown"]]
+        case = _run(_record(ORG_DIR, "RD-0101.json"), llm=_llm(rider_slots=smuggled))
+        resolution = case["resolution"]
+        self.assertNotEqual("needs_info", resolution["outcome"])
+        self.assertEqual([], resolution["questions_for_party"])
+        for leak in PARAPHRASE_LEAKS:
+            self.assertNotIn(leak, json.dumps(resolution))
+
+    def test_every_non_string_slot_shape_breaks_the_contract(self):
+        from app.schemas import AdvocateCase, ContractError
+
+        payload = {"requested_outcome": "refund", "requested_amount_sgd": 1.0,
+                   "argument": "x", "claim_summary": "x"}
+        wrong = [[5], [None], [True], [""], ["  "], [{"id": "route_shown"}],
+                 ["route_shown", ["x"]], "route_shown", {"route_shown": 1}]
+        for slots in wrong:
+            with self.subTest(slots=slots):
+                with self.assertRaises(ContractError):
+                    AdvocateCase.from_payload(
+                        dict(payload, follow_up_slots=slots), agent="rider_advocate",
+                        party="rider", category="route_deviation", filed_by="rider")
+
+    def test_a_flood_of_slot_ids_is_bounded(self):
+        # NIT from the review: 50 unknown ids used to write 50 notes into the case file.
+        # Only the first MAX_FOLLOW_UP_SLOTS ids are read; the rest are counted in one note.
+        from app.schemas import MAX_FOLLOW_UP_SLOTS
+
+        self.assertEqual(6, MAX_FOLLOW_UP_SLOTS)
+        flood = ["made_up_%d" % i for i in range(50)]
+        case = _run(_record(ORG_DIR, "RD-0101.json"), llm=_llm(rider_slots=flood + ["route_shown"]))
+        rider = case["claims"]["rider"]
+        self.assertEqual(flood[:MAX_FOLLOW_UP_SLOTS], rider["follow_up_slots"])
+        self.assertEqual([], case["resolution"]["questions_for_party"])
+        notes = rider["validation"]["notes"]
+        self.assertLessEqual(len([n for n in notes if "slot" in n]), MAX_FOLLOW_UP_SLOTS + 1)
+        self.assertTrue(any("45" in n for n in notes), notes)  # 51 sent, 6 read, 45 ignored
+
+    def test_a_huge_slot_id_is_not_copied_whole_into_the_notes(self):
+        huge = "x" * 5000
+        case = _run(_record(ORG_DIR, "RD-0101.json"), llm=_llm(rider_slots=[huge]))
+        notes = case["claims"]["rider"]["validation"]["notes"]
+        self.assertTrue(notes)
+        self.assertLess(max(len(n) for n in notes), 200, notes)
+
     def test_case_file_records_slots_and_rendered_questions(self):
         case = _run(_record(ORG_DIR, "RD-0101.json"), llm=_llm(rider_slots=["route_shown", "made_up"]))
         rider = case["claims"]["rider"]
@@ -225,6 +273,23 @@ class W11CliHeader(unittest.TestCase):
 
     def test_no_judge_run_still_says_n_a(self):
         self.assertIn("llm: n/a", _cli_header("ryde-synth-v1", "OS-0301"))
+
+    # Session eight review round (glm-5.3, reproduced by the planner): the two outcomes the
+    # first fix did not pin.
+
+    def test_a_ruled_case_names_the_llm_that_ran(self):
+        self.assertIn("llm: mock", _cli_header("ryde-synth-v1", "RD-0101"))
+
+    def test_a_needs_info_stop_names_the_advocates_llm(self):
+        # Both advocates ran before the pipeline stopped to ask; no Judge ran, so the
+        # header must read the filing party's advocate, not print n/a.
+        record = _blank_org(_record(ORG_DIR, "RD-0101.json"), "expected_route")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = "%s/RD-0101-blank.json" % tmp
+            with open(path, "w") as handle:
+                json.dump(record, handle)
+            header = _cli_header("organiser-style-v1", path)
+        self.assertIn("llm: mock", header)
 
 
 class W11PromoSign(unittest.TestCase):
