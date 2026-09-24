@@ -25,8 +25,8 @@ Three core agents, all MVP-required:
 
 | Agent | Role |
 |---|---|
-| **Rider Advocate** | Gathers rider-side evidence, argues the rider's case from policy |
-| **Driver Advocate** | Gathers driver-side evidence, argues the driver's case from policy |
+| **Rider Advocate** | Builds the rider's case from the Evidence Pack and the policy |
+| **Driver Advocate** | Builds the driver's case from the Evidence Pack and the policy |
 | **Judge** | Weighs both cases, applies policy, rules, and explains the reasoning with a confidence score |
 
 Inter-agent communication must be **observable** — a judge needs to see how the agents exchange
@@ -106,11 +106,13 @@ out-of-scope filing routed to human review without an LLM call. `docs/dataset.md
 to what it tests; `<pack>/ground-truth.json` holds the expected outcomes, deliberately kept out
 of the records the agents see.
 
-Two gates stand between a ruling and the parties, and **both are enforced in Python, not asked of
-the model in a prompt**: the confidence threshold and ESC-4's SGD 50 autonomous cap. Try them:
+Three gates stand between a ruling and the parties, and **all three are enforced in Python, not
+asked of the model in a prompt**: the confidence threshold, ESC-4's SGD 50 autonomous cap, and
+ESC-2, which withholds a route-case ruling when the deviation cannot be measured. Try them:
 
 ```bash
 python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0109   # withheld: above the cap
+python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0108   # withheld: no deviation to measure
 ```
 
 **One caveat while the build is in progress.** Every mock string is prefixed `MOCK`, because the
