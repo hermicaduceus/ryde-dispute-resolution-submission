@@ -125,6 +125,49 @@ def blank_field_question(label: str) -> str:
     return BLANK_FIELD_QUESTION_TEMPLATE % label
 
 
+#: W13: the follow-up questions an advocate may ask, per category. An advocate picks ids;
+#: code renders the sentence, so no model-written text reaches a party. Sentences are
+#: written for the rider: a driver-filed dispute is offered form slots only.
+FOLLOW_UP_QUESTION_BANK: Dict[str, tuple] = {
+    "route_deviation": (
+        ("route_shown", "What route did the app show you before the trip started?"),
+        ("route_discussed", "Did you and the driver talk about taking a different route? If so, what was said?"),
+        ("stops_or_changes", "Did you ask the driver to stop, wait or change the destination during the trip? If so, where?"),
+        ("road_conditions", "Did the driver mention a road closure or diversion during the trip?"),
+        ("pickup_dropoff", "Were you picked up and dropped off where your booking said? If not, where?"),
+    ),
+    "no_show_charge": (
+        ("waiting_place", "Where exactly were you waiting when the trip was meant to start?"),
+        ("driver_contact", "Did the driver call or message you? If so, what was said?"),
+        ("arrival_time", "Roughly what time did you reach the pickup point?"),
+        ("cancel_reason", "Who cancelled the trip, and what was the reason?"),
+    ),
+}
+
+#: A form slot re-asks one intake question, quoting its label from INTAKE_QUESTIONS.
+FORM_SLOT_PREFIX = "form:"
+FORM_SLOT_QUESTION_TEMPLATE = 'About the form question "%s": could you tell us a little more?'
+
+
+def follow_up_slot_ids(category: str) -> List[str]:
+    """Every slot id an advocate may pick for this category: bank ids, then form ids."""
+    bank = [slot for slot, _ in FOLLOW_UP_QUESTION_BANK.get(category, ())]
+    form = [FORM_SLOT_PREFIX + key for key, _ in INTAKE_QUESTIONS.get(category, ())]
+    return bank + form
+
+
+def render_follow_up_slot(category: Any, slot_id: Any, filed_by: str = "rider") -> Optional[str]:
+    """The party-facing sentence for one slot id, or None when the id is not offered."""
+    if not isinstance(category, str) or not isinstance(slot_id, str):
+        return None
+    if slot_id.startswith(FORM_SLOT_PREFIX):
+        label = dict(INTAKE_QUESTIONS.get(category, ())).get(slot_id[len(FORM_SLOT_PREFIX):])
+        return FORM_SLOT_QUESTION_TEMPLATE % label if label else None
+    if filed_by != "rider":
+        return None
+    return dict(FOLLOW_UP_QUESTION_BANK.get(category, ())).get(slot_id)
+
+
 class ContractError(ValueError):
     """A model response does not satisfy the contract it was asked for."""
 
@@ -305,6 +348,7 @@ class AdvocateCase:
     requested_amount_sgd: float
     evidence_cited: List[str] = field(default_factory=list)
     policy_rule_ids: List[str] = field(default_factory=list)
+    follow_up_slots: List[str] = field(default_factory=list)
     follow_up_questions: List[str] = field(default_factory=list)
     raw: Dict[str, Any] = field(default_factory=dict)
     validation: Dict[str, Any] = field(default_factory=dict)
@@ -319,11 +363,23 @@ class AdvocateCase:
         agent: str,
         llm: Optional[Dict[str, Any]] = None,
         validation: Optional[Dict[str, Any]] = None,
+        category: Optional[str] = None,
+        filed_by: str = "rider",
     ) -> "AdvocateCase":
         outcome = RulingAction.parse(payload.get("requested_outcome"), field_name="requested_outcome")
         amount = _require_number(payload, "requested_amount_sgd", agent, minimum=0.0)
+        slots = _optional_text_list(payload, "follow_up_slots", agent)
 
         notes: List[str] = []
+        rendered_questions: List[str] = []
+        for slot in slots:
+            question = render_follow_up_slot(category, slot, filed_by)
+            if question is None:
+                notes.append(
+                    "follow-up slot %r dropped: not offered for this %s dispute" % (slot, category)
+                )
+            elif question not in rendered_questions:
+                rendered_questions.append(question)
         if outcome is RulingAction.NO_ACTION and amount != 0.0:
             notes.append("requested_amount_sgd forced to 0.00: a no-action request carries no amount")
             amount = 0.0
@@ -341,7 +397,8 @@ class AdvocateCase:
             requested_amount_sgd=round(amount, 2),
             evidence_cited=_optional_text_list(payload, "evidence_cited", agent),
             policy_rule_ids=_optional_text_list(payload, "policy_rule_ids", agent),
-            follow_up_questions=_optional_text_list(payload, "follow_up_questions", agent),
+            follow_up_slots=slots,
+            follow_up_questions=rendered_questions,
             raw=dict(payload),
             validation=merged,
             llm=dict(llm or {}),
@@ -357,6 +414,7 @@ class AdvocateCase:
             "requested_amount_sgd": self.requested_amount_sgd,
             "evidence_cited": list(self.evidence_cited),
             "policy_rule_ids": list(self.policy_rule_ids),
+            "follow_up_slots": list(self.follow_up_slots),
             "follow_up_questions": list(self.follow_up_questions),
             "validation": self.validation,
             "llm": self.llm,
