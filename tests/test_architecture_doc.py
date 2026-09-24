@@ -171,5 +171,76 @@ class EntryPointsPointAtTheDoc(unittest.TestCase):
             self.assertEqual([], TEST_COUNT.findall(_text(path)), path.name)
 
 
+# --------------------------------------------------------------- review-round pins
+# Added after the cross-family review of the first draft. Each pins a finding that is
+# mechanical enough to check; the semantic findings are verified by reading.
+
+NODE_LABEL = re.compile(r"(\w+)\s*(?:\[\s*\"([^\"]+)\"\s*\]|\{\s*\"([^\"]+)\"\s*\}|\(\s*\"([^\"]+)\"\s*\))")
+QUOTED = re.compile(r"\"[^\"]*\"")
+BRACKETS = re.compile(r"\[[^\]]*\]|\{[^}]*\}|\([^)]*\)")
+EDGE = re.compile(r"^\s*(\w+)\s*[-.=\s]+>\s*(\w+)")
+
+
+def _diagram(text: str):
+    """(labels by lowercased label -> node id, set of (from_id, to_id) edges)."""
+    block = MERMAID.findall(text)[0]
+    labels = {}
+    for match in NODE_LABEL.finditer(block):
+        label = next(g for g in match.groups()[1:] if g)
+        labels.setdefault(label.strip().lower(), match.group(1))
+    edges = set()
+    for line in block.splitlines():
+        bare = BRACKETS.sub("", QUOTED.sub("", line))
+        found = EDGE.match(bare)
+        if found:
+            edges.add((found.group(1), found.group(2)))
+    return labels, edges
+
+
+def _node(labels, *needles):
+    for label, node_id in labels.items():
+        if all(n in label for n in needles):
+            return node_id
+    return None
+
+
+class ReviewRoundPins(unittest.TestCase):
+    def setUp(self):
+        if not DOC.exists():
+            self.fail("docs/architecture.md does not exist yet")
+        self.text = _text(DOC)
+
+    def test_withheld_ruling_reaches_human_review_in_the_diagram(self):
+        labels, edges = _diagram(self.text)
+        withheld, human = _node(labels, "withheld"), _node(labels, "human review")
+        self.assertIsNotNone(withheld)
+        self.assertIsNotNone(human)
+        self.assertIn((withheld, human), edges)
+
+    def test_dataset_pack_feeds_the_server_not_the_form(self):
+        labels, edges = _diagram(self.text)
+        pack, server = _node(labels, "dataset pack"), _node(labels, "server")
+        self.assertIn((pack, server), edges)
+        form = _node(labels, "intake form")
+        self.assertNotIn((pack, form), edges)
+
+    def test_diagram_shows_the_command_line_runner(self):
+        labels, _edges = _diagram(self.text)
+        self.assertTrue(_node(labels, "command") or _node(labels, "cli"), sorted(labels))
+
+    def test_names_the_web_run_files_and_the_answers_route(self):
+        for needle in ("`dispute.json`", "`answered.json`", "/api/disputes/<run_id>/answers"):
+            self.assertIn(needle, self.text)
+
+    def test_readme_names_all_three_judge_gates(self):
+        readme = _text(README)
+        self.assertNotIn("Two gates", readme)
+        self.assertIn("ESC-2", readme)
+
+    def test_readme_advocates_do_not_gather_evidence(self):
+        self.assertNotIn("Gathers rider-side evidence", _text(README))
+        self.assertNotIn("Gathers driver-side evidence", _text(README))
+
+
 if __name__ == "__main__":
     unittest.main()
