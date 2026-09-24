@@ -144,6 +144,8 @@ FOLLOW_UP_QUESTION_BANK: Dict[str, tuple] = {
     ),
 }
 
+MAX_FOLLOW_UP_SLOTS = 6
+
 #: A form slot re-asks one intake question, quoting its label from INTAKE_QUESTIONS.
 FORM_SLOT_PREFIX = "form:"
 FORM_SLOT_QUESTION_TEMPLATE = 'About the form question "%s": could you tell us a little more?'
@@ -368,7 +370,9 @@ class AdvocateCase:
     ) -> "AdvocateCase":
         outcome = RulingAction.parse(payload.get("requested_outcome"), field_name="requested_outcome")
         amount = _require_number(payload, "requested_amount_sgd", agent, minimum=0.0)
-        slots = _optional_text_list(payload, "follow_up_slots", agent)
+        all_slots = _optional_text_list(payload, "follow_up_slots", agent)
+        ignored_slot_count = max(0, len(all_slots) - MAX_FOLLOW_UP_SLOTS)
+        slots = all_slots[:MAX_FOLLOW_UP_SLOTS]
 
         notes: List[str] = []
         rendered_questions: List[str] = []
@@ -380,6 +384,11 @@ class AdvocateCase:
                 )
             elif question not in rendered_questions:
                 rendered_questions.append(question)
+        if ignored_slot_count:
+            notes.append(
+                "%d further follow-up slot ids ignored (limit %d)"
+                % (ignored_slot_count, MAX_FOLLOW_UP_SLOTS)
+            )
         if outcome is RulingAction.NO_ACTION and amount != 0.0:
             notes.append("requested_amount_sgd forced to 0.00: a no-action request carries no amount")
             amount = 0.0
