@@ -28,3 +28,20 @@ per session is enough; date each entry.
   all three fixtures run end to end, and the Evidence Pack's route arithmetic was recomputed
   independently and matched to the last decimal (8.0347 km, 25.54% deviation, SGD 4.87 delta).
   The skeleton is real, not a plausible-looking shell.
+
+## 2026-09-24
+
+- Session seven (CodeBuddy CLI v2.157.0, GLM-5.3-Flash at max effort, 18m16s, 6.21 credits): wrote
+  `docs/architecture.md` against 14 acceptance tests written before the document existed. It read 44
+  files before writing and listed, per section, which files each claim came from. It also reported two
+  code oddities it noticed but did not fix, because the session rules forbade code edits, which is
+  the behaviour we asked for.
+- The tests could only check form, so a second model family reviewed the text against the code. It
+  found real errors (the README named two of the Judge's three checks; one safety sentence was true
+  for the decision message but false for follow-up questions). The fix round ran in the same session
+  after an in-session switch to Deepseek-V4.1-Flash: 3m37s, 0 credits (the transcript names
+  deepseek on every record of that round and bills none of them).
+- Miora's first attempt at the polished diagram kept every label but scrambled the arrows (the
+  "Out of scope" branch pointed into processing). A generic image model did better but still
+  misrouted the top of the chart. Exact wiring is hard for image models; the Mermaid render stays the
+  reference until an image matches it arrow for arrow.
