@@ -379,8 +379,10 @@ class AdvocateCase:
         for slot in slots:
             question = render_follow_up_slot(category, slot, filed_by)
             if question is None:
+                display_slot = slot if len(slot) <= 40 else slot[:40] + "…"
                 notes.append(
-                    "follow-up slot %r dropped: not offered for this %s dispute" % (slot, category)
+                    "follow-up slot %r dropped: not offered for this %s dispute"
+                    % (display_slot, category)
                 )
             elif question not in rendered_questions:
                 rendered_questions.append(question)
