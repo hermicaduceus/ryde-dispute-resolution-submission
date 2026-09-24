@@ -19,7 +19,7 @@ by hand. The result is slow, expensive and inconsistent.
 The task is an autonomous multi-agent system that gathers evidence, builds both sides' cases, applies
 company policy and issues a fair ruling with a confidence score and a plain-language explanation.
 
-## Planned architecture
+## Architecture
 
 Three core agents, all MVP-required:
 
@@ -32,10 +32,39 @@ Three core agents, all MVP-required:
 Inter-agent communication must be **observable** — a judge needs to see how the agents exchange
 information and build their cases. That surface is a required deliverable, not a nice-to-have.
 
+The full walkthrough — components, lifecycle, gates, observability — is in
+[`docs/architecture.md`](docs/architecture.md). The system on one page:
+
+```mermaid
+flowchart TD
+    A["Rider intake form"] --> B["Server"]
+    PACK["Dataset pack"] --> A
+    B --> C{"Category in scope?"}
+    C -- "Out of scope" --> H["Human review"]
+    C -- "Route deviation or no-show" --> E["Evidence Pack"]
+    POL["Policy document"] --> RA["Rider Advocate"]
+    POL --> DA["Driver Advocate"]
+    POL --> J["Judge"]
+    E --> RA
+    E --> DA
+    RA --> S{"Questions for the party?"}
+    DA --> S
+    S -- "Yes, first round" --> O4["Needs info"]
+    O4 --> PA["Party answers follow-ups"]
+    PA -- "Fresh run with the answers" --> B
+    S -- "No" --> J
+    J --> G{"Gates pass? Confidence, cap, measured deviation"}
+    G -- "Yes" --> O1["Ruled"]
+    G -- "No" --> O2["Withheld"]
+    B -. "Every step emits an event" .-> L["Event log"]
+    J -.-> L
+    L --> K["Operator console"]
+```
+
 ## Documents
 
 - [`docs/statement-extract.md`](docs/statement-extract.md) — the challenge statement, verbatim
-- `docs/architecture.md` — architecture diagram and system description (required deliverable, to come)
+- [`docs/architecture.md`](docs/architecture.md) — architecture diagram and system description
 - [`docs/policy.md`](docs/policy.md) — the policy rule set the Judge applies, with per-rule provenance
 - [`docs/dataset.md`](docs/dataset.md) — the labelled corpus, its provenance and its limitations
 - [`docs/evidence-plan.md`](docs/evidence-plan.md) — development-process evidence rules
@@ -52,7 +81,7 @@ No dependencies and no API key needed for the skeleton: it runs on a stock Pytho
 standard library only, using a deterministic mock in place of the LLM.
 
 ```bash
-python3 -m unittest discover -s tests -t .        # 225 tests
+python3 -m unittest discover -s tests -t .
 python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0101
 python3 -m app.cli --pack organiser-style-v1 --dispute DISP-002
 ```
