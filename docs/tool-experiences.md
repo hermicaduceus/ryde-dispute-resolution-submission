@@ -45,3 +45,17 @@ per session is enough; date each entry.
   "Out of scope" branch pointed into processing). A generic image model did better but still
   misrouted the top of the chart. Exact wiring is hard for image models; the Mermaid render stays the
   reference until an image matches it arrow for arrow.
+
+## 2026-09-25
+
+- Session eight (CodeBuddy CLI v2.158.0, auto-updated overnight, GPT-5.6-Luna at max effort,
+  22m20s then 11m38s, 27.49 credits for both rounds): replaced model-written follow-up questions
+  with question ids that code turns into fixed sentences. It entered plan mode unprompted, sent an
+  explore agent and a plan agent, and showed a plan for approval before editing, as luna did in
+  session two. It changed only the files the brief allowed and committed in four logical steps.
+- The tests were written first, so "done" was decided by the tests, not by the model. A second
+  model family then reviewed the work and found one real bug the tests had missed (the same
+  terminal label error on a third outcome). New tests were written for it and CodeBuddy fixed it
+  in the same session in 11 minutes.
+- Even three small fixes got a full explore-and-plan cycle at max effort. That is thorough but
+  slow for 20 lines of code; a cheaper setting would suit small follow-up rounds.
