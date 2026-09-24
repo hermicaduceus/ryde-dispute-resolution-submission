@@ -98,15 +98,17 @@ emitting an event at each:
    number they see is the amount the party claimed.
 5. `case.assigned` — once to each advocate.
 6. Each advocate runs and emits `advocate.case_submitted` to the Judge with its case. When
-   an advocate wants more from the filing party, it also emits `advocate.follow_up_requested`
-   in the first round, carrying the advocate's questions as the model wrote them; the
-   party-safety check runs later, and only the questions that pass it reach the party.
+   an advocate needs more from the filing party, it selects offered slot IDs and emits
+   `advocate.follow_up_requested` in the first round with both the selected slots and the
+   rendered questions. Code renders a bank sentence for a rider-filed dispute, or a form
+   sentence from an intake label for either filer; any question text written by the model
+   is ignored. The party-safety check remains a backstop, and only rendered questions that
+   pass it reach the party.
 7. **Stop and ask.** If there are questions to send and the dispute does not already carry
    the party's answers, the run stops before the Judge: `party.notified` carries the
-   questions — the safe ones the advocates wrote, or, when none survive the check, plain
-   template questions the pipeline builds for blank intake fields — then `run.completed`
-   records the `needs_info` outcome. The party's answers start a fresh run, which is
-   guaranteed to reach the Judge.
+   rendered questions — or, when none survive the backstop, plain template questions the
+   pipeline builds for blank intake fields — then `run.completed` records the `needs_info`
+   outcome. The party's answers start a fresh run, which is guaranteed to reach the Judge.
 8. `judge.deliberation_started` — both cases are handed to the Judge together.
 9. The Judge rules: `judge.ruling_issued` when every gate passes, or
    `judge.ruling_withheld` when one fails — the candidate ruling is recorded either way.
@@ -121,7 +123,7 @@ emitting an event at each:
 | `ruled` | The Judge issued a ruling and every gate passed | Yes | `decided` |
 | `withheld` | A gate stopped the ruling: confidence below threshold, amount above the cap, or an unmeasured deviation on a route case | Yes — the candidate is recorded for a human reviewer, never delivered | `under_review` |
 | `human_review` | The category is outside the two the agents handle | No — routed away before any agent | `passed_to_support` |
-| `needs_info` | The advocates asked targeted follow-up questions in the first round, or a blank form answer produced a template question | No — the run stops before the Judge | `needs_info` |
+| `needs_info` | The advocates selected offered follow-up slots in the first round, or a blank form answer produced a template question | No — the run stops before the Judge | `needs_info` |
 
 ## Gates enforced in code
 
@@ -179,13 +181,15 @@ message, whatever a stale or planted case file might say. The two kinds of party
 are protected differently. The decision message is composed in code from structured fields,
 so nothing model-written reaches it: it names the action and the amount — a no-action ruling
 carries no amount — and at most three rule titles, never the escalation (ESC) rules.
-Follow-up questions, by contrast, are written by the advocates' model; the word check
-(`is_party_safe`, applied in `_questions_for_party` in `app/pipeline.py` and again in
-`party_view`) is what stops an unsafe one, and when no safe question survives, the pipeline
-falls back to plain template questions built from the form's own labels. The word list is
-incomplete, so for questions it is a real but imperfect filter. A run that asked for more
-information is answered through `POST /api/disputes/<run_id>/answers`, and the answers start
-a fresh run on the same dispute.
+Follow-up questions are selected by the advocates as slot IDs; code renders each sentence
+from the fixed category bank or from an intake form label. Bank slots are offered only when
+the rider filed, while form slots work for either filer. Any question text written by the
+model is ignored, so no model-written text reaches a party. The word check (`is_party_safe`,
+applied in `_questions_for_party` in `app/pipeline.py` and again in `party_view`) remains a
+backstop, as it is for the code-composed decision message. When no rendered question survives,
+the pipeline falls back to plain template questions built from the form's own labels. A run
+that asked for more information is answered through `POST /api/disputes/<run_id>/answers`, and
+the answers start a fresh run on the same dispute.
 
 ## Policy and dataset packs
 
@@ -235,10 +239,12 @@ What the system does not do yet, stated plainly:
   incidents route to human review by design.
 - **The driver-side form is not built.** The party page files as the rider only; the
   pipeline itself accepts driver-filed disputes, but no web form offers it yet.
-- **The word check is incomplete by design.** For follow-up questions it is a real but
-  imperfect filter: a keyword list over a banned vocabulary, not a semantic guarantee. It
-  is the gate those questions pass through, and when none survive it, the pipeline falls
-  back to template questions built from the form's own labels.
+- **Follow-up wording is code-owned.** Advocates select slot IDs; code renders each question
+  from the fixed category bank or an intake form label, and model-written question text is
+  ignored. Bank slots are rider-only; form slots are available to either filer.
+- **The word check is a backstop.** Rendered follow-up questions and the code-composed decision
+  message pass the keyword gate, which is not a semantic guarantee; blank fields still use
+  template questions built from the form's own labels.
 - **Policy preconditions are not evaluated by code.** The rules are written against pack
   fields in plain language; nothing checks them mechanically, and the Judge applies them by
   reading them.
