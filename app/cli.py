@@ -131,10 +131,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 def _print_report(case_file, events: EventLog, case_path: Path) -> None:
     resolution = case_file.resolution
+    ruling = resolution["ruling"] or resolution["withheld_candidate"]
+    llm = (ruling.get("llm") or {}).get("provider") if ruling else None
     print("")
     print("RYDE DISPUTE RESOLUTION — %s (%s)" % (case_file.dispute_id, case_file.category))
     print("run: %s   llm: %s   threshold: %.2f"
-          % (case_file.run_id, resolution["ruling"]["llm"]["provider"] if resolution["ruling"] else "n/a",
+          % (case_file.run_id, llm or "n/a",
              case_file.confidence_threshold))
     print("")
     print("EVENT STRIP")

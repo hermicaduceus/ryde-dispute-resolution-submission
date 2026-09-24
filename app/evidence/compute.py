@@ -329,6 +329,8 @@ def _build_fare(
     per_km = _as_float(_first(rates, "per_km_sgd", "distance_rate_sgd")) or 0.0
     per_min = _as_float(_first(rates, "per_min_sgd", "time_rate_sgd")) or 0.0
     surge = _as_float(_first(rates, "surge_multiplier", "surge")) or 1.0
+    # tools/build_corpus.py stores promo_sgd as a negative discount and the fare formula
+    # subtracts it; abs() makes the stored sign irrelevant.
     promo = abs(_as_float(_first(components, "promo_sgd", "promo", "discount_sgd")) or 0.0)
 
     def recompute(distance_km: Optional[float], minutes: Optional[float]) -> Optional[float]:
