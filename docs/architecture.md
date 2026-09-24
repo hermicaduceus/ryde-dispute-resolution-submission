@@ -23,15 +23,19 @@ are allowed to read.
 
 ## Diagram
 
-The whole system on one page. The party-facing flow runs top to bottom, the two swappable
-inputs (the policy document and the dataset pack) enter from the side, and every step of a
-run lands in the event log that the operator console reads.
+The whole system on one page. A dispute arrives either through the web intake form or the
+command-line runner; the two swappable inputs (the policy document and the dataset pack)
+enter from the side. Every step of a run lands in the event log, and the operator console
+renders the event strip embedded in the case file — opening each event's full payload from
+the run files the operator attaches.
 
 ```mermaid
 flowchart TD
-    A["Rider intake form"] --> B["Server"]
-    PACK["Dataset pack"] --> A
+    PACK["Dataset pack"] --> B["Server"]
+    PACK --> CL["Command-line runner"]
+    A["Rider intake form"] --> B
     B --> C{"Category in scope?"}
+    CL --> C
     C -- "Out of scope" --> H["Human review"]
     C -- "Route deviation or no-show" --> E["Evidence Pack"]
     POL["Policy document"] --> RA["Rider Advocate"]
@@ -48,9 +52,10 @@ flowchart TD
     J --> G{"Gates pass? Confidence, cap, measured deviation"}
     G -- "Yes" --> O1["Ruled"]
     G -- "No" --> O2["Withheld"]
+    O2 -- "Candidate ruling queued" --> H
     B -. "Every step emits an event" .-> L["Event log"]
     J -.-> L
-    L --> K["Operator console"]
+    L -- "Embedded in the case file" --> K["Operator console"]
 ```
 
 ## Components

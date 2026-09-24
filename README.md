@@ -37,9 +37,11 @@ The full walkthrough — components, lifecycle, gates, observability — is in
 
 ```mermaid
 flowchart TD
-    A["Rider intake form"] --> B["Server"]
-    PACK["Dataset pack"] --> A
+    PACK["Dataset pack"] --> B["Server"]
+    PACK --> CL["Command-line runner"]
+    A["Rider intake form"] --> B
     B --> C{"Category in scope?"}
+    CL --> C
     C -- "Out of scope" --> H["Human review"]
     C -- "Route deviation or no-show" --> E["Evidence Pack"]
     POL["Policy document"] --> RA["Rider Advocate"]
@@ -56,9 +58,10 @@ flowchart TD
     J --> G{"Gates pass? Confidence, cap, measured deviation"}
     G -- "Yes" --> O1["Ruled"]
     G -- "No" --> O2["Withheld"]
+    O2 -- "Candidate ruling queued" --> H
     B -. "Every step emits an event" .-> L["Event log"]
     J -.-> L
-    L --> K["Operator console"]
+    L -- "Embedded in the case file" --> K["Operator console"]
 ```
 
 ## Documents
