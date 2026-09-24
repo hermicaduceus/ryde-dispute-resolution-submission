@@ -133,6 +133,13 @@ def _print_report(case_file, events: EventLog, case_path: Path) -> None:
     resolution = case_file.resolution
     ruling = resolution["ruling"] or resolution["withheld_candidate"]
     llm = (ruling.get("llm") or {}).get("provider") if ruling else None
+    if llm is None and resolution["outcome"] == "needs_info":
+        filed_by = (case_file.intake or {}).get("filed_by")
+        filing_claim = {
+            "rider": case_file.rider_case,
+            "driver": case_file.driver_case,
+        }.get(filed_by)
+        llm = ((filing_claim or {}).get("llm") or {}).get("provider")
     print("")
     print("RYDE DISPUTE RESOLUTION — %s (%s)" % (case_file.dispute_id, case_file.category))
     print("run: %s   llm: %s   threshold: %.2f"
