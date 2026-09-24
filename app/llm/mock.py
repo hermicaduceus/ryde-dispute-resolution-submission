@@ -15,7 +15,7 @@ import json
 from typing import Any, Dict, List
 
 from .base import LLMClient, LLMError, LLMRequest, LLMResponse
-from ..schemas import INTAKE_QUESTIONS, blank_field_question
+from ..schemas import FORM_SLOT_PREFIX, INTAKE_QUESTIONS
 
 MOCK_MARKER = "MOCK"
 
@@ -84,25 +84,17 @@ class MockLLMClient(LLMClient):
             requested_outcome = "no action"
             requested_amount = 0.0
 
-        # Only the filing party's advocate asks, one question per blank intake answer,
+        # Only the filing party's advocate asks, one slot per blank intake answer,
         # at most 3, and never once the party's answers are on the dispute. This keeps
         # the stop-and-ask path demoable before a real model exists; a shipped record
-        # has no blank answer, so no existing run changes outcome. Questions quote the
-        # field's form label (R10), never the internal key.
-        follow_ups: List[str] = []
+        # has no blank answer, so no existing run changes outcome. Code renders the
+        # form label from each selected slot.
+        follow_up_slots: List[str] = []
         if party == filed_by and not has_answers:
             labels = dict(INTAKE_QUESTIONS.get(category, ()))
-            for key in blank_keys:
-                label = labels.get(key)
-                if label:
-                    follow_ups.append(
-                        "%s follow-up: %s" % (MOCK_MARKER, blank_field_question(label))
-                    )
-                else:
-                    follow_ups.append(
-                        "%s follow-up: We didn't get an answer to one of the form "
-                        "questions. Could you tell us?" % MOCK_MARKER
-                    )
+            follow_up_slots = [
+                FORM_SLOT_PREFIX + key for key in blank_keys if key in labels
+            ]
 
         cited = ", ".join(refs) if refs else "no evidence fields available"
         return {
@@ -120,7 +112,7 @@ class MockLLMClient(LLMClient):
             ),
             "requested_outcome": requested_outcome,
             "requested_amount_sgd": requested_amount,
-            "follow_up_questions": follow_ups,
+            "follow_up_slots": follow_up_slots,
         }
 
     def _judge_response(self, request: LLMRequest) -> Dict[str, Any]:

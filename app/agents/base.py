@@ -22,7 +22,12 @@ from ..events import EventLog
 from ..evidence import EvidencePack
 from ..llm import LLMClient, LLMContractError, LLMError, LLMRequest, parse_json_object
 from ..policy import PolicySet
-from ..schemas import AdvocateCase, ContractError
+from ..schemas import (
+    AdvocateCase,
+    ContractError,
+    render_follow_up_slot,
+    follow_up_slot_ids,
+)
 
 #: Kept deliberately blunt: these are the rules a model is most likely to drift from.
 HARD_RULES = """HARD RULES
@@ -186,7 +191,7 @@ class AdvocateAgent(BaseAgent):
         "argument": "the case for this side, referring to the cited evidence and policy",
         "requested_outcome": "refund | compensation | no action",
         "requested_amount_sgd": "number, 0.00 for no action",
-        "follow_up_questions": ["at most 3 targeted questions, or []"],
+        "follow_up_slots": ["at most 3 slot ids from FOLLOW-UP QUESTION SLOTS, or []"],
     }
 
     def system_prompt(self) -> str:
@@ -196,18 +201,26 @@ class AdvocateAgent(BaseAgent):
             "%s\n\n"
             "OUTPUT SCHEMA\n%s\n\n"
             "FOLLOW-UP QUESTIONS\nThe party cannot chat with you. You may put at most 3 "
-            "targeted questions in follow_up_questions, and only when the intake answers "
-            "conflict with the Evidence Pack or a fact you need is missing. Otherwise leave "
-            "it empty. Questions go to the filing party only."
+            "slot IDs in follow_up_slots, and only when the intake answers conflict with "
+            "the Evidence Pack or a fact you need is missing. Otherwise leave it empty. "
+            "Choose only from FOLLOW-UP QUESTION SLOTS. The party never sees text you write; "
+            "code renders the offered slot sentences, and questions go to the filing party only."
             % (self.role_title, self.role_blurb, HARD_RULES, _json_block(self.OUTPUT_SCHEMA))
         )
 
     def user_prompt(self, dispute: Dispute, pack: EvidencePack) -> str:
+        offered_slots = []
+        for slot in follow_up_slot_ids(dispute.category):
+            sentence = render_follow_up_slot(dispute.category, slot, dispute.filed_by)
+            if sentence is not None:
+                offered_slots.append("%s: %s" % (slot, sentence))
+        slot_block = "\n".join(offered_slots) or "(none offered)"
         return (
             "DISPUTE\n%s\n\n"
             "EVIDENCE PACK (computed deterministically; the only source of numbers)\n%s\n\n"
             "CITABLE EVIDENCE REFS\n%s\n\n"
             "%s\n\n"
+            "FOLLOW-UP QUESTION SLOTS\n%s\n\n"
             "YOUR TASK\nArgue the %s's case. Say what the evidence shows, apply the policy "
             "rules that bear on it, and state the outcome the %s should receive and how much."
             % (
@@ -215,6 +228,7 @@ class AdvocateAgent(BaseAgent):
                 evidence_block(pack),
                 citable_refs_block(pack),
                 policy_blocks(self.policy),
+                slot_block,
                 self.party,
                 self.party,
             )
@@ -250,6 +264,8 @@ class AdvocateAgent(BaseAgent):
                     pack=pack,
                     policy=self.policy,
                 ),
+                category=dispute.category,
+                filed_by=dispute.filed_by,
             )
         except ContractError as exc:
             raise AgentError("%s returned a response that breaks its contract: %s" % (self.name, exc)) from exc
@@ -278,6 +294,7 @@ class AdvocateAgent(BaseAgent):
                     "dispute_id": dispute.dispute_id,
                     "party": dispute.filed_by,
                     "questions": case.follow_up_questions,
+                    "slots": case.follow_up_slots,
                     "reason": "data conflicting or insufficient on the submitted form",
                 },
             )

@@ -292,16 +292,16 @@ def _normalised_question(text: str) -> str:
 def _questions_for_party(
     dispute: Dispute, rider_case: AdvocateCase, driver_case: AdvocateCase
 ) -> List[str]:
-    """The follow-up questions to send the filing party, or [] when none.
+    """The code-rendered follow-up questions to send the filing party, or [] when none.
 
-    Safe model questions come first, the filing party's advocate's before the
-    other advocate's (S3). Template questions for blank intake fields are a
-    FALLBACK, emitted only when no safe model question survives — a safe
-    question is never doubled by a template for the field it already asks
-    about. Near-duplicates collapse on a normalised form (lowercase,
-    punctuation dropped, whitespace collapsed), keeping the first original
-    wording. The list is capped at 3; if nothing survives, the run does not
-    stop (an empty needs_info is worse than none).
+    Rendered slot sentences come first, the filing party's advocate's before the
+    other advocate's (S3). The word check is a backstop, not the source of the
+    wording. Template questions for blank intake fields are a FALLBACK, emitted
+    only when no rendered question survives — a rendered question is never
+    doubled by a template for the field it already asks about. Near-duplicates
+    collapse on a normalised form (lowercase, punctuation dropped, whitespace
+    collapsed), keeping the first original wording. The list is capped at 3; if
+    nothing survives, the run does not stop (an empty needs_info is worse than none).
     """
     if dispute.filed_by == "rider":
         collected = list(rider_case.follow_up_questions) + list(driver_case.follow_up_questions)
