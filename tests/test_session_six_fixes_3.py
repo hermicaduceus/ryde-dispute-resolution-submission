@@ -68,10 +68,9 @@ class T1RuleIdsMatchOnlyRealPolicyPrefixes(unittest.TestCase):
         )
         self.assertEqual(("decided", message), (view["status"], view["message"]))
 
-    def test_a_model_question_quoting_the_trip_id_reaches_the_party(self):
-        record = _blank_org(_record(ORG_DIR, "RD-0101.json"), "expected_route")
-        questions = _run(record, llm=_scripted([TRIP_ID_QUESTION]))["resolution"]["questions_for_party"]
-        self.assertEqual([TRIP_ID_QUESTION], questions)
+    # test_a_model_question_quoting_the_trip_id_reaches_the_party was removed for W13 (the operator
+    # ruling 2026-09-24): no model-written question reaches a party at all now. The
+    # filter-level check on TRIP_ID_QUESTION above still pins T1.
 
 
 # ------------------------------------------------ T2 four missed word forms

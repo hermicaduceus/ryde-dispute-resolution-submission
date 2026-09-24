@@ -231,10 +231,12 @@ class R2QuestionsPassAGateInCode(unittest.TestCase):
             "the template question must quote the blank field's form label: %r" % questions,
         )
 
-    def test_clean_questions_pass_through_unchanged(self):
+    def test_clean_free_text_is_ignored_too(self):
+        # Flipped by W13 (the operator ruling 2026-09-24): model-written text never reaches a party,
+        # however clean it looks. Advocates pick slots; code writes the sentence.
         clean = "Which pickup point did you walk to?"
         case = _run(_record(ORG_DIR, "NS-0201.json"), llm=_scripted(rider_questions=[clean]))
-        self.assertEqual([clean], case["resolution"]["questions_for_party"])
+        self.assertEqual([], case["resolution"]["questions_for_party"])
 
     def test_the_intake_labels_have_one_owner(self):
         """The Python labels that templates quote must match what the party page shows."""

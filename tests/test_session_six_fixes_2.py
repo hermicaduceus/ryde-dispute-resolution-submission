@@ -149,20 +149,43 @@ class S3NoNearDuplicateQuestions(unittest.TestCase):
         record = _blank_org(_record(ORG_DIR, "RD-0101.json"), "expected_route")
         return _run(record, llm=_scripted(rider_questions))["resolution"]["questions_for_party"]
 
-    def test_templates_are_a_fallback_only_when_no_model_question_survives(self):
-        questions = self._questions(
-            ["What route did the app show you before the trip?", "What is your confidence in the Judge?"]
+    # The next three were rewritten for W13 (the operator ruling 2026-09-24): advocates pick slots and
+    # code renders the sentences, so the S3 properties are now asserted over slots.
+
+    def _slot_questions(self, rider_slots, driver_slots=(), blank=True):
+        from tests.test_party_surface import _JUDGE, _slot_advocate
+
+        record = _record(ORG_DIR, "RD-0101.json")
+        if blank:
+            record = _blank_org(record, "expected_route")
+        llm = ScriptedLLM(
+            {
+                "rider_advocate": _slot_advocate(rider_slots),
+                "driver_advocate": _slot_advocate(driver_slots),
+                "judge": _JUDGE,
+            }
         )
-        self.assertEqual(["What route did the app show you before the trip?"], questions)
+        return _run(record, llm=llm)["resolution"]["questions_for_party"]
 
-    def test_a_safe_template_shaped_question_is_not_doubled_by_a_replacement(self):
-        mock_style = 'MOCK follow-up: We didn\'t get an answer to "%s". Could you tell us?' % TEMPLATE_ROUTE
-        questions = self._questions(["What is your confidence in the Judge?", mock_style])
-        self.assertEqual([mock_style], questions)
+    def test_a_bank_slot_beats_the_blank_field_fallback(self):
+        from app.schemas import render_follow_up_slot
 
-    def test_case_and_punctuation_variants_collapse(self):
-        questions = self._questions(["Where were you?", "where were you", "WHERE WERE YOU ?!"])
-        self.assertEqual(["Where were you?"], questions)
+        self.assertEqual(
+            [render_follow_up_slot("route_deviation", "route_shown")],
+            self._slot_questions(["route_shown"]),
+        )
+
+    def test_a_form_slot_for_the_blank_field_is_not_doubled(self):
+        from app.schemas import FORM_SLOT_QUESTION_TEMPLATE
+
+        self.assertEqual(
+            [FORM_SLOT_QUESTION_TEMPLATE % TEMPLATE_ROUTE],
+            self._slot_questions(["form:expected_route"]),
+        )
+
+    def test_the_same_slot_from_both_advocates_collapses(self):
+        questions = self._slot_questions(["route_shown"], ["route_shown"], blank=False)
+        self.assertEqual(1, len(questions), questions)
 
     def test_all_leaky_still_falls_back_to_a_template(self):
         questions = self._questions(["What is your confidence in the Judge?"])

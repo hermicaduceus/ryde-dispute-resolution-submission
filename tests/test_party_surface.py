@@ -96,6 +96,24 @@ def _asking_advocate(questions):
     return respond
 
 
+def _slot_advocate(slots, free_text=()):
+    """An advocate that picks follow-up slots (W13). `free_text` is sent too, so a test can
+    prove the old free-text field is ignored."""
+    def respond(request):
+        return {
+            "claim_summary": "scripted",
+            "evidence_cited": [],
+            "policy_rule_ids": [],
+            "argument": "scripted",
+            "requested_outcome": "no action",
+            "requested_amount_sgd": 0.0,
+            "follow_up_slots": list(slots),
+            "follow_up_questions": list(free_text),
+        }
+
+    return respond
+
+
 _JUDGE = {
     "action": "no action",
     "recommended_amount_sgd": 0.0,
@@ -154,17 +172,25 @@ class NeedsInfoOutcome(unittest.TestCase):
         self.assertIsNone(FORBIDDEN_PARTY_WORDS.search(NEEDS_INFO_MESSAGE), NEEDS_INFO_MESSAGE)
 
     def test_questions_are_capped_at_three_across_both_advocates(self):
+        # W13 (session eight): advocates pick slots; code renders the sentences.
+        from app.schemas import render_follow_up_slot
+
+        rider_slots = ["route_shown", "route_discussed", "stops_or_changes"]
         llm = ScriptedLLM(
             {
-                "rider_advocate": _asking_advocate(["r1?", "r2?", "r3?"]),
-                "driver_advocate": _asking_advocate(["d1?", "d2?", "d3?"]),
+                "rider_advocate": _slot_advocate(rider_slots),
+                "driver_advocate": _slot_advocate(["road_conditions", "pickup_dropoff"]),
                 "judge": _JUDGE,
             }
         )
         case = _run(_record(ORG_DIR, "RD-0101.json"), llm=llm)
         questions = case["resolution"]["questions_for_party"]
         self.assertEqual("needs_info", case["resolution"]["outcome"])
-        self.assertEqual(["r1?", "r2?", "r3?"], questions, "filing party's own advocate first, cap 3")
+        self.assertEqual(
+            [render_follow_up_slot("route_deviation", s) for s in rider_slots],
+            questions,
+            "filing party's own advocate first, cap 3",
+        )
         self.assertFalse([c for c in llm.calls if c.agent == "judge"])
 
 
@@ -181,8 +207,8 @@ class OneRoundOnly(unittest.TestCase):
     def test_gate_holds_even_when_advocates_keep_asking(self):
         llm = ScriptedLLM(
             {
-                "rider_advocate": _asking_advocate(["again?"]),
-                "driver_advocate": _asking_advocate(["again?"]),
+                "rider_advocate": _slot_advocate(["route_shown"]),
+                "driver_advocate": _slot_advocate(["route_shown"]),
                 "judge": _JUDGE,
             }
         )
