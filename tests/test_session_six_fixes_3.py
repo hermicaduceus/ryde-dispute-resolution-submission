@@ -66,7 +66,16 @@ class T1RuleIdsMatchOnlyRealPolicyPrefixes(unittest.TestCase):
             {"run_id": "r", "dispute_id": "d",
              "resolution": {"outcome": "ruled", "party_message": message, "questions_for_party": []}}
         )
-        self.assertEqual(("decided", message), (view["status"], view["message"]))
+        # W12 (session ten): this fixture carries no ruling record, so the LLM
+        # provider is unproven and the decided view leads with the demo notice.
+        # The T1 pin this test owns is unchanged: the trip id must not demote
+        # the view — it stays decided with the decision text intact behind
+        # the notice.
+        import app.schemas as _schemas
+        notice = getattr(_schemas, "DEMO_NOTICE_MESSAGE", "")
+        self.assertEqual("decided", view["status"])
+        self.assertTrue(view["message"].startswith(notice))
+        self.assertTrue(view["message"].endswith(message))
 
     # test_a_model_question_quoting_the_trip_id_reaches_the_party was removed for W13 (the operator
     # ruling 2026-09-24): no model-written question reaches a party at all now. The

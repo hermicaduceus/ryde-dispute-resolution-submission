@@ -281,7 +281,13 @@ class PartyView(unittest.TestCase):
         view = self._view(ruled)
         self.assertEqual(PARTY_VIEW_KEYS, set(view))
         self.assertEqual("decided", view["status"])
-        self.assertEqual(ruled["resolution"]["party_message"], view["message"])
+        # W12 (session ten): a mock run is an unproven provider, so the decided
+        # view leads with the fixed demo notice and the decision text follows.
+        import app.schemas as _schemas
+        notice = getattr(_schemas, "DEMO_NOTICE_MESSAGE", "")
+        self.assertTrue(notice, "DEMO_NOTICE_MESSAGE must exist once W12 lands")
+        self.assertTrue(view["message"].startswith(notice))
+        self.assertTrue(view["message"].endswith(ruled["resolution"]["party_message"]))
         self.assertEqual([], view["questions"])
 
         support = self._view(_run(_record(ORG_DIR, "OS-0301.json")))
