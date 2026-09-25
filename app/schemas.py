@@ -89,6 +89,15 @@ NEEDS_INFO_MESSAGE = (
     "soon as your answers arrive."
 )
 
+#: Prepended to a decided message when the ruling's LLM record does not prove the real
+#: provider (the fail-closed proof check lives in party_view, app/server.py): a decision
+#: made on an illustrative run must never read like a live review. Fixed text — it never
+#: varies with the input — and it must keep passing is_party_safe and the acceptance
+#: tests' forbidden-word regex. The trailing space lets the decision text follow directly.
+DEMO_NOTICE_MESSAGE = (
+    "Demo notice: this decision was produced by an illustrative run and is not a live review. "
+)
+
 OUTCOME_RULED = "ruled"
 OUTCOME_WITHHELD = "withheld"
 OUTCOME_HUMAN_REVIEW = "human_review"

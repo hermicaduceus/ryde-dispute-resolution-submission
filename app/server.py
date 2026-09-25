@@ -46,6 +46,7 @@ from .llm import LLMClient, build_llm_client
 from .pipeline import run_dispute
 from .policy import load_policy
 from .schemas import (
+    DEMO_NOTICE_MESSAGE,
     HUMAN_REVIEW_MESSAGE,
     INTAKE_QUESTIONS,
     NEEDS_INFO_MESSAGE,
@@ -98,6 +99,28 @@ PARTY_STATUS_BY_OUTCOME = {
 }
 
 PARTY_VIEW_KEYS = ("run_id", "dispute_id", "status", "message", "questions")
+
+#: The provider string a ruling's LLM record must report, exactly, for the decision to
+#: count as made by the real model. Anything else — a missing record, the mock, arrays,
+#: empty objects, wrong types, inexact strings like "Tencent" — fails closed to the
+#: demo notice.
+REAL_PROVIDER = "tencent"
+
+
+def _ruling_proves_real_provider(resolution: Dict[str, Any]) -> bool:
+    """True only when the resolution's ruling carries a proven real-provider LLM record.
+
+    A shape check, not a type check: the record must be a non-array dict (which in
+    Python excludes lists) and its "provider" value must be exactly REAL_PROVIDER —
+    a list or object inside the field, or a near-miss string, does not count.
+    """
+    ruling = resolution.get("ruling")
+    if not isinstance(ruling, dict):
+        return False
+    llm = ruling.get("llm")
+    if not isinstance(llm, dict):
+        return False
+    return llm.get("provider") == REAL_PROVIDER
 
 
 # ------------------------------------------------------------------ the party view
@@ -165,6 +188,12 @@ def party_view(case_file: Any) -> Dict[str, Any]:
             "passed_to_support": HUMAN_REVIEW_MESSAGE,
             "needs_info": NEEDS_INFO_MESSAGE,
         }.get(status, message)
+        # W12: a decision whose LLM record does not prove the real provider leads with
+        # the fixed demo notice, so a mock or unproven run never reads like a live
+        # review. Fail closed: the burden of proof is on the record, and only the
+        # decided status ever carries the notice.
+        if status == "decided" and not _ruling_proves_real_provider(resolution):
+            canonical_message = DEMO_NOTICE_MESSAGE + canonical_message
         return {
             "run_id": run_id if isinstance(run_id, str) else "",
             "dispute_id": dispute_id if isinstance(dispute_id, str) else "",

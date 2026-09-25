@@ -180,7 +180,12 @@ it stays in the operator console. Every non-decision status shows a canonical co
 message, whatever a stale or planted case file might say. The two kinds of party-facing text
 are protected differently. The decision message is composed in code from structured fields,
 so nothing model-written reaches it: it names the action and the amount — a no-action ruling
-carries no amount — and at most three rule titles, never the escalation (ESC) rules.
+carries no amount — and at most three rule titles, never the escalation (ESC) rules. On a
+decided view the message leads with a demo notice whenever the ruling's LLM record does not
+prove the real provider — only a record that is a non-array dict whose provider field is
+exactly `tencent` suppresses it, and any other record, missing, mock or malformed, keeps it —
+so a decision made on an illustrative run never reads like a live review, while a proven
+real-provider decision shows no notice.
 Follow-up questions are selected by the advocates as slot IDs; code renders each sentence
 from the fixed category bank or from an intake form label. Bank slots are offered only when
 the rider filed, while form slots work for either filer. Any question text written by the
@@ -221,8 +226,12 @@ so the full pipeline runs with no API key and the same dispute always produces t
 decisions and the same computed figures (the run id and the event timestamps differ from
 run to run). Its free-text fields — claim summaries, arguments, the Judge's explanation —
 carry a `MOCK` prefix, so a mock run can never be mistaken for a real ruling; actions, rule
-IDs and evidence refs are not prefixed, and the party decision message, composed in code,
-carries none. The Tencent adapter, `app/llm/tencent.py`, implements the same
+IDs and evidence refs are not prefixed. The party decision message, composed in code, is
+marked differently: on a decided party view it leads with a fixed demo notice stating that
+the decision came from an illustrative run and is not a live review, shown whenever the
+ruling's LLM record does not prove the Tencent provider, and only a record whose provider
+field is exactly `tencent` shows a decision with no notice. The Tencent adapter,
+`app/llm/tencent.py`, implements the same
 interface over HTTP — and is honest about its status: the concrete service, endpoint, auth
 scheme and payload shape are not pinned yet, the configuration still carries placeholder
 values, and the adapter fails loudly rather than silently falling back to the mock. To be
