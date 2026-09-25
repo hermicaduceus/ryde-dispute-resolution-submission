@@ -2,15 +2,15 @@
    clear states. Kept separate from the operator console. */
 
 :root {
-  --ink: #1d2733;
-  --muted: #5c6b7a;
-  --line: #d8dfe6;
-  --paper: #f6f8fa;
+  --ink: #31373E;
+  --muted: #6B7480;
+  --line: #E5E0DC;
+  --paper: #F7DDE3;
   --card: #ffffff;
-  --accent: #0f6b5f;
+  --accent: #E93864;
   --accent-ink: #ffffff;
-  --error: #a03024;
-  --ok: #0f6b5f;
+  --error: #C0392B;
+  --ok: #1EB848;
 }
 
 * {
@@ -21,7 +21,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.5;
 }
 
@@ -41,6 +41,7 @@ body {
 .party-header h1 {
   margin: 0.25rem 0 0.5rem;
   font-size: 1.75rem;
+  font-weight: 600;
 }
 
 .intro {
@@ -59,7 +60,7 @@ body {
 .step {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 1.25rem;
   margin-bottom: 1rem;
 }
@@ -70,6 +71,7 @@ body {
   gap: 0.6rem;
   margin: 0 0 0.9rem;
   font-size: 1.15rem;
+  font-weight: 600;
 }
 
 .step-number {
@@ -100,7 +102,7 @@ body {
   width: 100%;
   padding: 0.8rem 0.9rem;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--card);
   font: inherit;
   cursor: pointer;
@@ -112,7 +114,7 @@ body {
 
 .option-card.selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(15, 107, 95, 0.25);
+  box-shadow: 0 0 0 2px #FFF0F3;
 }
 
 .trip-card strong {
@@ -150,7 +152,7 @@ input[type="number"] {
   width: 100%;
   padding: 0.6rem;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 12px;
   font: inherit;
   resize: vertical;
 }
@@ -171,7 +173,7 @@ input:focus {
 button {
   font: inherit;
   padding: 0.6rem 1.1rem;
-  border-radius: 8px;
+  border-radius: 29px;
   border: 1px solid var(--line);
   background: var(--card);
   cursor: pointer;
@@ -200,7 +202,7 @@ button:not(:disabled):hover {
 .outcome-message {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 0.9rem 1rem;
 }
 
