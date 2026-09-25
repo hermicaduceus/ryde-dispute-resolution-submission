@@ -59,3 +59,19 @@ per session is enough; date each entry.
   in the same session in 11 minutes.
 - Even three small fixes got a full explore-and-plan cycle at max effort. That is thorough but
   slow for 20 lines of code; a cheaper setting would suit small follow-up rounds.
+- Session nine (CodeBuddy CLI v2.158.0, GPT-5.6-Luna at max effort, 5m50s build + 12s
+  acknowledge, 8.54 credits): the W10 token pass — restyled ui/party/ to Ryde's real brand
+  system (pink #E93864, ink #31373E, pastel canvas #F7DDE3, Poppins, pill buttons) against
+  9 RED-first tests. It edited exactly two files, kept party.js byte-identical, and stopped
+  to report rather than guess when the brief's own acceptance command was wrong (the brief
+  said `discover tests`; the repo documents `-s tests -t .` — the brief's error, correctly
+  refused by the builder).
+- The a second-model cross-family review (pinned per round, unset after; served id another coding agent-a second-model
+  — `a second-model` 404s in the delegation layer) found the acceptance tests were false-green:
+  8 of 13 injected mutations passed, because whole-file greps are satisfied by decoy rules
+  and comments. Reproduced firsthand (4 of 13 spot-checked), then rewritten rule-pinned:
+  every assertion now targets a named selector's declaration block, and a 12-mutation
+  battery goes all-red. The review's contrast math was recomputed independently and
+  confirmed: --muted failed AA on the pastel canvas (3.70) and was darkened to #5A6470
+  (4.70). One driver bug found by the human: a PTY prompt write needs its own \r — a prompt
+  typed without the carriage return sits unsubmitted.
