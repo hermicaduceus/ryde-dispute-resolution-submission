@@ -62,8 +62,8 @@ OLD_CHROME = ["#213b5a", "#657085", "#8b96a8", "#d7dee8", "#f3f5f8"]
 # Console chrome: every one of these rules used the blue as decoration. Each must now
 # take the Ryde accent and drop the blue family entirely.
 CHROME_SELECTORS = [
-    ".loader-panel", ".header-note", ".section-index", ".grievance-marker", ".claim-text",
-    ".claim-card", ".claim-card-header", ".citation", ".citation:hover", ".event-seq", ".event-actor",
+    ".loader-panel", ".header-note", ".section-index", ".grievance-marker",
+    ".citation", ".citation:hover", ".event-seq", ".event-actor",
     ".event-row summary::before", "#load-status[data-state=\"loading\"]",
 ]
 # Blue's own hover/border tints, which would betray a half-done swap.
@@ -76,7 +76,31 @@ STATUS_SELECTORS = [
     (".human-only-region", "var(--amber)"), (".party-facing-region", "var(--amber)"),
     (".outcome-human-review", "var(--blue)"), (".outcome-needs-info", "var(--blue)"),
     (".routing-explanation", "var(--blue)"), (".citation-unresolved", "var(--red)"),
+    # W18 round two: the delivered message is green only on the ruled card, the
+    # withheld message stays amber, and the two remaining genuine amber cases hold.
+    (".outcome-ruled .party-message", "var(--green)"),
+    (".outcome-ruled .party-message-label", "var(--green)"),
+    (".party-facing-region .party-message", "var(--amber)"),
+    (".event-internal", "var(--amber)"), (".citation-null", "var(--amber)"),
 ]
+
+# W18 round two (the operator ruling 2026-09-27): colour is reserved for status. These surfaces
+# carry no status meaning, so they must be neutral: no brand accent, no status token,
+# and no chromatic hard-coded colour. Found by a live colour audit of all four outcomes.
+NEUTRAL_SELECTORS = [
+    ".claim-card", ".claim-card-header", ".claim-text",               # both advocates, the quote
+    ".info-row.highlight dd", ".request-grid .info-row.highlight dd",  # money amounts
+    ".resolution-metrics .info-row.highlight dd",
+    ".evidence-field.has-null", ".field-value.is-null",                # missing data
+    ".evidence-note", ".note-label",
+    ".deliberate-empty", ".deliberate-empty h3", ".deliberate-empty p",  # expected absence
+    ".policy-item",                                                    # policy rule list
+    ".party-message", ".party-message-label",                          # base message box
+]
+# The driver advocate must not be styled apart from the rider: these rules may be
+# deleted, but if present they may not set any colour, background or border.
+DRIVER_OVERRIDES = [".claim-driver", ".claim-driver .claim-card-header"]
+STATUS_TOKEN_RE = re.compile(r"var\(--(accent|amber|green|blue|red)[\w-]*\)")
 
 
 def _strip_comments(css: str) -> str:
@@ -111,6 +135,21 @@ def _luminance(hex_value: str) -> float:
 def _contrast(a: str, b: str) -> float:
     la, lb = _luminance(a), _luminance(b)
     return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+
+def _chromatic_hexes(body: str) -> list[str]:
+    """Hard-coded hex colours with a visible hue (channel spread > 8). Pure greys, whites
+    and near-greys pass; tinted washes like #dcefe3, #fff6e8 or #e7c58f do not. The
+    threshold is low on purpose: a light wash has a small spread but still reads as a
+    colour (a 24 threshold let #dcefe3 through in the round-two mutation battery)."""
+    found = []
+    for h in re.findall(r"#([0-9a-f]{6}|[0-9a-f]{3})\b", body):
+        if len(h) == 3:
+            h = "".join(c * 2 for c in h)
+        ch = [int(h[i:i + 2], 16) for i in (0, 2, 4)]
+        if max(ch) - min(ch) > 8:
+            found.append("#" + h)
+    return found
 
 
 class ConsoleTokensTest(unittest.TestCase):
@@ -182,6 +221,32 @@ class ConsoleTokensTest(unittest.TestCase):
             self.assertIn(colour, body, f"{selector} must keep {colour}")
             self.assertNotIn("var(--accent", body,
                              f"{selector} is a status colour and must not take the brand accent")
+
+    # -- round two: colour only where it carries status --------------------------
+
+    def test_non_status_surfaces_are_neutral(self):
+        for selector in NEUTRAL_SELECTORS:
+            body = " ".join(_blocks(self.css, selector))
+            token = STATUS_TOKEN_RE.search(body)
+            self.assertIsNone(token, f"{selector} carries no status and must not use {token and token.group(0)}")
+            chroma = _chromatic_hexes(body)
+            self.assertEqual([], chroma, f"{selector} hard-codes a chromatic colour {chroma}")
+
+    def test_driver_advocate_is_not_styled_apart(self):
+        for selector in DRIVER_OVERRIDES:
+            try:
+                body = " ".join(_blocks(self.css, selector))
+            except AssertionError:
+                continue  # deleted outright is fine
+            self.assertNotRegex(body, r"(color|background|border)[\w-]*\s*:",
+                                f"{selector} must not colour the driver's side differently")
+
+    def test_policy_citations_are_not_green(self):
+        """Green means delivered; a policy chip is not a delivery."""
+        for selector in [".citation-policy", ".citation-policy:hover"]:
+            body = " ".join(_blocks(self.css, selector))
+            self.assertIsNone(re.search(r"var\(--green[\w-]*\)", body), f"{selector} must not be green")
+            self.assertEqual([], [h for h in _chromatic_hexes(body)], f"{selector} hard-codes a chromatic colour")
 
     def test_focus_ring_is_the_accent(self):
         body = " ".join(_blocks(self.css, "button:focus-visible"))
