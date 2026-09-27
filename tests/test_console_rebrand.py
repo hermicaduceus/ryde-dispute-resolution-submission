@@ -63,8 +63,7 @@ OLD_CHROME = ["#213b5a", "#657085", "#8b96a8", "#d7dee8", "#f3f5f8"]
 # take the Ryde accent and drop the blue family entirely.
 CHROME_SELECTORS = [
     ".loader-panel", ".header-note", ".section-index", ".grievance-marker",
-    ".citation", ".citation:hover", ".event-seq", ".event-actor",
-    ".event-row summary::before", "#load-status[data-state=\"loading\"]",
+    "#load-status[data-state=\"loading\"]",
 ]
 # Blue's own hover/border tints, which would betray a half-done swap.
 BLUE_FAMILY = ["var(--blue)", "var(--blue-wash)", "#b9d3e3", "#dceef7", "#c9deeb"]
@@ -96,6 +95,12 @@ NEUTRAL_SELECTORS = [
     ".deliberate-empty", ".deliberate-empty h3", ".deliberate-empty p",  # expected absence
     ".policy-item",                                                    # policy rule list
     ".party-message", ".party-message-label",                          # base message box
+    # W18 round three (the operator ruling 2026-09-27): brand pink in dense, repeated UI reads as
+    # error red (#c8284f vs --red #a33f3f). The agent-traffic log and the citation chips
+    # go neutral; only the withheld event row (amber) and the null/unresolved chips
+    # (amber/red) keep a colour, so they are the only things that stand out.
+    ".event-seq", ".event-actor", ".event-row summary::before",
+    ".citation", ".citation:hover",
 ]
 # The driver advocate must not be styled apart from the rider: these rules may be
 # deleted, but if present they may not set any colour, background or border.
