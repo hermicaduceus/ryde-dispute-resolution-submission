@@ -133,9 +133,11 @@
 
   document.getElementById("category-next").addEventListener("click", function () {
     clearError("category-error");
+    hide(stepCategory);
     show(stepTrip);
     hide(stepDetails);
     loadTrips();
+    window.scrollTo(0, 0);
   });
 
   // ------------------------------------------------------------- step two
@@ -201,8 +203,10 @@
 
   document.getElementById("trip-next").addEventListener("click", function () {
     clearError("trip-error");
+    hide(stepTrip);
     buildQuestions();
     show(stepDetails);
+    window.scrollTo(0, 0);
   });
 
   // --------------------------------------------------------- step three

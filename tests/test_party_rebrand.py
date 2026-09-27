@@ -24,7 +24,7 @@ from tests.test_party_surface import FORBIDDEN_PARTY_WORDS
 
 REPO = Path(__file__).resolve().parent.parent
 PARTY_UI = REPO / "ui" / "party"
-PARTY_JS_SHA = "7f8cfc8508f1ac9a8e899d446ea353f5de0c34ccacbee71e3d443ea4176edc88"
+PARTY_JS_SHA = "92b873af57aba759e85f4b9af8d58db8237be24eed7b58dcb378378ff3fcdb7e"
 
 ROOT_TOKENS = [("--ink", "#31373e"), ("--muted", "#5a6470"), ("--line", "#e5e0dc"),
                ("--paper", "#f7dde3"), ("--accent", "#e93864"), ("--error", "#c0392b"),
