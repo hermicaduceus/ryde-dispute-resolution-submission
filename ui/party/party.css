@@ -137,6 +137,7 @@ body {
 
 .choice-button.selected {
   border-width: 3px;
+  border-color: var(--accent);
   font-weight: 600;
 }
 
