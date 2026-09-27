@@ -5,17 +5,15 @@
   // accepts; blank answers are allowed and are what the follow-up round is for.
   var QUESTIONNAIRES = {
     route_deviation: [
-      { key: "what_went_wrong", label: "What went wrong?" },
-      { key: "expected_route", label: "What route did the app show you, and roughly how long was it?" },
-      { key: "was_route_agreed", label: "Did you and the driver agree to take a different route?" },
-      { key: "asked_driver_to_stop", label: "Did you ask the driver to stop anywhere along the way?" },
-      { key: "safety_concern", label: "At any point were you worried for your safety?" }
+      { key: "expected_route", label: "What route did the app show you, and roughly how long was it?", kind: "open" },
+      { key: "was_route_agreed", label: "Did you and the driver agree to take a different route?", kind: "yes_no" },
+      { key: "asked_driver_to_stop", label: "Did you ask the driver to stop anywhere along the way?", kind: "yes_no" },
+      { key: "safety_concern", label: "At any point were you worried for your safety?", kind: "yes_no" }
     ],
     no_show_charge: [
-      { key: "what_went_wrong", label: "What went wrong?" },
-      { key: "where_were_you", label: "Where were you when the trip was meant to start?" },
-      { key: "did_driver_contact_you", label: "Did the driver try to contact you?" },
-      { key: "safety_concern", label: "At any point were you worried for your safety?" }
+      { key: "where_were_you", label: "Where were you when the trip was meant to start?", kind: "open" },
+      { key: "did_driver_contact_you", label: "Did the driver try to contact you?", kind: "yes_no" },
+      { key: "safety_concern", label: "At any point were you worried for your safety?", kind: "yes_no" }
     ]
   };
 
@@ -211,22 +209,66 @@
 
   // --------------------------------------------------------- step three
 
+  function buildChoiceQuestion(question) {
+    var field = element("div", "field");
+    var label = element("label", null, question.label);
+    // The choices container is a div, so a <label for> cannot point at it. The
+    // question text reaches assistive tech via role="group" + aria-labelledby.
+    label.id = "label-" + question.key;
+    var choices = element("div", "choice-options");
+    choices.id = "answer-" + question.key;
+    choices.role = "group";
+    choices.setAttribute("aria-labelledby", "label-" + question.key);
+    var elaborate = element("textarea", "answer-input elaborate");
+    elaborate.rows = 2;
+    elaborate.setAttribute("data-elaborate-for", question.key);
+    elaborate.placeholder = "Tell us more (optional)";
+    elaborate.hidden = true;
+
+    ["Yes", "No"].forEach(function (choice) {
+      var button = element("button", "choice-button", choice);
+      button.type = "button";
+      button.setAttribute("data-choice", choice);
+      button.setAttribute("aria-pressed", "false");
+      button.dataset.questionKey = question.key;
+      button.addEventListener("click", function () {
+        Array.prototype.forEach.call(choices.children, function (sibling) {
+          sibling.classList.remove("selected");
+          sibling.setAttribute("aria-pressed", "false");
+        });
+        button.classList.add("selected");
+        button.setAttribute("aria-pressed", "true");
+        show(elaborate);
+      });
+      choices.appendChild(button);
+    });
+
+    field.appendChild(label);
+    field.appendChild(choices);
+    field.appendChild(elaborate);
+    return field;
+  }
+
   function buildQuestions() {
     while (questionList.firstChild) {
       questionList.removeChild(questionList.firstChild);
     }
     var questions = QUESTIONNAIRES[state.category] || [];
     questions.forEach(function (question) {
-      var field = element("div", "field");
-      var label = element("label", null, question.label);
-      label.htmlFor = "answer-" + question.key;
-      var input = element("textarea", "answer-input");
-      input.id = "answer-" + question.key;
-      input.rows = 2;
-      input.dataset.questionKey = question.key;
-      field.appendChild(label);
-      field.appendChild(input);
-      questionList.appendChild(field);
+      if (question.kind === "yes_no") {
+        questionList.appendChild(buildChoiceQuestion(question));
+      } else if (question.kind === "open") {
+        var field = element("div", "field");
+        var label = element("label", null, question.label);
+        label.htmlFor = "answer-" + question.key;
+        var input = element("textarea", "answer-input");
+        input.id = "answer-" + question.key;
+        input.rows = 2;
+        input.dataset.questionKey = question.key;
+        field.appendChild(label);
+        field.appendChild(input);
+        questionList.appendChild(field);
+      }
     });
   }
 
@@ -254,8 +296,25 @@
       }
     }
     var answers = {};
-    Array.prototype.forEach.call(questionList.querySelectorAll("textarea"), function (input) {
-      answers[input.dataset.questionKey] = input.value;
+    (QUESTIONNAIRES[state.category] || []).forEach(function (question) {
+      if (question.kind === "yes_no") {
+        var selected = questionList.querySelector(
+          '.choice-button.selected[data-question-key="' + question.key + '"]'
+        );
+        var elaborate = questionList.querySelector(
+          'textarea[data-elaborate-for="' + question.key + '"]'
+        );
+        var choice = selected ? selected.dataset.choice : "";
+        var elaboration = elaborate ? elaborate.value.trim() : "";
+        answers[question.key] = choice
+          ? (elaboration ? choice + " - " + elaboration : choice)
+          : "";
+      } else if (question.kind === "open") {
+        var input = questionList.querySelector(
+          'textarea[data-question-key="' + question.key + '"]'
+        );
+        answers[question.key] = input ? input.value : "";
+      }
     });
 
     var submit = document.getElementById("details-submit");

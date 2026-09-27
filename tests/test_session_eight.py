@@ -86,7 +86,7 @@ class W13Bank(unittest.TestCase):
 
         self.assertEqual(
             list(EXPECTED_BANK["no_show_charge"])
-            + ["form:what_went_wrong", "form:where_were_you", "form:did_driver_contact_you", "form:safety_concern"],
+            + ["form:where_were_you", "form:did_driver_contact_you", "form:safety_concern"],
             follow_up_slot_ids("no_show_charge"),
         )
         self.assertEqual([], follow_up_slot_ids("other"))

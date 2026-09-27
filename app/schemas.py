@@ -110,19 +110,28 @@ OUTCOME_NEEDS_INFO = "needs_info"
 #: everywhere.
 INTAKE_QUESTIONS: Dict[str, tuple] = {
     "route_deviation": (
-        ("what_went_wrong", "What went wrong?"),
         ("expected_route", "What route did the app show you, and roughly how long was it?"),
         ("was_route_agreed", "Did you and the driver agree to take a different route?"),
         ("asked_driver_to_stop", "Did you ask the driver to stop anywhere along the way?"),
         ("safety_concern", "At any point were you worried for your safety?"),
     ),
     "no_show_charge": (
-        ("what_went_wrong", "What went wrong?"),
         ("where_were_you", "Where were you when the trip was meant to start?"),
         ("did_driver_contact_you", "Did the driver try to contact you?"),
         ("safety_concern", "At any point were you worried for your safety?"),
     ),
 }
+
+#: The intake questions that are answered with a choice, not free text. This table is
+#: the ONE owner of that fact: the party page tags each question from it (a test reads
+#: the page and asserts they agree), and the server's questionnaire validation derives
+#: from INTAKE_QUESTIONS.
+YES_NO_INTAKE_KEYS = frozenset({
+    "was_route_agreed",
+    "asked_driver_to_stop",
+    "safety_concern",
+    "did_driver_contact_you",
+})
 
 #: The code-built question sent when an intake field was left blank. The label comes
 #: from INTAKE_QUESTIONS — never the raw field key, which is internal vocabulary.

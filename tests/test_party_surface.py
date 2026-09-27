@@ -372,7 +372,6 @@ def _filing(trip_id, category="route_deviation", claim=5.81, answers=None, descr
         "description": description,
         "claim_amount_sgd": claim,
         "answers": answers if answers is not None else {
-            "what_went_wrong": "Long way round.",
             "expected_route": "Expressway, about 6.4 km.",
             "was_route_agreed": "No",
             "asked_driver_to_stop": "No",
@@ -467,7 +466,7 @@ class ServerEndToEnd(unittest.TestCase):
             dict(_filing(trip), claim_amount_sgd=501),
             dict(_filing(trip), claim_amount_sgd="5"),
             dict(_filing(trip), answers={"not_a_question": "x"}),
-            dict(_filing(trip), answers={"what_went_wrong": 5}),
+            dict(_filing(trip), answers={"safety_concern": 5}),
             dict(_filing(trip), trip_id="T-DOES-NOT-EXIST"),
         ]
         for body in cases:

@@ -117,6 +117,33 @@ body {
   box-shadow: 0 0 0 2px #FFF0F3;
 }
 
+.choice-options {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.choice-button {
+  flex: 1;
+  border: 2px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.choice-button:hover {
+  border-color: var(--accent);
+}
+
+.choice-button.selected {
+  border-width: 3px;
+  font-weight: 600;
+}
+
+.elaborate {
+  margin-top: 0.6rem;
+}
+
 .trip-card strong {
   display: block;
 }
