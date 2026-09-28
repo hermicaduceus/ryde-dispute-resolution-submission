@@ -232,6 +232,9 @@
       button.setAttribute("aria-pressed", "false");
       button.dataset.questionKey = question.key;
       button.addEventListener("click", function () {
+        if (!button.classList.contains("selected")) {
+          elaborate.value = "";
+        }
         Array.prototype.forEach.call(choices.children, function (sibling) {
           sibling.classList.remove("selected");
           sibling.setAttribute("aria-pressed", "false");
