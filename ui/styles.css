@@ -640,12 +640,6 @@ input[type="file"] {
   border-color: var(--muted);
 }
 
-.citation-policy {
-}
-
-.citation-policy:hover {
-}
-
 .citation-null {
   color: var(--amber);
   background: var(--amber-wash);
