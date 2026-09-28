@@ -112,8 +112,11 @@ class _FakeResponse:
         self._body = body.encode("utf-8")
         self.status = status
 
-    def read(self):
-        return self._body
+    def read(self, amt=None):
+        # Mirrors http.client.HTTPResponse.read: a bounded read returns at most amt bytes.
+        if amt is None or amt < 0:
+            return self._body
+        return self._body[:amt]
 
     def __enter__(self):
         return self
