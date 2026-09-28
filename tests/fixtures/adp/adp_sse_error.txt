@@ -1,0 +1,3 @@
+event: error
+data: {"Type":"error","Error":{"Code":4505004,"Message":"App key invalid","RequestId":"","TraceId":"trace-redacted","Elapsed":"0","StartTime":"0"},"Timestamp":"0","RecordId":""}
+

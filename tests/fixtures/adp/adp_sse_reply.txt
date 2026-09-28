@@ -1,0 +1,33 @@
+event: request_ack
+data: {"Type":"request_ack","RequestAck":{"Role":"user","RecordId":"kEg_20260928_211407_452_REDACTED","ConversationId":"d16609f1-68ec-4d46-96df-51dc195a451b","Status":"success","StatusDesc":"Request Succeeded","Messages":[{"Type":"question","MessageId":"rpl_kEg_20260928_211407_452_REDACTED","Name":"question","Title":"User Question","Icon":"","Status":"success","StatusDesc":"","Contents":[{"Type":"text","Text":"Reply with this JSON object only: {\"role\": \"judge\", \"amount\": 1.5}"}],"ExtraInfo":{"Elapsed":"0","StartTime":"1790601247000","EndTime":"0"},"RecordId":""}],"ExtraInfo":{"RequestId":"ab366428-febf-4a9f-8b3f-a8a73943103a","TraceId":"trace-redacted","Elapsed":"0","StartTime":"1790601247000","IsFromSelf":true,"IsLlmGenerated":false,"CanRating":false,"CanFeedback":false,"ReplyMethod":0,"FromName":"","FromAvatar":"","HasRead":false,"EndTime":"0"}},"Timestamp":"1790601247555","RecordId":""}
+
+event: response.created
+data: {"Type":"response.created","Response":{"Role":"assistant","RecordId":"eEn_20260928_211407_464_REDACTED","RelatedRecordId":"kEg_20260928_211407_452_REDACTED","ConversationId":"d16609f1-68ec-4d46-96df-51dc195a451b","Status":"processing","StatusDesc":"","ExtraInfo":{"RequestId":"ab366428-febf-4a9f-8b3f-a8a73943103a","TraceId":"trace-redacted","Elapsed":"1335","StartTime":"1790601247450","IsFromSelf":false,"IsLlmGenerated":false,"CanRating":false,"CanFeedback":false,"ReplyMethod":0,"FromName":"Judge","FromAvatar":"","HasRead":false,"EndTime":"0"}},"Timestamp":"1790601248786","RecordId":""}
+
+event: response.processing
+data: {"Type":"response.processing","Response":{"Role":"assistant","RecordId":"eEn_20260928_211407_464_REDACTED","RelatedRecordId":"kEg_20260928_211407_452_REDACTED","ConversationId":"d16609f1-68ec-4d46-96df-51dc195a451b","Status":"processing","StatusDesc":"LLM direct reply","ExtraInfo":{"RequestId":"ab366428-febf-4a9f-8b3f-a8a73943103a","TraceId":"trace-redacted","Elapsed":"1335","StartTime":"1790601247450","IsFromSelf":false,"IsLlmGenerated":false,"CanRating":false,"CanFeedback":false,"ReplyMethod":0,"FromName":"","FromAvatar":"","HasRead":false,"EndTime":"0"}},"Timestamp":"1790601248787","RecordId":""}
+
+event: response.processing
+data: {"Type":"response.processing","Response":{"Role":"assistant","RecordId":"eEn_20260928_211407_464_REDACTED","RelatedRecordId":"kEg_20260928_211407_452_REDACTED","ConversationId":"d16609f1-68ec-4d46-96df-51dc195a451b","Status":"processing","StatusDesc":"LLM direct reply","ExtraInfo":{"RequestId":"ab366428-febf-4a9f-8b3f-a8a73943103a","TraceId":"trace-redacted","Elapsed":"1961","StartTime":"1790601247450","IsFromSelf":false,"IsLlmGenerated":false,"CanRating":false,"CanFeedback":false,"ReplyMethod":0,"FromName":"","FromAvatar":"","HasRead":false,"EndTime":"0"}},"Timestamp":"1790601249412","RecordId":""}
+
+event: response.processing
+data: {"Type":"response.processing","Response":{"Role":"assistant","RecordId":"eEn_20260928_211407_464_REDACTED","RelatedRecordId":"kEg_20260928_211407_452_REDACTED","ConversationId":"d16609f1-68ec-4d46-96df-51dc195a451b","Status":"processing","StatusDesc":"LLM direct reply","ExtraInfo":{"RequestId":"ab366428-febf-4a9f-8b3f-a8a73943103a","TraceId":"trace-redacted","Elapsed":"2037","StartTime":"1790601247450","IsFromSelf":false,"IsLlmGenerated":false,"CanRating":false,"CanFeedback":false,"ReplyMethod":1,"FromName":"","FromAvatar":"","HasRead":false,"EndTime":"0"}},"Timestamp":"1790601249487","RecordId":""}
+
+event: message.added
+data: {"Type":"message.added","Message":{"Type":"reply","MessageId":"rpl_eEn_20260928_211407_464_REDACTED","Name":"reply","Title":"","Icon":"","Status":"processing","StatusDesc":"Replying","ExtraInfo":{"Elapsed":"0","StartTime":"1790601249487","EndTime":"0"},"RecordId":""},"Timestamp":"1790601249489","RecordId":""}
+
+event: content.added
+data: {"Type":"content.added","MessageId":"rpl_eEn_20260928_211407_464_REDACTED","ContentIndex":0,"Content":{"Type":"text"},"Timestamp":"1790601249489","RecordId":""}
+
+event: text.replace
+data: {"Type":"text.replace","MessageId":"rpl_eEn_20260928_211407_464_REDACTED","ContentIndex":0,"Text":"{\"role\": \"judge\", \"amount\": 1.5}","Timestamp":"1790601249490","RecordId":""}
+
+event: message.done
+data: {"Type":"message.done","MessageId":"rpl_eEn_20260928_211407_464_REDACTED","Message":{"Type":"reply","MessageId":"rpl_eEn_20260928_211407_464_REDACTED","Name":"reply","Title":"","Icon":"","Status":"success","StatusDesc":"Reply Completed","Contents":[{"Type":"text","Text":"{\"role\": \"judge\", \"amount\": 1.5}"}],"ExtraInfo":{"Elapsed":"8","StartTime":"1790601249487","EndTime":"1790601249495"},"RecordId":""},"Timestamp":"1790601249495","RecordId":""}
+
+event: response.completed
+data: {"Type":"response.completed","Response":{"Role":"assistant","RecordId":"eEn_20260928_211407_464_REDACTED","RelatedRecordId":"kEg_20260928_211407_452_REDACTED","ConversationId":"d16609f1-68ec-4d46-96df-51dc195a451b","Status":"success","StatusDesc":"LLM direct reply","Messages":[{"Type":"reply","MessageId":"rpl_eEn_20260928_211407_464_REDACTED","Name":"reply","Title":"","Icon":"","Status":"success","StatusDesc":"Reply Completed","Contents":[{"Type":"text","Text":"{\"role\": \"judge\", \"amount\": 1.5}"}],"ExtraInfo":{"Elapsed":"8","StartTime":"1790601249487","EndTime":"1790601249495"},"RecordId":""}],"StatInfo":{"InputTokens":0,"OutputTokens":0,"TotalTokens":249,"TotalCost":"2044"},"ExtraInfo":{"RequestId":"ab366428-febf-4a9f-8b3f-a8a73943103a","TraceId":"trace-redacted","Elapsed":"1972","StartTime":"1790601247450","IsFromSelf":false,"IsLlmGenerated":true,"CanRating":true,"CanFeedback":false,"ReplyMethod":1,"FromName":"Judge","FromAvatar":"","HasRead":false,"EndTime":"1790601249495"}},"Timestamp":"1790601249496","RecordId":""}
+
+event: done
+data: [DONE]
+
