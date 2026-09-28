@@ -740,8 +740,8 @@ input[type="file"] {
 }
 
 @keyframes target-pulse {
-  0% { box-shadow: 0 0 0 4px rgba(42, 99, 140, 0.28); }
-  100% { box-shadow: 0 0 0 0 rgba(42, 99, 140, 0); }
+  0% { box-shadow: 0 0 0 4px var(--muted); }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 #resolution-content {
