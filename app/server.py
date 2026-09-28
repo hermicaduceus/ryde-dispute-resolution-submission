@@ -26,6 +26,7 @@ Two structural guarantees live here, both in Python rather than in any prompt:
 
 from __future__ import annotations
 
+import argparse
 import copy
 import json
 import os
@@ -777,17 +778,20 @@ def make_server(
     pack_dir: Optional[Path] = None,
     out_dir: Optional[Path] = None,
     llm: Optional[LLMClient] = None,
+    provider: Optional[str] = None,
 ) -> ThreadingHTTPServer:
     """An HTTP server bound to 127.0.0.1 only.
 
     `None` means the app/config.json default for that setting; `llm=None` builds the
-    configured provider. Tests pass port=0 and read the bound port back.
+    provider named by `provider`, or the configured one when that is None too. A real
+    provider is built here, at startup, so missing keys stop the server before any
+    party files a dispute. Tests pass port=0 and read the bound port back.
     """
     config = load_config()
     resolved_pack = Path(pack_dir) if pack_dir is not None else config.dataset_pack_dir
     resolved_out = Path(out_dir) if out_dir is not None else config.out_dir
     if llm is None:
-        provider = config.llm.provider
+        provider = provider or config.llm.provider
         if provider == "tencent":
             llm = build_llm_client(provider, settings=config.llm)
         else:
@@ -806,12 +810,29 @@ def make_server(
     return httpd
 
 
-def main() -> int:
-    httpd = make_server(DEFAULT_PORT)
+def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="python3 -m app.server",
+        description="Serve the party page and the operator console on 127.0.0.1.",
+    )
+    parser.add_argument(
+        "--llm",
+        choices=["mock", "tencent"],
+        default=None,
+        help="LLM provider (default: app/config.json). 'tencent' calls the three ADP apps "
+        "and needs their keys in .env.",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    args = parse_args(argv)
+    httpd = make_server(DEFAULT_PORT, provider=args.llm)
     port = httpd.server_address[1]
     print("Ryde party surface on http://127.0.0.1:%d" % port)
     print("  party page:   http://127.0.0.1:%d/party/" % port)
     print("  console:      http://127.0.0.1:%d/" % port)
+    print("  llm provider: %s" % httpd.ryde_state.llm.provider_name)  # type: ignore[attr-defined]
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

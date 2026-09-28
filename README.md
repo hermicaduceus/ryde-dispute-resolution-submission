@@ -115,8 +115,9 @@ python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0109   # withheld: above th
 python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0108   # withheld: no deviation to measure
 ```
 
-**One caveat while the build is in progress.** Every mock string is prefixed `MOCK`, because the
-Tencent endpoint is not pinned yet (see the TODO block in `app/llm/tencent.py`) — a mock run is a
-plumbing demonstration, never a real ruling.
+**Mock by default.** The default provider is a deterministic mock, and every mock string is
+prefixed `MOCK`: a mock run is a plumbing demonstration, never a real ruling. The real model is
+Tencent Cloud ADP, one app per agent: put the three app keys in `.env` (see `.env.example`), then
+run `python3 -m app.server --llm tencent` or `python3 -m app.cli --llm tencent --dispute <id>`.
 
 The demo walkthrough and its recording land once the case-file UI and the real LLM call are in.

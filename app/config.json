@@ -9,9 +9,10 @@
     "dataset_pack: which corpus under data/packs/ the CLI reads disputes from. The pack",
     "holds disputes/, ground-truth.json and pack.json; swapping corpora is a directory",
     "copy, never a code change. Override for one run with --pack <name>.",
-    "llm.endpoint / llm.model: placeholders. The Tencent service name and endpoint are not",
-    "pinned yet -- see the TODO in app/llm/tencent.py. The API key never goes here: it lives",
-    "in .env as TENCENT_LLM_API_KEY and .env is never committed."
+    "llm.provider: mock by default, so the tests and a fresh checkout need no keys. Run the",
+    "real model with --llm tencent (CLI or server). llm.endpoint is the Tencent Cloud ADP chat",
+    "endpoint; llm.model is the label recorded on each ruling. The three ADP app keys never",
+    "go here: they live in .env (see .env.example) and .env is never committed."
   ],
 
   "confidence_threshold": 0.65,
@@ -20,8 +21,8 @@
 
   "llm": {
     "provider": "mock",
-    "endpoint": "https://TODO-pin-tencent-llm-endpoint.example/v1/chat/completions",
-    "model": "TODO-pin-tencent-model-id",
+    "endpoint": "https://wss.lke.tencentcloud.com/adp/v2/chat",
+    "model": "tencent-adp/deepseek",
     "temperature": 0.2,
     "max_tokens": 1500,
     "timeout_seconds": 60

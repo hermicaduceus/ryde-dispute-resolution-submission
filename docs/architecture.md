@@ -74,7 +74,7 @@ flowchart TD
 | Output contracts | `app/schemas.py` | The typed shapes agents must produce; builds the party-facing decision message |
 | Policy loader | `app/policy.py` | Reads the policy document, extracts rule IDs, fails loudly when it is missing |
 | Mock LLM | `app/llm/mock.py` | Deterministic stand-in provider; its free-text fields — claim summaries, arguments, the Judge's explanation — carry a `MOCK` prefix, while actions, rule IDs and evidence refs do not |
-| Tencent adapter | `app/llm/tencent.py` | The real provider over HTTP; the endpoint is not pinned yet, so it is never called |
+| Tencent adapter | `app/llm/tencent.py` | The real provider: calls one Tencent Cloud ADP app per agent over HTTP |
 | HTTP server | `app/server.py` | The intake API, the party view allowlist, and static files for both pages |
 | Command-line runner | `app/cli.py` | Runs one dispute from the terminal and prints the event strip |
 | Runtime configuration | `app/config.json` | Confidence threshold, autonomous cap, default dataset pack, provider settings |
@@ -231,19 +231,28 @@ marked differently: on a decided party view it leads with a fixed demo notice st
 the decision came from an illustrative run and is not a live review, shown whenever the
 ruling's LLM record does not prove the Tencent provider, and only a record whose provider
 field is exactly `tencent` shows a decision with no notice. The Tencent adapter,
-`app/llm/tencent.py`, implements the same
-interface over HTTP — and is honest about its status: the concrete service, endpoint, auth
-scheme and payload shape are not pinned yet, the configuration still carries placeholder
-values, and the adapter fails loudly rather than silently falling back to the mock. To be
-plain: the Tencent endpoint has not been called. Every run to date is a mock run, a
-plumbing demonstration rather than a model judgement.
+`app/llm/tencent.py`, implements the same interface over Tencent Cloud ADP (Agent
+Development Platform). Each agent is its own published ADP app with its own key: Rider
+Advocate, Driver Advocate and Judge. The apps carry only a short role card; the adapter
+sends the full role prompt on every call, so the prompts live in this repo and every gate
+stays in Python. Three things about the endpoint shape the adapter. Tencent's web firewall
+blocks prompts that mix backticks with ASCII brackets, so the adapter drops backticks and
+sends full-width brackets, which the model reads the same way; a blocked call raises an
+error and is never retried. ADP reports errors inside a successful HTTP response, so the
+adapter reads every event rather than trusting the status code. The free plan allows 10
+calls a minute, so calls are spaced at least 6.5 seconds apart. Any failure raises an
+error, and there is no silent fallback to the mock. The mock stays the default provider,
+so the tests and a fresh checkout need no keys; `--llm tencent` selects the real model.
 
 ## Limits
 
 What the system does not do yet, stated plainly:
 
-- **No real LLM calls.** The mock provider answers every agent. Nothing here has reasoned
-  about a dispute; the machinery around the reasoning is what is built and tested.
+- **A failed model call is an error, not a referral.** If a live call fails (the firewall,
+  the rate limit, an ADP error or a reply that breaks the output contract), the run stops
+  and the party sees a generic error. It is not yet routed to a human reviewer.
+- **Amounts must come back as JSON numbers.** A model reply carrying an amount as a string
+  is rejected, never converted, because the value moves money.
 - **Two categories only.** Route deviation and no-show charge. Property damage and safety
   incidents route to human review by design.
 - **The driver-side form is not built.** The party page files as the rider only; the

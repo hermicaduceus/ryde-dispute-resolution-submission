@@ -6,8 +6,8 @@ with no edit to any agent.
 
 Providers:
     mock      deterministic canned responses; proves the plumbing with no API key
-    tencent   Tencent Cloud LLM API; concrete service details still to be pinned
-              (see the TODO block at the top of tencent.py)
+    tencent   Tencent Cloud ADP: one published agent app per role, called over HTTP
+              (see the module docstring of tencent.py)
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ KNOWN_PROVIDERS = ("mock", "tencent")
 def build_llm_client(provider: str, **kwargs):
     """Build an LLM client by name.
 
-    kwargs are passed through to the adapter (e.g. settings=..., api_key=... for
+    kwargs are passed through to the adapter (e.g. settings=..., app_keys=... for
     tencent, judge_confidence=... for mock).
     """
     name = (provider or "").strip().lower()
