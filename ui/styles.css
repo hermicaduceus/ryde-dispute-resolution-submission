@@ -312,7 +312,7 @@ input[type="file"] {
   background: var(--canvas);
   border-left: 3px solid var(--ink);
   font-size: clamp(18px, 2.2vw, 23px);
-  font-weight: 580;
+  font-weight: 600;
   letter-spacing: -0.015em;
   line-height: 1.35;
 }
@@ -330,7 +330,7 @@ input[type="file"] {
 
 .info-row.highlight dd {
   color: var(--ink);
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .subsection-title {
@@ -451,7 +451,7 @@ input[type="file"] {
 
 .field-value.is-null {
   color: var(--muted);
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.06em;
 }
 
@@ -554,7 +554,7 @@ input[type="file"] {
   margin-bottom: 18px;
   color: var(--ink);
   font-size: 16px;
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.4;
 }
 
@@ -603,7 +603,7 @@ input[type="file"] {
 
 .request-grid .info-row.highlight dd {
   color: var(--ink);
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .citation-block {
@@ -764,7 +764,7 @@ input[type="file"] {
   padding: 5px 9px;
   border-radius: 3px;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.1em;
   line-height: 1.2;
   text-transform: uppercase;
@@ -884,7 +884,7 @@ input[type="file"] {
 .resolution-metrics .info-row.highlight dd {
   color: var(--ink);
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .resolution-label,
@@ -937,7 +937,7 @@ input[type="file"] {
 .party-message p {
   margin-bottom: 0;
   color: var(--ink);
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.55;
 }
 
@@ -1094,7 +1094,7 @@ input[type="file"] {
 .event-seq {
   padding-left: 28px;
   color: var(--ink);
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .event-time {
