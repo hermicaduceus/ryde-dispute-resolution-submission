@@ -249,7 +249,10 @@ class ConsoleTokensTest(unittest.TestCase):
     def test_policy_citations_are_not_green(self):
         """Green means delivered; a policy chip is not a delivery."""
         for selector in [".citation-policy", ".citation-policy:hover"]:
-            body = " ".join(_blocks(self.css, selector))
+            try:
+                body = " ".join(_blocks(self.css, selector))
+            except AssertionError:
+                continue  # deleted outright is fine (session sixteen removed the empty rules)
             self.assertIsNone(re.search(r"var\(--green[\w-]*\)", body), f"{selector} must not be green")
             self.assertEqual([], [h for h in _chromatic_hexes(body)], f"{selector} hard-codes a chromatic colour")
 

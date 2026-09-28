@@ -1,0 +1,1271 @@
+{
+ "ui/styles.css": [
+  [
+   ":root",
+   "--ink",
+   "#31373e"
+  ],
+  [
+   ":root",
+   "--muted",
+   "#5a6470"
+  ],
+  [
+   ":root",
+   "--faint",
+   "#646c77"
+  ],
+  [
+   ":root",
+   "--line",
+   "#e5e0dc"
+  ],
+  [
+   ":root",
+   "--panel",
+   "#ffffff"
+  ],
+  [
+   ":root",
+   "--canvas",
+   "#f5f4f3"
+  ],
+  [
+   ":root",
+   "--accent",
+   "#e93864"
+  ],
+  [
+   ":root",
+   "--accent-text",
+   "#c8284f"
+  ],
+  [
+   ":root",
+   "--accent-wash",
+   "#fff0f3"
+  ],
+  [
+   ":root",
+   "--blue",
+   "#2a638c"
+  ],
+  [
+   ":root",
+   "--blue-wash",
+   "#edf5fa"
+  ],
+  [
+   ":root",
+   "--amber",
+   "#9b5c18"
+  ],
+  [
+   ":root",
+   "--amber-wash",
+   "#fff6e8"
+  ],
+  [
+   ":root",
+   "--red",
+   "#a33f3f"
+  ],
+  [
+   ":root",
+   "--red-wash",
+   "#fff0ef"
+  ],
+  [
+   ":root",
+   "--green",
+   "#2e6b51"
+  ],
+  [
+   ":root",
+   "--green-wash",
+   "#edf7f0"
+  ],
+  [
+   ":root",
+   "--shadow",
+   "0 14px 35px rgba(49, 55, 62, 0.08)"
+  ],
+  [
+   ":root",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ":root",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   "body",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   "body",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   "button:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible",
+   "outline",
+   "3px solid var(--accent)"
+  ],
+  [
+   ".app-header",
+   "border-bottom",
+   "1px solid var(--line)"
+  ],
+  [
+   ".eyebrow, .header-note, .section-index, .grievance-marker, .note-label",
+   "color",
+   "var(--faint)"
+  ],
+  [
+   ".header-note",
+   "color",
+   "var(--accent-text)"
+  ],
+  [
+   "h1",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   "h2",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   "h3",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   "h4",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".intro",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".loader-panel, .story-section",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   ".loader-panel, .story-section",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".loader-panel, .story-section",
+   "box-shadow",
+   "var(--shadow)"
+  ],
+  [
+   ".loader-panel",
+   "border-left",
+   "4px solid var(--accent)"
+  ],
+  [
+   ".loader-panel label",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   "input[type=\"file\"]",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   "input[type=\"file\"]",
+   "background",
+   "#fafbfd"
+  ],
+  [
+   "input[type=\"file\"]",
+   "border",
+   "1px dashed #aeb9c8"
+  ],
+  [
+   "#load-status",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   "#load-status[data-state=\"success\"]",
+   "color",
+   "var(--green)"
+  ],
+  [
+   "#load-status[data-state=\"error\"]",
+   "color",
+   "var(--red)"
+  ],
+  [
+   "#load-status[data-state=\"loading\"]",
+   "color",
+   "var(--accent-text)"
+  ],
+  [
+   ".story-section > .section-heading",
+   "border-bottom",
+   "1px solid var(--line)"
+  ],
+  [
+   ".section-index",
+   "color",
+   "var(--accent-text)"
+  ],
+  [
+   ".loaded-file",
+   "color",
+   "var(--faint)"
+  ],
+  [
+   ".metadata-list",
+   "border-top",
+   "1px solid var(--line)"
+  ],
+  [
+   ".metadata-list dt, .metadata-list dd, .info-row dt, .info-row dd, .evidence-field dt, .evidence-field dd",
+   "border-bottom",
+   "1px solid #e8edf3"
+  ],
+  [
+   ".metadata-list dt, .info-row dt, .evidence-field dt",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".metadata-list dd, .info-row dd, .evidence-field dd",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".grievance-marker",
+   "color",
+   "var(--accent-text)"
+  ],
+  [
+   ".claim-text",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".claim-text",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   ".claim-text",
+   "border-left",
+   "3px solid var(--ink)"
+  ],
+  [
+   ".grievance-facts, .answers-list",
+   "border-top",
+   "1px solid var(--line)"
+  ],
+  [
+   ".info-row.highlight dd",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".subsection-title",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".evidence-provenance",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".evidence-provenance .info-row",
+   "border-right",
+   "1px solid var(--line)"
+  ],
+  [
+   ".evidence-card",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".evidence-card",
+   "background",
+   "#fcfdff"
+  ],
+  [
+   ".evidence-card-title",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".evidence-card-title",
+   "background",
+   "#f4f7fa"
+  ],
+  [
+   ".evidence-card-title",
+   "border-bottom",
+   "1px solid var(--line)"
+  ],
+  [
+   ".evidence-field",
+   "border-right",
+   "1px solid #e8edf3"
+  ],
+  [
+   ".field-label",
+   "color",
+   "var(--muted) !important"
+  ],
+  [
+   ".evidence-subgroup",
+   "border-top",
+   "1px solid var(--line)"
+  ],
+  [
+   ".evidence-subgroup .evidence-grid",
+   "border",
+   "1px solid #e8edf3"
+  ],
+  [
+   ".evidence-subgroup .evidence-field",
+   "background",
+   "#ffffff"
+  ],
+  [
+   ".evidence-field.has-null",
+   "background",
+   "#f8fafc"
+  ],
+  [
+   ".field-value.is-null",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".evidence-note",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".evidence-note",
+   "background",
+   "#f8fafc"
+  ],
+  [
+   ".evidence-note",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".note-label",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".deliberate-empty",
+   "background",
+   "#f8fafc"
+  ],
+  [
+   ".deliberate-empty",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".deliberate-empty h3",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".deliberate-empty p",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".empty-note",
+   "color",
+   "var(--faint)"
+  ],
+  [
+   ".claim-card",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".claim-card",
+   "border-top",
+   "4px solid var(--line)"
+  ],
+  [
+   ".claim-card",
+   "background",
+   "#fcfdff"
+  ],
+  [
+   ".claim-card-header",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   ".claim-card-header",
+   "border-bottom",
+   "1px solid var(--line)"
+  ],
+  [
+   ".claim-card-header h3",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".agent-label",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".claim-summary",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".claim-label, .citation-title, .validation-title",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".claim-argument",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".request-grid, .llm-meta",
+   "border-top",
+   "1px solid var(--line)"
+  ],
+  [
+   ".request-grid .info-row dt, .request-grid .info-row dd, .llm-meta .info-row dt, .llm-meta .info-row dd",
+   "border-bottom",
+   "1px solid #e8edf3"
+  ],
+  [
+   ".request-grid .info-row.highlight dd",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".citation",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".citation",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".citation",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   ".citation:hover",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   ".citation:hover",
+   "border-color",
+   "var(--muted)"
+  ],
+  [
+   ".citation-null",
+   "color",
+   "var(--amber)"
+  ],
+  [
+   ".citation-null",
+   "background",
+   "var(--amber-wash)"
+  ],
+  [
+   ".citation-null",
+   "border-color",
+   "#e7c58f"
+  ],
+  [
+   ".citation-unresolved",
+   "color",
+   "var(--red)"
+  ],
+  [
+   ".citation-unresolved",
+   "background",
+   "var(--red-wash)"
+  ],
+  [
+   ".citation-unresolved",
+   "border-color",
+   "#e8bcbc"
+  ],
+  [
+   ".validation-box",
+   "color",
+   "#7a3333"
+  ],
+  [
+   ".validation-box",
+   "background",
+   "var(--red-wash)"
+  ],
+  [
+   ".validation-box",
+   "border",
+   "1px solid #e8bcbc"
+  ],
+  [
+   ".validation-title",
+   "color",
+   "var(--red)"
+  ],
+  [
+   ".question-list",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".claim-unavailable",
+   "border-top-color",
+   "var(--faint)"
+  ],
+  [
+   ".claim-unavailable-message",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".policy-reference",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".policy-reference",
+   "background",
+   "#f8fafc"
+  ],
+  [
+   ".policy-source",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".policy-item",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".policy-item",
+   "background",
+   "#f8fafc"
+  ],
+  [
+   ".policy-item",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   "0%",
+   "box-shadow",
+   "0 0 0 4px var(--muted)"
+  ],
+  [
+   "100%",
+   "box-shadow",
+   "0 0 0 0 transparent"
+  ],
+  [
+   ".resolution-card",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".resolution-card",
+   "background",
+   "#fcfdff"
+  ],
+  [
+   ".resolution-header",
+   "border-bottom",
+   "1px solid var(--line)"
+  ],
+  [
+   ".outcome-ruled",
+   "border-top",
+   "4px solid var(--green)"
+  ],
+  [
+   ".outcome-ruled-badge",
+   "color",
+   "var(--green)"
+  ],
+  [
+   ".outcome-ruled-badge",
+   "background",
+   "var(--green-wash)"
+  ],
+  [
+   ".outcome-ruled-badge",
+   "border",
+   "1px solid #b9d9c5"
+  ],
+  [
+   ".outcome-withheld",
+   "border-top",
+   "4px solid var(--amber)"
+  ],
+  [
+   ".outcome-withheld-badge",
+   "color",
+   "var(--amber)"
+  ],
+  [
+   ".outcome-withheld-badge",
+   "background",
+   "var(--amber-wash)"
+  ],
+  [
+   ".outcome-withheld-badge",
+   "border",
+   "1px solid #e7c58f"
+  ],
+  [
+   ".outcome-human-review",
+   "border-top",
+   "4px solid var(--blue)"
+  ],
+  [
+   ".outcome-human-badge",
+   "color",
+   "var(--blue)"
+  ],
+  [
+   ".outcome-human-badge",
+   "background",
+   "var(--blue-wash)"
+  ],
+  [
+   ".outcome-human-badge",
+   "border",
+   "1px solid #b9d3e3"
+  ],
+  [
+   ".outcome-needs-info",
+   "border-top",
+   "4px solid var(--blue)"
+  ],
+  [
+   ".outcome-needs-badge",
+   "color",
+   "var(--blue)"
+  ],
+  [
+   ".outcome-needs-badge",
+   "background",
+   "var(--blue-wash)"
+  ],
+  [
+   ".outcome-needs-badge",
+   "border",
+   "1px solid #b9d3e3"
+  ],
+  [
+   ".outcome-unknown, .outcome-malformed",
+   "border-top",
+   "4px solid var(--red)"
+  ],
+  [
+   ".outcome-unknown-badge, .outcome-malformed-badge",
+   "color",
+   "var(--red)"
+  ],
+  [
+   ".outcome-unknown-badge, .outcome-malformed-badge",
+   "background",
+   "var(--red-wash)"
+  ],
+  [
+   ".outcome-unknown-badge, .outcome-malformed-badge",
+   "border",
+   "1px solid #e8bcbc"
+  ],
+  [
+   ".resolution-detail",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".resolution-metrics, .threshold-row, .routing-grid",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".resolution-metrics .info-row, .threshold-row .info-row, .routing-grid .info-row",
+   "border-right",
+   "1px solid var(--line)"
+  ],
+  [
+   ".resolution-metrics .info-row.highlight dd",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".resolution-label, .party-message-label",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".resolution-explanation",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".threshold-row",
+   "background",
+   "#f8fafc"
+  ],
+  [
+   ".party-message",
+   "background",
+   "#f8fafc"
+  ],
+  [
+   ".party-message",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".party-message",
+   "border-left",
+   "4px solid var(--line)"
+  ],
+  [
+   ".party-message-label",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".outcome-ruled .party-message",
+   "background",
+   "var(--green-wash)"
+  ],
+  [
+   ".outcome-ruled .party-message",
+   "border-color",
+   "#b9d9c5"
+  ],
+  [
+   ".outcome-ruled .party-message",
+   "border-left-color",
+   "var(--green)"
+  ],
+  [
+   ".outcome-ruled .party-message-label",
+   "color",
+   "var(--green)"
+  ],
+  [
+   ".party-message p",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".party-facing-region",
+   "border-top-color",
+   "var(--amber)"
+  ],
+  [
+   ".party-facing-region .party-message",
+   "background",
+   "var(--amber-wash)"
+  ],
+  [
+   ".party-facing-region .party-message",
+   "border-color",
+   "#e7c58f"
+  ],
+  [
+   ".party-facing-region .party-message",
+   "border-left-color",
+   "var(--amber)"
+  ],
+  [
+   ".party-facing-region .party-message-label",
+   "color",
+   "var(--amber)"
+  ],
+  [
+   ".human-only-region",
+   "border",
+   "2px solid var(--amber)"
+  ],
+  [
+   ".human-only-region",
+   "background",
+   "#fffdfa"
+  ],
+  [
+   ".human-only-header",
+   "background",
+   "var(--amber-wash)"
+  ],
+  [
+   ".human-only-header",
+   "border-bottom",
+   "1px solid #e7c58f"
+  ],
+  [
+   ".human-only-label",
+   "color",
+   "#7a4612"
+  ],
+  [
+   ".human-only-label",
+   "background",
+   "#ffe9c6"
+  ],
+  [
+   ".human-only-label",
+   "border",
+   "1px solid #e7c58f"
+  ],
+  [
+   ".human-only-header h3",
+   "color",
+   "#7a4612"
+  ],
+  [
+   ".routing-explanation",
+   "color",
+   "var(--blue)"
+  ],
+  [
+   ".routing-explanation",
+   "background",
+   "var(--blue-wash)"
+  ],
+  [
+   ".routing-explanation",
+   "border-left",
+   "3px solid var(--blue)"
+  ],
+  [
+   ".payload-status",
+   "color",
+   "var(--faint)"
+  ],
+  [
+   ".payload-status[data-state=\"success\"]",
+   "color",
+   "var(--green)"
+  ],
+  [
+   ".payload-status[data-state=\"error\"]",
+   "color",
+   "var(--red)"
+  ],
+  [
+   ".event-intro",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".event-stream",
+   "border-top",
+   "1px solid var(--line)"
+  ],
+  [
+   ".event-row",
+   "border-bottom",
+   "1px solid var(--line)"
+  ],
+  [
+   ".event-row",
+   "background",
+   "#fcfdff"
+  ],
+  [
+   ".event-malformed",
+   "color",
+   "var(--faint)"
+  ],
+  [
+   ".event-row[open]",
+   "background",
+   "#f8fafc"
+  ],
+  [
+   ".event-row summary::before",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".event-row summary::before",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".event-seq, .event-time, .event-type, .event-payload-ref, .event-actor",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".event-seq",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".event-type",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".event-actor",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".event-actor",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   ".event-actor",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".event-arrow",
+   "color",
+   "var(--faint)"
+  ],
+  [
+   ".event-summary-text",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".event-payload-ref",
+   "color",
+   "var(--faint)"
+  ],
+  [
+   ".event-internal",
+   "border-left",
+   "3px solid var(--amber)"
+  ],
+  [
+   ".event-internal .event-type, .event-internal .event-payload-ref",
+   "color",
+   "var(--amber)"
+  ],
+  [
+   ".event-payload",
+   "background",
+   "#182334"
+  ],
+  [
+   ".event-payload",
+   "border",
+   "1px solid #2f455f"
+  ],
+  [
+   ".event-payload",
+   "color",
+   "#e7eef7"
+  ],
+  [
+   ".payload-unavailable",
+   "color",
+   "#f2d39f"
+  ],
+  [
+   ".payload-error",
+   "color",
+   "#ffb4b4"
+  ],
+  [
+   ".payload-path",
+   "color",
+   "#9fc8df"
+  ],
+  [
+   ".payload-json",
+   "color",
+   "#e7eef7"
+  ],
+  [
+   ".evidence-provenance .info-row:nth-child(3n)",
+   "border-right",
+   "1px solid var(--line)"
+  ],
+  [
+   ".resolution-metrics .info-row, .threshold-row .info-row, .routing-grid .info-row",
+   "border-bottom",
+   "1px solid var(--line)"
+  ],
+  [
+   ".evidence-field, .evidence-field:nth-child(2n)",
+   "border-bottom",
+   "1px solid #e8edf3"
+  ]
+ ],
+ "ui/party/party.css": [
+  [
+   ":root",
+   "--ink",
+   "#31373e"
+  ],
+  [
+   ":root",
+   "--muted",
+   "#5a6470"
+  ],
+  [
+   ":root",
+   "--line",
+   "#e5e0dc"
+  ],
+  [
+   ":root",
+   "--paper",
+   "#f7dde3"
+  ],
+  [
+   ":root",
+   "--card",
+   "#ffffff"
+  ],
+  [
+   ":root",
+   "--accent",
+   "#e93864"
+  ],
+  [
+   ":root",
+   "--accent-ink",
+   "#ffffff"
+  ],
+  [
+   ":root",
+   "--error",
+   "#c0392b"
+  ],
+  [
+   ":root",
+   "--ok",
+   "#1eb848"
+  ],
+  [
+   "body",
+   "background",
+   "var(--paper)"
+  ],
+  [
+   "body",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".party-header .eyebrow",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".intro",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".demo-note",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".demo-note",
+   "border-left",
+   "3px solid var(--line)"
+  ],
+  [
+   ".step",
+   "background",
+   "var(--card)"
+  ],
+  [
+   ".step",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".step-number",
+   "background",
+   "var(--accent)"
+  ],
+  [
+   ".step-number",
+   "color",
+   "var(--accent-ink)"
+  ],
+  [
+   ".hint",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".option-card",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".option-card",
+   "background",
+   "var(--card)"
+  ],
+  [
+   ".option-card:hover",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   ".option-card.selected",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   ".option-card.selected",
+   "box-shadow",
+   "0 0 0 2px #fff0f3"
+  ],
+  [
+   ".choice-button",
+   "border",
+   "2px solid var(--line)"
+  ],
+  [
+   ".choice-button",
+   "background",
+   "var(--card)"
+  ],
+  [
+   ".choice-button",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".choice-button:hover",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   ".choice-button.selected",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   ".trip-meta",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".loading",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".field-note",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   "textarea, input[type=\"number\"]",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   "textarea:focus, input:focus",
+   "outline",
+   "2px solid var(--accent)"
+  ],
+  [
+   "button:focus-visible",
+   "outline",
+   "2px solid var(--accent)"
+  ],
+  [
+   "button",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   "button",
+   "background",
+   "var(--card)"
+  ],
+  [
+   "button.primary",
+   "background",
+   "var(--accent)"
+  ],
+  [
+   "button.primary",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   "button.primary",
+   "color",
+   "var(--accent-ink)"
+  ],
+  [
+   ".error",
+   "color",
+   "var(--error)"
+  ],
+  [
+   ".outcome-message",
+   "background",
+   "var(--paper)"
+  ],
+  [
+   ".outcome-message",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".reference",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".reference strong",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".status-line",
+   "color",
+   "var(--muted)"
+  ]
+ ]
+}
