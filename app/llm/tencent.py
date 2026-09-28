@@ -23,10 +23,14 @@ Protocol (checked against the live endpoint on 2026-09-28):
   ``MIN_CALL_INTERVAL_SECONDS`` apart.
 
 Every failure raises ``LLMError``. There is no retry loop and no fallback to the mock.
+An error message names the cause (the status code, the ADP error code, the kind of
+failure) but never carries a response body, and every configured AppKey is redacted from
+it, so a key can never reach a terminal, a log or a case file through an error.
 """
 
 from __future__ import annotations
 
+import http.client
 import json
 import threading
 import time
@@ -72,6 +76,11 @@ FIREWALL_SAFE_CHARACTERS = str.maketrans(
     }
 )
 FIREWALL_MARKER = "waf-captcha"
+
+#: A Judge-sized reply measured 89 KB on the live endpoint (it echoes the prompt). A
+#: response larger than this is refused rather than read into memory.
+MAX_RESPONSE_BYTES = 2 * 1024 * 1024
+REDACTED = "<redacted>"
 
 
 def clean_for_firewall(text: str) -> str:
@@ -123,8 +132,18 @@ class TencentLLMClient(LLMClient):
             raise LLMError("no ADP app is configured for agent %r" % (request.agent,))
         body = self._build_body(request, app_key)
         self._pace()
-        status, text = self._post(body)
-        return self._parse_events(status, text)
+        try:
+            status, text = self._post(body)
+            return self._parse_events(status, text)
+        except LLMError as exc:
+            raise LLMError(self._redact(str(exc))) from None
+
+    def _redact(self, message: str) -> str:
+        """Remove every configured AppKey from a message before it leaves this class."""
+        for key in self._app_keys.values():
+            if key:
+                message = message.replace(key, REDACTED)
+        return message
 
     # ------------------------------------------------------------ request / response
 
@@ -168,17 +187,38 @@ class TencentLLMClient(LLMClient):
             with urllib.request.urlopen(  # noqa: S310 - endpoint comes from config
                 http_request, timeout=self.settings.timeout_seconds
             ) as response:
-                return response.status, response.read().decode("utf-8", errors="replace")
+                return response.status, self._read_body(response)
         except urllib.error.HTTPError as exc:
-            text = exc.read().decode("utf-8", errors="replace")
-            if exc.code == 501 or FIREWALL_MARKER in text:
+            try:
+                raw = exc.read(MAX_RESPONSE_BYTES + 1)
+            except (http.client.HTTPException, OSError):
+                raw = b""
+            if exc.code == 501 or FIREWALL_MARKER.encode("ascii") in raw:
                 raise LLMError(
                     "the Tencent web firewall blocked the request (HTTP %s); it never "
                     "reached ADP" % exc.code
-                ) from exc
-            raise LLMError("ADP call failed: HTTP %s: %s" % (exc.code, text[:300])) from exc
+                ) from None
+            # The body is deliberately left out: an error page can echo the request.
+            raise LLMError("ADP call failed: HTTP %s" % exc.code) from None
+        except http.client.HTTPException as exc:
+            raise LLMError(
+                "ADP call failed: the connection broke while reading the reply (%s)"
+                % type(exc).__name__
+            ) from None
         except (urllib.error.URLError, OSError) as exc:
-            raise LLMError("ADP call failed: cannot reach %s: %s" % (self.endpoint, exc)) from exc
+            reason = getattr(exc, "reason", exc)
+            kind = type(reason).__name__ if isinstance(reason, BaseException) else "network error"
+            raise LLMError("ADP call failed: cannot reach the endpoint (%s)" % kind) from None
+
+    @staticmethod
+    def _read_body(response) -> str:
+        raw = response.read(MAX_RESPONSE_BYTES + 1)
+        if len(raw) > MAX_RESPONSE_BYTES:
+            raise LLMError("ADP reply is too large (over %d bytes)" % MAX_RESPONSE_BYTES)
+        try:
+            return raw.decode("utf-8")
+        except UnicodeDecodeError:
+            raise LLMError("ADP reply is not valid UTF-8") from None
 
     def _parse_events(self, status: int, text: str) -> LLMResponse:
         if FIREWALL_MARKER in text:
@@ -187,6 +227,8 @@ class TencentLLMClient(LLMClient):
                 % status
             )
         completed = None
+        # SSE lines may end in CRLF, LF or CR; frames end at a blank line.
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
         for block in text.split("\n\n"):
             data = "\n".join(
                 line[len("data:"):].strip()
@@ -212,17 +254,17 @@ class TencentLLMClient(LLMClient):
         if not isinstance(completed, dict):
             raise LLMError("ADP sent no response.completed event (HTTP %s)" % status)
         messages = completed.get("Messages")
-        reply = None
+        replies = []
         if isinstance(messages, list):
-            for message in messages:
-                if isinstance(message, dict) and message.get("Type") == "reply":
-                    reply = message
-        contents = reply.get("Contents") if isinstance(reply, dict) else None
-        if not isinstance(contents, list):
+            replies = [m for m in messages if isinstance(m, dict) and m.get("Type") == "reply"]
+        # Every reply message, in order: a reply split across messages is joined, not cut.
+        contents = [m.get("Contents") for m in replies if isinstance(m.get("Contents"), list)]
+        if not contents:
             raise LLMError("ADP response.completed carries no reply message")
         answer = "".join(
             part.get("Text", "")
-            for part in contents
+            for parts in contents
+            for part in parts
             if isinstance(part, dict) and part.get("Type") == "text" and isinstance(part.get("Text"), str)
         )
         if not answer.strip():

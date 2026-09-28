@@ -115,8 +115,9 @@ python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0109   # withheld: above th
 python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0108   # withheld: no deviation to measure
 ```
 
-**Mock by default.** The default provider is a deterministic mock, and every mock string is
-prefixed `MOCK`: a mock run is a plumbing demonstration, never a real ruling. The real model is
+**Mock by default.** The default provider is a deterministic mock. Its free-text fields (claim
+summaries, arguments, the Judge's explanation) are prefixed `MOCK`; actions, amounts, rule IDs and
+evidence refs are not. A mock run is a plumbing demonstration, never a real ruling. The real model is
 Tencent Cloud ADP, one app per agent: put the three app keys in `.env` (see `.env.example`), then
 run `python3 -m app.server --llm tencent` or `python3 -m app.cli --llm tencent --dispute <id>`.
 
