@@ -223,6 +223,7 @@
     elaborate.rows = 2;
     elaborate.setAttribute("data-elaborate-for", question.key);
     elaborate.placeholder = "Tell us more (optional)";
+    elaborate.setAttribute("aria-label", "Tell us more: " + question.label);
     elaborate.hidden = true;
 
     ["Yes", "No"].forEach(function (choice) {
