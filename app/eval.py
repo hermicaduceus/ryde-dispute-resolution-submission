@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .config import ConfigError, load_config, resolve_pack_dir
-from .dispute import DisputeError, load_dispute
+from .dispute import load_dispute
 from .events import EventLog
 from .llm import LLMError, build_llm_client
 from .pipeline import run_dispute
@@ -44,6 +44,11 @@ REASONS = [
 
 class EvalError(RuntimeError):
     """The evaluation labels are missing, unreadable, or inconsistent with the pack."""
+
+
+def _is_number(value: Any) -> bool:
+    """True only for a real number. bool is an int subclass; a numeric string is not one."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
 @dataclass
@@ -126,6 +131,14 @@ def load_labels(pack_dir: Path) -> Dict[str, Dict[str, Any]]:
             raise EvalError("label %d in %s has no dispute_id" % (index, labels_path))
         if dispute_id in labels:
             raise EvalError("duplicate label for dispute %s" % dispute_id)
+        if label.get("expected_outcome") == "ruled" and not _is_number(
+            label.get("expected_amount_sgd")
+        ):
+            raise EvalError(
+                "label for dispute %s has a non-numeric expected_amount_sgd (%r): a ruled "
+                "label must state the amount as a number"
+                % (dispute_id, label.get("expected_amount_sgd"))
+            )
         labels[dispute_id] = label
 
     disputes_dir = pack_path / "disputes"
@@ -155,7 +168,9 @@ def _expected_text(label: Dict[str, Any]) -> str:
         return str(outcome)
     action = label.get("expected_action")
     amount = label.get("expected_amount_sgd")
-    return "ruled: %s %.2f" % (action, float(amount))
+    if not _is_number(amount):
+        return "ruled: %s invalid amount" % action
+    return "ruled: %s %.2f" % (action, amount)
 
 
 def _candidate(resolution: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -172,11 +187,9 @@ def _decision_text(resolution: Dict[str, Any]) -> str:
     candidate = _candidate(resolution)
     if candidate is None:
         return str(outcome)
-    return "%s: %s %.2f" % (
-        outcome,
-        candidate.get("action"),
-        float(candidate.get("recommended_amount_sgd")),
-    )
+    amount = candidate.get("recommended_amount_sgd")
+    rendered = "%.2f" % amount if _is_number(amount) else "invalid amount"
+    return "%s: %s %s" % (outcome, candidate.get("action"), rendered)
 
 
 def _grounding(
@@ -196,6 +209,17 @@ def _grounding(
         if not rule_id.startswith("ESC-") and rule_id not in cited_ids
     ]
     return not rules_missing, rules_missing
+
+
+def _amount_matches(candidate: Optional[Dict[str, Any]], label: Dict[str, Any]) -> bool:
+    """Cent-exact comparison that never coerces: a malformed amount is a mismatch."""
+    if candidate is None:
+        return False
+    amount = candidate.get("recommended_amount_sgd")
+    expected = label.get("expected_amount_sgd")
+    if not _is_number(amount) or not _is_number(expected):
+        return False
+    return round(amount, 2) == round(expected, 2)
 
 
 def score_case(label: Dict[str, Any], resolution: Dict[str, Any]) -> CaseScore:
@@ -218,11 +242,7 @@ def score_case(label: Dict[str, Any], resolution: Dict[str, Any]) -> CaseScore:
         ):
             reason = "wrong action"
             decision_match = False
-        elif outcome == "ruled" and (
-            candidate is None
-            or round(float(candidate.get("recommended_amount_sgd")), 2)
-            != round(float(label.get("expected_amount_sgd")), 2)
-        ):
+        elif outcome == "ruled" and not _amount_matches(candidate, label):
             reason = "wrong amount"
             decision_match = False
         else:
@@ -283,6 +303,14 @@ def _totals(cases: List[CaseScore]) -> Dict[str, Any]:
     }
 
 
+def _refuse_existing_output(pack_out: Path) -> EvalError:
+    """The refusal for a pack output directory a previous run already owns."""
+    return EvalError(
+        "refusing to reuse evaluation output %s: it already exists. "
+        "Move it aside or choose another --out directory." % pack_out
+    )
+
+
 def run_eval(
     *,
     pack_dir: Path,
@@ -299,7 +327,12 @@ def run_eval(
     dispute_paths = sorted((pack_path / "disputes").glob("*.json"), key=lambda path: path.name)
     pack_name = pack_path.name
     pack_out = out_path / pack_name
-    pack_out.mkdir(parents=True, exist_ok=True)
+    # Exclusive creation: a second run must never append to a first run's event log or
+    # overwrite its payloads. The directory is never deleted, merged or overwritten.
+    try:
+        pack_out.mkdir(parents=True, exist_ok=False)
+    except FileExistsError as exc:
+        raise _refuse_existing_output(pack_out) from exc
 
     scores: List[CaseScore] = []
     for dispute_path in dispute_paths:
@@ -321,9 +354,12 @@ def run_eval(
             )
             case_file.write(case_dir)
             score = score_case(label, case_file.to_dict()["resolution"])
-        except (DisputeError, PolicyError, LLMError, RuntimeError, ValueError) as exc:
+            # Only a case that wrote its file gets a path; a failed case keeps None.
+            score.case_file = relative_case_file
+        except Exception as exc:
+            # Deliberately broad: a provider or scoring bug outside the known error types
+            # must not abort the pack. BaseException is not caught, so Ctrl-C still stops.
             score = score_error(label, str(exc))
-        score.case_file = relative_case_file
         scores.append(score)
 
     report = EvalReport(
@@ -392,8 +428,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--llm",
         default=None,
-        choices=["mock", "tencent"],
-        help="LLM provider (default: app/config.json)",
+        help="LLM provider: mock or tencent (default: app/config.json)",
     )
     parser.add_argument("--out", default=None, metavar="DIR", help="evaluation output directory")
     return parser
@@ -437,6 +472,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             else config.out_dir
             / ("eval-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"))
         )
+        # Preflight every requested output path too: an existing pack directory belongs
+        # to an earlier run and must be refused before the first case runs. run_eval
+        # still creates each directory exclusively, so the check-and-create has no race.
+        for pack_dir in pack_dirs:
+            pack_out = out_dir / pack_dir.name
+            if pack_out.exists():
+                raise _refuse_existing_output(pack_out)
     except (ConfigError, EvalError, LLMError, PolicyError, OSError, ValueError) as exc:
         print("error: %s" % exc, file=sys.stderr)
         return 1
