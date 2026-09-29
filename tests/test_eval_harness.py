@@ -99,9 +99,11 @@ class ScoreCase(unittest.TestCase):
         self.assertEqual("wrong amount", self.s(REFUND, _res("ruled", "refund", 5.8)).reason)
 
     def test_string_amount_never_matches_numeric_label(self):
-        for amount in ("5.81", None, [], {}):
+        for amount, expected in (("5.81", 5.81), (None, 5.81), ([], 5.81), ({}, 5.81),
+                                 (True, 1.0), (False, 0.0)):
             with self.subTest(amount=amount):
-                got = self.s(REFUND, _res("ruled", "refund", amount))
+                label = dict(REFUND, expected_amount_sgd=expected)
+                got = self.s(label, _res("ruled", "refund", amount))
                 self.assertEqual(("wrong amount", False), (got.reason, got.decision_match))
 
     def test_action_comparison_is_exact_not_case_or_separator_normalised(self):
@@ -480,6 +482,32 @@ class Main(unittest.TestCase):
         self.assertIn("already exists", err)
         self.assertEqual("old run", sentinel.read_text(encoding="utf-8"))
         self.assertEqual([sentinel], list(existing.iterdir()))
+
+    def test_run_eval_itself_refuses_an_existing_pack_output(self):
+        out = _tmp(self)
+        existing = out / "organiser-style-v1"
+        existing.mkdir()
+        sentinel = existing / "keep-me.txt"
+        sentinel.write_text("old run", encoding="utf-8")
+        with self.assertRaises(_ev().EvalError) as ctx:
+            _ev().run_eval(pack_dir=PACKS / "organiser-style-v1", llm=MockLLMClient(),
+                           policy=load_policy(POLICY), out_dir=out,
+                           confidence_threshold=0.65, autonomous_cap_sgd=50.0)
+        self.assertIn("already exists", str(ctx.exception))
+        self.assertEqual([sentinel], list(existing.iterdir()))
+
+    def test_second_requested_pack_existing_prevents_first_pack_run(self):
+        out = _tmp(self)
+        existing = out / "ryde-synth-v1"
+        existing.mkdir()
+        sentinel = existing / "keep-me.txt"
+        sentinel.write_text("old run", encoding="utf-8")
+        code, _, err = self._main(["--llm", "mock", "--pack", "organiser-style-v1",
+                                   "--pack", "ryde-synth-v1", "--out", str(out)])
+        self.assertEqual(1, code)
+        self.assertIn("already exists", err)
+        self.assertFalse((out / "organiser-style-v1").exists(), "all outputs preflight before case one")
+        self.assertEqual("old run", sentinel.read_text(encoding="utf-8"))
 
     def test_broken_labels_exit_1_before_any_case_runs(self):
         import app.eval as ev
