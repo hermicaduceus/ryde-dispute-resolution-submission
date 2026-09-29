@@ -229,6 +229,16 @@ tried it.
 
 Every case also runs end to end through the real pipeline without error.
 
+### Evaluation
+
+Run `python3 -m app.eval` to evaluate every labelled case. Use `--pack NAME` repeatedly to select
+packs, `--llm mock|tencent` to choose the provider, and `--out DIR` to choose the output root.
+Reports land under `<out>/<pack>/report.json` and `<out>/<pack>/report.md`, with case artifacts
+beside them. “Decisions matching the label” means outcome, action, and cent-rounded amount agree
+with the label. “Rulings citing every decisive rule” means every non-`ESC-` decisive label rule
+appears in the candidate's citations. Stopping to ask the party counts as a miss. A mock run
+checks wiring only; this section makes no score claim.
+
 ## Known limitations
 
 - **Seventeen cases is a demonstration corpus, not a benchmark.** It is sized to cover every rule
