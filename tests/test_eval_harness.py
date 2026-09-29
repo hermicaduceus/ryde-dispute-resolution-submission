@@ -397,10 +397,13 @@ class Main(unittest.TestCase):
         shutil.copytree(PACKS / "ryde-synth-v1" / "disputes", broken / "disputes")
         (broken / "ground-truth.json").write_text(json.dumps({"cases": []}), encoding="utf-8")
         original = ev.resolve_pack_dir
-        ev.resolve_pack_dir = lambda name: broken
+        # A GOOD pack first, the broken one second: without a preflight over every pack,
+        # the good pack's cases would run (and burn live calls) before the error surfaced.
+        ev.resolve_pack_dir = lambda name: broken if name == "broken" else original(name)
         self.addCleanup(setattr, ev, "resolve_pack_dir", original)
         out = _tmp(self)
-        code, _, err = self._main(["--llm", "mock", "--pack", "broken", "--out", str(out)])
+        code, _, err = self._main(["--llm", "mock", "--pack", "ryde-synth-v1", "--pack", "broken",
+                                   "--out", str(out)])
         self.assertEqual(1, code)
         self.assertTrue(err.startswith("error:"), err)
         self.assertIn("RD-0101", err)
