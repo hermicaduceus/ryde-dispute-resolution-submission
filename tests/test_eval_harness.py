@@ -68,6 +68,19 @@ class FailsOnNS0202(MockLLMClient):
         return super().complete(request)
 
 
+class UnexpectedFailureOnNS0202(MockLLMClient):
+    """A provider bug outside the five exception types the first harness listed."""
+
+    def __init__(self, exception):
+        super().__init__()
+        self.exception = exception
+
+    def complete(self, request):
+        if "NS-0202" in request.user_prompt:
+            raise self.exception
+        return super().complete(request)
+
+
 # ------------------------------------------------------------------ scoring
 
 
@@ -84,6 +97,18 @@ class ScoreCase(unittest.TestCase):
         self.assertEqual("match", self.s(REFUND, _res("ruled", "refund", 5.814)).reason)
         self.assertEqual("wrong amount", self.s(REFUND, _res("ruled", "refund", 5.82)).reason)
         self.assertEqual("wrong amount", self.s(REFUND, _res("ruled", "refund", 5.8)).reason)
+
+    def test_string_amount_never_matches_numeric_label(self):
+        for amount in ("5.81", None, [], {}):
+            with self.subTest(amount=amount):
+                got = self.s(REFUND, _res("ruled", "refund", amount))
+                self.assertEqual(("wrong amount", False), (got.reason, got.decision_match))
+
+    def test_action_comparison_is_exact_not_case_or_separator_normalised(self):
+        for action in ("Refund", "REFUND", "re fund", "re_fund"):
+            with self.subTest(action=action):
+                got = self.s(REFUND, _res("ruled", action, 5.81))
+                self.assertEqual(("wrong action", False), (got.reason, got.decision_match))
 
     def test_wrong_action(self):
         got = self.s(REFUND, _res("ruled", "no action", 0.0))
@@ -177,6 +202,17 @@ class LoadLabels(unittest.TestCase):
         with self.assertRaises(_ev().EvalError):
             _ev().load_labels(tmp)
 
+    def test_ruled_label_requires_a_numeric_amount(self):
+        tmp = self._pack(["A-1"], ["A-1"])
+        path = tmp / "ground-truth.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["cases"][0]["expected_amount_sgd"] = None
+        path.write_text(json.dumps(data), encoding="utf-8")
+        with self.assertRaises(_ev().EvalError) as ctx:
+            _ev().load_labels(tmp)
+        self.assertIn("A-1", str(ctx.exception))
+        self.assertIn("amount", str(ctx.exception).lower())
+
 
 # ------------------------------------------------------------ the real corpus
 
@@ -242,6 +278,24 @@ class MockCorpusRun(unittest.TestCase):
         self.assertEqual((9, 1), (report.totals["by_reason"]["match"],
                                   report.totals["by_reason"]["run failed"]))
         self.assertEqual(9, report.totals["decisions_matching"])
+
+    def test_unexpected_exception_is_also_contained_per_case(self):
+        for exception in (TypeError("malformed reply"), KeyError("missing key"), OSError("I/O bug")):
+            with self.subTest(kind=type(exception).__name__):
+                report, _ = _run(self, "organiser-style-v1", UnexpectedFailureOnNS0202(exception))
+                by_id = {c.dispute_id: c for c in report.cases}
+                self.assertEqual(18, len(report.cases))
+                self.assertEqual("run failed", by_id["NS-0202"].reason)
+                self.assertIn(str(exception), by_id["NS-0202"].error or "")
+                self.assertEqual("match", by_id["NS-0203"].reason)
+
+    def test_run_failed_case_file_is_null_and_partial_events_remain(self):
+        report, out = _run(self, "organiser-style-v1", FailsOnNS0202())
+        failed = next(c for c in report.cases if c.dispute_id == "NS-0202")
+        self.assertIsNone(failed.case_file)
+        partial = out / "organiser-style-v1" / "NS-0202"
+        self.assertFalse((partial / "case_file.json").exists())
+        self.assertTrue((partial / "events.jsonl").exists())
 
 
 # ------------------------------------------------------------------- leaks
@@ -345,6 +399,23 @@ class Reports(unittest.TestCase):
         self.assertIn(_ev().CAVEAT, md)
         self.assertEqual("# Evaluation: organiser-style-v1, provider tencent", md.splitlines()[0])
 
+    def test_stdout_mock_warning_only_for_the_mock(self):
+        class LooksReal(MockLLMClient):
+            provider_name = "tencent"
+
+        import app.eval as ev
+
+        out = _tmp(self)
+        original = ev.build_llm_client
+        ev.build_llm_client = lambda *a, **k: LooksReal()
+        self.addCleanup(setattr, ev, "build_llm_client", original)
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            code = ev.main(["--llm", "mock", "--pack", "organiser-style-v1", "--out", str(out)])
+        self.assertEqual(0, code)
+        self.assertNotIn(ev.MOCK_WARNING, stdout.getvalue())
+        self.assertIn(ev.CAVEAT, stdout.getvalue())
+
     def test_fixed_strings(self):
         self.assertEqual("MOCK RUN: the mock is a deterministic stand-in, not a solver. "
                          "This score checks the wiring, not the system.", _ev().MOCK_WARNING)
@@ -389,6 +460,26 @@ class Main(unittest.TestCase):
                                    "--out", str(_tmp(self))])
         self.assertEqual(1, code)
         self.assertTrue(err.startswith("error:"), err)
+
+    def test_unknown_llm_exit_1_not_the_run_failed_code(self):
+        code, _, err = self._main(["--llm", "openai", "--pack", "organiser-style-v1",
+                                   "--out", str(_tmp(self))])
+        self.assertEqual(1, code)
+        self.assertTrue(err.startswith("error:"), err)
+        self.assertNotIn("usage:", err)
+
+    def test_existing_pack_output_is_refused_before_a_case_runs(self):
+        out = _tmp(self)
+        existing = out / "organiser-style-v1"
+        existing.mkdir()
+        sentinel = existing / "keep-me.txt"
+        sentinel.write_text("old run", encoding="utf-8")
+        code, _, err = self._main(["--llm", "mock", "--pack", "organiser-style-v1",
+                                   "--out", str(out)])
+        self.assertEqual(1, code)
+        self.assertIn("already exists", err)
+        self.assertEqual("old run", sentinel.read_text(encoding="utf-8"))
+        self.assertEqual([sentinel], list(existing.iterdir()))
 
     def test_broken_labels_exit_1_before_any_case_runs(self):
         import app.eval as ev
