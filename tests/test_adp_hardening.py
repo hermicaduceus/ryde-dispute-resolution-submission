@@ -145,12 +145,16 @@ class SecretRedactionTest(unittest.TestCase):
                 contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(stdout):
             code = cli.main(["--llm", "tencent", "--dispute", "RD-0101", "--out", out, "--run-id", "leak-probe"])
             written = "".join(p.read_text(errors="ignore") for p in Path(out).rglob("*") if p.is_file())
-        self.assertNotEqual(code, 0)
+        # W19: the failed call escalates the case, so the run completes and writes a case
+        # file that now carries the cause. The key must reach none of it.
+        self.assertEqual(code, 0)
+        self.assertIn("model_failure", written)
         for secret in SECRET_KEYS.values():
             self.assertNotIn(secret, stderr.getvalue())
             self.assertNotIn(secret, stdout.getvalue())
             self.assertNotIn(secret, written)
-        self.assertIn("HTTP 400", stderr.getvalue(), "the operator still needs the cause")
+        self.assertIn("HTTP 400", stdout.getvalue(), "the operator still needs the cause")
+        self.assertIn("HTTP 400", written, "the reviewer still needs the cause")
 
 
 # --------------------------------------------------------------------------- S14-002

@@ -278,6 +278,20 @@ class CitationCheckingTest(PipelineTestCase):
 
 
 class ContractFailureTest(PipelineTestCase):
+    """W19 (the operator 2026-09-30): a reply that breaks the contract is asked again once, then
+    the case escalates to a human. It never becomes a ruling and never crashes the run.
+    These replaced the pre-W19 pins that expected the run to raise AgentError."""
+
+    def _assert_escalated_unreadable(self, case_file, agent):
+        resolution = case_file.resolution
+        self.assertEqual("withheld", resolution["outcome"])
+        self.assertIsNone(resolution["ruling"])
+        self.assertIsNone(resolution["withheld_candidate"])
+        self.assertTrue(resolution["escalated_for_human_review"])
+        self.assertEqual(UNDER_REVIEW_MESSAGE, resolution["party_message"])
+        self.assertEqual((agent, "unreadable reply", 2),
+                         tuple(resolution["model_failure"][k] for k in ("agent", "kind", "attempts")))
+
     def test_an_out_of_range_confidence_stops_the_run(self):
         llm = ScriptedLLM(
             {
@@ -292,8 +306,8 @@ class ContractFailureTest(PipelineTestCase):
                 },
             }
         )
-        with self.assertRaises(AgentError):
-            run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm)
+        self._assert_escalated_unreadable(run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm), "judge")
+        self.assertEqual(["rider_advocate", "driver_advocate", "judge", "judge"], [c.agent for c in llm.calls])
 
     def test_an_invalid_action_stops_the_run(self):
         llm = ScriptedLLM(
@@ -309,8 +323,7 @@ class ContractFailureTest(PipelineTestCase):
                 },
             }
         )
-        with self.assertRaises(AgentError):
-            run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm)
+        self._assert_escalated_unreadable(run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm), "judge")
 
     def test_a_non_json_response_stops_the_run(self):
         llm = ScriptedLLM(
@@ -320,15 +333,29 @@ class ContractFailureTest(PipelineTestCase):
                 "judge": RIDER_CASE,
             }
         )
-        with self.assertRaises(AgentError):
-            run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm)
+        case_file = run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm)
+        self._assert_escalated_unreadable(case_file, "rider_advocate")
+        self.assertEqual(["rider_advocate", "rider_advocate"], [c.agent for c in llm.calls],
+                         "nothing after the failed agent may run")
 
     def test_the_event_log_survives_a_failed_run(self):
+        # No scripted Judge: its call raises a plain LLMError, which is permanent.
         llm = ScriptedLLM({"rider_advocate": RIDER_CASE, "driver_advocate": DRIVER_CASE})
-        with self.assertRaises(AgentError):
-            run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm)
+        case_file = run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm)
+        self.assertEqual("permanent", case_file.resolution["model_failure"]["kind"])
         self.assertTrue((self.run_dir / "events.jsonl").exists())
-        self.assertGreaterEqual(len(EventLog.read_events(self.run_dir)), 4)
+        types = [e["type"] for e in EventLog.read_events(self.run_dir)]
+        self.assertIn("dispute.escalated_on_model_failure", types)
+        self.assertEqual("run.completed", types[-1])
+
+    def test_a_defect_in_our_own_code_still_fails_loudly(self):
+        # Rule 3: only model failures escalate. A TypeError is our bug, not the model's.
+        def broken(_request):
+            raise TypeError("a bug in our code")
+
+        llm = ScriptedLLM({"rider_advocate": broken})
+        with self.assertRaises(TypeError):
+            run_fixture(ROUTE_DEVIATION, self.run_dir, llm=llm)
 
 
 class PartySpectatorTest(PipelineTestCase):

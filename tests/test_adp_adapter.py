@@ -460,27 +460,38 @@ class PipelineThroughAdapterTest(unittest.TestCase):
         self.assertNotIn(DEMO_NOTICE_MESSAGE.strip(), view["message"])
         self.assertIn("4.87", view["message"])
 
+    # W19 (the operator 2026-09-30) superseded "a failure raises out of the run": a failed call now
+    # escalates the case to a human. What these pins still guarantee is unchanged: no
+    # mock fallback, a firewall block is never retried, a string amount never converts.
+
     def test_a_blocked_call_stops_the_run_with_no_mock_fallback(self):
         transport = _Transport(_http_error(501, FIREWALL_FIXTURE.read_text(encoding="utf-8")))
         with _patched(transport):
-            with self.assertRaises(AgentError) as ctx:
-                run_fixture(ROUTE_DEVIATION, self.run_dir, llm=_client())
-        self.assertIn("firewall", str(ctx.exception).lower())
-        self.assertEqual(len(transport.requests), 1, "the run must stop at the first failure")
+            case_file = run_fixture(ROUTE_DEVIATION, self.run_dir, llm=_client())
+        resolution = case_file.resolution
+        self.assertEqual("withheld", resolution["outcome"])
+        self.assertIsNone(resolution["ruling"])
+        self.assertEqual("permanent", resolution["model_failure"]["kind"])
+        self.assertIn("firewall", resolution["model_failure"]["message"].lower())
+        self.assertEqual(len(transport.requests), 1, "a firewall block is permanent: never retried")
 
     def test_a_string_amount_from_the_judge_is_rejected_not_converted(self):
         judge = dict(JUDGE_RULING, recommended_amount_sgd="4.87")
         transport = _Transport(self._by_key(judge=judge))
         with _patched(transport):
-            with self.assertRaises(AgentError):
-                run_fixture(ROUTE_DEVIATION, self.run_dir, llm=_client())
+            case_file = run_fixture(ROUTE_DEVIATION, self.run_dir, llm=_client())
+        self.assertIsNone(case_file.resolution["ruling"])
+        self.assertEqual(("judge", "unreadable reply"),
+                         tuple(case_file.resolution["model_failure"][k] for k in ("agent", "kind")))
 
     def test_a_string_amount_from_an_advocate_is_rejected_not_converted(self):
         driver = dict(DRIVER_CASE, requested_amount_sgd="0.00")
         transport = _Transport(self._by_key(driver=driver))
         with _patched(transport):
-            with self.assertRaises(AgentError):
-                run_fixture(ROUTE_DEVIATION, self.run_dir, llm=_client())
+            case_file = run_fixture(ROUTE_DEVIATION, self.run_dir, llm=_client())
+        self.assertIsNone(case_file.resolution["ruling"])
+        self.assertEqual(("driver_advocate", "unreadable reply"),
+                         tuple(case_file.resolution["model_failure"][k] for k in ("agent", "kind")))
 
 
 class StringAmountRulingTest(unittest.TestCase):
@@ -508,8 +519,12 @@ class StringAmountRulingTest(unittest.TestCase):
             with self.subTest(case=name):
                 scripted = {"rider_advocate": RIDER_CASE, "driver_advocate": DRIVER_CASE, "judge": JUDGE_RULING}
                 scripted.update(override)
-                with self.assertRaises(AgentError):
-                    run_fixture(ROUTE_DEVIATION, self.run_dir / name.replace(" ", "-"), llm=ScriptedLLM(scripted))
+                case_file = run_fixture(ROUTE_DEVIATION, self.run_dir / name.replace(" ", "-"),
+                                        llm=ScriptedLLM(scripted))
+                resolution = case_file.resolution
+                self.assertIsNone(resolution["ruling"], "a string must never become a ruling")
+                self.assertIsNone(resolution["withheld_candidate"])
+                self.assertEqual("unreadable reply", (resolution["model_failure"] or {}).get("kind"))
 
 
 # --------------------------------------------------------------------------- server

@@ -26,7 +26,8 @@ from app.policy import load_policy
 REPO = Path(__file__).resolve().parent.parent
 PACKS = REPO / "data" / "packs"
 POLICY = REPO / "docs" / "policy.md"
-REASONS = ["match", "wrong outcome", "wrong action", "wrong amount", "asked the party", "run failed"]
+REASONS = ["match", "wrong outcome", "wrong action", "wrong amount", "asked the party", "model failed",
+           "run failed"]
 
 
 def _ev():
@@ -249,7 +250,8 @@ class MockCorpusRun(unittest.TestCase):
         self.assertEqual({"cases": 18, "decisions_matching": 10, "grounding_applicable": 17,
                           "grounded": 0,
                           "by_reason": {"match": 10, "wrong outcome": 1, "wrong action": 6,
-                                        "wrong amount": 1, "asked the party": 0, "run failed": 0}},
+                                        "wrong amount": 1, "asked the party": 0, "model failed": 0,
+                                        "run failed": 0}},
                          report.totals)
         self.assertEqual(REASONS, list(report.totals["by_reason"]))
 
@@ -271,14 +273,19 @@ class MockCorpusRun(unittest.TestCase):
             self.assertEqual(dispute_id, json.loads(path.read_text())["dispute_id"])
 
     def test_one_failed_case_does_not_stop_the_run(self):
+        # W19: a model that never answers escalates the case; the harness scores that as
+        # "model failed", its own reason, never "wrong outcome" and never a match.
         report, _ = _run(self, "organiser-style-v1", FailsOnNS0202())
         by_id = {c.dispute_id: c for c in report.cases}
         self.assertEqual(18, len(report.cases))
-        self.assertEqual("run failed", by_id["NS-0202"].reason)
+        self.assertEqual("model failed", by_id["NS-0202"].reason)
+        self.assertFalse(by_id["NS-0202"].decision_match)
+        self.assertIsNone(by_id["NS-0202"].grounded)
         self.assertIn("simulated outage", by_id["NS-0202"].error)
         self.assertEqual("match", by_id["NS-0203"].reason, "the case after the failure still ran")
-        self.assertEqual((9, 1), (report.totals["by_reason"]["match"],
-                                  report.totals["by_reason"]["run failed"]))
+        self.assertEqual((9, 1, 0), (report.totals["by_reason"]["match"],
+                                     report.totals["by_reason"]["model failed"],
+                                     report.totals["by_reason"]["run failed"]))
         self.assertEqual(9, report.totals["decisions_matching"])
 
     def test_unexpected_exception_is_also_contained_per_case(self):
@@ -291,8 +298,17 @@ class MockCorpusRun(unittest.TestCase):
                 self.assertIn(str(exception), by_id["NS-0202"].error or "")
                 self.assertEqual("match", by_id["NS-0203"].reason)
 
-    def test_run_failed_case_file_is_null_and_partial_events_remain(self):
+    def test_a_model_failure_keeps_its_case_file(self):
         report, out = _run(self, "organiser-style-v1", FailsOnNS0202())
+        failed = next(c for c in report.cases if c.dispute_id == "NS-0202")
+        self.assertEqual("organiser-style-v1/NS-0202/case_file.json", failed.case_file)
+        case = json.loads((out / failed.case_file).read_text(encoding="utf-8"))
+        self.assertEqual("withheld", case["resolution"]["outcome"])
+        self.assertIsNotNone(case["resolution"]["model_failure"])
+
+    def test_run_failed_case_file_is_null_and_partial_events_remain(self):
+        # A defect in our own code (not the model's) still fails the case outright.
+        report, out = _run(self, "organiser-style-v1", UnexpectedFailureOnNS0202(TypeError("bug")))
         failed = next(c for c in report.cases if c.dispute_id == "NS-0202")
         self.assertIsNone(failed.case_file)
         partial = out / "organiser-style-v1" / "NS-0202"
@@ -533,6 +549,17 @@ class Main(unittest.TestCase):
 
         original = ev.build_llm_client
         ev.build_llm_client = lambda *a, **k: FailsOnNS0202()
+        self.addCleanup(setattr, ev, "build_llm_client", original)
+        code, out, _ = self._main(["--llm", "mock", "--pack", "organiser-style-v1",
+                                   "--out", str(_tmp(self))])
+        self.assertEqual(2, code, "an outage must never read as a clean run")
+        self.assertIn("model failed", out)
+
+    def test_a_crashed_case_also_exits_2(self):
+        import app.eval as ev
+
+        original = ev.build_llm_client
+        ev.build_llm_client = lambda *a, **k: UnexpectedFailureOnNS0202(TypeError("bug"))
         self.addCleanup(setattr, ev, "build_llm_client", original)
         code, out, _ = self._main(["--llm", "mock", "--pack", "organiser-style-v1",
                                    "--out", str(_tmp(self))])
