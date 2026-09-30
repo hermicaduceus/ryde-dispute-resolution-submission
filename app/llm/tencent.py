@@ -22,10 +22,11 @@ Protocol (checked against the live endpoint on 2026-09-28):
 - The free plan allows 10 calls a minute, so calls are spaced at least
   ``MIN_CALL_INTERVAL_SECONDS`` apart.
 
-Every failure raises ``LLMError``. There is no retry loop and no fallback to the mock.
-An error message names the cause (the status code, the ADP error code, the kind of
-failure) but never carries a response body, and every configured AppKey is redacted from
-it, so a key can never reach a terminal, a log or a case file through an error.
+Failures are classified here and raised once; the retry loop lives in the agent layer.
+There is no fallback to the mock. An error message names the cause (the status code, the
+ADP error code, the kind of failure) but never carries a response body, and every configured
+AppKey is redacted from it, so a key can never reach a terminal, a log or a case file through
+an error.
 """
 
 from __future__ import annotations
@@ -40,7 +41,7 @@ import uuid
 from typing import Any, Dict, Mapping, Optional
 
 from ..config import LLMSettings, read_secret
-from .base import LLMClient, LLMError, LLMRequest, LLMResponse
+from .base import LLMClient, LLMContractError, LLMError, LLMRequest, LLMResponse, LLMTransientError
 
 #: One ADP app per agent. The environment variable holds that app's AppKey.
 APP_KEY_ENV_VARS = {
@@ -133,10 +134,10 @@ class TencentLLMClient(LLMClient):
         body = self._build_body(request, app_key)
         self._pace()
         try:
-            status, text = self._post(body)
+            status, text = self._post(body, request.timeout_seconds)
             return self._parse_events(status, text)
         except LLMError as exc:
-            raise LLMError(self._redact(str(exc))) from None
+            raise type(exc)(self._redact(str(exc))) from None
 
     def _redact(self, message: str) -> str:
         """Remove every configured AppKey from a message before it leaves this class."""
@@ -176,7 +177,10 @@ class TencentLLMClient(LLMClient):
                     now = time.monotonic()
             self._last_call_started = now
 
-    def _post(self, body: bytes):
+    def _post(self, body: bytes, request_timeout: Optional[float] = None):
+        timeout = float(self.settings.timeout_seconds)
+        if request_timeout is not None:
+            timeout = max(1.0, min(timeout, float(request_timeout)))
         http_request = urllib.request.Request(
             self.endpoint,
             data=body,
@@ -185,7 +189,7 @@ class TencentLLMClient(LLMClient):
         )
         try:
             with urllib.request.urlopen(  # noqa: S310 - endpoint comes from config
-                http_request, timeout=self.settings.timeout_seconds
+                http_request, timeout=timeout
             ) as response:
                 return response.status, self._read_body(response)
         except urllib.error.HTTPError as exc:
@@ -199,26 +203,27 @@ class TencentLLMClient(LLMClient):
                     "reached ADP" % exc.code
                 ) from None
             # The body is deliberately left out: an error page can echo the request.
-            raise LLMError("ADP call failed: HTTP %s" % exc.code) from None
+            error_type = LLMTransientError if exc.code == 429 or 500 <= exc.code < 600 else LLMError
+            raise error_type("ADP call failed: HTTP %s" % exc.code) from None
         except http.client.HTTPException as exc:
-            raise LLMError(
+            raise LLMTransientError(
                 "ADP call failed: the connection broke while reading the reply (%s)"
                 % type(exc).__name__
             ) from None
         except (urllib.error.URLError, OSError) as exc:
             reason = getattr(exc, "reason", exc)
             kind = type(reason).__name__ if isinstance(reason, BaseException) else "network error"
-            raise LLMError("ADP call failed: cannot reach the endpoint (%s)" % kind) from None
+            raise LLMTransientError("ADP call failed: cannot reach the endpoint (%s)" % kind) from None
 
     @staticmethod
     def _read_body(response) -> str:
         raw = response.read(MAX_RESPONSE_BYTES + 1)
         if len(raw) > MAX_RESPONSE_BYTES:
-            raise LLMError("ADP reply is too large (over %d bytes)" % MAX_RESPONSE_BYTES)
+            raise LLMContractError("ADP reply is too large (over %d bytes)" % MAX_RESPONSE_BYTES)
         try:
             return raw.decode("utf-8")
         except UnicodeDecodeError:
-            raise LLMError("ADP reply is not valid UTF-8") from None
+            raise LLMContractError("ADP reply is not valid UTF-8") from None
 
     def _parse_events(self, status: int, text: str) -> LLMResponse:
         if FIREWALL_MARKER in text:
@@ -252,7 +257,7 @@ class TencentLLMClient(LLMClient):
                 completed = event.get("Response")
 
         if not isinstance(completed, dict):
-            raise LLMError("ADP sent no response.completed event (HTTP %s)" % status)
+            raise LLMContractError("ADP sent no response.completed event (HTTP %s)" % status)
         messages = completed.get("Messages")
         replies = []
         if isinstance(messages, list):
@@ -260,7 +265,7 @@ class TencentLLMClient(LLMClient):
         # Every reply message, in order: a reply split across messages is joined, not cut.
         contents = [m.get("Contents") for m in replies if isinstance(m.get("Contents"), list)]
         if not contents:
-            raise LLMError("ADP response.completed carries no reply message")
+            raise LLMContractError("ADP response.completed carries no reply message")
         answer = "".join(
             part.get("Text", "")
             for parts in contents
@@ -268,7 +273,7 @@ class TencentLLMClient(LLMClient):
             if isinstance(part, dict) and part.get("Type") == "text" and isinstance(part.get("Text"), str)
         )
         if not answer.strip():
-            raise LLMError("ADP reply is empty")
+            raise LLMContractError("ADP reply is empty")
 
         usage: Dict[str, Any] = {}
         stat = completed.get("StatInfo")

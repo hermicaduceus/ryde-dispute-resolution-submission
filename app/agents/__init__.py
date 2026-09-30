@@ -7,7 +7,7 @@ talk to an agent directly.
 
 from __future__ import annotations
 
-from .base import AgentError, BaseAgent
+from .base import AgentError, BaseAgent, CaseBudget, ModelFailure, RetryPolicy
 from .driver_advocate import DriverAdvocate
 from .judge import Judge
 from .rider_advocate import RiderAdvocate
@@ -15,6 +15,9 @@ from .rider_advocate import RiderAdvocate
 __all__ = [
     "AgentError",
     "BaseAgent",
+    "CaseBudget",
+    "ModelFailure",
+    "RetryPolicy",
     "DriverAdvocate",
     "Judge",
     "RiderAdvocate",

@@ -27,6 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Sequence
 
+from .agents import RetryPolicy
 from .config import ConfigError, load_config, resolve_pack_dir
 from .dispute import DisputeError, load_dispute
 from .events import EventLog
@@ -118,6 +119,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             events=events,
             confidence_threshold=config.confidence_threshold,
             autonomous_cap_sgd=config.autonomous_cap_sgd,
+            retry_policy=RetryPolicy(budget_seconds=config.llm.case_budget_seconds),
         )
     except (DisputeError, PolicyError, LLMError, RuntimeError, ValueError) as exc:
         print("error: the run failed: %s" % exc, file=sys.stderr)
@@ -155,6 +157,12 @@ def _print_report(case_file, events: EventLog, case_path: Path) -> None:
     print("")
     print("RESOLUTION")
     print("  outcome:  %s" % resolution["outcome"])
+    failure = resolution.get("model_failure")
+    if failure:
+        attempts = failure["attempts"]
+        attempt_word = "attempt" if attempts == 1 else "attempts"
+        print("  model:    %s could not answer (%s) after %d %s: %s"
+              % (failure["agent"], failure["kind"], attempts, attempt_word, failure["message"]))
     if resolution["ruling"]:
         ruling = resolution["ruling"]
         print("  ruling:   %s of SGD %.2f (confidence %.2f)"

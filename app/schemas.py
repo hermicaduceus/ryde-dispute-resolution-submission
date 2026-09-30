@@ -471,6 +471,7 @@ class Resolution:
     #: always serialised ([] when none) so every consumer can read the field unguarded.
     questions_for_party: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
+    model_failure: Optional[Dict[str, Any]] = None
 
     @property
     def delivered_to_parties(self) -> bool:
@@ -489,6 +490,7 @@ class Resolution:
             "ruling": self.ruling.to_dict() if self.ruling else None,
             "withheld_candidate": self.withheld_candidate.to_dict() if self.withheld_candidate else None,
             "notes": list(self.notes),
+            "model_failure": self.model_failure,
         }
 
 

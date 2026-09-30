@@ -59,6 +59,7 @@ flowchart TD
     G -- "Yes" --> O1["Ruled"]
     G -- "No" --> O2["Withheld"]
     O2 -- "Candidate ruling queued" --> H
+    J -- "Model could not answer" --> H
     B -. "Every step emits an event" .-> L["Event log"]
     J -.-> L
     L -- "Embedded in the case file" --> K["Operator console"]

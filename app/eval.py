@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from .agents import RetryPolicy
 from .config import ConfigError, load_config, resolve_pack_dir
 from .dispute import load_dispute
 from .events import EventLog
@@ -38,6 +39,7 @@ REASONS = [
     "wrong action",
     "wrong amount",
     "asked the party",
+    "model failed",
     "run failed",
 ]
 
@@ -228,6 +230,19 @@ def score_case(label: Dict[str, Any], resolution: Dict[str, Any]) -> CaseScore:
     got = _decision_text(resolution)
     outcome = resolution.get("outcome")
     candidate = _candidate(resolution)
+    failure = resolution.get("model_failure")
+
+    if failure is not None:
+        return CaseScore(
+            dispute_id=label["dispute_id"],
+            expected=expected,
+            got=got,
+            reason="model failed",
+            decision_match=False,
+            grounded=None,
+            rules_missing=[],
+            error=failure.get("message") if isinstance(failure, dict) else str(failure),
+        )
 
     if outcome == "needs_info":
         reason = "asked the party"
@@ -319,6 +334,7 @@ def run_eval(
     out_dir: Path,
     confidence_threshold: float,
     autonomous_cap_sgd: float,
+    retry_policy: Optional[RetryPolicy] = None,
 ) -> EvalReport:
     """Run and score all cases in one validated pack."""
     pack_path = Path(pack_dir)
@@ -351,6 +367,7 @@ def run_eval(
                 events=events,
                 confidence_threshold=confidence_threshold,
                 autonomous_cap_sgd=autonomous_cap_sgd,
+                retry_policy=retry_policy,
             )
             case_file.write(case_dir)
             score = score_case(label, case_file.to_dict()["resolution"])
@@ -494,6 +511,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     out_dir=out_dir,
                     confidence_threshold=config.confidence_threshold,
                     autonomous_cap_sgd=config.autonomous_cap_sgd,
+                    retry_policy=RetryPolicy(budget_seconds=config.llm.case_budget_seconds),
                 )
             )
     except (ConfigError, EvalError, LLMError, PolicyError, OSError, ValueError) as exc:
@@ -502,7 +520,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     for report in reports:
         _print_report(report, out_dir)
-    if any(case.reason == "run failed" for report in reports for case in report.cases):
+    if any(case.reason in ("model failed", "run failed") for report in reports for case in report.cases):
         return 2
     return 0
 

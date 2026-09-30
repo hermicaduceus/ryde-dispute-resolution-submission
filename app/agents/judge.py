@@ -24,13 +24,12 @@ from ..schemas import (
     OUTCOME_WITHHELD,
     UNDER_REVIEW_MESSAGE,
     AdvocateCase,
-    ContractError,
     JudgeRuling,
     Resolution,
     RulingAction,
     party_message_for_ruling,
 )
-from .base import AgentError, BaseAgent, HARD_RULES, citable_refs_block, dispute_block, evidence_block, policy_blocks, validate_citations
+from .base import BaseAgent, HARD_RULES, citable_refs_block, dispute_block, evidence_block, policy_blocks, validate_citations
 
 EVENT_RULING_ISSUED = "judge.ruling_issued"
 EVENT_RULING_WITHHELD = "judge.ruling_withheld"
@@ -115,7 +114,20 @@ class Judge(BaseAgent):
         `extra_notes` carries pipeline-level observations (the one-round follow-up gate)
         onto the resolution, whichever way the ruling goes.
         """
-        payload, llm_info = self._ask(
+        def build(payload: Dict[str, Any], llm_info: Dict[str, Any]) -> JudgeRuling:
+            return JudgeRuling.from_payload(
+                payload,
+                agent=self.name,
+                llm=llm_info,
+                validation=validate_citations(
+                    cited_refs=_cited_evidence_refs(payload),
+                    cited_rules=_cited_rules(payload),
+                    pack=pack,
+                    policy=self.policy,
+                ),
+            )
+
+        ruling = self._ask(
             system_prompt=self.system_prompt(),
             user_prompt=self.user_prompt(dispute, pack, rider_case, driver_case),
             metadata={
@@ -127,22 +139,8 @@ class Judge(BaseAgent):
                 "confidence_threshold": confidence_threshold,
                 "autonomous_cap_sgd": autonomous_cap_sgd,
             },
+            build=build,
         )
-
-        try:
-            ruling = JudgeRuling.from_payload(
-                payload,
-                agent=self.name,
-                llm=llm_info,
-                validation=validate_citations(
-                    cited_refs=_cited_evidence_refs(payload),
-                    cited_rules=_cited_rules(payload),
-                    pack=pack,
-                    policy=self.policy,
-                ),
-            )
-        except ContractError as exc:
-            raise AgentError("judge returned a response that breaks its contract: %s" % exc) from exc
 
         # Two independent gates stand between a ruling and the parties, and BOTH are
         # enforced here in Python rather than asked of the model in a prompt. A prompt is

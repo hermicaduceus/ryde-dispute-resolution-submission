@@ -54,6 +54,7 @@ flowchart TD
     G -- "Yes" --> O1["Ruled"]
     G -- "No" --> O2["Withheld"]
     O2 -- "Candidate ruling queued" --> H
+    J -- "Model could not answer" --> H
     B -. "Every step emits an event" .-> L["Event log"]
     J -.-> L
     L -- "Embedded in the case file" --> K["Operator console"]
@@ -121,7 +122,7 @@ emitting an event at each:
 | Outcome | When it happens | Did the Judge run? | Party page shows |
 |---|---|---|---|
 | `ruled` | The Judge issued a ruling and every gate passed | Yes | `decided` |
-| `withheld` | A gate stopped the ruling: confidence below threshold, amount above the cap, or an unmeasured deviation on a route case | Yes — the candidate is recorded for a human reviewer, never delivered | `under_review` |
+| `withheld` | A gate stopped the ruling, or the model could not answer after its allowed retries | Yes for a gate — the candidate is recorded for a human reviewer, never delivered; no candidate exists for a model failure | `under_review` |
 | `human_review` | The category is outside the two the agents handle | No — routed away before any agent | `passed_to_support` |
 | `needs_info` | The advocates selected offered follow-up slots in the first round, or a blank form answer produced a template question | No — the run stops before the Judge | `needs_info` |
 
@@ -237,20 +238,25 @@ Advocate, Driver Advocate and Judge. The apps carry only a short role card; the 
 sends the full role prompt on every call, so the prompts live in this repo and every gate
 stays in Python. Three things about the endpoint shape the adapter. Tencent's web firewall
 blocks prompts that mix backticks with ASCII brackets, so the adapter drops backticks and
-sends full-width brackets, which the model reads the same way; a blocked call raises an
-error and is never retried. ADP reports errors inside a successful HTTP response, so the
-adapter reads every event rather than trusting the status code. The free plan allows 10
-calls a minute, so calls are spaced at least 6.5 seconds apart. Any failure raises an
-error, and there is no silent fallback to the mock. The mock stays the default provider,
-so the tests and a fresh checkout need no keys; `--llm tencent` selects the real model.
+sends full-width brackets, which the model reads the same way; a blocked call is classified
+as permanent and is never asked again. ADP reports errors inside a successful HTTP response,
+so the adapter reads every event rather than trusting the status code. The free plan allows
+10 calls a minute, so calls are spaced at least 6.5 seconds apart. The agent layer retries a
+transient failure up to three times, with waits of 2, 5 and 10 seconds; a contract failure
+is asked again once. A parsed reply is final: a low confidence or capped ruling is never
+asked again. One case shares a 120 seconds time budget from `llm.case_budget_seconds`; each
+retry is recorded as `llm.call_retried`. When the budget cannot cover a call or wait, or the
+model still cannot answer, the pipeline returns a withheld case and emits
+`dispute.escalated_on_model_failure`; the case file keeps the `model_failure` record for the
+reviewer. There is no silent fallback to the mock. The mock stays the default provider, so
+the tests and a fresh checkout need no keys; `--llm tencent` selects the real model.
 
 ## Limits
 
 What the system does not do yet, stated plainly:
 
-- **A failed model call is an error, not a referral.** If a live call fails (the firewall,
-  the rate limit, an ADP error or a reply that breaks the output contract), the run stops
-  and the party sees a generic error. It is not yet routed to a human reviewer.
+- **A failed model call is escalated.** The party waits while retries run and sees the neutral
+  under-review message; after the case is queued for human review, the party is not notified later.
 - **Amounts must come back as JSON numbers.** A model reply carrying an amount as a string
   is rejected, never converted, because the value moves money.
 - **Two categories only.** Route deviation and no-show charge. Property damage and safety

@@ -17,6 +17,10 @@ class LLMError(RuntimeError):
     """The provider could not be reached, is misconfigured, or returned an error."""
 
 
+class LLMTransientError(LLMError):
+    """The provider failure may clear when the same call is tried again."""
+
+
 class LLMContractError(LLMError):
     """The provider responded, but not with the JSON object the agent contract requires."""
 
@@ -38,6 +42,7 @@ class LLMRequest:
     user_prompt: str
     expect_json: bool = True
     metadata: Dict[str, Any] = field(default_factory=dict)
+    timeout_seconds: Optional[float] = None
 
     def fingerprint(self) -> str:
         """Stable hash of the prompts — recorded with the case so a run is reproducible."""

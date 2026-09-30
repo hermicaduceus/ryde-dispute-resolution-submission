@@ -93,6 +93,7 @@ class LLMSettings:
     temperature: float
     max_tokens: int
     timeout_seconds: int
+    case_budget_seconds: float = 120.0
 
 
 @dataclass(frozen=True)
@@ -201,6 +202,10 @@ def load_config(path: Optional[Path] = None) -> Config:
     if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or timeout <= 0:
         raise ConfigError("%s: llm.timeout_seconds must be a positive number" % where)
 
+    case_budget = llm_raw.get("case_budget_seconds", 120.0)
+    if isinstance(case_budget, bool) or not isinstance(case_budget, (int, float)) or case_budget <= 0:
+        raise ConfigError("%s: llm.case_budget_seconds must be a positive number" % where)
+
     paths_raw = _require_mapping(data, "paths", where)
     policy_path = _resolve_path(paths_raw.get("policy"), "policy", where)
     out_dir = _resolve_path(paths_raw.get("out_dir"), "out_dir", where)
@@ -217,6 +222,7 @@ def load_config(path: Optional[Path] = None) -> Config:
         temperature=float(temperature),
         max_tokens=int(max_tokens),
         timeout_seconds=int(timeout),
+        case_budget_seconds=float(case_budget),
     )
 
     return Config(

@@ -12,7 +12,9 @@
     "llm.provider: mock by default, so the tests and a fresh checkout need no keys. Run the",
     "real model with --llm tencent (CLI or server). llm.endpoint is the Tencent Cloud ADP chat",
     "endpoint; llm.model is the label recorded on each ruling. The three ADP app keys never",
-    "go here: they live in .env (see .env.example) and .env is never committed."
+    "go here: they live in .env (see .env.example) and .env is never committed.",
+    "llm.case_budget_seconds: total retry budget for one case; when it cannot cover the next",
+    "call or retry wait, the case is escalated for human review."
   ],
 
   "confidence_threshold": 0.65,
@@ -25,7 +27,8 @@
     "model": "tencent-adp/deepseek",
     "temperature": 0.2,
     "max_tokens": 1500,
-    "timeout_seconds": 60
+    "timeout_seconds": 60,
+    "case_budget_seconds": 120
   },
 
   "paths": {

@@ -12,7 +12,15 @@ Providers:
 
 from __future__ import annotations
 
-from .base import LLMClient, LLMContractError, LLMError, LLMRequest, LLMResponse, parse_json_object
+from .base import (
+    LLMClient,
+    LLMContractError,
+    LLMError,
+    LLMRequest,
+    LLMResponse,
+    LLMTransientError,
+    parse_json_object,
+)
 from .mock import MockLLMClient
 from .tencent import TencentLLMClient
 
@@ -39,6 +47,7 @@ __all__ = [
     "LLMClient",
     "LLMContractError",
     "LLMError",
+    "LLMTransientError",
     "LLMRequest",
     "LLMResponse",
     "MockLLMClient",

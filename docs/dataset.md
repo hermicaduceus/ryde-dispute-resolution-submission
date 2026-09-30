@@ -237,7 +237,8 @@ Reports land under `<out>/<pack>/report.json` and `<out>/<pack>/report.md`, with
 beside them. “Decisions matching the label” means outcome, action, and cent-rounded amount agree
 with the label. “Rulings citing every decisive rule” means every non-`ESC-` decisive label rule
 appears in the candidate's citations. Stopping to ask the party counts as a miss. A mock run
-checks wiring only; this section makes no score claim.
+checks wiring only; this section makes no score claim. A case the model could not answer is
+scored `model failed`, never a match, and makes the command exit 2.
 
 ## Known limitations
 

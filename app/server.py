@@ -45,6 +45,7 @@ from .dispute import AGENT_CATEGORIES, is_organiser_record, normalise_category, 
 from .events import EventLog
 from .llm import LLMClient, build_llm_client
 from .pipeline import run_dispute
+from .agents import RetryPolicy
 from .policy import load_policy
 from .schemas import (
     DEMO_NOTICE_MESSAGE,
@@ -736,6 +737,7 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
                 events=events,
                 confidence_threshold=state.confidence_threshold,
                 autonomous_cap_sgd=state.autonomous_cap_sgd,
+                retry_policy=RetryPolicy(budget_seconds=state.case_budget_seconds),
             )
             case.write(run_dir)
             (run_dir / DISPUTE_FILE_NAME).write_text(
@@ -764,12 +766,13 @@ class _ServerState:
     """Everything one server instance needs to run a dispute."""
 
     def __init__(self, pack_dir: Path, out_dir: Path, llm: LLMClient, confidence_threshold: float,
-                 autonomous_cap_sgd: float, policy):
+                 autonomous_cap_sgd: float, case_budget_seconds: float, policy):
         self.pack_dir = pack_dir
         self.out_dir = out_dir
         self.llm = llm
         self.confidence_threshold = confidence_threshold
         self.autonomous_cap_sgd = autonomous_cap_sgd
+        self.case_budget_seconds = case_budget_seconds
         self.policy = policy
 
 
@@ -805,6 +808,7 @@ def make_server(
         llm=llm,
         confidence_threshold=config.confidence_threshold,
         autonomous_cap_sgd=config.autonomous_cap_sgd,
+        case_budget_seconds=config.llm.case_budget_seconds,
         policy=policy,
     )
     return httpd

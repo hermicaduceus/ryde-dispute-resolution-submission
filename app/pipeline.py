@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .agents import DriverAdvocate, Judge, RiderAdvocate
+from .agents import DriverAdvocate, Judge, ModelFailure, RetryPolicy, RiderAdvocate
 from .dispute import Dispute
 from .events import Actor, EventLog, EventType
 from .evidence import build_evidence_pack
@@ -36,7 +36,9 @@ from .schemas import (
     HUMAN_REVIEW_MESSAGE,
     NEEDS_INFO_MESSAGE,
     OUTCOME_HUMAN_REVIEW,
+    OUTCOME_WITHHELD,
     OUTCOME_NEEDS_INFO,
+    UNDER_REVIEW_MESSAGE,
     AdvocateCase,
     Resolution,
     blank_field_question,
@@ -133,6 +135,7 @@ def run_dispute(
     events: EventLog,
     confidence_threshold: float,
     autonomous_cap_sgd: float = 50.00,
+    retry_policy: Optional[RetryPolicy] = None,
 ) -> CaseFile:
     """Run one dispute end to end and return its case file."""
     events.emit(
@@ -173,9 +176,10 @@ def run_dispute(
         payload=pack.to_dict(),
     )
 
-    rider = RiderAdvocate(llm=llm, events=events, policy=policy)
-    driver = DriverAdvocate(llm=llm, events=events, policy=policy)
-    judge = Judge(llm=llm, events=events, policy=policy)
+    budget = (retry_policy if retry_policy is not None else RetryPolicy()).start()
+    rider = RiderAdvocate(llm=llm, events=events, policy=policy, budget=budget)
+    driver = DriverAdvocate(llm=llm, events=events, policy=policy, budget=budget)
+    judge = Judge(llm=llm, events=events, policy=policy, budget=budget)
 
     for advocate in (rider, driver):
         events.emit(
@@ -191,8 +195,22 @@ def run_dispute(
         )
 
     # ---------------------------------------------------------------- advocates
-    rider_case = rider.run(dispute, pack)
-    driver_case = driver.run(dispute, pack)
+    rider_case = None
+    driver_case = None
+    try:
+        rider_case = rider.run(dispute, pack)
+        driver_case = driver.run(dispute, pack)
+    except ModelFailure as failure:
+        return _escalated_on_model_failure(
+            dispute=dispute,
+            events=events,
+            policy=policy,
+            pack=pack,
+            threshold=confidence_threshold,
+            rider_case=rider_case,
+            driver_case=driver_case,
+            failure=failure,
+        )
 
     # -------------------------------------------------- stop and ask (one round)
     # Enforced in code, not in a prompt: when the advocates need more from the filing
@@ -235,15 +253,28 @@ def run_dispute(
     )
 
     # ------------------------------------------------------------------- judge
-    resolution = judge.run(
-        dispute,
-        pack,
-        rider_case,
-        driver_case,
-        confidence_threshold=confidence_threshold,
-        autonomous_cap_sgd=autonomous_cap_sgd,
-        extra_notes=extra_notes or None,
-    )
+    try:
+        resolution = judge.run(
+            dispute,
+            pack,
+            rider_case,
+            driver_case,
+            confidence_threshold=confidence_threshold,
+            autonomous_cap_sgd=autonomous_cap_sgd,
+            extra_notes=extra_notes or None,
+        )
+    except ModelFailure as failure:
+        return _escalated_on_model_failure(
+            dispute=dispute,
+            events=events,
+            policy=policy,
+            pack=pack,
+            threshold=confidence_threshold,
+            rider_case=rider_case,
+            driver_case=driver_case,
+            failure=failure,
+            extra_notes=extra_notes,
+        )
 
     events.emit(
         EventType.PARTY_NOTIFIED,
@@ -334,6 +365,74 @@ def _questions_for_party(
         for key in labels
         if isinstance(dispute.intake.get(key), str) and not dispute.intake[key].strip()
     ][:3]
+
+
+def _escalated_on_model_failure(
+    *,
+    dispute: Dispute,
+    events: EventLog,
+    policy: PolicySet,
+    pack: Any,
+    threshold: float,
+    rider_case: Optional[AdvocateCase],
+    driver_case: Optional[AdvocateCase],
+    failure: ModelFailure,
+    extra_notes: Optional[List[str]] = None,
+) -> CaseFile:
+    """Keep the work done so far and queue a failed model call for human review."""
+    notes = [
+        "the model could not answer for %s: %s after %d attempt(s)"
+        % (failure.agent, failure.kind, failure.attempts)
+    ] + list(extra_notes or [])
+    resolution = Resolution(
+        dispute_id=dispute.dispute_id,
+        outcome=OUTCOME_WITHHELD,
+        party_message=UNDER_REVIEW_MESSAGE,
+        confidence_threshold=threshold,
+        ruling=None,
+        withheld_candidate=None,
+        escalated_for_human_review=True,
+        notes=notes,
+        model_failure=failure.to_dict(),
+    )
+    events.emit(
+        EventType.DISPUTE_ESCALATED_ON_MODEL_FAILURE,
+        from_=Actor.SYSTEM,
+        to=Actor.HUMAN_REVIEW,
+        summary="model failure in %s: %s after %d attempt(s)"
+        % (failure.agent, failure.kind, failure.attempts),
+        payload={
+            "dispute_id": dispute.dispute_id,
+            "failure": failure.to_dict(),
+        },
+    )
+    events.emit(
+        EventType.PARTY_NOTIFIED,
+        from_=Actor.SYSTEM,
+        to=Actor.PARTIES,
+        summary="parties notified: your case is still under review",
+        payload={
+            "dispute_id": dispute.dispute_id,
+            "outcome": resolution.outcome,
+            "message": resolution.party_message,
+        },
+    )
+    case_file = CaseFile(
+        run_id=events.run_id,
+        dispute_id=dispute.dispute_id,
+        category=dispute.category,
+        generated_at=_now(),
+        confidence_threshold=threshold,
+        policy_path=_policy_source_path(policy),
+        policy_rule_ids=policy.rule_ids(),
+        intake=_intake_section(dispute),
+        evidence_pack=pack.to_dict(),
+        rider_case=rider_case.to_dict() if rider_case is not None else None,
+        driver_case=driver_case.to_dict() if driver_case is not None else None,
+        resolution=resolution.to_dict(),
+    )
+    _complete(events, case_file, resolution)
+    return case_file
 
 
 def _needs_info(

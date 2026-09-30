@@ -56,6 +56,8 @@ class EventType:
     JUDGE_DELIBERATION_STARTED = "judge.deliberation_started"
     JUDGE_RULING_ISSUED = "judge.ruling_issued"
     JUDGE_RULING_WITHHELD = "judge.ruling_withheld"
+    LLM_CALL_RETRIED = "llm.call_retried"
+    DISPUTE_ESCALATED_ON_MODEL_FAILURE = "dispute.escalated_on_model_failure"
     PARTY_NOTIFIED = "party.notified"
     RUN_COMPLETED = "run.completed"
 

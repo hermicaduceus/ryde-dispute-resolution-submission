@@ -15,12 +15,21 @@ from __future__ import annotations
 
 import abc
 import json
-from typing import Any, Dict, List, Optional, Tuple
+import time
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from ..dispute import Dispute
-from ..events import EventLog
+from ..events import EventLog, EventType
 from ..evidence import EvidencePack
-from ..llm import LLMClient, LLMContractError, LLMError, LLMRequest, parse_json_object
+from ..llm import (
+    LLMClient,
+    LLMContractError,
+    LLMError,
+    LLMRequest,
+    LLMTransientError,
+    parse_json_object,
+)
 from ..policy import PolicySet
 from ..schemas import (
     AdvocateCase,
@@ -41,6 +50,70 @@ HARD_RULES = """HARD RULES
 
 class AgentError(RuntimeError):
     """An agent could not complete its task."""
+
+
+RETRY_DELAYS_SECONDS = (2.0, 5.0, 10.0)
+CONTRACT_REASKS = 1
+MIN_CALL_SECONDS = 5.0
+
+
+@dataclass(frozen=True)
+class RetryPolicy:
+    """Retry and time-budget rules for one dispute."""
+
+    delays_seconds: Tuple[float, ...] = RETRY_DELAYS_SECONDS
+    contract_reasks: int = CONTRACT_REASKS
+    budget_seconds: Optional[float] = None
+    clock: Optional[Callable[[], float]] = None
+    sleep: Optional[Callable[[float], None]] = None
+
+    def start(self) -> "CaseBudget":
+        clock = self.clock or time.monotonic
+        return CaseBudget(
+            delays_seconds=self.delays_seconds,
+            contract_reasks=self.contract_reasks,
+            budget_seconds=self.budget_seconds,
+            clock=self.clock,
+            sleep=self.sleep,
+            started_at=clock(),
+        )
+
+
+@dataclass(frozen=True)
+class CaseBudget:
+    """One shared stopwatch and retry policy for all agents in a case."""
+
+    delays_seconds: Tuple[float, ...]
+    contract_reasks: int
+    budget_seconds: Optional[float]
+    clock: Optional[Callable[[], float]]
+    sleep: Optional[Callable[[float], None]]
+    started_at: float
+
+    def remaining(self) -> Optional[float]:
+        if self.budget_seconds is None:
+            return None
+        clock = self.clock or time.monotonic
+        return float(self.budget_seconds) - (clock() - self.started_at)
+
+
+class ModelFailure(AgentError):
+    """A model call could not produce a usable answer after its allowed attempts."""
+
+    def __init__(self, agent: str, kind: str, attempts: int, message: str):
+        super().__init__(message)
+        self.agent = agent
+        self.kind = kind
+        self.attempts = attempts
+        self.message = message
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "agent": self.agent,
+            "kind": self.kind,
+            "attempts": self.attempts,
+            "message": self.message,
+        }
 
 
 def _json_block(value: Any) -> str:
@@ -132,10 +205,17 @@ class BaseAgent(abc.ABC):
     name = "agent"
     role_title = "Agent"
 
-    def __init__(self, llm: LLMClient, events: EventLog, policy: PolicySet):
+    def __init__(
+        self,
+        llm: LLMClient,
+        events: EventLog,
+        policy: PolicySet,
+        budget: Optional[CaseBudget] = None,
+    ):
         self.llm = llm
         self.events = events
         self.policy = policy
+        self._budget = budget if budget is not None else RetryPolicy().start()
 
     # ------------------------------------------------------------------ to override
 
@@ -151,27 +231,80 @@ class BaseAgent(abc.ABC):
         system_prompt: str,
         user_prompt: str,
         metadata: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-        """One LLM call, parsed into a JSON object. Returns (payload, provenance)."""
-        request = LLMRequest(
-            agent=self.name,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            metadata=dict(metadata or {}),
+        build: Callable[[Dict[str, Any], Dict[str, Any]], Any],
+    ) -> Any:
+        """Call, parse and build one agent result under the retry policy."""
+        attempts = 0
+        transient_retries = 0
+        contract_retries = 0
+        while True:
+            remaining = self._budget.remaining()
+            if remaining is not None and remaining < MIN_CALL_SECONDS:
+                raise ModelFailure(
+                    self.name,
+                    "time budget",
+                    attempts,
+                    "%s: the case time budget does not leave %.1f seconds for a call"
+                    % (self.name, MIN_CALL_SECONDS),
+                ) from None
+
+            attempts += 1
+            request = LLMRequest(
+                agent=self.name,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                metadata=dict(metadata or {}),
+                timeout_seconds=remaining,
+            )
+            try:
+                response = self.llm.complete(request)
+                payload = parse_json_object(response.text, agent=self.name)
+                provenance = response.as_log_fields()
+                provenance["request_fingerprint"] = request.fingerprint()
+                return build(payload, provenance)
+            except (LLMContractError, ContractError) as exc:
+                if contract_retries >= self._budget.contract_reasks:
+                    raise ModelFailure(self.name, "unreadable reply", attempts, str(exc)) from None
+                contract_retries += 1
+                self._emit_retry(
+                    attempt=attempts,
+                    kind="unreadable reply",
+                    message=str(exc),
+                    wait_seconds=0.0,
+                )
+            except LLMTransientError as exc:
+                if transient_retries >= len(self._budget.delays_seconds):
+                    raise ModelFailure(self.name, "transient", attempts, str(exc)) from None
+                delay = float(self._budget.delays_seconds[transient_retries])
+                remaining = self._budget.remaining()
+                if remaining is not None and remaining < delay + MIN_CALL_SECONDS:
+                    raise ModelFailure(self.name, "time budget", attempts, str(exc)) from None
+                transient_retries += 1
+                self._emit_retry(
+                    attempt=attempts,
+                    kind="transient",
+                    message=str(exc),
+                    wait_seconds=delay,
+                )
+                sleeper = self._budget.sleep or time.sleep
+                sleeper(delay)
+            except LLMError as exc:
+                raise ModelFailure(self.name, "permanent", attempts, str(exc)) from None
+
+    def _emit_retry(self, *, attempt: int, kind: str, message: str, wait_seconds: float) -> None:
+        self.events.emit(
+            EventType.LLM_CALL_RETRIED,
+            from_=self.name,
+            to=self.name,
+            summary="%s retrying after %s failure (attempt %d; wait %.1f seconds)"
+            % (self.role_title, kind, attempt, wait_seconds),
+            payload={
+                "attempt": attempt,
+                "kind": kind,
+                "message": message,
+                "wait_seconds": wait_seconds,
+            },
         )
-        try:
-            response = self.llm.complete(request)
-        except LLMError as exc:
-            raise AgentError("%s: the LLM call failed: %s" % (self.name, exc)) from exc
-
-        try:
-            payload = parse_json_object(response.text, agent=self.name)
-        except LLMContractError as exc:
-            raise AgentError("%s: the model response did not match the contract: %s" % (self.name, exc)) from exc
-
-        provenance = response.as_log_fields()
-        provenance["request_fingerprint"] = request.fingerprint()
-        return payload, provenance
 
 
 class AdvocateAgent(BaseAgent):
@@ -236,24 +369,8 @@ class AdvocateAgent(BaseAgent):
 
     def run(self, dispute: Dispute, pack: EvidencePack) -> AdvocateCase:
         """Build this side's case, record the traffic, return the typed case."""
-        payload, llm_info = self._ask(
-            system_prompt=self.system_prompt(),
-            user_prompt=self.user_prompt(dispute, pack),
-            metadata={
-                "party": self.party,
-                "dispute_id": dispute.dispute_id,
-                "category": dispute.category,
-                "claim_amount_sgd": dispute.claim_amount_sgd,
-                "available_evidence_refs": pack.field_refs(),
-                "available_rule_ids": self.policy.rule_ids(),
-                "filed_by": dispute.filed_by,
-                "blank_intake_questions": blank_intake_questions(dispute),
-                "has_follow_up_answers": bool(dispute.follow_up_answers),
-            },
-        )
-
-        try:
-            case = AdvocateCase.from_payload(
+        def build(payload: Dict[str, Any], llm_info: Dict[str, Any]) -> AdvocateCase:
+            return AdvocateCase.from_payload(
                 payload,
                 party=self.party,
                 agent=self.name,
@@ -267,8 +384,23 @@ class AdvocateAgent(BaseAgent):
                 category=dispute.category,
                 filed_by=dispute.filed_by,
             )
-        except ContractError as exc:
-            raise AgentError("%s returned a response that breaks its contract: %s" % (self.name, exc)) from exc
+
+        case = self._ask(
+            system_prompt=self.system_prompt(),
+            user_prompt=self.user_prompt(dispute, pack),
+            metadata={
+                "party": self.party,
+                "dispute_id": dispute.dispute_id,
+                "category": dispute.category,
+                "claim_amount_sgd": dispute.claim_amount_sgd,
+                "available_evidence_refs": pack.field_refs(),
+                "available_rule_ids": self.policy.rule_ids(),
+                "filed_by": dispute.filed_by,
+                "blank_intake_questions": blank_intake_questions(dispute),
+                "has_follow_up_answers": bool(dispute.follow_up_answers),
+            },
+            build=build,
+        )
 
         self.events.emit(
             "advocate.case_submitted",
