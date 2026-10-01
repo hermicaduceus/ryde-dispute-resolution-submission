@@ -82,6 +82,7 @@ does not use — goes to the human-review queue with a neutral message.
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -159,11 +160,20 @@ class Dispute:
 
     @property
     def claim_amount_sgd(self) -> float:
-        """The amount the filing party asked for, 0.0 when not stated."""
+        """The amount the filing party asked for, 0.0 when not stated.
+
+        A number that is present but not finite (NaN or Infinity, both of which a JSON
+        reader accepts) is not a stated amount: it reads as 0.0, exactly like a string,
+        and never reaches an agent's prompt as a figure.
+        """
         amount = self.claim.get("amount_sgd")
         if isinstance(amount, bool) or not isinstance(amount, (int, float)):
             return 0.0
-        return float(amount)
+        try:
+            number = float(amount)
+        except OverflowError:  # an int too large for a float is not a stated amount either
+            return 0.0
+        return number if math.isfinite(number) else 0.0
 
     def to_dict(self) -> Dict[str, Any]:
         return self.raw
