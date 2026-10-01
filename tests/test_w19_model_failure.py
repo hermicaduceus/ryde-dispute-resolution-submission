@@ -135,6 +135,15 @@ def _transient(text="HTTP 503"):
     return _w19()[2]("ADP call failed: %s" % text)
 
 
+def _retries(run_dir):
+    """The llm.call_retried events, each with its payload file read back in."""
+    events = [e for e in EventLog.read_events(run_dir) if e["type"] == "llm.call_retried"]
+    for event in events:
+        ref = event.get("payload_ref")
+        event["payload"] = json.loads((Path(run_dir) / ref).read_text(encoding="utf-8")) if ref else None
+    return events
+
+
 # ------------------------------------------------------------ 1-2: escalate and keep
 
 
@@ -177,6 +186,33 @@ class EscalationShapeTest(unittest.TestCase):
         self.assertEqual("driver_advocate", case["resolution"]["model_failure"]["agent"])
         self.assertEqual(["rider_advocate", "driver_advocate"], llm.agents(), "the Judge must not run")
 
+    def test_a_round_two_judge_failure_keeps_the_notes_the_judge_would_have_carried(self):
+        # On a round-two re-run the advocates may ask again; the one-round gate records that
+        # as a note on the resolution. If the Judge then fails, the escalated resolution must
+        # still carry that note beside the failure note (brief: "the extra notes the Judge
+        # would have carried").
+        import dataclasses
+
+        _, RetryPolicy, _, _ = _w19()
+        dispute = load_fixture_dispute(ROUTE_DEVIATION)
+        dispute = dataclasses.replace(
+            dispute, follow_up_answers=[{"question": "What route did the app show you?", "answer": "The expressway."}])
+        ask = json.dumps({"claim_summary": "x", "evidence_cited": [], "policy_rule_ids": [], "argument": "x",
+                          "requested_outcome": "refund", "requested_amount_sgd": 1.0,
+                          "follow_up_slots": ["route_shown"]})
+        llm = _Plan({"rider_advocate": [ask], "judge": [LLMError("ADP call failed: HTTP 400")]})
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        case = run_dispute(dispute=dispute, llm=llm, policy=load_fixture_policy(),
+                           events=EventLog(Path(tmp.name) / "run", "w19"), confidence_threshold=0.65,
+                           retry_policy=RetryPolicy()).to_dict()
+        resolution = case["resolution"]
+        self.assertEqual("permanent", resolution["model_failure"]["kind"])
+        self.assertEqual(["rider_advocate", "driver_advocate", "judge"], llm.agents(), "round two never stops to ask")
+        notes = resolution["notes"]
+        self.assertTrue(any("one-round gate" in note for note in notes), notes)
+        self.assertTrue(any("judge" in note and "permanent" in note for note in notes), notes)
+
     def test_the_event_log_records_the_escalation_and_completes(self):
         _, _, run_dir = self._escalated()
         types = [e["type"] for e in EventLog.read_events(run_dir)]
@@ -208,6 +244,37 @@ class OnlyModelFailuresEscalateTest(unittest.TestCase):
         from app.agents import AgentError
 
         self.assertTrue(issubclass(ModelFailure, AgentError))
+
+    def test_the_model_failure_does_not_chain_the_adapter_error(self):
+        # Brief: ModelFailure is raised `from None`, on every branch. The adapter's exception
+        # (and any text it carried) must not ride along as __cause__ or __context__.
+        ModelFailure, RetryPolicy, _, _ = _w19()
+        from app.agents import RiderAdvocate
+        from app.evidence import build_evidence_pack
+
+        dispute = load_fixture_dispute(ROUTE_DEVIATION)
+        pack = build_evidence_pack(dispute)
+        scripts = {
+            "permanent": ([LLMError("ADP call failed: HTTP 400")], None, 0.0),
+            "transient": ([_transient()] * 4, None, 0.0),
+            "unreadable reply": (["not JSON", "still not JSON"], None, 0.0),
+            "time budget": ([_transient()], 60, 54.0),
+        }
+        for kind, (script, budget, cost) in scripts.items():
+            with self.subTest(kind=kind):
+                clock = _Clock()
+                llm = _Plan({"rider_advocate": script}, clock=clock, cost=cost)
+                tmp = tempfile.TemporaryDirectory()
+                self.addCleanup(tmp.cleanup)
+                agent = RiderAdvocate(
+                    llm=llm, events=EventLog(Path(tmp.name) / "r", "r"), policy=load_fixture_policy(),
+                    budget=RetryPolicy(budget_seconds=budget, clock=clock, sleep=clock.sleep).start(),
+                )
+                with self.assertRaises(ModelFailure) as raised:
+                    agent.run(dispute, pack)
+                self.assertEqual(kind, raised.exception.kind)
+                self.assertIsNone(raised.exception.__cause__)
+                self.assertTrue(raised.exception.__suppress_context__, "raise ... from None")
 
 
 # ------------------------------------------------------------------- 5: retry rules
@@ -244,6 +311,40 @@ class TransientRetryTest(unittest.TestCase):
         self.assertEqual(2, len(retries))
         self.assertEqual(["judge", "judge"], [e["from"] for e in retries])
         self.assertTrue(all("judge" in e["summary"].lower() for e in retries), [e["summary"] for e in retries])
+
+    def test_the_retry_event_carries_the_attempt_kind_message_and_wait(self):
+        llm = _Plan({"judge": [_transient("HTTP 503"), _transient("HTTP 502")]})
+        _, _, run_dir = _run(self, llm)
+        retries = _retries(run_dir)
+        self.assertEqual([("judge", "judge")] * 2, [(e["from"], e["to"]) for e in retries])
+        self.assertEqual(
+            [{"attempt": 1, "kind": "transient", "message": "ADP call failed: HTTP 503", "wait_seconds": 2.0},
+             {"attempt": 2, "kind": "transient", "message": "ADP call failed: HTTP 502", "wait_seconds": 5.0}],
+            [e["payload"] for e in retries],
+        )
+
+    def test_an_unreadable_reply_re_ask_is_logged_too(self):
+        # "Each retry emits llm.call_retried": the no-wait re-ask is a retry as well.
+        llm = _Plan({"judge": ["this is not JSON"]})
+        _, _, run_dir = _run(self, llm)
+        retries = _retries(run_dir)
+        self.assertEqual(1, len(retries))
+        payload = retries[0]["payload"]
+        self.assertEqual((1, "unreadable reply", 0.0),
+                         (payload["attempt"], payload["kind"], payload["wait_seconds"]))
+        self.assertIn("not JSON", payload["message"])
+
+    def test_an_advocate_retry_summary_names_its_role_title(self):
+        # The agent name ("rider_advocate") is not the role title ("Rider Advocate").
+        from app.agents import DriverAdvocate, RiderAdvocate
+
+        llm = _Plan({"rider_advocate": [_transient()], "driver_advocate": ["not JSON"]})
+        _, _, run_dir = _run(self, llm)
+        retries = [e for e in EventLog.read_events(run_dir) if e["type"] == "llm.call_retried"]
+        self.assertEqual(["rider_advocate", "driver_advocate"], [e["from"] for e in retries])
+        for event, agent in zip(retries, (RiderAdvocate, DriverAdvocate)):
+            self.assertIn(agent.role_title, event["summary"])
+            self.assertNotIn(agent.name, event["summary"])
 
     def test_the_default_waits_are_the_ruled_ones(self):
         _, RetryPolicy, _, agent_base = _w19()
@@ -372,6 +473,20 @@ class TimeBudgetTest(unittest.TestCase):
                          (failure["agent"], failure["kind"], failure["attempts"]))
         self.assertEqual([], clock.slept, "no wait the budget cannot cover")
         self.assertEqual(1, len(llm.requests))
+
+    def test_used_up_retries_are_transient_even_when_the_budget_is_also_short(self):
+        # Brief step 4 checks "retries used up" BEFORE "budget cannot cover the next wait".
+        # Every call costs 30 s, budget 200. Advocates end at 60 s; the Judge fails at 90,
+        # waits 2, fails at 122, waits 5, fails at 157, waits 10, fails a 4th time at 197.
+        # Each earlier wait fit the budget; at 197 only 3 s remain, so BOTH conditions hold.
+        # The ruled answer is "transient", not "time budget".
+        clock = _Clock()
+        llm = _Plan({"judge": [_transient()] * 5}, clock=clock, cost=30.0)
+        case, clock, _ = _run(self, llm, clock=clock, budget=200)
+        self.assertEqual(197.0, clock.now, "the scenario must reach the overlap")
+        failure = case["resolution"]["model_failure"]
+        self.assertEqual(("judge", "transient", 4), (failure["agent"], failure["kind"], failure["attempts"]))
+        self.assertEqual([2.0, 5.0, 10.0], clock.slept)
 
     def test_a_call_is_not_started_once_the_budget_is_spent(self):
         clock = _Clock()
