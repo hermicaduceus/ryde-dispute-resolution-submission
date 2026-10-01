@@ -6,8 +6,8 @@ confidence score and a natural-language explanation.
 The confidence gate is the Judge's contract, not a policy rule: a ruling whose confidence
 is below the configured threshold is not delivered to the parties. It stands beside four
 other Python-enforced gates: ESC-4 (the recommended amount above the autonomous cap),
-ESC-2 (a route-deviation case whose deviation could not be measured, or whose fare
-charged is not a recorded figure), NS-6 (a contested
+ESC-2 (a route-deviation case whose deviation could not be measured, whose fare charged is
+not a recorded figure, or whose record states a fare input it cannot read), NS-6 (a contested
 no-show whose fee has no recorded arrival position may only be refunded in full, and only
 for a low fee and a clean rider record) and RD-5 (a proven overcharge of at least the de
 minimis amount must actually be refunded). The Judge's candidate is still produced and
@@ -234,32 +234,42 @@ class Judge(BaseAgent):
             # ESC-2 for route cases: a ruling that cannot name the deviation it rests on
             # is exactly the "plausible figure for a missing one" the policy forbids.
             # EV-1 names the fare charged as the third figure a fare finding needs, so a
-            # charge the record cannot prove is a missing figure too. One gate, wider —
-            # never two entries, even when both figures are missing. Route cases only —
-            # for a no-show, a missing arrival is itself the evidence (NS-4), and gating
-            # on it would withhold the cases the policy rules.
+            # charge the record cannot prove is a missing figure too, and a record that
+            # states a fare input it cannot read (a tariff rate or the promo) leaves the
+            # overcharge unprovable either way. One gate, wider — never two entries,
+            # whatever combination fires. Route cases only — for a no-show, a missing
+            # arrival is itself the evidence (NS-4), and gating on it would withhold the
+            # cases the policy rules.
             deviation_missing = (
                 pack.route is not None and not _is_figure(pack.route.deviation_pct)
             )
             charge_missing = pack.fare is None or not _is_figure(pack.fare.charged_sgd)
-            if deviation_missing or charge_missing:
-                missing_fields = []
+            unreadable_inputs = (
+                list(pack.fare.unreadable_inputs) if pack.fare is not None else []
+            )
+            if deviation_missing or charge_missing or unreadable_inputs:
+                reason_parts = []
                 summary_parts = []
                 if deviation_missing:
-                    missing_fields.append("route.deviation_pct")
+                    reason_parts.append("route.deviation_pct is not a recorded figure")
                     summary_parts.append("the route deviation could not be measured")
                 if charge_missing:
-                    missing_fields.append("fare.charged_sgd")
+                    reason_parts.append("fare.charged_sgd is not a recorded figure")
                     summary_parts.append("the fare charged could not be established")
+                if unreadable_inputs:
+                    reason_parts.append(
+                        "the record states %s it cannot read (%s)"
+                        % (
+                            "a fare input" if len(unreadable_inputs) == 1 else "fare inputs",
+                            ", ".join("fare.%s" % name for name in unreadable_inputs),
+                        )
+                    )
+                    summary_parts.append("the fare inputs in the record could not be read")
                 gate_failures.append(
                     (
                         "ESC-2",
-                        "%s %s not a recorded figure, so the fare finding a "
-                        "route-deviation ruling rests on cannot be made (EV-1, ESC-2)"
-                        % (
-                            " and ".join(missing_fields),
-                            "are" if len(missing_fields) > 1 else "is",
-                        ),
+                        "%s, so the fare finding a route-deviation ruling rests on "
+                        "cannot be made (EV-1, ESC-2)" % "; ".join(reason_parts),
                     )
                 )
                 gate_summaries.append("%s (ESC-2)" % " and ".join(summary_parts))
