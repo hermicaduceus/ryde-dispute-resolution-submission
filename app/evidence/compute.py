@@ -92,10 +92,24 @@ def _round_up(value: Optional[float], places: int) -> Optional[float]:
     return (math.ceil(value * factor) / factor) + 0.0
 
 
+def _is_non_finite_number(value: Any) -> bool:
+    """True only for a present number that is not finite: NaN, Infinity, -Infinity.
+
+    A JSON reader accepts all three as bare tokens, so a record can carry one. Such a
+    value is not a recorded figure: it reads as missing everywhere, and no gate ever
+    compares it.
+    """
+    return isinstance(value, float) and not math.isfinite(value)
+
+
 def _as_float(value: Any) -> Optional[float]:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
-    return float(value)
+    try:
+        number = float(value)
+    except OverflowError:  # an int too large for a float is not a usable figure
+        return None
+    return None if _is_non_finite_number(number) else number
 
 
 def _as_bool(value: Any) -> Optional[bool]:
@@ -105,6 +119,8 @@ def _as_bool(value: Any) -> Optional[bool]:
 def _as_int(value: Any) -> Optional[int]:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
+    if _is_non_finite_number(value):
+        return None
     return int(value)
 
 
@@ -113,6 +129,28 @@ def _first(mapping: Dict[str, Any], *keys: str) -> Any:
         if key in mapping and mapping[key] is not None:
             return mapping[key]
     return None
+
+
+def _finite_mapping(raw: Any) -> Dict[str, float]:
+    """The finite numeric entries of a record mapping, keyed as strings.
+
+    A non-numeric or non-finite value is left out — see _is_non_finite_number.
+    """
+    values: Dict[str, float] = {}
+    for key, value in (raw if isinstance(raw, dict) else {}).items():
+        number = _as_float(value)
+        if number is not None:
+            values[str(key)] = number
+    return values
+
+
+def _broken_keys(raw: Any) -> List[str]:
+    """The keys of a record mapping whose value is present but not a finite number."""
+    return [
+        str(key)
+        for key, value in (raw if isinstance(raw, dict) else {}).items()
+        if _is_non_finite_number(value)
+    ]
 
 
 def _point_is_usable(point: Any) -> bool:
@@ -313,17 +351,18 @@ def _build_fare(
     charged = _as_float(fare.get("charged_sgd"))
 
     components_raw = fare.get("breakdown") if isinstance(fare.get("breakdown"), dict) else {}
-    components = {
-        str(key): float(value)
-        for key, value in components_raw.items()
-        if isinstance(value, (int, float)) and not isinstance(value, bool)
-    }
     rates_raw = fare.get("rates") if isinstance(fare.get("rates"), dict) else {}
-    rates = {
-        str(key): float(value)
-        for key, value in rates_raw.items()
-        if isinstance(value, (int, float)) and not isinstance(value, bool)
-    }
+    # A number that is present but not finite is not a recorded figure. It is left out
+    # of the maps, and it voids what it feeds: dropping a broken per-km rate and
+    # computing from the rest reads as free distance, and dropping a broken surge
+    # reads as 1.0 — a plausible wrong number either way.
+    broken_rates = _broken_keys(rates_raw)
+    broken_components = _broken_keys(components_raw)
+    promo_broken = any(
+        key in broken_components for key in ("promo_sgd", "promo", "discount_sgd")
+    )
+    components = _finite_mapping(components_raw)
+    rates = _finite_mapping(rates_raw)
 
     base = _as_float(_first(rates, "base_sgd", "base_fare_sgd")) or 0.0
     per_km = _as_float(_first(rates, "per_km_sgd", "distance_rate_sgd")) or 0.0
@@ -339,7 +378,10 @@ def _build_fare(
         Negative distances or minutes, and a zero or negative surge, are record defects
         rather than cheap trips: each one makes the formula return a smaller or negative
         fare that reads as a legitimate overcharge finding. Refuse instead of computing.
+        A broken rate or promo is the same refusal: the formula's inputs are incomplete.
         """
+        if broken_rates or promo_broken:
+            return None
         if not rates:
             return None
         if per_km and distance_km is None:
@@ -360,10 +402,39 @@ def _build_fare(
     recomputed = recompute(actual_km, actual_minutes)
     recomputed_expected_route = recompute(estimated_km, estimated_minutes)
 
-    if not rates:
+    if broken_rates:
+        # One note naming every broken rate. The rates and the trip numbers were there,
+        # so the "no rates" and "trip numbers missing" notes would misstate the record.
+        notes.append(
+            "the fare could not be recomputed: the tariff rate%s %s %s not a finite "
+            "number, so the fare formula's inputs are incomplete"
+            % (
+                "s" if len(broken_rates) > 1 else "",
+                ", ".join(sorted(broken_rates)),
+                "are" if len(broken_rates) > 1 else "is",
+            )
+        )
+    elif not rates:
         notes.append("no tariff rates in the record, so the fare could not be recomputed")
     elif recomputed is None:
         notes.append("tariff rates present but the trip numbers needed to recompute were missing")
+
+    if broken_components:
+        note = (
+            "the fare breakdown could not be summed: the component%s %s %s not a finite "
+            "number, so the recorded breakdown total is unknown"
+            % (
+                "s" if len(broken_components) > 1 else "",
+                ", ".join(sorted(broken_components)),
+                "are" if len(broken_components) > 1 else "is",
+            )
+        )
+        if promo_broken:
+            note += (
+                "; the promo is subtracted inside the fare formula, so the recomputed "
+                "fare is unknown too"
+            )
+        notes.append(note)
 
     deviation_fare_delta = None
     if recomputed is not None and recomputed_expected_route is not None:
@@ -375,7 +446,12 @@ def _build_fare(
         if recomputed > 0:
             pct = difference / recomputed * 100.0
 
-    component_sum = sum(components.values()) if components else None
+    # A broken component voids the sum: summing the remainder would be a plausible
+    # wrong total, and a False breakdown_consistent reads as EV-3 evidence of an
+    # incorrect charge. Unknown (None) is the only honest answer.
+    component_sum = None
+    if not broken_components and components:
+        component_sum = sum(components.values())
     breakdown_consistent = None
     if component_sum is not None and charged is not None:
         breakdown_consistent = abs(component_sum - charged) <= BREAKDOWN_TOLERANCE_SGD
@@ -498,8 +574,27 @@ def _build_cancellation(dispute: Dispute, notes: List[str]) -> Optional[Cancella
     # Which terms govern this case. Passed through exactly as the record states them, so
     # the agents can see that a charge was applied under, say, a 5 / 8 minute policy
     # rather than the 3-minute one they may know from elsewhere. This layer does not
-    # reconcile the two: reading a rule out of a document is the Judge's job.
-    case_policy = raw.get("case_policy") if isinstance(raw.get("case_policy"), dict) else None
+    # reconcile the two: reading a rule out of a document is the Judge's job. A term
+    # whose value is present but not finite is not a stated term: it is left out with a
+    # note, and the terms that are readable survive untouched.
+    case_policy_raw = raw.get("case_policy") if isinstance(raw.get("case_policy"), dict) else None
+    case_policy = None
+    if case_policy_raw is not None:
+        broken_terms = _broken_keys(case_policy_raw)
+        case_policy = {
+            key: value for key, value in case_policy_raw.items() if str(key) not in broken_terms
+        }
+        if broken_terms:
+            local_notes.append(
+                "the case's cancellation terms could not all be read: the term%s %s %s "
+                "not a finite number, so %s left out"
+                % (
+                    "s" if len(broken_terms) > 1 else "",
+                    ", ".join(sorted(broken_terms)),
+                    "are" if len(broken_terms) > 1 else "is",
+                    "they were" if len(broken_terms) > 1 else "it was",
+                )
+            )
 
     notes.extend(local_notes)
     return CancellationEvidence(
