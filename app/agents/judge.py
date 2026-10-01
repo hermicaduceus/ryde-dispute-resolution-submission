@@ -6,7 +6,8 @@ confidence score and a natural-language explanation.
 The confidence gate is the Judge's contract, not a policy rule: a ruling whose confidence
 is below the configured threshold is not delivered to the parties. It stands beside four
 other Python-enforced gates: ESC-4 (the recommended amount above the autonomous cap),
-ESC-2 (a route-deviation case whose deviation could not be measured), NS-6 (a contested
+ESC-2 (a route-deviation case whose deviation could not be measured, or whose fare
+charged is not a recorded figure), NS-6 (a contested
 no-show whose fee has no recorded arrival position may only be refunded in full, and only
 for a low fee and a clean rider record) and RD-5 (a proven overcharge of at least the de
 minimis amount must actually be refunded). The Judge's candidate is still produced and
@@ -19,6 +20,7 @@ every call; nothing here hard-codes it.
 from __future__ import annotations
 
 import json
+import math
 from typing import Any, Dict, List, Optional
 
 from ..dispute import CATEGORY_NO_SHOW_CHARGE, CATEGORY_ROUTE_DEVIATION, Dispute
@@ -45,8 +47,17 @@ DE_MINIMIS_SGD = 1.00
 
 
 def _is_figure(value: Any) -> bool:
-    """True only for a real number. bool is an int subclass, so it is excluded."""
-    return isinstance(value, (int, float)) and not isinstance(value, bool)
+    """True only for a real, finite number. bool is an int subclass, so it is excluded.
+
+    A value that is present but not finite (NaN or Infinity, both of which a JSON reader
+    accepts) is not a figure a gate may compare: NaN compares False against everything
+    and Infinity compares the wrong way, so each would slip through as if recorded.
+    """
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+    )
 
 
 def _is_count(value: Any) -> bool:
@@ -219,23 +230,39 @@ class Judge(BaseAgent):
                 )
             )
             gate_summaries.append("the recommended amount exceeds the autonomous decision cap (ESC-4)")
-        if (
-            dispute.category == CATEGORY_ROUTE_DEVIATION
-            and pack.route is not None
-            and pack.route.deviation_pct is None
-        ):
+        if dispute.category == CATEGORY_ROUTE_DEVIATION:
             # ESC-2 for route cases: a ruling that cannot name the deviation it rests on
             # is exactly the "plausible figure for a missing one" the policy forbids.
-            # Route cases only — for a no-show, a missing arrival is itself the evidence
-            # (NS-4), and gating on it would withhold the cases the policy rules.
-            gate_failures.append(
-                (
-                    "ESC-2",
-                    "route.deviation_pct is null, so the deviation a route-deviation "
-                    "ruling rests on could not be measured (EV-1, ESC-2)",
-                )
+            # EV-1 names the fare charged as the third figure a fare finding needs, so a
+            # charge the record cannot prove is a missing figure too. One gate, wider —
+            # never two entries, even when both figures are missing. Route cases only —
+            # for a no-show, a missing arrival is itself the evidence (NS-4), and gating
+            # on it would withhold the cases the policy rules.
+            deviation_missing = (
+                pack.route is not None and not _is_figure(pack.route.deviation_pct)
             )
-            gate_summaries.append("the route deviation could not be measured (ESC-2)")
+            charge_missing = pack.fare is None or not _is_figure(pack.fare.charged_sgd)
+            if deviation_missing or charge_missing:
+                missing_fields = []
+                summary_parts = []
+                if deviation_missing:
+                    missing_fields.append("route.deviation_pct")
+                    summary_parts.append("the route deviation could not be measured")
+                if charge_missing:
+                    missing_fields.append("fare.charged_sgd")
+                    summary_parts.append("the fare charged could not be established")
+                gate_failures.append(
+                    (
+                        "ESC-2",
+                        "%s %s not a recorded figure, so the fare finding a "
+                        "route-deviation ruling rests on cannot be made (EV-1, ESC-2)"
+                        % (
+                            " and ".join(missing_fields),
+                            "are" if len(missing_fields) > 1 else "is",
+                        ),
+                    )
+                )
+                gate_summaries.append("%s (ESC-2)" % " and ".join(summary_parts))
 
         cancellation = pack.cancellation
         if (
@@ -307,6 +334,24 @@ class Judge(BaseAgent):
                 gate_summaries.append(
                     "the ruling refunds less than the overcharge the records prove (RD-5)"
                 )
+        elif (
+            dispute.category == CATEGORY_ROUTE_DEVIATION
+            and fare is not None
+            and fare.difference_sgd is not None
+            and not _is_figure(fare.difference_sgd)
+        ):
+            # RD-5: a difference that is present but not finite cannot prove or disprove
+            # an overcharge, so no ruling may be issued on it. None still means "no
+            # overcharge figure", which is not this gate's concern.
+            gate_failures.append(
+                (
+                    "RD-5",
+                    "RD-5: the fare.difference_sgd in the record is not a finite number, "
+                    "so the overcharge it would show cannot be established; the ruling "
+                    "is held (RD-5)",
+                )
+            )
+            gate_summaries.append("the overcharge figure in the records could not be read (RD-5)")
 
         if not gate_failures:
             self.events.emit(
