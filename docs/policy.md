@@ -185,6 +185,12 @@ unknown, not cheaper, and a breakdown component that is not a finite number make
 sum unknown, so `fare.breakdown_consistent` is null rather than false: an inconsistent breakdown
 is evidence of an incorrect charge under EV-3, and an unreadable one is not.
 
+An impossible fare input is treated the same way as an unreadable one. A negative tariff rate, or
+a surge multiplier of zero or less, makes the recomputed fare unknown; and a promo larger than the
+fare (which would make the recomputed fare negative) makes both recomputed fares unknown. Each is
+listed in `fare.unreadable_inputs`, so ESC-2 holds the case: a fare below zero is a record defect,
+not an overcharge the rider is owed. A zero rate is a real, free component and is not impossible.
+
 ### EV-2 — What the records must show for a no-show finding [RYDE-ACTUAL + PEER-DERIVED]
 
 A no-show charge requires the platform's own timestamps: when the driver marked arrival
