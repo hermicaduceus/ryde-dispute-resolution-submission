@@ -187,6 +187,56 @@ def _mapping(value: Any, key: str, default: Optional[Dict[str, Any]] = None) -> 
     return value
 
 
+def _is_unreadable_number(value: Any) -> bool:
+    """True for a present number that cannot be read as a finite float.
+
+    NaN, Infinity and -Infinity are accepted by a JSON reader as bare tokens, and a
+    reader returns an integer of any size; an integer too large for a float is not a
+    usable figure either. All of them are unreadable, and are blanked before the value
+    can reach an agent's prompt or the case file.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        number = float(value)
+    except OverflowError:  # an integer too large for a float
+        return True
+    return not math.isfinite(number)
+
+
+def _blank_unreadable(value: Any) -> Any:
+    """A copy of a value with every unreadable number replaced by None, at any depth.
+
+    The intake answers are echoed verbatim into all three agents' prompts and the case
+    file, so an unreadable number there reaches both. Containers are copied, never
+    mutated, so `raw` keeps the record exactly as it was filed.
+    """
+    if _is_unreadable_number(value):
+        return None
+    if isinstance(value, dict):
+        return {key: _blank_unreadable(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_blank_unreadable(item) for item in value]
+    return value
+
+
+def _blank_unreadable_party_ids(profiles: Dict[str, Any]) -> Dict[str, Any]:
+    """Each party block with an unreadable party_id/id set to None.
+
+    Only the identifiers are touched: the evidence layer reads the other profile fields
+    and already treats an unreadable one as missing.
+    """
+    cleaned: Dict[str, Any] = {}
+    for party, block in profiles.items():
+        if isinstance(block, dict):
+            block = dict(block)
+            for key in ("party_id", "id"):
+                if _is_unreadable_number(block.get(key)):
+                    block[key] = None
+        cleaned[party] = block
+    return cleaned
+
+
 # ------------------------------------------------------- the organisers' shape
 
 
@@ -470,11 +520,13 @@ def _parse_record(data: Dict[str, Any], raw: Dict[str, Any]) -> Dispute:
         filed_by=filed_by,
         filed_at=filed_at if isinstance(filed_at, str) else None,
         claim=_mapping(data.get("claim"), "claim"),
-        intake=_mapping(data.get("intake"), "intake"),
+        # Blanked at parse: these answers are echoed into every agent's prompt and the
+        # case file, so an unreadable number must never survive into either.
+        intake=_blank_unreadable(_mapping(data.get("intake"), "intake")),
         trip=_mapping(data.get("trip"), "trip"),
         cancellation=_mapping(data.get("cancellation"), "cancellation"),
         chat_log=[item for item in chat_log if isinstance(item, dict)],
-        profiles=_mapping(data.get("profiles"), "profiles"),
+        profiles=_blank_unreadable_party_ids(_mapping(data.get("profiles"), "profiles")),
         follow_up_answers=_follow_up_answers(data.get("follow_up_answers")),
         raw=dict(raw),
     )
