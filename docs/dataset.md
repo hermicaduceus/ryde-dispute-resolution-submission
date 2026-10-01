@@ -234,13 +234,18 @@ Every case also runs end to end through the real pipeline without error.
 ### Evaluation
 
 Run `python3 -m app.eval` to evaluate every labelled case. Use `--pack NAME` repeatedly to select
-packs, `--llm mock|tencent` to choose the provider, and `--out DIR` to choose the output root.
-Reports land under `<out>/<pack>/report.json` and `<out>/<pack>/report.md`, with case artifacts
-beside them. “Decisions matching the label” means outcome, action, and cent-rounded amount agree
-with the label. “Rulings citing every decisive rule” means every non-`ESC-` decisive label rule
-appears in the candidate's citations. Stopping to ask the party counts as a miss. A mock run
-checks wiring only; this section makes no score claim. A case the model could not answer is
-scored `model failed`, never a match, and makes the command exit 2.
+packs, `--llm mock|tencent` to choose the provider, `--out DIR` to choose the output root, and
+`--repeat N` to run every case N times. Reports land under `<out>/<pack>/report.json` and
+`<out>/<pack>/report.md`, with case artifacts beside them. “Decisions matching the label” means
+outcome, action, and cent-rounded amount agree with the label. “Rulings citing every decisive rule”
+means every non-`ESC-` decisive label rule appears in the candidate's citations. A case that stops
+to ask the party is answered in round two with "I have nothing more to add", and the final ruling
+is what gets scored; the stop is still reported on its own line. “Decided without a human” counts
+the cases the system ruled itself, without escalating to a person. With `--repeat N`, the
+“Same decision on all N runs” line counts the cases whose decision was identical on every run —
+a case that failed a run is never counted. A mock run checks wiring only; this section makes no
+score claim. A case the model could not answer is scored `model failed`, never a match, and makes
+the command exit 2.
 
 ## Known limitations
 

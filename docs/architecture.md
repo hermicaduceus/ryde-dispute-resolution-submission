@@ -16,8 +16,9 @@ before any model is called; agents cite pack fields by reference and are forbidd
 doing their own arithmetic, and the only other number they see is the amount the party
 asked for. The decisions that must never depend on a model's obedience — the confidence
 threshold, the SGD 50 autonomous cap, the requirement that a route ruling rest on a measured
-deviation, the one-round follow-up limit, and the routing of out-of-scope categories to
-human review — are enforced in Python code, not asked of the model in a prompt. The system
+deviation, the two money gates NS-6 and RD-5, the one-round follow-up limit, and the routing of
+out-of-scope categories to human review — are enforced in Python code, not asked of the model in
+a prompt. The system
 has two surfaces: an operator console that shows the full case file and the agent-to-agent
 traffic, and a party page where the filing party submits the form and reads only what they
 are allowed to read.
@@ -50,7 +51,7 @@ flowchart TD
     O4 --> PA["Party answers follow-ups"]
     PA -- "Fresh run with the answers" --> B
     S -- "No" --> J
-    J --> G{"Gates pass? Confidence, cap, measured deviation"}
+    J --> G{"Gates pass? Confidence, cap, measured deviation, NS-6, RD-5"}
     G -- "Yes" --> O1["Ruled"]
     G -- "No" --> O2["Withheld"]
     O2 -- "Candidate ruling queued" --> H
@@ -128,7 +129,7 @@ emitting an event at each:
 
 ## Gates enforced in code
 
-Six gates stand between a filing and a ruling, and each is enforced in Python, not asked of
+Eight gates stand between a filing and a ruling, and each is enforced in Python, not asked of
 the model in a prompt:
 
 | Gate | File | Condition as written in code |
@@ -136,6 +137,8 @@ the model in a prompt:
 | Confidence threshold | `app/agents/judge.py` | `ruling.confidence < confidence_threshold` — the threshold is 0.65, read from `app/config.json` |
 | ESC-4, the autonomous cap | `app/agents/judge.py` | A money ruling whose `recommended_amount_sgd` exceeds the cap is withheld; the cap is SGD 50 from `app/config.json` |
 | ESC-2, unmeasured deviation | `app/agents/judge.py` | On a route-deviation case, `pack.route.deviation_pct is null` withholds the ruling — a route ruling must name the deviation it rests on |
+| NS-6, contested no-show | `app/agents/judge.py` | On a no-show case where the driver marked a no-show, the rider claims the driver was absent, and `cancellation.driver_distance_from_pickup_m` is null, the fee has no GPS proof: a refund is issued automatically only when the fee is at most SGD 10 and the rider's `fraud_flags` are recorded and zero with no more than half of past disputes rejected; any other ruling is withheld, and the refund must equal the fee to the cent |
+| RD-5, proven overcharge | `app/agents/judge.py` | On a route-deviation case where `fare.difference_sgd` is recorded and at least SGD 1.00, a ruling that refunds less than the proven difference is withheld |
 | One-round follow-up limit | `app/pipeline.py` | `if questions and not dispute.follow_up_answers` — a dispute is asked at most once; with answers present the Judge always runs and fresh questions are recorded but not sent |
 | Out-of-scope routing | `app/pipeline.py` | `if not dispute.is_agent_handled` — anything outside route deviation and no-show charge goes to human review before any agent runs; an unrecognised category normalises to "other" in `app/dispute.py` |
 | Answer once | `app/server.py` | The answers route claims the run with an exclusive create (`O_CREAT \| O_EXCL`) before re-running it — a `needs_info` run can be answered exactly once and cannot produce two rulings |
