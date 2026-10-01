@@ -180,6 +180,8 @@ class CorpusNoDrift(unittest.TestCase):
     """
 
     #: pack/file -> (outcome, action, amount_sgd). Frozen 2026-09-27, head 6562715+.
+    #: Re-pinned 2026-10-01 (W22): RD-0106 is withheld by the RD-5 gate (the mock refunds
+    #: the claimed 0.66; the records prove 3.40). No other case moved.
     BASELINE = {
         "ryde-synth-v1/NS-0201.json": ("ruled", "refund", 6.61),
         "ryde-synth-v1/NS-0202.json": ("ruled", "refund", 6.61),
@@ -194,7 +196,7 @@ class CorpusNoDrift(unittest.TestCase):
         "ryde-synth-v1/RD-0103.json": ("ruled", "refund", 0.74),
         "ryde-synth-v1/RD-0104.json": ("ruled", "refund", 7.7),
         "ryde-synth-v1/RD-0105.json": ("ruled", "refund", 5.56),
-        "ryde-synth-v1/RD-0106.json": ("ruled", "refund", 0.66),
+        "ryde-synth-v1/RD-0106.json": ("withheld", None, None),
         "ryde-synth-v1/RD-0107.json": ("ruled", "refund", 4.91),
         "ryde-synth-v1/RD-0108.json": ("withheld", None, None),
         "ryde-synth-v1/RD-0109.json": ("withheld", None, None),
@@ -212,7 +214,7 @@ class CorpusNoDrift(unittest.TestCase):
         "organiser-style-v1/RD-0103.json": ("ruled", "refund", 0.74),
         "organiser-style-v1/RD-0104.json": ("ruled", "refund", 7.7),
         "organiser-style-v1/RD-0105.json": ("ruled", "refund", 5.56),
-        "organiser-style-v1/RD-0106.json": ("ruled", "refund", 0.66),
+        "organiser-style-v1/RD-0106.json": ("withheld", None, None),
         "organiser-style-v1/RD-0107.json": ("ruled", "refund", 4.91),
         "organiser-style-v1/RD-0108.json": ("withheld", None, None),
         "organiser-style-v1/RD-0109.json": ("withheld", None, None),

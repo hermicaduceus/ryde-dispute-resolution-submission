@@ -221,13 +221,15 @@ class LoadLabels(unittest.TestCase):
 
 #: (dispute_id, reason) in file order, measured on the mock at build 370cbef. A list, not
 #: a dict: a duplicated or reordered case must show up. Re-measured 2026-10-01 after the
-#: NS-0205 label moved to refund 6.61 (grill Q11): only NS-0205 changed.
+#: NS-0205 label moved to refund 6.61 (grill Q11): only NS-0205 changed. Session A (W22):
+#: the RD-5 gate now holds the mock's short 0.66 refund on RD-0106 for a human, so it is a
+#: "wrong outcome" (label: ruled refund 3.40) rather than a "wrong amount".
 MOCK_ORGANISER = [
     ("DISP-002", "match"), ("NS-0201", "wrong action"), ("NS-0202", "match"),
     ("NS-0203", "match"), ("NS-0204", "match"), ("NS-0205", "match"),
     ("NS-0206", "match"), ("NS-0207", "wrong action"), ("OS-0301", "match"),
     ("RD-0101", "match"), ("RD-0102", "wrong action"), ("RD-0103", "wrong action"),
-    ("RD-0104", "match"), ("RD-0105", "wrong action"), ("RD-0106", "wrong amount"),
+    ("RD-0104", "match"), ("RD-0105", "wrong action"), ("RD-0106", "wrong outcome"),
     ("RD-0107", "wrong action"), ("RD-0108", "match"), ("RD-0109", "match"),
 ]
 MOCK_RYDE = [pair for pair in MOCK_ORGANISER if pair[0] != "DISP-002"]
@@ -249,9 +251,10 @@ class MockCorpusRun(unittest.TestCase):
     def test_organiser_pack_totals(self):
         report, _ = _run(self, "organiser-style-v1")
         self.assertEqual({"cases": 18, "decisions_matching": 11, "grounding_applicable": 17,
-                          "grounded": 0,
-                          "by_reason": {"match": 11, "wrong outcome": 0, "wrong action": 6,
-                                        "wrong amount": 1, "asked the party": 0, "model failed": 0,
+                          "grounded": 0, "decided_without_human": 14, "round_one_stops": 0,
+                          "consistent": None,
+                          "by_reason": {"match": 11, "wrong outcome": 1, "wrong action": 6,
+                                        "wrong amount": 0, "asked the party": 0, "model failed": 0,
                                         "run failed": 0}},
                          report.totals)
         self.assertEqual(REASONS, list(report.totals["by_reason"]))
@@ -364,13 +367,15 @@ class Reports(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             _ev().main(["--llm", "mock", "--pack", "organiser-style-v1", "--out", str(out)])
         data = json.loads((out / "organiser-style-v1" / "report.json").read_text(encoding="utf-8"))
-        self.assertEqual({"pack", "provider", "threshold", "autonomous_cap_sgd", "generated_at",
-                          "totals", "cases"}, set(data))
+        self.assertEqual({"pack", "provider", "threshold", "autonomous_cap_sgd", "repeat",
+                          "generated_at", "totals", "cases"}, set(data))
         self.assertEqual(("organiser-style-v1", "mock", 0.65, 50.0),
                          (data["pack"], data["provider"], data["threshold"],
                           data["autonomous_cap_sgd"]))
         self.assertEqual({"dispute_id", "expected", "got", "reason", "decision_match", "grounded",
-                          "rules_missing", "error", "case_file"}, set(data["cases"][0]))
+                          "rules_missing", "error", "case_file", "asked_in_round_one",
+                          "decided_without_human", "repeat_got", "consistent"},
+                         set(data["cases"][0]))
         self.assertEqual(MOCK_ORGANISER, [(c["dispute_id"], c["reason"]) for c in data["cases"]])
         self.assertEqual(11, data["totals"]["decisions_matching"])
         for case in data["cases"]:
