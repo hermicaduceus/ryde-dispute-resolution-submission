@@ -34,7 +34,8 @@
       "trips_completed": 180,
       "disputes_total": 2,
       "disputes_upheld": 1,
-      "rating": 4.8
+      "rating": 4.8,
+      "fraud_flags": 0
     },
     "driver": {
       "party_id": "D-4001",

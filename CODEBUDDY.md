@@ -38,9 +38,13 @@ locked scope never widens past the statement.
 These decisions are ruled by the team and are **not open to re-litigation**:
 
 - **Categories:** route deviation + no-show charge, end to end. No third category.
-- **Agents:** exactly three — Rider Advocate, Driver Advocate, Judge. The Judge always emits a
-  confidence score (0–1). Below a configurable threshold it does not rule; the parties see only
-  a neutral "your case is still under review" message. Escalation is MVP, not stretch.
+- **Agents:** exactly three decide each dispute — Rider Advocate, Driver Advocate, Judge. The
+  Judge always emits a confidence score (0–1). Below a configurable threshold it does not rule;
+  the parties see only a neutral "your case is still under review" message. Escalation is MVP, not stretch.
+  *(Amended 2026-10-01.)* A fourth role, the **Policy & Precedent agent**, is a stretch item
+  built only if time allows: it reads human decisions and **proposes** policy changes, a human
+  approves or rejects each proposal, and it **never rules on a live case** and never edits the
+  policy or the code gates itself.
 - **Parties are spectators:** disputes arrive through a standardized intake form (category
   dropdown; "other" routes to a human-review queue with a neutral message). The advocates screen
   the submitted answers and may ask the party targeted follow-ups only when data conflicts or
@@ -65,8 +69,12 @@ These decisions are ruled by the team and are **not open to re-litigation**:
   policy set, dataset description), `evidence/` (development-process screenshots), `tools/` +
   `tests/` (marked **non-app**: helper scripts and tests only; `app/` and `ui/` never import
   from them). **The repo is PUBLIC at submission — never commit credentials or personal data.**
-- **Deployment:** local run for the live demo (real backend, real LLM calls); a static replay
-  of one real case on EdgeOne Pages for the optional public link, labelled honestly as a replay.
+- **Deployment:** local run for the live demo (real backend, real LLM calls). *(Amended
+  2026-10-01.)* The public link is a static replay on EdgeOne Pages of the **full loop** (filing →
+  the Judge withholds → a human decides → the party's status page), labelled honestly as a
+  replay of a real run with its date; it ships first. Optional polish on top: a hosted live
+  system behind one shared judge password (every page and API), a daily case cap and a daily
+  health check, with keys rotated before it goes up.
 
 ## Non-negotiable engineering rules
 
@@ -83,6 +91,12 @@ These decisions are ruled by the team and are **not open to re-litigation**:
 - **Only the CodeBuddy build lane writes `app/` and `ui/`.** Any other AI assistant used for
   rescue or unblocking (e.g. another coding agent) is confined to `tools/` and `tests/` and must never
   touch application code — the project's "built on CodeBuddy" claim must stay honest.
+  *(Amended 2026-10-01.)* A defect that lives only in `app/` or `ui/` follows the normal path:
+  the planning agent writes a failing test and a brief, the CodeBuddy build lane fixes it (on
+  the default flash model), the planning agent verifies. **One exception:** within 48 hours of
+  the submission deadline, if the build lane cannot land a fix in time, the rescue lane may fix
+  it, and every such change is logged with its reason in the commit message and in
+  `docs/tool-experiences.md`.
 
 ## How work is done here
 

@@ -220,10 +220,11 @@ class LoadLabels(unittest.TestCase):
 # ------------------------------------------------------------ the real corpus
 
 #: (dispute_id, reason) in file order, measured on the mock at build 370cbef. A list, not
-#: a dict: a duplicated or reordered case must show up.
+#: a dict: a duplicated or reordered case must show up. Re-measured 2026-10-01 after the
+#: NS-0205 label moved to refund 6.61 (grill Q11): only NS-0205 changed.
 MOCK_ORGANISER = [
     ("DISP-002", "match"), ("NS-0201", "wrong action"), ("NS-0202", "match"),
-    ("NS-0203", "match"), ("NS-0204", "match"), ("NS-0205", "wrong outcome"),
+    ("NS-0203", "match"), ("NS-0204", "match"), ("NS-0205", "match"),
     ("NS-0206", "match"), ("NS-0207", "wrong action"), ("OS-0301", "match"),
     ("RD-0101", "match"), ("RD-0102", "wrong action"), ("RD-0103", "wrong action"),
     ("RD-0104", "match"), ("RD-0105", "wrong action"), ("RD-0106", "wrong amount"),
@@ -247,9 +248,9 @@ class MockCorpusRun(unittest.TestCase):
 
     def test_organiser_pack_totals(self):
         report, _ = _run(self, "organiser-style-v1")
-        self.assertEqual({"cases": 18, "decisions_matching": 10, "grounding_applicable": 17,
+        self.assertEqual({"cases": 18, "decisions_matching": 11, "grounding_applicable": 17,
                           "grounded": 0,
-                          "by_reason": {"match": 10, "wrong outcome": 1, "wrong action": 6,
+                          "by_reason": {"match": 11, "wrong outcome": 0, "wrong action": 6,
                                         "wrong amount": 1, "asked the party": 0, "model failed": 0,
                                         "run failed": 0}},
                          report.totals)
@@ -258,7 +259,7 @@ class MockCorpusRun(unittest.TestCase):
     def test_ryde_pack_per_case_and_totals(self):
         report, _ = _run(self, "ryde-synth-v1")
         self.assertEqual(MOCK_RYDE, [(c.dispute_id, c.reason) for c in report.cases])
-        self.assertEqual((17, 9, 16, 0), tuple(report.totals[k] for k in
+        self.assertEqual((17, 10, 16, 0), tuple(report.totals[k] for k in
                          ("cases", "decisions_matching", "grounding_applicable", "grounded")))
 
     def test_report_names_the_pack_and_provider(self):
@@ -283,10 +284,10 @@ class MockCorpusRun(unittest.TestCase):
         self.assertIsNone(by_id["NS-0202"].grounded)
         self.assertIn("simulated outage", by_id["NS-0202"].error)
         self.assertEqual("match", by_id["NS-0203"].reason, "the case after the failure still ran")
-        self.assertEqual((9, 1, 0), (report.totals["by_reason"]["match"],
+        self.assertEqual((10, 1, 0), (report.totals["by_reason"]["match"],
                                      report.totals["by_reason"]["model failed"],
                                      report.totals["by_reason"]["run failed"]))
-        self.assertEqual(9, report.totals["decisions_matching"])
+        self.assertEqual(10, report.totals["decisions_matching"])
 
     def test_unexpected_exception_is_also_contained_per_case(self):
         for exception in (TypeError("malformed reply"), KeyError("missing key"), OSError("I/O bug")):
@@ -371,7 +372,7 @@ class Reports(unittest.TestCase):
         self.assertEqual({"dispute_id", "expected", "got", "reason", "decision_match", "grounded",
                           "rules_missing", "error", "case_file"}, set(data["cases"][0]))
         self.assertEqual(MOCK_ORGANISER, [(c["dispute_id"], c["reason"]) for c in data["cases"]])
-        self.assertEqual(10, data["totals"]["decisions_matching"])
+        self.assertEqual(11, data["totals"]["decisions_matching"])
         for case in data["cases"]:
             # Relative to --out, so the report stays valid when the folder is moved.
             self.assertEqual("organiser-style-v1/%s/case_file.json" % case["dispute_id"],
@@ -383,7 +384,7 @@ class Reports(unittest.TestCase):
         md = _ev().render_markdown(report)
         lines = md.splitlines()
         self.assertEqual("# Evaluation: organiser-style-v1, provider mock", lines[0])
-        self.assertIn("Decisions matching the label: 10 of 18", lines)
+        self.assertIn("Decisions matching the label: 11 of 18", lines)
         self.assertIn("Rulings citing every decisive rule: 0 of 17", lines)
         self.assertIn(_ev().CAVEAT, lines)
         self.assertIn(_ev().MOCK_WARNING, lines)
@@ -459,9 +460,9 @@ class Main(unittest.TestCase):
         for pack in ("organiser-style-v1", "ryde-synth-v1"):
             self.assertTrue((tmp / pack / "report.md").exists(), pack)
             self.assertTrue((tmp / pack / "report.json").exists(), pack)
-        self.assertIn("Decisions matching the label: 10 of 18", out)
-        self.assertIn("Decisions matching the label: 9 of 17", out)
-        self.assertLess(out.index("10 of 18"), out.index("9 of 17"), "organiser pack runs first")
+        self.assertIn("Decisions matching the label: 11 of 18", out)
+        self.assertIn("Decisions matching the label: 10 of 17", out)
+        self.assertLess(out.index("11 of 18"), out.index("10 of 17"), "organiser pack runs first")
         self.assertIn(_ev().MOCK_WARNING, out)
         self.assertIn(_ev().CAVEAT, out)
         self.assertNotIn("%", out)
@@ -471,7 +472,7 @@ class Main(unittest.TestCase):
         code, out, _ = self._main(["--llm", "mock", "--pack", "ryde-synth-v1", "--out", str(tmp)])
         self.assertEqual(0, code)
         self.assertFalse((tmp / "organiser-style-v1").exists())
-        self.assertIn("Decisions matching the label: 9 of 17", out)
+        self.assertIn("Decisions matching the label: 10 of 17", out)
 
     def test_unknown_pack_exit_1(self):
         code, _, err = self._main(["--llm", "mock", "--pack", "no-such-pack",

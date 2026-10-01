@@ -17,7 +17,7 @@ tagged with which layer it comes from:
 | Tag | Meaning |
 |---|---|
 | **[RYDE-ACTUAL]** | Taken from Ryde's own published policy pages or Terms of Use. The rule states what Ryde actually publishes, with the source URL. |
-| **[PEER-DERIVED]** | Ryde publishes no rule here. The rule is modelled on a comparable Singapore operator's published policy (Grab or TADA), cited, and adapted. |
+| **[PEER-DERIVED]** | Ryde publishes no rule here. The rule is modelled on a comparable Singapore operator's published policy (Grab, TADA or CDG Zig), cited, and adapted. |
 | **[SYNTHESISED]** | Neither Ryde nor its peers publish a usable rule. The team authored it. These are the rules a real Ryde policy would most likely word differently. |
 
 **Why a synthesised policy exists at all.** The challenge statement requires the Judge to apply
@@ -41,7 +41,9 @@ retrieved 2026-09-21. Treat every amount in the parameters table as swappable.
 **Sources.** Ryde: `help.rydesharing.com` cancellation and waiting fee policy, waiver request
 pages, Driver Performance and Community Standards, `rydesharing.com/terms-of-use/`. Peers:
 `grab.com/sg/cancellationpolicy/`, Grab Transport Terms of Service, TADA Singapore rider FAQ and
-T&C. Regulatory: LTA/PTC joint statement on fare accuracy, CaseTrust-LTA accreditation standards.
+T&C, CDG Zig cancellation policy FAQ (`cdgtaxi.com.sg/faq/cancellation-policy/`, retrieved
+2026-10-01). Regulatory: LTA/PTC joint statement on fare accuracy, CaseTrust-LTA accreditation
+standards.
 Full citations with retrieval dates are in the research reports the team holds.
 
 ---
@@ -62,6 +64,7 @@ them by name.
 | Gross route deviation | 5.0 km | [SYNTHESISED] | Material regardless of percentage |
 | De minimis adjustment | SGD 1.00 | [SYNTHESISED] | Below this, no monetary remedy |
 | Autonomous decision cap | SGD 50.00 | [SYNTHESISED] | Above this, human review |
+| Contested no-show automatic refund limit | SGD 10.00 | [SYNTHESISED] | NS-6: above this, human review |
 | Filing window | 30 days from the trip | [RYDE-ACTUAL] | Waiver request pages |
 
 ---
@@ -147,6 +150,10 @@ Party profiles (dispute rate, upheld rate, rating, tenure) may be cited as conte
 confidence. They must **never** be the reason a claim succeeds or fails. A rider with a high
 dispute rate can still be overcharged; a driver with a perfect record can still take a detour. Use
 history only to break a tie the evidence leaves genuinely even, and say so explicitly when you do.
+
+One narrow use is different in kind: NS-6 uses the rider's record to decide **who** decides a
+contested no-show (the system, or a human), never **which way** it goes. A rider whose record
+fails NS-6's conditions is not refused; their case goes to a person.
 
 ### GEN-9 — Chat signals are weak evidence [SYNTHESISED]
 
@@ -268,11 +275,19 @@ A fare may be wrong without any deviation. Where `fare.breakdown_consistent` is 
 `fare.difference_sgd` is materially positive against the recomputed fare at the recorded tariff
 rates, the rider is refunded the difference regardless of the route taken.
 
+Refund the proven overcharge, even when it exceeds the amount the rider claimed. A rider who
+under-states their own loss is still owed what the records prove; ESC-4's cap still applies.
+
 Singapore's regulator has put fare accuracy squarely on the operator: in the 2024 ERP
 mis-rating case the LTA and PTC stated that "operators of ride-hail services are responsible for
 ensuring that accurate fares are charged to passengers", and directed a full audit and
 reimbursement [PEER-DERIVED, regulatory]. A pricing error is the platform's to fix, not the
 rider's to absorb and not the driver's to pay for.
+
+Enforcement (2026-10-01): where `fare.difference_sgd` is at least the de minimis amount (SGD
+1.00) and a ruling refunds less than it, or nothing, the Judge withholds the ruling for a human.
+This gate is enforced in code beside the others. It never rewrites the amount; it only stops a
+short refund reaching the parties.
 
 ### RD-6 — Duration overrun is not, by itself, a fare dispute [SYNTHESISED]
 
@@ -353,16 +368,41 @@ Distinct from cancellation: where the driver pressed "I'm Here", waited more tha
 the trip went ahead**, a waiting time fee of SGD 5.00 is chargeable at the end of the trip. The
 same arrival test in NS-3 applies: a waiting fee earned from the wrong location is not earned.
 
-### NS-6 — Contested no-show with both parties asserting [SYNTHESISED]
+### NS-6 — Contested no-show with both parties asserting [PEER-DERIVED + SYNTHESISED]
 
 Where the driver marked a no-show and the rider asserts the driver was absent
 (`cancellation.driver_marked_no_show` true and `cancellation.rider_claims_driver_absent` true),
 the platform's own telemetry decides it, in this order: the driver's recorded position at arrival
 (NS-3), then the wait duration (NS-2), then the chat log's contemporaneous content.
 
-If the telemetry settles it, rule and explain which field decided. If the position is unrecorded
-and the wait is the only evidence, the dispute escalates under ESC-3: a straight word-against-word
-conflict on a fee is not something to decide on the balance of personalities.
+If the driver's position at arrival is recorded, NS-3 and NS-2 settle it: rule and explain which
+field decided.
+
+If the position is **not** recorded (`cancellation.driver_distance_from_pickup_m` is null), the
+fee is not supported and is **refunded in full** under GEN-3. A recorded arrival position is the
+base requirement for charging a no-show: Grab allows the fee only where the driver is "at the
+pick-up location according to GPS data", and CDG Zig states the same condition word for word
+("Is at the pick-up location according to GPS data … You will not be charged the cancellation fee
+if any of the above are not fulfilled") [PEER-DERIVED]. A wait timer running somewhere does not
+prove the driver was at the pickup point, which is the very failure NS-3 exists to catch.
+
+That refund is issued automatically only when all three of these hold
+[SYNTHESISED]:
+
+- the fee (`cancellation.cancellation_fee_sgd`) is no more than **SGD 10.00**;
+- the rider's fraud flags (`profiles.rider.fraud_flags`) are recorded and **zero**;
+- no more than half of the rider's past disputes were rejected, counting every past dispute not
+  upheld (`profiles.rider.disputes_total` minus `profiles.rider.disputes_upheld`) as rejected. A
+  rider with no past disputes meets this condition.
+
+Otherwise the dispute goes to a human under ESC-3, with the candidate ruling attached. A missing
+figure counts as failing its condition: an unrecorded fraud flag is not a clean record. These
+conditions decide who decides the case, never which way it goes (GEN-8).
+
+Enforcement (2026-10-01): in code, beside the other gates. Where the position is unrecorded and
+the three conditions hold, a ruling that is not a refund of exactly the fee is withheld for a
+human; where any condition fails, the ruling is withheld whatever it says. The gate never rewrites
+a ruling.
 
 ### NS-7 — Advance bookings [RYDE-ACTUAL]
 
@@ -401,8 +441,8 @@ because there the absence is itself the evidence (NS-4).
 ### ESC-3 — Irreconcilable accounts [SYNTHESISED]
 
 Where the two sides assert incompatible facts and the telemetry does not settle which is right,
-the dispute escalates with both cases and the full Evidence Pack attached. NS-6 is the common
-instance.
+the dispute escalates with both cases and the full Evidence Pack attached. NS-6 routes a
+contested no-show here when its automatic-refund conditions are not met.
 
 ### ESC-4 — Amount above the autonomous cap [SYNTHESISED]
 

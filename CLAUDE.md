@@ -14,6 +14,12 @@ that claim becomes dishonest and the project can be disqualified.
 If a fix genuinely requires changing `app/` or `ui/`: stop and report the needed change to
 the operator instead of making it.
 
+**One logged exception (amended 2026-10-01 by operator ruling):** within 48 hours of the
+submission deadline, if the CodeBuddy build lane cannot land a fix to `app/` or `ui/` in time,
+the operator may direct the rescue lane to make it. Every such change names the reason in its
+commit message and is logged in `docs/tool-experiences.md`. Outside that window the rule above
+holds without exception.
+
 **One carve-out: generated data.** `data/` may change, but only as the output of running
 `tools/build_corpus.py`. Never hand-edit a file under `data/`: edit the generator (or the
 prose/sample inputs it reads under `tools/`) and re-run it, so every dispute record and every

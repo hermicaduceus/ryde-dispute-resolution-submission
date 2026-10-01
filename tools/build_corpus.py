@@ -303,6 +303,9 @@ def profile(rider_id: str, driver_id: str, **overrides) -> Dict[str, Any]:
         "disputes_total": 2,
         "disputes_upheld": 1,
         "rating": 4.8,
+        # Stated, not omitted (the operator 2026-10-01): NS-6's automatic refund needs a recorded
+        # zero, and the Evidence Pack reads an absent flag as unknown, never as clean.
+        "fraud_flags": 0,
     }
     driver = {
         "party_id": driver_id,
@@ -795,14 +798,16 @@ def build_cases() -> List[Dict[str, Any]]:
             ],
             profiles=profile("R-6005", "D-3005"),
         ),
-        outcome="escalated",
-        action=None,
-        amount=None,
-        rules=["NS-6", "ESC-3"],
+        outcome="ruled",
+        action="refund",
+        amount=CANCELLATION_FEE,
+        rules=["NS-6", "GEN-3"],
         rationale=(
             "Both parties assert incompatible facts and the driver's position at arrival was "
-            "never recorded, so NS-3 cannot settle it. The wait alone clears NS-2, which makes "
-            "the charge arguable rather than proven. NS-6 routes it to ESC-3."
+            "never recorded, so the fee rests on no GPS proof that the driver was at the pickup "
+            "point. Under NS-6 and GEN-3 the charge is not supported and is refunded in full. "
+            "The automatic-refund conditions hold: the fee is under SGD 10, the rider has zero "
+            "fraud flags, and 1 of 2 past disputes was rejected (no more than half)."
         ),
     )
 

@@ -105,7 +105,8 @@
       "trips_completed": 60,
       "disputes_total": 9,
       "disputes_upheld": 1,
-      "rating": 4.8
+      "rating": 4.8,
+      "fraud_flags": 0
     },
     "driver": {
       "party_id": "D-2003",

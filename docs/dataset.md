@@ -114,9 +114,9 @@ challenged, which makes it an assertion rather than ground truth.
 
 | Outcome | Cases |
 |---|---|
-| `ruled` → refund | 7 |
+| `ruled` → refund | 8 |
 | `ruled` → no action | 6 |
-| `escalated` | 3 |
+| `escalated` | 2 |
 | `human_review` | 1 |
 
 **The balance is deliberate.** Roughly half the ruled cases find for the complainant and half do
@@ -124,10 +124,12 @@ not. A corpus where every claim succeeds cannot demonstrate that the system is c
 no, and a dispute resolver that only ever refunds is not adjudicating — it is processing.
 `test_corpus.py` asserts both directions are present.
 
-Three cases escalate rather than resolve, for three different reasons: missing decisive evidence
-(RD-0108), an amount above the autonomous cap (RD-0109), and irreconcilable accounts the telemetry
-cannot settle (NS-0205). Escalation is a correct outcome under the policy, so it has to be in the
-corpus or the escalation path is untested.
+Two cases escalate rather than resolve, for two different reasons: missing decisive evidence
+(RD-0108) and an amount above the autonomous cap (RD-0109). Escalation is a correct outcome under
+the policy, so it has to be in the corpus or the escalation path is untested. NS-0205 escalated
+until 2026-10-01; it now refunds under the rewritten NS-6 (a contested no-show with no recorded
+driver position is not a supported charge), and NS-6's conditions still send a riskier version of
+the same case to a human.
 
 ## What each case is for
 
@@ -159,7 +161,7 @@ The cap is now a Python gate in `app/agents/judge.py` alongside the confidence g
 | NS-0202 | Driver at pickup but cancelled after 1.5 min, short of the minimum wait | refund 6.61 |
 | NS-0203 | Driver marked arrival 885 m away — the wait never started | refund 6.61 |
 | NS-0204 | Driver never arrived at all; rider charged for cancelling | refund 6.61 |
-| NS-0205 | Both sides assert opposite facts and no driver position was recorded | escalate |
+| NS-0205 | Both sides assert opposite facts and no driver position was recorded: the fee has no GPS proof, so NS-6 refunds it (fee under SGD 10, clean rider record) | refund 6.61 |
 | NS-0206 | Cancellation inside the 3-minute free window | refund 6.61 |
 | NS-0207 | Waiting fee on a completed trip, driver at pickup | no action |
 
