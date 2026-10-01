@@ -35,8 +35,8 @@ treats NaN as missing, an unreadable number is treated the same way.
 `docs/policy.md` already carries the new text (the ESC-2 enforcement note and EV-1's fare
 paragraph). Read both before you start.
 
-**Target:** `tests/test_w22_unreadable_numbers.py` (38 tests), currently RED, goes green, and the
-full suite (`/usr/bin/python3 -m unittest discover -s tests -t .`, **768 tests when done**) is
+**Target:** `tests/test_w22_unreadable_numbers.py` (40 tests), currently RED, goes green, and the
+full suite (`/usr/bin/python3 -m unittest discover -s tests -t .`, **770 tests when done**) is
 green. Round one's file `tests/test_w22_unproven_figures.py` must stay green.
 
 **Do not edit anything under `tests/`, `tools/`, `data/` or `ui/`.** If a test looks wrong, stop
