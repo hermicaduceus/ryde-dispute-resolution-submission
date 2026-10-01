@@ -4,12 +4,16 @@ Weighs both advocates' cases, applies the policy document, and issues one ruling
 confidence score and a natural-language explanation.
 
 The confidence gate is the Judge's contract, not a policy rule: a ruling whose confidence
-is below the configured threshold is not delivered to the parties. It stands beside two
-other Python-enforced gates: ESC-4 (the recommended amount above the autonomous cap) and
-ESC-2 (a route-deviation case whose deviation could not be measured). The Judge's candidate
-is still produced and recorded — that is what a human reviewer receives on escalation —
-but `Resolution.ruling` stays empty and the parties see only the neutral holding message.
-The threshold is passed in from configuration on every call; nothing here hard-codes it.
+is below the configured threshold is not delivered to the parties. It stands beside four
+other Python-enforced gates: ESC-4 (the recommended amount above the autonomous cap),
+ESC-2 (a route-deviation case whose deviation could not be measured), NS-6 (a contested
+no-show whose fee has no recorded arrival position may only be refunded in full, and only
+for a low fee and a clean rider record) and RD-5 (a proven overcharge of at least the de
+minimis amount must actually be refunded). The Judge's candidate is still produced and
+recorded — that is what a human reviewer receives on escalation — but `Resolution.ruling`
+stays empty and the parties see only the neutral holding message. Every gate withholds;
+none rewrites what the Judge proposed. The threshold is passed in from configuration on
+every call; nothing here hard-codes it.
 """
 
 from __future__ import annotations
@@ -17,7 +21,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional
 
-from ..dispute import CATEGORY_ROUTE_DEVIATION, Dispute
+from ..dispute import CATEGORY_NO_SHOW_CHARGE, CATEGORY_ROUTE_DEVIATION, Dispute
 from ..evidence import EvidencePack
 from ..schemas import (
     OUTCOME_RULED,
@@ -33,6 +37,52 @@ from .base import BaseAgent, HARD_RULES, citable_refs_block, dispute_block, evid
 
 EVENT_RULING_ISSUED = "judge.ruling_issued"
 EVENT_RULING_WITHHELD = "judge.ruling_withheld"
+
+#: NS-6: the largest contested no-show fee the system may refund without a human.
+CONTESTED_NO_SHOW_AUTO_LIMIT_SGD = 10.00
+#: RD-5: an overcharge below this is de minimis and is not gated.
+DE_MINIMIS_SGD = 1.00
+
+
+def _is_figure(value: Any) -> bool:
+    """True only for a real number. bool is an int subclass, so it is excluded."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _is_count(value: Any) -> bool:
+    """True only for a real integer. bool is an int subclass, so it is excluded."""
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def ns6_auto_refund_eligible(pack: EvidencePack) -> bool:
+    """NS-6: whether a contested no-show refund may be issued without a human.
+
+    Every condition must hold, and a missing figure always fails its condition: an
+    unrecorded fee, fraud flag or dispute history is not a clean record. This decides
+    who decides the case, never which way it goes.
+    """
+    cancellation = pack.cancellation
+    if cancellation is None:
+        return False
+    fee = cancellation.cancellation_fee_sgd
+    if not _is_figure(fee) or fee <= 0 or fee > CONTESTED_NO_SHOW_AUTO_LIMIT_SGD:
+        return False
+
+    profiles = pack.profiles
+    rider = profiles.rider if profiles is not None else None
+    if rider is None:
+        return False
+    if not _is_count(rider.fraud_flags) or rider.fraud_flags != 0:
+        return False
+
+    total = rider.disputes_total
+    upheld = rider.disputes_upheld
+    if not _is_count(total) or not _is_count(upheld):
+        return False
+    if total < 0 or upheld < 0 or upheld > total:
+        return False
+    # Rejected = total minus upheld; eligible when rejected is no more than half.
+    return (total - upheld) * 2 <= total
 
 
 class Judge(BaseAgent):
@@ -186,6 +236,77 @@ class Judge(BaseAgent):
                 )
             )
             gate_summaries.append("the route deviation could not be measured (ESC-2)")
+
+        cancellation = pack.cancellation
+        if (
+            dispute.category == CATEGORY_NO_SHOW_CHARGE
+            and cancellation is not None
+            and cancellation.driver_marked_no_show is True
+            and cancellation.rider_claims_driver_absent is True
+            and cancellation.driver_distance_from_pickup_m is None
+        ):
+            # NS-6: a contested no-show with no recorded arrival position has no GPS
+            # proof for the fee. The only ruling allowed through is a refund of exactly
+            # the fee, and only for a low fee and a clean rider record; everything else
+            # goes to a human. The candidate ruling is never rewritten.
+            eligible = ns6_auto_refund_eligible(pack)
+            fee = cancellation.cancellation_fee_sgd
+            full_refund = (
+                ruling.action == RulingAction.REFUND.value
+                and _is_figure(fee)
+                and round(ruling.recommended_amount_sgd, 2) == round(fee, 2)
+            )
+            if not (eligible and full_refund):
+                if eligible:
+                    reason = (
+                        "NS-6: the contested no-show fee has no recorded arrival position "
+                        "and is refunded in full under GEN-3; the proposed %s of SGD %.2f "
+                        "is not that refund"
+                        % (ruling.action, ruling.recommended_amount_sgd)
+                    )
+                else:
+                    reason = (
+                        "NS-6: the contested no-show refund is not automatic here — the "
+                        "fee must be recorded and at most SGD %.2f, the rider's fraud "
+                        "flags recorded and zero, and no more than half the rider's past "
+                        "disputes rejected" % CONTESTED_NO_SHOW_AUTO_LIMIT_SGD
+                    )
+                gate_failures.append(("NS-6", reason))
+                gate_summaries.append(
+                    "the contested no-show refund is not a supported automatic refund (NS-6)"
+                )
+
+        fare = pack.fare
+        if (
+            dispute.category == CATEGORY_ROUTE_DEVIATION
+            and fare is not None
+            and _is_figure(fare.difference_sgd)
+            and fare.difference_sgd >= DE_MINIMIS_SGD
+        ):
+            # RD-5: the records prove an overcharge of at least the de minimis amount,
+            # so a ruling that refunds less than the proven difference (or nothing) is
+            # held for a human. Refunding more than the difference is not this gate's
+            # concern.
+            covered = (
+                ruling.action == RulingAction.REFUND.value
+                and round(ruling.recommended_amount_sgd, 2) >= round(fare.difference_sgd, 2)
+            )
+            if not covered:
+                gate_failures.append(
+                    (
+                        "RD-5",
+                        "RD-5: the records prove an overcharge of SGD %.2f; the proposed "
+                        "%s of SGD %.2f does not refund it"
+                        % (
+                            fare.difference_sgd,
+                            ruling.action,
+                            ruling.recommended_amount_sgd,
+                        ),
+                    )
+                )
+                gate_summaries.append(
+                    "the ruling refunds less than the overcharge the records prove (RD-5)"
+                )
 
         if not gate_failures:
             self.events.emit(
