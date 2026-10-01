@@ -179,7 +179,8 @@ object, or coordinates missing, non-numeric, non-finite, or out of range — has
 not a shorter one: the distance fields are null with a note naming the point, no distance is
 substituted from elsewhere in the record, and ESC-2 applies.
 
-The same holds for the fare. A tariff rate that is not a finite number makes the recomputed fare
+The same holds for the fare. A tariff rate that is not a finite number (including an integer too
+large to read as one) makes the recomputed fare
 unknown, not cheaper, and a breakdown component that is not a finite number makes the breakdown
 sum unknown, so `fare.breakdown_consistent` is null rather than false: an inconsistent breakdown
 is evidence of an incorrect charge under EV-3, and an unreadable one is not.
@@ -446,8 +447,13 @@ because there the absence is itself the evidence (NS-4).
 Enforcement (2026-10-01): the same gate also withholds a route-deviation ruling whose
 `fare.charged_sgd` is not a recorded figure, because EV-1 names the fare charged as the third
 figure a fare finding needs. A figure the record cannot prove is a missing figure: a value that
-is present but not a finite number (NaN or Infinity, which a JSON reader accepts) reads as
-missing in the Evidence Pack and in every gate, never as a figure a gate can compare.
+is present but not a finite number (NaN or Infinity, which a JSON reader accepts, or an integer
+too large to read as a number) reads as missing in the Evidence Pack and in every gate, never as
+a figure a gate can compare. The same gate withholds a route-deviation ruling when the record
+states a fare input it cannot read (a tariff rate or the promo, listed in
+`fare.unreadable_inputs`): the overcharge is then unprovable either way, so RD-5 has nothing to
+hold the ruling to. A record that states no tariff rates at all is not this clause; RD-3 governs
+it.
 
 ### ESC-3 — Irreconcilable accounts [SYNTHESISED]
 
