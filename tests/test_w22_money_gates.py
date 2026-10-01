@@ -264,6 +264,15 @@ class ContestedNoShowScope(_JudgeHarness):
         self.assertFalse(eligible(_replace_rider(self.pack, fraud_flags=None)))
         self.assertEqual(10.00, _judge_module().CONTESTED_NO_SHOW_AUTO_LIMIT_SGD)
 
+    def test_the_eligibility_helper_refuses_a_fee_that_is_missing_or_not_positive(self):
+        # The gate also checks the fee before accepting a full refund, so a helper that
+        # called an unrecorded fee eligible would stay hidden behind it. Pin the helper.
+        eligible = _judge_module().ns6_auto_refund_eligible
+        for fee in (None, 0, 0.0, -6.61, True):
+            with self.subTest(fee=fee):
+                self.assertFalse(eligible(_replace_cancellation(self.pack, cancellation_fee_sgd=fee)))
+        self.assertTrue(eligible(_replace_cancellation(self.pack, cancellation_fee_sgd=0.01)))
+
 
 # ------------------------------------------------------------------ RD-5
 
