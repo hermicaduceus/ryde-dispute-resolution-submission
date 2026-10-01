@@ -71,8 +71,17 @@ class EvidenceInputError(ValueError):
 
 
 def _round(value: Optional[float], places: int) -> Optional[float]:
+    """Round a computed figure, or None when it is not a readable number.
+
+    The layer's own arithmetic can overflow from finite inputs (a huge distance over a
+    tiny estimate), and round(inf, 2) is inf: an Infinity must never reach the pack, the
+    prompts or the case file. A figure that is not finite is a missing one.
+    """
+    number = _as_float(value)
+    if number is None:
+        return None
     # `+ 0.0` normalises negative zero, so a computed 0.00 never prints as -0.0.
-    return None if value is None else round(value, places) + 0.0
+    return round(number, places) + 0.0
 
 
 def _round_up(value: Optional[float], places: int) -> Optional[float]:
@@ -85,21 +94,36 @@ def _round_up(value: Optional[float], places: int) -> Optional[float]:
     inside a window the real number sits outside. The Judge compares the figure it is
     shown and may not recompute it, so the figure must never flatter the claim.
     Rounding up keeps a value that exceeds the bound looking like it exceeds the bound.
+
+    A value that is not finite, or whose scaling by 10 ** places overflows, is missing
+    rather than rounded: it sits far past any threshold the rounding exists for, and
+    ceil(inf) raises rather than rounding.
     """
-    if value is None:
+    number = _as_float(value)
+    if number is None:
         return None
     factor = 10.0 ** places
-    return (math.ceil(value * factor) / factor) + 0.0
+    scaled = number * factor
+    if not math.isfinite(scaled):
+        return None
+    return (math.ceil(scaled) / factor) + 0.0
 
 
 def _is_non_finite_number(value: Any) -> bool:
-    """True only for a present number that is not finite: NaN, Infinity, -Infinity.
+    """True only for a present number that is not a readable finite figure.
 
-    A JSON reader accepts all three as bare tokens, so a record can carry one. Such a
-    value is not a recorded figure: it reads as missing everywhere, and no gate ever
-    compares it.
+    NaN, Infinity and -Infinity are accepted by a JSON reader as bare tokens, and a
+    reader returns an integer of any size; an integer too large for a float is not a
+    usable figure either. All of them read as missing everywhere, and no gate ever
+    compares one.
     """
-    return isinstance(value, float) and not math.isfinite(value)
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        number = float(value)
+    except OverflowError:  # an int too large for a float
+        return True
+    return not math.isfinite(number)
 
 
 def _as_float(value: Any) -> Optional[float]:
@@ -448,13 +472,27 @@ def _build_fare(
 
     # A broken component voids the sum: summing the remainder would be a plausible
     # wrong total, and a False breakdown_consistent reads as EV-3 evidence of an
-    # incorrect charge. Unknown (None) is the only honest answer.
+    # incorrect charge. Unknown (None) is the only honest answer. A sum that is not
+    # finite is the same thing: the layer's arithmetic overflowed, so there is no total.
     component_sum = None
     if not broken_components and components:
-        component_sum = sum(components.values())
+        total = sum(components.values())
+        if math.isfinite(total):
+            component_sum = total
     breakdown_consistent = None
     if component_sum is not None and charged is not None:
         breakdown_consistent = abs(component_sum - charged) <= BREAKDOWN_TOLERANCE_SGD
+
+    # The fare-formula inputs the record states but cannot be read, as dotted paths: a
+    # tariff rate feeds the formula directly, and the promo is subtracted inside it. Any
+    # other broken component feeds only the breakdown sum, which the note above already
+    # explains, so it is not listed. Sorted, so two packs of one record are byte-identical.
+    unreadable_inputs = ["rates.%s" % key for key in sorted(broken_rates)]
+    unreadable_inputs += [
+        "breakdown.%s" % key
+        for key in sorted(broken_components)
+        if key in ("promo_sgd", "promo", "discount_sgd")
+    ]
 
     return FareEvidence(
         charged_sgd=_round(charged, 2),
@@ -468,6 +506,7 @@ def _build_fare(
         components_sgd={key: _round(value, 2) for key, value in components.items()},
         rates=rates,
         notes=[],
+        unreadable_inputs=unreadable_inputs,
     )
 
 

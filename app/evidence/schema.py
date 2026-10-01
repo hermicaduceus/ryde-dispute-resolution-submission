@@ -22,7 +22,9 @@ from typing import Any, Dict, List, Optional
 #: 1.2 added cancellation.case_policy and profiles.*.fraud_flags.
 #: 1.3 added cancellation.waiting_fee_sgd (additive): a record carrying both a
 #: cancellation fee and a waiting fee now shows both instead of dropping one.
-EVIDENCE_SCHEMA_VERSION = "1.3"
+#: 1.4 added fare.unreadable_inputs (additive): the fare-formula inputs a record
+#: states but cannot be read as numbers, so a consumer can see why the fare is unknown.
+EVIDENCE_SCHEMA_VERSION = "1.4"
 
 # Keys that are provenance rather than evidence: an agent citing them would be citing
 # metadata, not a fact about the trip. Excluded from field_refs().
@@ -39,6 +41,9 @@ _NON_CITABLE_KEYS = frozenset(
         "party",
         "role",
         "notes",
+        # A list of record defects, not a fact about the trip: provenance a consumer may
+        # read to see why a figure is missing, never evidence a ruling can rest on.
+        "unreadable_inputs",
         "method",
     }
 )
@@ -90,6 +95,11 @@ class FareEvidence:
     components_sgd: Dict[str, float] = field(default_factory=dict)
     rates: Dict[str, float] = field(default_factory=dict)
     notes: List[str] = field(default_factory=list)
+    #: The fare-formula inputs the record states but cannot be read, as dotted names
+    #: ("rates.per_km_sgd", "breakdown.promo_sgd"), sorted. A record that states no
+    #: rates at all lists nothing: absence is not unreadability. ESC-2 holds a route
+    #: case whose overcharge rests on one of these, and it is excluded from field_refs().
+    unreadable_inputs: List[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
