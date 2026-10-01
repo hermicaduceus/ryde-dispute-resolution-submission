@@ -353,11 +353,6 @@ NEGATIVE_FARE_INPUT_NOTE = (
     "record defect rather than a cheap trip"
 )
 
-NON_POSITIVE_SURGE_NOTE = (
-    "the fare could not be recomputed: the surge multiplier was zero or negative"
-)
-
-
 def _build_fare(
     trip: Dict[str, Any],
     actual_km: Optional[float],
@@ -388,6 +383,16 @@ def _build_fare(
     components = _finite_mapping(components_raw)
     rates = _finite_mapping(rates_raw)
 
+    # A rate the record can read but that no tariff could state. Negative is impossible
+    # for every rate; for the surge, zero is too — a stated surge of 0 is not "no surge"
+    # (an absent key is, and still defaults to 1.0), it is a rate that prices the trip at
+    # nothing. A zero base, per-km or per-min rate is a real, free component.
+    impossible_rates = sorted(
+        key
+        for key, value in rates.items()
+        if value < 0 or (key in ("surge_multiplier", "surge") and value <= 0)
+    )
+
     base = _as_float(_first(rates, "base_sgd", "base_fare_sgd")) or 0.0
     per_km = _as_float(_first(rates, "per_km_sgd", "distance_rate_sgd")) or 0.0
     per_min = _as_float(_first(rates, "per_min_sgd", "time_rate_sgd")) or 0.0
@@ -399,12 +404,13 @@ def _build_fare(
     def recompute(distance_km: Optional[float], minutes: Optional[float]) -> Optional[float]:
         """The fare for these inputs, or None when the inputs cannot produce a real one.
 
-        Negative distances or minutes, and a zero or negative surge, are record defects
-        rather than cheap trips: each one makes the formula return a smaller or negative
-        fare that reads as a legitimate overcharge finding. Refuse instead of computing.
-        A broken rate or promo is the same refusal: the formula's inputs are incomplete.
+        Negative distances or minutes are record defects rather than cheap trips: each
+        one makes the formula return a smaller or negative fare that reads as a
+        legitimate overcharge finding. Refuse instead of computing. A rate or promo that
+        is broken or impossible is the same refusal: the formula's inputs are not a real
+        tariff.
         """
-        if broken_rates or promo_broken:
+        if broken_rates or impossible_rates or promo_broken:
             return None
         if not rates:
             return None
@@ -416,15 +422,23 @@ def _build_fare(
             if NEGATIVE_FARE_INPUT_NOTE not in notes:
                 notes.append(NEGATIVE_FARE_INPUT_NOTE)
             return None
-        if surge <= 0:
-            if NON_POSITIVE_SURGE_NOTE not in notes:
-                notes.append(NON_POSITIVE_SURGE_NOTE)
-            return None
         subtotal = base + per_km * (distance_km or 0.0) + per_min * (minutes or 0.0)
         return subtotal * surge - promo
 
     recomputed = recompute(actual_km, actual_minutes)
     recomputed_expected_route = recompute(estimated_km, estimated_minutes)
+
+    # With every rate possible, a recomputed fare below zero can only come from a promo
+    # larger than the fare. The same promo is subtracted from both recomputations, so if
+    # either is below zero neither is trusted: the fare the case rests on is unknown
+    # rather than a negative number that reads as a large overcharge. Exactly zero is a
+    # free trip, not a negative fare.
+    promo_voided = (recomputed is not None and recomputed < 0) or (
+        recomputed_expected_route is not None and recomputed_expected_route < 0
+    )
+    if promo_voided:
+        recomputed = None
+        recomputed_expected_route = None
 
     if broken_rates:
         # One note naming every broken rate. The rates and the trip numbers were there,
@@ -440,8 +454,30 @@ def _build_fare(
         )
     elif not rates:
         notes.append("no tariff rates in the record, so the fare could not be recomputed")
-    elif recomputed is None:
+    elif recomputed is None and not impossible_rates and not promo_voided:
         notes.append("tariff rates present but the trip numbers needed to recompute were missing")
+
+    if impossible_rates:
+        # One note naming every impossible rate, for the same reason as the broken ones:
+        # the rates and the trip numbers were there, so the notes above would misstate
+        # the record.
+        notes.append(
+            "the fare could not be recomputed: the tariff rate%s %s %s impossible (a "
+            "negative rate, or a surge of zero or less), so the fare formula's inputs "
+            "are not a real tariff"
+            % (
+                "s" if len(impossible_rates) > 1 else "",
+                ", ".join(impossible_rates),
+                "are" if len(impossible_rates) > 1 else "is",
+            )
+        )
+
+    if promo_voided:
+        notes.append(
+            "the fare could not be recomputed: the promo is larger than the fare, so "
+            "the fare it was subtracted from would be negative — a record defect, not "
+            "an overcharge"
+        )
 
     if broken_components:
         note = (
@@ -483,16 +519,26 @@ def _build_fare(
     if component_sum is not None and charged is not None:
         breakdown_consistent = abs(component_sum - charged) <= BREAKDOWN_TOLERANCE_SGD
 
-    # The fare-formula inputs the record states but cannot be read, as dotted paths: a
+    # The fare-formula inputs the record states but cannot be used, as dotted paths: a
     # tariff rate feeds the formula directly, and the promo is subtracted inside it. Any
     # other broken component feeds only the breakdown sum, which the note above already
-    # explains, so it is not listed. Sorted, so two packs of one record are byte-identical.
-    unreadable_inputs = ["rates.%s" % key for key in sorted(broken_rates)]
+    # explains, so it is not listed. An impossible rate is listed exactly as an
+    # unreadable one, each once. Sorted, so two packs of one record are byte-identical.
+    unreadable_inputs = [
+        "rates.%s" % key for key in sorted(set(broken_rates) | set(impossible_rates))
+    ]
     unreadable_inputs += [
         "breakdown.%s" % key
         for key in sorted(broken_components)
         if key in ("promo_sgd", "promo", "discount_sgd")
     ]
+    if promo_voided:
+        # The promo under the name the record uses: promo_sgd, promo or discount_sgd,
+        # whichever the breakdown carries first.
+        for key in ("promo_sgd", "promo", "discount_sgd"):
+            if key in components:
+                unreadable_inputs.append("breakdown.%s" % key)
+                break
 
     return FareEvidence(
         charged_sgd=_round(charged, 2),
