@@ -113,7 +113,8 @@ of the records the agents see.
 
 Five gates stand between a ruling and the parties, and **all five are enforced in Python, not
 asked of the model in a prompt**: the confidence threshold, ESC-4's SGD 50 autonomous cap, ESC-2,
-which withholds a route-case ruling when the deviation cannot be measured, NS-6, which withholds a
+which withholds a route-case ruling when the deviation cannot be measured or the fare charged
+cannot be established, NS-6, which withholds a
 contested no-show unless the ruling is a refund of exactly the fee for a low fee and a clean rider
 record, and RD-5, which withholds a route ruling that refunds less than the overcharge the records
 prove. Each gate withholds the ruling for a human; none of them rewrites what the Judge proposed.
