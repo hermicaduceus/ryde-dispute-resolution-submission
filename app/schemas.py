@@ -242,7 +242,15 @@ def _require_number(
     value = payload.get(key)
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ContractError("%s: '%s' is required and must be a number, got %r" % (agent, key, value))
-    number = float(value)
+    try:
+        number = float(value)
+    except OverflowError:
+        # An integer too large for a float is not a number this contract can carry. A
+        # JSON reader returns ints of any size, so a model reply can carry one; it is
+        # rejected exactly as NaN is, and never raises OverflowError out of the parse.
+        raise ContractError(
+            "%s: '%s' must be a finite number, got %r" % (agent, key, value)
+        ) from None
     # NaN and Infinity survive json.loads and slip past every comparison below: NaN is
     # neither < minimum nor > maximum, so an unbounded-nonsense amount would reach the
     # parties as "refund of SGD nan". Reject them before the range checks.
