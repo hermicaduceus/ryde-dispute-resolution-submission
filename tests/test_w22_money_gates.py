@@ -321,9 +321,13 @@ class ProvenOverchargeGate(_JudgeHarness):
                 pack = _replace_fare(self.pack, difference_sgd=difference)
                 self.assertRuled(*self.judge(self._rd("no action", 0.0), pack=pack))
 
-    def test_a_missing_fare_block_is_not_gated(self):
+    def test_a_missing_fare_block_is_held_by_esc2_not_rd5(self):
+        # Superseded 2026-10-01 (session twenty): a route case whose fare block is
+        # missing has no provable charged fare, which EV-1 sends to ESC-2. RD-5 still
+        # does not fire: there is no overcharge figure for it to read.
         pack = dataclasses.replace(self.pack, fare=None)
-        self.assertRuled(*self.judge(self._rd("no action", 0.0), pack=pack))
+        res, gates = self.judge(self._rd("no action", 0.0), pack=pack)
+        self.assertWithheldBy(res, gates, ["ESC-2"], 0.0)
 
     def test_route_cases_only(self):
         # A no-show dispute judged against a pack that DOES prove an overcharge: the

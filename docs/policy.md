@@ -179,6 +179,11 @@ object, or coordinates missing, non-numeric, non-finite, or out of range — has
 not a shorter one: the distance fields are null with a note naming the point, no distance is
 substituted from elsewhere in the record, and ESC-2 applies.
 
+The same holds for the fare. A tariff rate that is not a finite number makes the recomputed fare
+unknown, not cheaper, and a breakdown component that is not a finite number makes the breakdown
+sum unknown, so `fare.breakdown_consistent` is null rather than false: an inconsistent breakdown
+is evidence of an incorrect charge under EV-3, and an unreadable one is not.
+
 ### EV-2 — What the records must show for a no-show finding [RYDE-ACTUAL + PEER-DERIVED]
 
 A no-show charge requires the platform's own timestamps: when the driver marked arrival
@@ -437,6 +442,12 @@ Enforcement (2026-09-23): for route-deviation disputes the Judge withholds any r
 `route.deviation_pct` is null. This gate is enforced in code, beside the confidence gate and the
 ESC-4 cap, and applies to route cases only — a no-show without a recorded arrival is never caught,
 because there the absence is itself the evidence (NS-4).
+
+Enforcement (2026-10-01): the same gate also withholds a route-deviation ruling whose
+`fare.charged_sgd` is not a recorded figure, because EV-1 names the fare charged as the third
+figure a fare finding needs. A figure the record cannot prove is a missing figure: a value that
+is present but not a finite number (NaN or Infinity, which a JSON reader accepts) reads as
+missing in the Evidence Pack and in every gate, never as a figure a gate can compare.
 
 ### ESC-3 — Irreconcilable accounts [SYNTHESISED]
 
