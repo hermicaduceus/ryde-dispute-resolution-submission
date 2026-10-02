@@ -488,6 +488,41 @@ class WhatTheHumanAndTheOperatorSee(_Harness):
         self.assertEqual(UNDER_REVIEW_MESSAGE, res.party_message)
         self.assertNotIn("5.56", res.party_message)
 
+    # Review round (2026-10-03, glm-5.3 S21-1..S21-4): the fragment checks above stay green
+    # when the two figures are swapped or the wording changes, so the human would read
+    # "proves SGD 5.56; the proposed refund of SGD 0.00". Pin the exact text the brief gives.
+    def test_the_summary_is_exactly_the_brief_text(self):
+        _res, _gates, summary = self.judge(_ruling("refund", 5.56))
+        self.assertEqual(
+            "Judge withheld the ruling: the ruling pays more than the records prove is owed (RD-4)",
+            summary)
+
+    def test_the_note_names_the_proof_first_and_the_refund_second(self):
+        res, _gates, _ = self.judge(_ruling("refund", 5.56))
+        self.assertEqual(
+            ["the ruling was not delivered: RD-4: the records prove an overpayment of SGD 0.00; "
+             "the proposed refund of SGD 5.56 is more than that"],
+            [n for n in res.notes if "RD-4" in n])
+
+    def test_the_note_order_holds_on_a_nonzero_proof(self):
+        dispute = load_dispute(SYNTH / "RD-0101.json")
+        res, gates, _ = self.judge(_ruling("refund", 6.00), pack=build_evidence_pack(dispute),
+                                   dispute=dispute)
+        self.assertEqual(["RD-4"], gates)
+        self.assertEqual(
+            ["the ruling was not delivered: RD-4: the records prove an overpayment of SGD 5.81; "
+             "the proposed refund of SGD 6.00 is more than that"],
+            [n for n in res.notes if "RD-4" in n])
+
+    def test_the_compensation_note_is_exactly_the_brief_text(self):
+        dispute = load_dispute(SYNTH / "RD-0101.json")
+        res, _gates, _ = self.judge(_ruling("compensation", 2.00),
+                                    pack=build_evidence_pack(dispute), dispute=dispute)
+        self.assertEqual(
+            ["the ruling was not delivered: RD-4: a route-deviation record proves nothing owed "
+             "to the driver; the proposed compensation of SGD 2.00 is not supported"],
+            [n for n in res.notes if "RD-4" in n])
+
 
 class ThroughThePipeline(unittest.TestCase):
     """The real pipeline on the mock: the mock's own unproven refunds are now held."""
