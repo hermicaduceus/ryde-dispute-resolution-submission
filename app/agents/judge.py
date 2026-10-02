@@ -4,13 +4,15 @@ Weighs both advocates' cases, applies the policy document, and issues one ruling
 confidence score and a natural-language explanation.
 
 The confidence gate is the Judge's contract, not a policy rule: a ruling whose confidence
-is below the configured threshold is not delivered to the parties. It stands beside four
+is below the configured threshold is not delivered to the parties. It stands beside five
 other Python-enforced gates: ESC-4 (the recommended amount above the autonomous cap),
 ESC-2 (a route-deviation case whose deviation could not be measured, whose fare charged is
 not a recorded figure, or whose record states a fare input it cannot read), NS-6 (a contested
 no-show whose fee has no recorded arrival position may only be refunded in full, and only
-for a low fee and a clean rider record) and RD-5 (a proven overcharge of at least the de
-minimis amount must actually be refunded). The Judge's candidate is still produced and
+for a low fee and a clean rider record), RD-5 (a proven overcharge of at least the de
+minimis amount must actually be refunded) and RD-4 (a route refund larger than the records
+prove the rider overpaid, or any compensation on a route case, is withheld for a human).
+The Judge's candidate is still produced and
 recorded — that is what a human reviewer receives on escalation — but `Resolution.ruling`
 stays empty and the parties see only the neutral holding message. Every gate withholds;
 none rewrites what the Judge proposed. The threshold is passed in from configuration on
@@ -44,6 +46,11 @@ EVENT_RULING_WITHHELD = "judge.ruling_withheld"
 CONTESTED_NO_SHOW_AUTO_LIMIT_SGD = 10.00
 #: RD-5: an overcharge below this is de minimis and is not gated.
 DE_MINIMIS_SGD = 1.00
+#: RD-1: a deviation is material at this percentage AND this distance...
+MATERIAL_DEVIATION_PCT = 20.0
+MATERIAL_DEVIATION_KM = 1.0
+#: ...or at this distance whatever the percentage.
+MATERIAL_DEVIATION_GROSS_KM = 5.0
 
 
 def _is_figure(value: Any) -> bool:
@@ -94,6 +101,66 @@ def ns6_auto_refund_eligible(pack: EvidencePack) -> bool:
         return False
     # Rejected = total minus upheld; eligible when rejected is no more than half.
     return (total - upheld) * 2 <= total
+
+
+def deviation_is_material(pack: EvidencePack) -> bool:
+    """RD-1 in code: is the recorded route deviation material?
+
+    Material at >= 5.0 km whatever the percentage, or at >= 20% and >= 1.0 km together.
+    A missing, non-finite or bool figure is not material, and neither is a pack with no
+    route block. When the gross distance limb is cleared the percentage is not needed at
+    all — it may be missing.
+    """
+    route = pack.route
+    if route is None:
+        return False
+    km = route.deviation_km
+    if _is_figure(km) and km >= MATERIAL_DEVIATION_GROSS_KM:
+        return True
+    pct = route.deviation_pct
+    return (
+        _is_figure(km)
+        and _is_figure(pct)
+        and pct >= MATERIAL_DEVIATION_PCT
+        and km >= MATERIAL_DEVIATION_KM
+    )
+
+
+def provable_refund_sgd(pack: EvidencePack) -> float:
+    """RD-4: the largest refund the records actually prove the rider is owed.
+
+    The max of three proofs, never below zero, rounded to the cent:
+
+    1. ``fare.difference_sgd`` (RD-5, a pricing error);
+    2. ``fare.charged_sgd - fare.component_sum_sgd`` when the breakdown is inconsistent
+       (EV-3: the line items add up to less than the charge) — this works without rates;
+    3. ``fare.charged_sgd - fare.recomputed_estimated_route_sgd`` when RD-1 says the
+       deviation is material (RD-3 / RD-4: the charge above the fare the expected route
+       would have cost).
+
+    ``fare.deviation_fare_delta_sgd`` is deliberately never read: on a fixed fare paid as
+    quoted it is what the detour *would* have cost, not money the rider paid. A missing or
+    unreadable figure contributes nothing; no fare block proves zero.
+    """
+    fare = pack.fare
+    if fare is None:
+        return 0.0
+    proven = 0.0
+    if _is_figure(fare.difference_sgd):
+        proven = max(proven, fare.difference_sgd)
+    if (
+        fare.breakdown_consistent is False
+        and _is_figure(fare.charged_sgd)
+        and _is_figure(fare.component_sum_sgd)
+    ):
+        proven = max(proven, fare.charged_sgd - fare.component_sum_sgd)
+    if (
+        deviation_is_material(pack)
+        and _is_figure(fare.charged_sgd)
+        and _is_figure(fare.recomputed_estimated_route_sgd)
+    ):
+        proven = max(proven, fare.charged_sgd - fare.recomputed_estimated_route_sgd)
+    return round(proven, 2)
 
 
 class Judge(BaseAgent):
@@ -203,10 +270,10 @@ class Judge(BaseAgent):
             build=build,
         )
 
-        # Two independent gates stand between a ruling and the parties, and BOTH are
-        # enforced here in Python rather than asked of the model in a prompt. A prompt is
-        # a request; this is a guarantee. ESC-4 in particular moves money, so it must not
-        # depend on the LLM having read its instructions carefully.
+        # The gates stand between a ruling and the parties, and all of them are enforced
+        # here in Python rather than asked of the model in a prompt. A prompt is a
+        # request; this is a guarantee. ESC-4 and RD-4 in particular move money, so they
+        # must not depend on the LLM having read its instructions carefully.
         gate_failures = []
         gate_summaries = []
         if ruling.confidence < confidence_threshold:
@@ -362,6 +429,44 @@ class Judge(BaseAgent):
                 )
             )
             gate_summaries.append("the overcharge figure in the records could not be read (RD-5)")
+
+        if (
+            dispute.category == CATEGORY_ROUTE_DEVIATION
+            and ruling.action != RulingAction.NO_ACTION.value
+            and not any(gate == "ESC-2" for gate, _reason in gate_failures)
+            and not (
+                fare is not None
+                and fare.difference_sgd is not None
+                and not _is_figure(fare.difference_sgd)
+            )
+        ):
+            # RD-4: on a route case, money may only move as far as the records prove it is
+            # owed. A refund larger than the provable overpayment is held (equal goes out;
+            # the short side is RD-5's concern), and compensation is always held — a route
+            # record proves nothing owed to the driver. Skipped when ESC-2 already holds
+            # the case, or when fare.difference_sgd is present but unreadable (RD-5's
+            # unreadable branch): one record defect reads as one reason. The candidate is
+            # never rewritten; the human receives exactly what the Judge proposed.
+            proven = provable_refund_sgd(pack)
+            if ruling.action == RulingAction.COMPENSATION.value:
+                held = True
+                reason = (
+                    "RD-4: a route-deviation record proves nothing owed to the driver; "
+                    "the proposed compensation of SGD %.2f is not supported"
+                    % ruling.recommended_amount_sgd
+                )
+            else:
+                held = round(ruling.recommended_amount_sgd, 2) > proven
+                reason = (
+                    "RD-4: the records prove an overpayment of SGD %.2f; the proposed "
+                    "refund of SGD %.2f is more than that"
+                    % (proven, ruling.recommended_amount_sgd)
+                )
+            if held:
+                gate_failures.append(("RD-4", reason))
+                gate_summaries.append(
+                    "the ruling pays more than the records prove is owed (RD-4)"
+                )
 
         if not gate_failures:
             self.events.emit(
