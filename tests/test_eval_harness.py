@@ -224,13 +224,16 @@ class LoadLabels(unittest.TestCase):
 #: NS-0205 label moved to refund 6.61 (grill Q11): only NS-0205 changed. Session A (W22):
 #: the RD-5 gate now holds the mock's short 0.66 refund on RD-0106 for a human, so it is a
 #: "wrong outcome" (label: ruled refund 3.40) rather than a "wrong amount".
+#: W28 (2026-10-02): the RD-4 gate holds the mock's unproven refunds on RD-0103 (0.74 on an
+#: immaterial deviation), RD-0105 (5.56 on a fixed fare paid as quoted) and RD-0107 (4.91 on
+#: a traffic delay), so each moves from "wrong action" to "wrong outcome".
 MOCK_ORGANISER = [
     ("DISP-002", "match"), ("NS-0201", "wrong action"), ("NS-0202", "match"),
     ("NS-0203", "match"), ("NS-0204", "match"), ("NS-0205", "match"),
     ("NS-0206", "match"), ("NS-0207", "wrong action"), ("OS-0301", "match"),
-    ("RD-0101", "match"), ("RD-0102", "wrong action"), ("RD-0103", "wrong action"),
-    ("RD-0104", "match"), ("RD-0105", "wrong action"), ("RD-0106", "wrong outcome"),
-    ("RD-0107", "wrong action"), ("RD-0108", "match"), ("RD-0109", "match"),
+    ("RD-0101", "match"), ("RD-0102", "wrong action"), ("RD-0103", "wrong outcome"),
+    ("RD-0104", "match"), ("RD-0105", "wrong outcome"), ("RD-0106", "wrong outcome"),
+    ("RD-0107", "wrong outcome"), ("RD-0108", "match"), ("RD-0109", "match"),
 ]
 MOCK_RYDE = [pair for pair in MOCK_ORGANISER if pair[0] != "DISP-002"]
 
@@ -251,9 +254,9 @@ class MockCorpusRun(unittest.TestCase):
     def test_organiser_pack_totals(self):
         report, _ = _run(self, "organiser-style-v1")
         self.assertEqual({"cases": 18, "decisions_matching": 11, "grounding_applicable": 17,
-                          "grounded": 0, "decided_without_human": 14, "round_one_stops": 0,
+                          "grounded": 0, "decided_without_human": 11, "round_one_stops": 0,
                           "consistent": None,
-                          "by_reason": {"match": 11, "wrong outcome": 1, "wrong action": 6,
+                          "by_reason": {"match": 11, "wrong outcome": 4, "wrong action": 3,
                                         "wrong amount": 0, "asked the party": 0, "model failed": 0,
                                         "run failed": 0}},
                          report.totals)

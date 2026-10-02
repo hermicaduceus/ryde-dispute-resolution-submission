@@ -536,14 +536,15 @@ class DocsNameTheChargedFareClause(unittest.TestCase):
             self.assertIn(needle, row, needle)
 
     def test_the_gate_count_is_unchanged(self):
-        # One gate, wider: the clause joins ESC-2, it is not a ninth gate.
+        # One gate, wider: the clause joins ESC-2, it is not a gate of its own. The count
+        # moved to nine on 2026-10-02 for RD-4 (W28), a separate gate, not this clause.
         text = (REPO / "docs" / "architecture.md").read_text(encoding="utf-8")
         section = text.split("## Gates enforced in code", 1)[1]
-        self.assertTrue(section.lstrip().startswith("Eight gates"))
+        self.assertTrue(section.lstrip().startswith("Nine gates"))
 
     def test_the_readme_esc2_clause_names_the_charged_fare(self):
         text = (REPO / "README.md").read_text(encoding="utf-8")
-        para = next(p for p in text.split("\n\n") if "Five gates" in p)
+        para = next(p for p in text.split("\n\n") if "Six gates" in p)  # five until W28
         esc2 = para.split("ESC-2", 1)[1].split("NS-6", 1)[0]
         self.assertIn("deviation", esc2)
         self.assertIn("fare charged", esc2)

@@ -289,9 +289,12 @@ class ProvenOverchargeGate(_JudgeHarness):
     def test_refunding_the_proven_overcharge_is_issued(self):
         self.assertRuled(*self.judge(self._rd("refund", 3.40)))
 
-    def test_refunding_more_than_the_overcharge_is_issued(self):
-        # Q12: pay the proven overcharge even above the claim; more is not this gate's concern.
-        self.assertRuled(*self.judge(self._rd("refund", 5.00)))
+    def test_refunding_more_than_the_overcharge_is_withheld_by_rd4(self):
+        # Q12 still holds (pay the proven overcharge even above the claim), but since W28
+        # (the operator 2026-10-02, option A) a refund ABOVE what the records prove is held by RD-4,
+        # not by RD-5. RD-5 itself still only polices the short side.
+        res, gates = self.judge(self._rd("refund", 5.00))
+        self.assertWithheldBy(res, gates, ["RD-4"], 5.00)
 
     def test_refunding_less_is_withheld(self):
         for amount in (0.66, 3.39, 1.00):
@@ -302,8 +305,9 @@ class ProvenOverchargeGate(_JudgeHarness):
     def test_no_action_and_compensation_are_withheld(self):
         res, gates = self.judge(self._rd("no action", 0.0))
         self.assertWithheldBy(res, gates, ["RD-5"], 0.0)
+        # Since W28 (2026-10-02) compensation on a route case is also held by RD-4, after RD-5.
         res, gates = self.judge(self._rd("compensation", 3.40))
-        self.assertWithheldBy(res, gates, ["RD-5"], 3.40)
+        self.assertWithheldBy(res, gates, ["RD-5", "RD-4"], 3.40)
 
     def test_compared_to_the_cent(self):
         self.assertRuled(*self.judge(self._rd("refund", 3.396)))

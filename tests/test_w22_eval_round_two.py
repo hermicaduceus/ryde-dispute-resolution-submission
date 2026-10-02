@@ -188,11 +188,12 @@ class Autonomy(unittest.TestCase):
         report, _ = _run(self, PACKS / "organiser-style-v1")
         decided = [c.dispute_id for c in report.cases if c.decided_without_human]
         # Not decided: OS-0301 (human_review), RD-0106 (RD-5 gate), RD-0108 (ESC-2),
-        # RD-0109 (ESC-4). Measured on the reference build.
-        self.assertEqual(14, len(decided))
-        for held in ("OS-0301", "RD-0106", "RD-0108", "RD-0109"):
+        # RD-0109 (ESC-4), and since W28 RD-0103, RD-0105, RD-0107 (RD-4 gate).
+        # Measured on the reference build.
+        self.assertEqual(11, len(decided))
+        for held in ("OS-0301", "RD-0103", "RD-0105", "RD-0106", "RD-0107", "RD-0108", "RD-0109"):
             self.assertNotIn(held, decided)
-        self.assertEqual(14, report.totals["decided_without_human"])
+        self.assertEqual(11, report.totals["decided_without_human"])
 
     def test_a_wrong_ruling_still_counts_as_decided(self):
         # Autonomy measures who decided, not whether it was right: NS-0201 is a wrong
@@ -223,7 +224,7 @@ class Autonomy(unittest.TestCase):
     def test_headlines_on_the_mock(self):
         report, _ = _run(self, PACKS / "organiser-style-v1")
         md = _ev().render_markdown(report).splitlines()
-        self.assertIn("Decided without a human: 14 of 18", md)
+        self.assertIn("Decided without a human: 11 of 18", md)
         self.assertIn("Stopped to ask the party in round one: 0 of 18", md)
         self.assertFalse(any(line.startswith("Same decision on all") for line in md),
                          "no consistency line without --repeat")
@@ -362,7 +363,7 @@ class ReportShape(unittest.TestCase):
         with contextlib.redirect_stdout(stdout):
             _ev().main(["--llm", "mock", "--pack", "ryde-synth-v1", "--repeat", "2", "--out", str(out)])
         text = stdout.getvalue()
-        for line in ("Decided without a human: 13 of 17",
+        for line in ("Decided without a human: 10 of 17",
                      "Stopped to ask the party in round one: 0 of 17",
                      "Same decision on all 2 runs: 17 of 17"):
             self.assertIn(line, text)

@@ -281,6 +281,16 @@ Do not manufacture a refund to satisfy a complaint. A rider who was not charged 
 overcharged, and saying so plainly is a better answer than a goodwill payment that implies a
 wrong.
 
+Enforcement (2026-10-02): on a route-deviation case the Judge withholds a refund that is more
+than the records prove the rider overpaid. The records prove the largest of: a positive
+`fare.difference_sgd` (RD-5); the charge above the breakdown total where the breakdown does not
+add up (EV-3); and, only for a material deviation under RD-1, the charge above
+`fare.recomputed_estimated_route_sgd`, the fare the expected route would have cost. A fixed fare
+paid as quoted therefore proves nothing, and neither does a record with no tariff rates unless
+its own breakdown shows the overcharge. A compensation ruling on a route case is always
+withheld, because a route record proves nothing owed to the driver. This gate is enforced in
+code beside the others. It never rewrites the amount and never holds a ruling of no action.
+
 ### RD-5 — Overcharge independent of routing [RYDE-ACTUAL + SYNTHESISED]
 
 A fare may be wrong without any deviation. Where `fare.breakdown_consistent` is false, or
