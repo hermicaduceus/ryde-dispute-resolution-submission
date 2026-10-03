@@ -235,7 +235,7 @@ class ContractIntactTest(unittest.TestCase):
 
         repo = Path(__file__).resolve().parent.parent
         digest = hashlib.sha256((repo / "ui" / "party" / "party.js").read_bytes()).hexdigest()
-        self.assertEqual("62bd9aefccee92e024b06a1812386cd615be7e0bdc20071897d527cd207c3433", digest)
+        self.assertEqual("d7c2ac785b88cf1f1111fa302d4b6272d7e765e74237944d2e0ff3952e856d1a", digest)
 
     def test_architecture_doc_states_the_notice(self):
         """The doc says the party message carries no MOCK marker; that goes false now."""

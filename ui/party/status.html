@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ryde — dispute status</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+  <link rel="stylesheet" href="./party.css">
+</head>
+<body>
+  <main class="party-shell">
+    <header class="party-header">
+      <p class="eyebrow">RYDE / HELP</p>
+      <h1>Your dispute status</h1>
+      <p class="demo-note">Demo account</p>
+      <p class="intro">This is a demo account. It shows every dispute filed on this demo.</p>
+      <p><a href="./index.html">File a new dispute</a></p>
+    </header>
+
+    <section class="step">
+      <h2>Look up a reference number</h2>
+      <div class="field">
+        <label for="reference-input">Reference number</label>
+        <input id="reference-input" type="text" maxlength="64" placeholder="PF-XXXXXXXX">
+      </div>
+      <p class="error" id="reference-error" hidden></p>
+      <div class="step-actions">
+        <button id="reference-check" class="primary" type="button">Check status</button>
+      </div>
+      <div id="lookup-result"></div>
+    </section>
+
+    <section class="step">
+      <h2>My disputes</h2>
+      <div id="account-list"></div>
+    </section>
+  </main>
+
+  <script src="./status.js" defer></script>
+</body>
+</html>

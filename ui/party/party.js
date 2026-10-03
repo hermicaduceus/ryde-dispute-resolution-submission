@@ -371,8 +371,17 @@
       var input = element("textarea", "answer-input");
       input.id = "reply-" + index;
       input.rows = 2;
+      // A round-two question the party has nothing to add to still needs an answer:
+      // one click fills this box with the same sentence the run harness uses, so the
+      // form can be completed without the party inventing words.
+      var nothingMore = element("button", "nothing-more", "I have nothing more to add");
+      nothingMore.type = "button";
+      nothingMore.addEventListener("click", function () {
+        input.value = "I have nothing more to add";
+      });
       field.appendChild(label);
       field.appendChild(input);
+      field.appendChild(nothingMore);
       questionBoxes.appendChild(field);
     });
   }
