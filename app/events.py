@@ -59,6 +59,7 @@ class EventType:
     LLM_CALL_RETRIED = "llm.call_retried"
     DISPUTE_ESCALATED_ON_MODEL_FAILURE = "dispute.escalated_on_model_failure"
     PARTY_NOTIFIED = "party.notified"
+    HUMAN_DECISION_RECORDED = "human.decision_recorded"
     RUN_COMPLETED = "run.completed"
 
 
@@ -197,3 +198,66 @@ class EventLog:
             except json.JSONDecodeError as exc:
                 raise ValueError("corrupt event log at line %d of %s" % (line_number, path)) from exc
         return events
+
+
+def append_event(
+    run_dir: Path,
+    run_id: str,
+    event_type: str,
+    *,
+    from_: str,
+    to: str,
+    summary: str,
+    payload: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Append one event to an existing run's log from outside the running pipeline.
+
+    The human decision lands in a run directory whose EventLog instance is long
+    gone, so this is the same append the pipeline performs, without an in-memory
+    log: the sequence number continues from the highest seq already on disk (not
+    the last line's and not the line count — a hand-edited or reordered log must
+    never mint a duplicate seq), the payload is written before the line so the
+    ref is never dangling, and no existing line is ever rewritten. Returns the
+    appended event as its wire dict.
+    """
+    run_dir = Path(run_dir)
+    events_path = run_dir / EVENTS_FILENAME
+    highest = 0
+    if events_path.exists():
+        for line in events_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                existing = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            seq = existing.get("seq") if isinstance(existing, dict) else None
+            if isinstance(seq, int) and not isinstance(seq, bool) and seq > highest:
+                highest = seq
+    seq = highest + 1
+
+    payload_ref = None
+    if payload is not None:
+        payloads_dir = run_dir / PAYLOADS_DIRNAME
+        payloads_dir.mkdir(parents=True, exist_ok=True)
+        filename = "%04d-%s.json" % (seq, _slug(event_type))
+        (payloads_dir / filename).write_text(
+            json.dumps(payload, indent=2, sort_keys=False, default=str) + "\n",
+            encoding="utf-8",
+        )
+        payload_ref = "%s/%s" % (PAYLOADS_DIRNAME, filename)
+
+    event = Event(
+        schema_version=EVENT_SCHEMA_VERSION,
+        seq=seq,
+        ts=datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+        run_id=run_id,
+        type=event_type,
+        from_=from_,
+        to=to,
+        summary=summary,
+        payload_ref=payload_ref,
+    )
+    with events_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(event.to_dict(), default=str) + "\n")
+    return event.to_dict()
