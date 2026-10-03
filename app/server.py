@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import os
 import re
 import shutil
@@ -42,7 +43,15 @@ from urllib.parse import parse_qs, unquote, urlsplit
 
 from .config import load_config
 from .dispute import AGENT_CATEGORIES, is_organiser_record, normalise_category, parse_dispute
-from .events import EventLog
+from .events import EventLog, EventType
+from .human_review import (
+    HumanDecisionError,
+    decision_record_is_valid,
+    load_decision,
+    party_message_for_human_decision,
+    proposed_from_candidate,
+    record_decision,
+)
 from .llm import LLMClient, build_llm_client
 from .pipeline import run_dispute
 from .agents import RetryPolicy
@@ -73,6 +82,13 @@ MAX_BODY_BYTES = 64 * 1024
 DEFAULT_PORT = 8000
 
 _RUN_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
+#: A dispute reference from the party page. Deliberately tighter than the run id: a
+#: lookup never names a path, so only the pattern and the id's existence decide.
+_DISPUTE_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
+
+#: The driver the demo driver account speaks for: trip T-RD0109, the 33 km detour held
+#: by the SGD 50 cap, with the same id in both packs.
+DEMO_DRIVER_ID = "D-2009"
 
 #: The categories the intake form offers. The two locked ones reach the agents; the
 #: rest route to the human-review queue with a neutral message.
@@ -143,7 +159,11 @@ def _party_fallback(run_id: Any, dispute_id: Any) -> Dict[str, Any]:
     }
 
 
-def party_view(case_file: Any) -> Dict[str, Any]:
+def party_view(
+    case_file: Any,
+    human_decision: Any = None,
+    policy: Any = None,
+) -> Dict[str, Any]:
     """The only shape of a case file the party is ever handed.
 
     Built from an allowlist and failing closed: any malformed input — not a non-array
@@ -153,6 +173,13 @@ def party_view(case_file: Any) -> Dict[str, Any]:
     message (S1), so a blank one there costs nothing and must not cost the safe
     questions too (T4). A withheld ruling's amount and the Judge's confidence are
     structurally absent from everything this function returns.
+
+    `human_decision`, when it is a well-formed decision record and the case file is
+    genuinely withheld, replaces the holding view with the person's decision and the
+    neutral reviewed sentence — and never a demo notice, because a person decided.
+    Anything else (a bad shape, or a decision on a case that is not withheld) is
+    ignored and the ordinary view stands. `policy` is the loaded policy document the
+    approval's Basis line is built from.
     """
     run_id = case_file.get("run_id") if isinstance(case_file, dict) else None
     dispute_id = case_file.get("dispute_id") if isinstance(case_file, dict) else None
@@ -162,6 +189,16 @@ def party_view(case_file: Any) -> Dict[str, Any]:
         resolution = case_file.get("resolution")
         if not isinstance(resolution, dict):
             raise _MalformedCaseFile
+        if resolution.get("outcome") == OUTCOME_WITHHELD and decision_record_is_valid(human_decision):
+            return {
+                "run_id": run_id if isinstance(run_id, str) else "",
+                "dispute_id": dispute_id if isinstance(dispute_id, str) else "",
+                "status": "decided",
+                "message": party_message_for_human_decision(
+                    human_decision, resolution.get("withheld_candidate"), policy
+                ),
+                "questions": [],
+            }
         message = resolution.get("party_message")
         status = PARTY_STATUS_BY_OUTCOME.get(resolution.get("outcome"))
         if status is None:
@@ -326,6 +363,326 @@ def _find_pack_record(pack_dir: Path, trip_id: Any) -> Optional[Dict[str, Any]]:
         if summary is not None and summary["trip_id"] == trip_id:
             return record
     return None
+
+
+# ------------------------------------------------------- run discovery (on disk)
+
+
+def _read_json_object(path: Path) -> Optional[Dict[str, Any]]:
+    """A JSON object at path, or None. Corrupt, missing and non-object all read None."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _direct_runs(out_dir: Path) -> List[Tuple[Path, Dict[str, Any]]]:
+    """Every run that is a DIRECT child of out_dir and holds a readable case file.
+
+    Eval runs live one level deeper (out_dir/<eval-name>/<run>/case_file.json) and are
+    never seen. An unreadable or corrupt case file is skipped, never a 500.
+    """
+    if not out_dir.is_dir():
+        return []
+    runs: List[Tuple[Path, Dict[str, Any]]] = []
+    for child in sorted(out_dir.iterdir()):
+        if not child.is_dir():
+            continue
+        case_path = child / CASE_FILE_NAME
+        if not case_path.is_file():
+            continue
+        case = _read_json_object(case_path)
+        if case is not None:
+            runs.append((child, case))
+    return runs
+
+
+def _party_record(run_dir: Path) -> Optional[Dict[str, Any]]:
+    """The dispute record a party-filed run carries, or None (a CLI run has none)."""
+    if not (run_dir / DISPUTE_FILE_NAME).is_file():
+        return None
+    return _read_json_object(run_dir / DISPUTE_FILE_NAME)
+
+
+def _record_filed_by(record: Dict[str, Any]) -> Any:
+    ticket = record.get("dispute_ticket")
+    if isinstance(ticket, dict):
+        return ticket.get("filed_by")
+    return record.get("filed_by")
+
+
+def _record_filed_at(record: Dict[str, Any]) -> str:
+    ticket = record.get("dispute_ticket")
+    if isinstance(ticket, dict) and isinstance(ticket.get("filed_at"), str):
+        return ticket["filed_at"]
+    value = record.get("filed_at")
+    return value if isinstance(value, str) else ""
+
+
+def _party_record_category(record: Dict[str, Any]) -> str:
+    """The form category a party-filed dispute carries, as filed (both shapes)."""
+    ticket = record.get("dispute_ticket")
+    if isinstance(ticket, dict):
+        value = ticket.get("dispute_type")
+    else:
+        value = record.get("category")
+    return value if isinstance(value, str) else ""
+
+
+def _record_driver_id(record: Dict[str, Any]) -> Any:
+    trip = record.get("trip_data")
+    if not isinstance(trip, dict):
+        trip = record.get("trip")
+    if isinstance(trip, dict):
+        return trip.get("driver_id")
+    return None
+
+
+def _timestamp_key(value: Any):
+    """A comparable UTC instant for an ISO-8601 string; unreadable sorts oldest."""
+    if isinstance(value, str) and value.strip():
+        try:
+            parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+        except ValueError:
+            parsed = None
+        if parsed is not None:
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed
+    return datetime.min.replace(tzinfo=timezone.utc)
+
+
+def _current_runs(out_dir: Path) -> Dict[str, Tuple[Path, Dict[str, Any], Dict[str, Any]]]:
+    """dispute_id -> (run_dir, case_file, dispute_record) for each dispute's current run.
+
+    Party-filed means the run folder also holds dispute.json (only the server writes
+    it; CLI runs do not). The current run of a dispute is the party-filed run WITHOUT
+    answered.json; if more than one survives, the latest generated_at wins, a tie going
+    to the larger run id. A needs_info run that was answered is superseded by its
+    round-two run, and a claim released after a crash makes its run current again.
+    """
+    best: Dict[str, Tuple[Path, Dict[str, Any], Dict[str, Any]]] = {}
+    best_key: Dict[str, Tuple[Any, str]] = {}
+    for run_dir, case in _direct_runs(out_dir):
+        record = _party_record(run_dir)
+        if record is None:
+            continue
+        if (run_dir / ANSWERED_FILE_NAME).exists():
+            continue
+        dispute_id = case.get("dispute_id")
+        if not isinstance(dispute_id, str) or not dispute_id:
+            continue
+        run_id = case.get("run_id") if isinstance(case.get("run_id"), str) else ""
+        key = (_timestamp_key(case.get("generated_at")), run_id)
+        if dispute_id not in best or key > best_key[dispute_id]:
+            best[dispute_id] = (run_dir, case, record)
+            best_key[dispute_id] = key
+    return best
+
+
+def _held_by(run_dir: Path) -> List[str]:
+    """The gates that held a run, read from its own event log and payload files.
+
+    The judge.ruling_withheld payload's gates_failed list is used in order; a run whose
+    events show a model failure reports ["model_failure"]; anything unreadable — a lost
+    log, a lost payload, a corrupt line — reports [] rather than failing the request.
+    """
+    try:
+        lines = (run_dir / "events.jsonl").read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return []
+    saw_failure = False
+    gates: Optional[List[str]] = None
+    for line in lines:
+        if not line.strip():
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(event, dict):
+            continue
+        event_type = event.get("type")
+        if event_type == EventType.JUDGE_RULING_WITHHELD:
+            ref = event.get("payload_ref")
+            payload = _read_json_object(run_dir / ref) if isinstance(ref, str) and ref else None
+            if isinstance(payload, dict):
+                value = payload.get("gates_failed")
+                if isinstance(value, list) and all(isinstance(gate, str) for gate in value):
+                    gates = list(value)
+        elif event_type == EventType.DISPUTE_ESCALATED_ON_MODEL_FAILURE:
+            saw_failure = True
+    if gates is not None:
+        return gates
+    if saw_failure:
+        return ["model_failure"]
+    return []
+
+
+def _waiting_seconds(generated_at: Any, now: datetime) -> int:
+    """Whole seconds a case has waited, floored and never negative."""
+    seconds = (now - _timestamp_key(generated_at)).total_seconds()
+    if seconds <= 0:
+        return 0
+    return int(seconds)
+
+
+def _account_entries(state: "_ServerState", kind: str) -> List[Dict[str, Any]]:
+    """The demo accounts' dispute lists: one entry per dispute's current run.
+
+    The rider list keeps the party view as-is (a needs_info entry keeps its questions
+    and its run id, so it can be answered in place). The driver list is read-only: no
+    questions, no run id, and every filer-facing status other than a decision reads as
+    under review, because those texts address the filer.
+    """
+    entries: List[Dict[str, Any]] = []
+    for _dispute_id, (run_dir, case, record) in _current_runs(state.out_dir).items():
+        if kind == "rider":
+            if _record_filed_by(record) != "rider":
+                continue
+        elif _record_driver_id(record) != DEMO_DRIVER_ID:
+            continue
+        view = party_view(case, load_decision(run_dir), state.policy)
+        summary = _trip_summary(record)
+        entry = {
+            "run_id": view["run_id"],
+            "dispute_id": view["dispute_id"],
+            "status": view["status"],
+            "message": view["message"],
+            "questions": view["questions"],
+            "filed_at": _record_filed_at(record),
+            "category": _party_record_category(record),
+            "trip_label": summary["label"] if summary is not None else "",
+        }
+        if kind == "driver":
+            entry["run_id"] = ""
+            entry["questions"] = []
+            if entry["status"] != "decided":
+                entry["status"] = "under_review"
+                entry["message"] = UNDER_REVIEW_MESSAGE
+        entries.append(entry)
+    # Newest filing first, ties broken by dispute id; two stable passes, so the second
+    # (filed_at) never disturbs the id order within equal stamps.
+    entries.sort(key=lambda item: item["dispute_id"])
+    entries.sort(key=lambda item: _timestamp_key(item["filed_at"]), reverse=True)
+    return entries
+
+
+def _review_queue(state: "_ServerState") -> List[Dict[str, Any]]:
+    """Every withheld run with no valid decision, ordered for the reviewer.
+
+    Safety first, then the largest amount (a missing amount counts as zero), then the
+    longest wait, then the run id — so the most urgent case is always the first row.
+    """
+    now = datetime.now(timezone.utc)
+    cases: List[Dict[str, Any]] = []
+    for run_dir, case in _direct_runs(state.out_dir):
+        resolution = case.get("resolution")
+        if not isinstance(resolution, dict) or resolution.get("outcome") != OUTCOME_WITHHELD:
+            continue
+        if load_decision(run_dir) is not None:
+            continue
+        proposed = proposed_from_candidate(resolution.get("withheld_candidate"))
+        intake = case.get("intake") if isinstance(case.get("intake"), dict) else {}
+        answers = intake.get("form_answers") if isinstance(intake.get("form_answers"), dict) else {}
+        safety_answer = answers.get("safety_concern")
+        safety = bool(
+            isinstance(safety_answer, str) and re.match(r"^\s*yes\b", safety_answer, re.IGNORECASE)
+        )
+        claim = intake.get("claim_amount_sgd")
+        claim_number = None
+        if isinstance(claim, (int, float)) and not isinstance(claim, bool):
+            try:
+                number = float(claim)
+            except OverflowError:
+                number = None
+            if number is not None and math.isfinite(number):
+                claim_number = number
+        if proposed is not None:
+            amount, amount_source = proposed["amount_sgd"], "proposed"
+        elif claim_number is not None:
+            amount, amount_source = claim_number, "claimed"
+        else:
+            amount, amount_source = None, None
+        run_id = case.get("run_id") if isinstance(case.get("run_id"), str) else ""
+        dispute_id = case.get("dispute_id") if isinstance(case.get("dispute_id"), str) else ""
+        category = case.get("category") if isinstance(case.get("category"), str) else ""
+        cases.append({
+            "run_id": run_id,
+            "dispute_id": dispute_id,
+            "category": category,
+            "safety": safety,
+            "amount_sgd": amount,
+            "amount_source": amount_source,
+            "waiting_seconds": _waiting_seconds(case.get("generated_at"), now),
+            "held_by": _held_by(run_dir),
+            "proposed": proposed,
+            "can_approve": proposed is not None,
+        })
+    cases.sort(key=lambda item: (
+        not item["safety"],
+        -(item["amount_sgd"] if item["amount_sgd"] is not None else 0.0),
+        -item["waiting_seconds"],
+        item["run_id"],
+    ))
+    return cases
+
+
+def _review_overrides(state: "_ServerState") -> Dict[str, Any]:
+    """Approvals counted, changes and rejections grouped by what they departed from.
+
+    A group is one (category, held_by, decision, action) — the shape of a departure,
+    not a place. Each decision appears once, oldest first; approvals are counted only,
+    never grouped, because an approval is the proposal, not a departure from it.
+    """
+    approved_count = 0
+    grouped: Dict[Tuple[str, Tuple[str, ...], str, str], List[Dict[str, Any]]] = {}
+    for run_dir, case in _direct_runs(state.out_dir):
+        record = load_decision(run_dir)
+        if record is None:
+            continue
+        decision = record.get("decision")
+        if decision == "approve":
+            approved_count += 1
+            continue
+        if decision not in ("change", "reject"):
+            continue
+        category = case.get("category") if isinstance(case.get("category"), str) else ""
+        action = record.get("action") if isinstance(record.get("action"), str) else ""
+        key = (category, tuple(_held_by(run_dir)), decision, action)
+        grouped.setdefault(key, []).append({
+            "run_id": record.get("run_id"),
+            "dispute_id": record.get("dispute_id"),
+            "reviewer": record.get("reviewer"),
+            "reason": record.get("reason"),
+            "action": record.get("action"),
+            "amount_sgd": record.get("amount_sgd"),
+            "proposed": record.get("proposed"),
+            "decided_at": record.get("decided_at"),
+        })
+    groups: List[Dict[str, Any]] = []
+    for (category, held_by, decision, action), decisions in grouped.items():
+        decisions.sort(key=lambda item: (
+            item["decided_at"] if isinstance(item["decided_at"], str) else "",
+            item["run_id"] if isinstance(item["run_id"], str) else "",
+        ))
+        groups.append({
+            "category": category,
+            "held_by": list(held_by),
+            "decision": decision,
+            "action": action,
+            "count": len(decisions),
+            "decisions": decisions,
+        })
+    groups.sort(key=lambda group: (
+        -group["count"],
+        group["category"],
+        group["decision"],
+        group["action"],
+        group["held_by"],
+    ))
+    return {"approved_count": approved_count, "groups": groups}
 
 
 # ------------------------------------------------------------------ filing builder
@@ -606,7 +963,39 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
             category = params.get("category", [""])[0]
             self._send_json(200, {"trips": _trip_list(state.pack_dir, category)})
             return
+        dispute_match = re.fullmatch(r"/api/disputes/([^/]+)", split.path)
+        if dispute_match:
+            self._dispute_lookup(state, unquote(dispute_match.group(1)))
+            return
+        if split.path == "/api/demo/rider":
+            self._send_json(200, {
+                "account": {"kind": "rider", "label": "Demo account"},
+                "disputes": _account_entries(state, "rider"),
+            })
+            return
+        if split.path == "/api/demo/driver":
+            self._send_json(200, {
+                "account": {"kind": "driver", "label": "Demo account", "driver_id": DEMO_DRIVER_ID},
+                "disputes": _account_entries(state, "driver"),
+            })
+            return
+        if split.path == "/api/review/queue":
+            self._send_json(200, {"cases": _review_queue(state)})
+            return
+        if split.path == "/api/review/overrides":
+            self._send_json(200, _review_overrides(state))
+            return
         raise _HTTPError(404, "not found")
+
+    def _dispute_lookup(self, state: "_ServerState", dispute_id: str) -> None:
+        """One party's view of their dispute's current run, with its decision applied."""
+        if not _DISPUTE_ID_RE.fullmatch(dispute_id):
+            raise _HTTPError(404, "unknown dispute")
+        current = _current_runs(state.out_dir).get(dispute_id)
+        if current is None:
+            raise _HTTPError(404, "unknown dispute")
+        run_dir, case_file, _record = current
+        self._send_json(200, party_view(case_file, load_decision(run_dir), state.policy))
 
     # ------------------------------------------------------------- API POST
 
@@ -614,13 +1003,44 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
         state = self.server.ryde_state  # type: ignore[attr-defined]
         filing_match = re.fullmatch(r"/api/disputes", split.path)
         answer_match = re.fullmatch(r"/api/disputes/([^/]+)/answers", split.path)
+        decision_match = re.fullmatch(r"/api/review/([^/]+)/decision", split.path)
         if filing_match:
             self._file_dispute(state)
             return
         if answer_match:
             self._answer_run(state, unquote(answer_match.group(1)))
             return
+        if decision_match:
+            self._record_human_decision(state, unquote(decision_match.group(1)))
+            return
         raise _HTTPError(404, "not found")
+
+    def _resolve_run_dir(self, state: "_ServerState", run_id: str) -> Path:
+        """A run directory inside out_dir, or 404. Never a path outside it."""
+        # The run id is checked after decoding: a malformed token is as unknown as a
+        # missing directory, and neither may name a path outside the output directory.
+        if not _RUN_ID_RE.fullmatch(run_id) or run_id in (".", ".."):
+            raise _HTTPError(404, "unknown run")
+        run_dir = (state.out_dir / run_id).resolve()
+        if not run_dir.is_relative_to(state.out_dir.resolve()) or not run_dir.is_dir():
+            raise _HTTPError(404, "unknown run")
+        return run_dir
+
+    def _record_human_decision(self, state: "_ServerState", run_id: str) -> None:
+        """Store one human decision on a withheld run and return it with the new view."""
+        run_dir = self._resolve_run_dir(state, run_id)
+        case_file = _read_json_object(run_dir / CASE_FILE_NAME)
+        if case_file is None:
+            raise _HTTPError(404, "unknown run")
+        body = self._read_body()
+        try:
+            record = record_decision(run_dir, case_file, body)
+        except HumanDecisionError as exc:
+            raise _HTTPError(exc.status, exc.message)
+        self._send_json(200, {
+            "decision": record,
+            "party_view": party_view(case_file, record, state.policy),
+        })
 
     def _file_dispute(self, state: "_ServerState") -> None:
         body = self._read_body()
@@ -653,13 +1073,7 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
         self._send_json(200, party_view(case.to_dict()))
 
     def _answer_run(self, state: "_ServerState", run_id: str) -> None:
-        # The run id is checked after decoding: a malformed token is as unknown as a
-        # missing directory, and neither may name a path outside the output directory.
-        if not _RUN_ID_RE.fullmatch(run_id) or run_id in (".", ".."):
-            raise _HTTPError(404, "unknown run")
-        run_dir = (state.out_dir / run_id).resolve()
-        if not run_dir.is_relative_to(state.out_dir.resolve()) or not run_dir.is_dir():
-            raise _HTTPError(404, "unknown run")
+        run_dir = self._resolve_run_dir(state, run_id)
 
         case_path = run_dir / CASE_FILE_NAME
         dispute_path = run_dir / DISPUTE_FILE_NAME
