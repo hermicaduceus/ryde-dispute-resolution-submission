@@ -201,6 +201,38 @@ the pipeline falls back to plain template questions built from the form's own la
 that asked for more information is answered through `POST /api/disputes/<run_id>/answers`, and
 the answers start a fresh run on the same dispute.
 
+## Human decision
+
+A case the Judge withholds — a gate stopped the ruling, or the model could not answer — waits
+for a person; `app/human_review.py` owns that decision. The reviewer's action is validated in
+code and stored as `human_decision.json` in the run directory, written atomically (a temp file
+linked into place) so exactly one of several concurrent requests can decide and a second is
+refused. The ceiling is SGD 500: the model's proposed amount has no upper bound, so an approval
+above it is refused and the reviewer must use a change instead. No money gate is consulted
+again — the gate that held the case does not hold the person — and `case_file.json` and
+`dispute.json` are never rewritten. One `human.decision_recorded` event is appended to the
+run's log; if that append fails the decision still stands. The party message is built in code:
+an approval keeps the proposal's Basis line (the plain titles of the cited rules, escalation
+rules excluded), while a change or a rejection never carries one, because the citations may
+contradict the person's decision. The reviewer's name and reason never reach a party.
+
+The server exposes the loop as JSON, all `Cache-Control: no-store`:
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /api/review/<run_id>/decision` | Store one human decision on a withheld run (works for command-line runs too) |
+| `GET /api/review/queue` | Every withheld run with no valid decision, safety cases first, then largest amount, longest wait |
+| `GET /api/review/overrides` | Approvals counted; changes and rejections grouped by the shape of the departure |
+| `GET /api/disputes/<dispute_id>` | The party's own view of their dispute's current run, with its decision applied |
+| `GET /api/demo/rider` | The demo rider account: every dispute filed on this demo |
+| `GET /api/demo/driver` | The demo driver account: read-only outcomes for the demo driver's trips |
+
+Only direct children of the output folder that hold a case file are runs — eval runs live a
+level deeper and are never seen — and a dispute's current run is the party-filed run without
+`answered.json`, latest `generated_at` first. The pages are clients: `ui/party/status.html`
+looks a reference up and answers a round-two question in place, `ui/party/driver.html` is
+read-only, and every rule above stays in Python.
+
 ## Policy and dataset packs
 
 `docs/policy.md` is data, not code: rules with IDs (GEN, EV, RD, NS, ESC families),

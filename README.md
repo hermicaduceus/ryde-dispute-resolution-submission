@@ -102,6 +102,9 @@ That prints the agent-to-agent event strip and the ruling, and writes the run's 
 `runs/<run_id>/`: `events.jsonl` (the observable traffic), `payloads/*.json` (the full payload
 behind each event) and `case_file.json` (evidence, both claims, resolution).
 
+A party can look a dispute up by its reference number, and the demo accounts list every dispute
+on the sample dataset, at `/party/status.html`; the intake form's outcome panel links there.
+
 The corpus lives in two swappable packs under `data/packs/`: `ryde-synth-v1` (our 17 labelled
 cases, our record shape) and `organiser-style-v1` (the same 17 cases as twins in the organisers'
 shape, plus the organisers' own `DISP-002` verbatim). `RD-0103` is a deviation too small to
