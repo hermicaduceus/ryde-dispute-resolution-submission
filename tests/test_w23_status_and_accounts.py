@@ -76,6 +76,12 @@ class DisputeLookup(_ServerCase):
                 status, payload = self.get("/api/disputes/%s" % ref)
                 self.assertEqual(404, status)
         self.assertEqual((404, {"error": "unknown dispute"}), self.get("/api/disputes/PF-NOPE0000"))
+        # Review pin (S22 battery #68): a reference refused by the PATTERN gets the same
+        # message as one that is well-formed but unknown, so the status page shows one
+        # sentence for every bad reference. Before this pin only the status was checked.
+        for ref in ("A" * 65, "bad%20id"):
+            with self.subTest(pattern_refused=ref[:10]):
+                self.assertEqual((404, {"error": "unknown dispute"}), self.get("/api/disputes/%s" % ref))
 
     def test_the_reference_pattern_boundary(self):
         view = self.server.file("T-RD0109", 5.81)
