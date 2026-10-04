@@ -1326,7 +1326,9 @@
     var amountForWarning = NaN;
     var amountLine;
     if (decision === "approve") {
-      if (proposed && proposed.action && finiteNumber(proposed.amount_sgd)) {
+      if (proposed && proposed.action === "no action") {
+        amountLine = "Amount: no action";
+      } else if (proposed && proposed.action && finiteNumber(proposed.amount_sgd)) {
         amountForWarning = proposed.amount_sgd;
         amountLine = "Amount: " + proposed.action + " of " + formatMoney(proposed.amount_sgd);
       } else {
@@ -1342,6 +1344,7 @@
         amountLine = "Amount: " + decisionUi.action.value + ", amount not a number";
       }
     }
+    decisionUi.send.disabled = decision === "change" && !finiteNumber(amountForWarning);
     confirmBox.appendChild(element("p", null, "Decision: " + (decision === "approve" ? "Approve" : decision === "change" ? "Change" : "Reject")));
     confirmBox.appendChild(element("p", null, amountLine));
     var fare = decisionFare();
@@ -1398,24 +1401,29 @@
     if (!decisionUi || decisionUi.sending || !state.openRun) {
       return;
     }
+    var ui = decisionUi;
+    var runId = state.openRun.runId;
     var decision = selectedDecision();
     if (!decision) {
       return;
     }
-    if (decision === "change" && !finiteNumber(typedAmount(decisionUi.amount.value))) {
+    if (decision === "change" && !finiteNumber(typedAmount(ui.amount.value))) {
       return;
     }
-    decisionUi.sending = true;
-    decisionUi.send.disabled = true;
+    ui.sending = true;
+    ui.send.disabled = true;
     var body = decisionRequestBody(decision);
     fetchJsonAny(
-      "/api/review/" + encodeURIComponent(state.openRun.runId) + "/decision",
+      "/api/review/" + encodeURIComponent(runId) + "/decision",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       }
     ).then(function (result) {
+      if (decisionUi !== ui || !state.openRun || state.openRun.runId !== runId) {
+        return;
+      }
       if (!result.ok) {
         showDecisionError(result.payload);
         return;
@@ -1429,9 +1437,10 @@
       decisionUi = null;
       loadReviewPanels();
     }, function () {
-      if (decisionUi) {
-        showDecisionError({});
+      if (decisionUi !== ui || !state.openRun || state.openRun.runId !== runId) {
+        return;
       }
+      showDecisionError({});
     });
   }
 

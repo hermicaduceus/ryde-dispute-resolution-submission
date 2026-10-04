@@ -373,7 +373,7 @@ def _read_json_object(path: Path) -> Optional[Dict[str, Any]]:
     """A JSON object at path, or None. Corrupt, missing and non-object all read None."""
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    except (OSError, ValueError, RecursionError):
         return None
     return data if isinstance(data, dict) else None
 
@@ -1055,11 +1055,15 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
             raise _HTTPError(404, "unknown payload")
         payload_dir = (run_dir / "payloads").resolve()
         payload_path = (payload_dir / name).resolve()
-        if not payload_path.is_relative_to(payload_dir) or not payload_path.is_file():
+        if (
+            not payload_path.is_relative_to(payload_dir)
+            or not payload_path.is_relative_to(run_dir)
+            or not payload_path.is_file()
+        ):
             raise _HTTPError(404, "unknown payload")
         try:
             payload = json.loads(payload_path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
+        except (OSError, ValueError, RecursionError):
             raise _HTTPError(404, "unknown payload")
         self._send_json(200, payload)
 

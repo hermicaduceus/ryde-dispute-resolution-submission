@@ -25,7 +25,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 UI = REPO / "ui"
 
-APP_JS_SHA = "c603e052f83b5d505ddce7256a7724b524f229c87ff3d3d87ebda1f2642af62a"
+APP_JS_SHA = "c08785fac6f23e77866704c07209b9dfac8d196af2dd11656600353686e604cb"
 
 CONSOLE_IDS = {
     "loader-title", "case-picker", "run-folder-picker", "load-status", "payload-status",

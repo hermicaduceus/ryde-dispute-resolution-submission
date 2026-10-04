@@ -223,6 +223,8 @@ The server exposes the loop as JSON, all `Cache-Control: no-store`:
 | Endpoint | Purpose |
 |---|---|
 | `POST /api/review/<run_id>/decision` | Store one human decision on a withheld run (works for command-line runs too) |
+| `GET /api/review/<run_id>/case` | Load the case file and recorded human decision for the review console |
+| `GET /api/review/<run_id>/payloads/<name>` | Load one server event payload for the review console |
 | `GET /api/review/queue` | Every withheld run with no valid decision, safety cases first, then largest amount, longest wait |
 | `GET /api/review/overrides` | Approvals counted; changes and rejections grouped by the shape of the departure |
 | `GET /api/disputes/<dispute_id>` | The party's own view of their dispute's current run, with its decision applied |
