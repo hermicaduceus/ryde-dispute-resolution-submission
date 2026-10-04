@@ -1,0 +1,45 @@
+{
+  "dispute_id": "RD-0103",
+  "run_id": "2026-10-02T182133+0000-RD-0103",
+  "generated_at": "2026-10-02T18:22:00+00:00",
+  "rider": {
+    "requested_outcome": "refund",
+    "requested_amount_sgd": 0.74,
+    "policy_rule_ids": [
+      "RD-1",
+      "RD-2",
+      "RD-3",
+      "RD-4",
+      "GEN-3",
+      "GEN-4"
+    ],
+    "evidence_cited_count": 11
+  },
+  "driver": {
+    "requested_outcome": "no action",
+    "requested_amount_sgd": 0.0,
+    "policy_rule_ids": [
+      "RD-1",
+      "RD-4",
+      "RD-5"
+    ]
+  },
+  "ruling": {
+    "action": "no action",
+    "recommended_amount_sgd": 0.0,
+    "confidence": 0.9,
+    "explanation": "The evidence shows a route deviation of 0.3 km (6.0%), which is below both material deviation thresholds under RD-1 (20% and 1.0 km, or 5.0 km). Since the deviation is immaterial, drivers are entitled to routing judgment. The fare charged (SGD 11.69) matches the recomputed fare for the actual route, and fare.deviation_fare_delta_sgd (SGD 0.74) represents the cost difference between the actual and estimated routes, not an overcharge. Under RD-4, with no fare consequence (the charged amount is correct for the route taken) and no evidence of agreement to a different route (chat.agreement_markers is 0), no monetary remedy is due. The rider was charged the proper fare for the journey received.",
+    "cited_rule_ids": [
+      "RD-1",
+      "RD-4"
+    ],
+    "cited_evidence_refs": [
+      "route.deviation_km",
+      "route.deviation_pct",
+      "fare.charged_sgd",
+      "fare.recomputed_sgd",
+      "fare.deviation_fare_delta_sgd",
+      "chat.agreement_markers"
+    ]
+  }
+}

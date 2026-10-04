@@ -6,14 +6,22 @@ and what the party sees as a result. It exists because the challenge asks for it
 ("how prompts drive the AI generation"), and because the safety story of this system is
 mostly a story about prompts and what surrounds them.
 
-One rule governs everything below: **a prompt is a request, not a constraint.** Every rule
-that moves money or withholds a decision is enforced again in Python after the model
-answers. The prompts ask for good behaviour; the code guarantees it.
+One rule governs everything below: **a prompt is a request, not a constraint.** The rules
+the code enforces — six gates listed below, all of them in Python — decide whether a
+ruling is delivered at all; the prompts ask for good behaviour, the code decides what
+reaches the parties. The gates are deliberately narrow: each one names a specific defect
+the records can show (low confidence, an amount above the autonomous cap, an
+unmeasurable deviation, an unsupported contested no-show refund, a short refund of a
+proven overcharge, an unproven refund), and anything they do not name is the model's
+call. The gates do not decide the case; they decide who decides it. What is *not* gated
+is equally deliberate and equally visible: on a no-show case with a recorded arrival
+position, for example, the only bound on a refund is the autonomous cap — the policy's
+fee-based limits for that case are left to the model and the evidence, not to a gate.
 
 ## How the three agents work
 
-The system runs one LLM conversation per agent per dispute, and the agents never talk to
-each other:
+The system runs one LLM call per agent per dispute, and the agents never talk to each
+other:
 
 - **Rider Advocate** (`app/agents/rider_advocate.py`) reads the dispute, the Evidence Pack
   and the policy, and argues the rider's case.
@@ -27,13 +35,21 @@ agent runs. It is the only source of numbers: the intake form's free-text answer
 echoed verbatim into every prompt, but every figure the agents cite comes from the pack.
 The pack also decides what may be cited at all: each prompt lists the exact dotted
 references the pack contains, and any citation that does not resolve is recorded as a
-validation failure on the case.
+validation failure on the case (recorded, not blocked — see "What the code checks after
+every call").
 
-The pipeline in `app/pipeline.py` sequences the calls: both advocates run, the Judge runs
-after them, and any follow-up questions the advocates requested are asked of the filing
-party through fixed slot sentences (the party never sees text an agent writes in a
-question). If the Judge cannot rule, the case is escalated to a human reviewer with the
-full case file.
+The pipeline in `app/pipeline.py` sequences a run, and the sequence has a stop in it:
+
+1. Both advocates run.
+2. **Stop-and-ask round.** If the advocates request follow-up questions and the party has
+   not yet answered any, the run stops *before the Judge* and asks the filing party the
+   fixed slot sentences. This is the `needs_info` outcome: the party answers, and the
+   next run takes the answers and goes all the way to the Judge. A dispute is asked at
+   most once — a second request from the advocates is recorded on the case but never sent.
+3. The Judge runs — either immediately (no questions requested), or in the round after
+   the party's answers arrive.
+4. If no gate withholds the ruling, it is delivered; otherwise the case is queued for
+   human review with the full case file.
 
 ## Shared prompt anatomy
 
@@ -48,7 +64,7 @@ wrong) and how to cite only the fields the ruling rests on.
 **The user prompt** carries the case material in fixed blocks, in this order:
 
 1. `DISPUTE` — the intake-form submission exactly as filed: dispute id, category, who
-   filed, the claim text, the amount claimed, the intake answers as JSON, and any
+   filed, when, the claim text, the amount claimed, the intake answers as JSON, and any
    follow-up answers the party gave.
 2. `EVIDENCE PACK` — the computed pack as JSON, labelled "computed deterministically; the
    only source of numbers".
@@ -59,7 +75,7 @@ wrong) and how to cite only the fields the ruling rests on.
    contains.
 6. `FOLLOW-UP QUESTION SLOTS` (advocates only) — the fixed sentences code can render for
    this category, so an agent can only choose from sentences a human wrote.
-7. `YOUR TASK` — two sentences saying what to argue and what to return.
+7. `YOUR TASK` — one or two sentences saying what to argue and what to return.
 
 ## The hard rules
 
@@ -77,32 +93,51 @@ HARD RULES
 
 Rule 1 exists because the model's arithmetic cannot be audited line by line, but the
 pack's can: every number in the pack was computed by tested Python code. Rules 2 and 3
-make citations machine-checkable, which is what the post-call validation below relies on.
+make citations machine-checkable, which is what the post-call validation relies on —
+though note what that validation does: it records failures, it does not block delivery
+(see below).
 
 ## What the code checks after every call
 
-The checks live in `app/agents/base.py` and `app/agents/judge.py`; none of them is asked of
-the model:
+The checks live in `app/agents/base.py`, `app/agents/judge.py` and `app/schemas.py`;
+none of them is asked of the model:
 
-- **Contract parse.** The reply must parse as exactly one JSON object matching the
-  agent's schema (`parse_json_object`). One re-ask is allowed on a contract error; after
-  that the call fails and the case escalates to a human rather than proceeding on a bad
-  payload.
+- **Reply parsing.** The reply is parsed by `parse_json_object` (`app/llm/base.py`): it
+  strips a code fence if the model added one despite rule 4, and takes the text from the
+  first `{` to the last `}`. One re-ask is allowed on a contract error (the reply does not
+  parse or fails the schema's from-payload validation); after that the call fails and the
+  case escalates to a human rather than proceeding on a bad payload.
 - **Citation validation.** Every evidence ref and rule ID is checked against the pack and
-  the policy document. Failures are not removed: the case file keeps the model's own
-  claims with the validation result beside them, so a reviewer sees what was claimed and
-  what resolved.
-- **The six gates.** In `app/agents/judge.py`, between the ruling and the parties:
-  the confidence gate (below the threshold from `app/config.json`, currently 0.65, the
-  ruling is withheld), ESC-4 (an amount above the autonomous cap of SGD 50.00 is withheld
-  for a human), ESC-2 (a route case whose deviation or charged fare cannot be established
-  from the records), NS-6 (a contested no-show refund that the record does not support
-  automatically), RD-5 (a proven overcharge the ruling fails to refund) and RD-4 (a
-  refund larger than the records prove, or any compensation on a route case). Every gate
-  withholds the candidate ruling for a human; none rewrites what the Judge proposed.
-- **Retry and time budget.** Transport failures retry with backoff inside a per-case
-  time budget (`app/config.json`, `llm.case_budget_seconds`, currently 120); a budget
-  that cannot cover the next call escalates the case instead of hanging the party.
+  the policy document. **A citation failure is recorded, not blocked:** the case file
+  keeps the model's own claims with the validation result beside them, and a ruling that
+  cites an invented rule still goes out unless a gate withholds it. The value is
+  auditability — a reviewer sees what was claimed and what resolved — not enforcement.
+- **Payload normalisation.** The payload is normalised where it is unambiguous: a
+  no-action ruling's amount is forced to 0.00 (and noted on the case), amounts are
+  rounded to the cent, confidence to four decimals. The gates see the normalised values;
+  the case file carries the note, so nothing is silent.
+- **The six gates.** In `app/agents/judge.py`, between the ruling and the parties, each
+  withholding the candidate ruling (never rewriting it) for a human:
+  - **Confidence.** Below the threshold from `app/config.json`, currently 0.65, the
+    ruling is withheld.
+  - **ESC-4.** A remedy above the autonomous cap of SGD 50.00 is withheld.
+  - **ESC-2.** A route case whose deviation could not be measured, whose charged fare is
+    not a recorded figure, or whose record states a fare input it cannot read, is
+    withheld.
+  - **NS-6.** A contested no-show (both sides asserting their presence) with no recorded
+    driver arrival position: only a full refund of the recorded fee, for a low fee and a
+    clean rider record, goes out automatically; every other ruling on such a case —
+    including no action — is withheld.
+  - **RD-5.** On a route case, when the records prove an overcharge of at least the
+    SGD 1.00 de minimis, a ruling that refunds less than that proof is withheld; a
+    difference figure that is present but not a finite number is withheld too.
+  - **RD-4.** On a route case, a refund larger than the records prove the rider overpaid,
+    or any compensation, is withheld.
+- **Retry and time budget.** Transient transport failures (timeouts and 5xx) retry with
+  backoff (2 s, 5 s, 10 s) inside a per-case time budget (`app/config.json`,
+  `llm.case_budget_seconds`, currently 120); other transport errors (a refused
+  connection, a firewall block) fail at once, and a budget that cannot cover the next
+  call escalates the case instead of hanging the party.
 
 ## Rider Advocate
 
@@ -155,24 +190,31 @@ confidence produces a holding message to the parties instead of a wrong ruling.
 | `action` | refund, compensation, or no action |
 | `recommended_amount_sgd` | number in SGD; 0.00 for no action |
 | `confidence` | number between 0 and 1 |
-| `explanation` | the reasoning, in plain language, for both parties to read |
+| `explanation` | the reasoning, in plain language |
 | `cited_rule_ids` | rule IDs the ruling rests on |
 | `cited_evidence_refs` | evidence pack fields the ruling rests on |
 
-**What the code checks after:** the citation validation, then the six gates above. Only a
-ruling that clears every gate is delivered; a gate failure withholds the candidate ruling
-(nothing is rewritten) and the case is queued for human review.
+One nuance worth naming: the prompt tells the model the explanation is for both parties to
+read, but the party message never relays it. The code-built party message carries the
+action, the amount and the cited rules' plain titles; the explanation itself stays in the
+operator console and the case file, where a human reviewer reads it. The prompt's phrasing
+keeps the model writing for a plain audience, which is the point of the sentence.
+
+**What the code checks after:** the citation validation (recorded, not blocking), then the
+six gates above. Only a ruling that clears every gate is delivered; a gate failure
+withholds the candidate ruling and the case is queued for human review.
 
 ## Worked example
 
-One real run, dispute RD-0103 (route deviation, 0.3 km / 6%), live Tencent ADP model,
-10 October 2026 live evaluation. Both advocates ran on the same Evidence Pack and
-disagreed:
+One real run, dispute RD-0103 (route deviation, 0.3 km / 6%), from the live evaluation of
+3 October 2026 (run `2026-10-02T182133+0000-RD-0103`). Both advocates ran on the same
+Evidence Pack and disagreed:
 
 The Rider Advocate asked for a refund of SGD 0.74 (the fare delta the deviation caused),
-citing eleven pack fields including `route.deviation_km`, `fare.deviation_fare_delta_sgd`
-and `fare.charged_sgd`, and reasoning from RD-1, GEN-3 and GEN-4. The Driver Advocate
-asked for no action: the deviation is below RD-1's material thresholds, `fare.charged_sgd`
+citing 11 pack fields including `route.deviation_km`, `fare.deviation_fare_delta_sgd`
+and `fare.charged_sgd`, and reasoning from six rules: RD-1, RD-2, RD-3, RD-4, GEN-3 and
+GEN-4 — RD-3 is the one that asks for the refund of the delta. The Driver Advocate asked
+for no action: the deviation is below RD-1's material thresholds, `fare.charged_sgd`
 matches `fare.recomputed_sgd`, `fare.difference_sgd` is 0.0, so there is no overcharge.
 
 The Judge ruled no action at confidence 0.90, citing RD-1 and RD-4:
@@ -196,41 +238,66 @@ The Judge ruled no action at confidence 0.90, citing RD-1 and RD-4:
 ```
 
 Citation validation passed: every ref and rule ID resolves against the pack and the
-policy document. The gates had nothing to withhold, so the ruling was delivered.
+policy document. The gates had nothing to withhold, so the ruling was delivered. The
+party message the run produced was: "Decision: no action. Basis: When a deviation is
+material; Deviation with no fare consequence." — the action plus the plain titles of the
+two cited rules, nothing of the explanation above.
 
-The other half of the story is the same pipeline one dispute later: RD-0108 is a route
-case whose `route.deviation_pct` is not a recorded figure, so the ESC-2 gate withheld the
+The other half of the story is a run from the same evaluation: RD-0108 is a route case
+whose `route.deviation_pct` is not a recorded figure, so the ESC-2 gate withheld the
 Judge's candidate ruling and the parties saw the neutral under-review message instead.
 The withheld candidate and the gate reason are both on the case file for the human
-reviewer — nothing is rewritten, nothing disappears.
+reviewer — the gates withhold, they never rewrite what the Judge proposed.
 
 ## What the parties see
 
-Party text is built in code, never relayed from the model. A delivered ruling shows the
-action, the amount, and the plain titles of the rules cited (never the ESC codes); the
-Judge's full explanation and both advocates' arguments stay in the operator console. A
-withheld ruling shows one fixed sentence: "Your case is still under review. We will let
-you know as soon as a decision is made." A human reviewer's decision later produces
-another code-built message. The party never sees text an agent writes in a question, an
-argument, or an explanation.
+Party text is built in code, never relayed from the model. The full set of code-built
+messages (`app/schemas.py`):
+
+- A **delivered ruling** shows the action, the amount, and the plain titles of the rules
+  cited (never the ESC codes).
+- A **withheld ruling** shows one fixed sentence: "Your case is still under review. We
+  will let you know as soon as a decision is made."
+- A **stop-and-ask round** shows a fixed lead-in ("Thank you — we need a little more
+  information…") plus the fixed slot sentences.
+- An **out-of-scope category** (anything outside route deviation and no-show) shows a
+  fixed sentence routing it to the support team — it never reaches the agents:
+  "Thank you for your report. It has been passed to our support team, who will follow
+  up with you."
+- A **human decision** later produces another code-built message, with the reviewer's
+  name and reason recorded on the case but never shown.
+- A run whose LLM record does not prove the live provider prefixes the **demo notice** to
+  the decision text, so an illustrative run never reads like a live review:
+  "Demo notice: this decision was produced by an illustrative run and is not a live
+  review."
+
+The Judge's full explanation and both advocates' arguments stay in the operator console
+and the case file. The party never sees text an agent writes in a question, an argument,
+or an explanation.
 
 ## Transport and the live endpoint
 
 The provider is selected in `app/config.json`: `mock` by default (a deterministic
 stand-in, so a fresh checkout needs no keys), `tencent` for the live model via
 `--llm tencent`. The live adapter (`app/llm/tencent.py`) calls three separate Tencent
-Cloud ADP apps, one per agent, each with its own key.
+Cloud ADP apps, one per agent, each with its own key. Two structural facts about the live
+shape: the system and user prompts are merged into a single text message when sent (the
+endpoint takes one text field), and each ADP app also carries its own short role card
+configured on the Tencent side, which this repo does not contain.
 
-Two transport facts a reviewer will ask about:
+Transport facts a reviewer will ask about:
 
 - **Prompt cleaning before sending.** The endpoint's firewall refuses prompts where
   backticks and ASCII brackets occur together, so every prompt is cleaned before it goes
   out: backticks are dropped and `( ) < > ; | $` are swapped for their full-width forms,
   which the model reads identically.
-- **Key redaction and response cap.** The AppKeys live in `.env`, never in the repo, and
-  are redacted from every log line. A reply larger than 2 MB is refused rather than read
-  (a Judge-sized reply measured 89 KB on the live endpoint, which echoes the prompt back).
-
-Calls are paced at one per 6.5 seconds across the whole system, inside the per-case time
-budget, with the model's usage and a request fingerprint recorded on every payload so a
-run is reproducible after the fact.
+- **Key redaction.** The AppKeys live in `.env`, never in the repo. They are redacted
+  from error messages the adapter raises; they never enter the request objects that are
+  logged, so they do not appear in the event log or the case file.
+- **Response cap.** A reply larger than 2 MiB is refused rather than read (a Judge-sized
+  reply measured 89 KB on the live endpoint, which echoes the prompt back).
+- **Pacing.** Calls are paced at one per 6.5 seconds across the whole system, with the
+  model's usage and a request fingerprint (a hash of the prompts) recorded on every
+  payload, so the exact prompt bytes of every call are verifiable after the fact. The
+  fingerprint proves what was asked, not what was answered: reproducing an answer needs
+  the model, but a reviewer can confirm the prompt a ruling came from, byte for byte.
