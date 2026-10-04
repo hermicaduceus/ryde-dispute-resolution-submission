@@ -291,6 +291,7 @@ class NS8Docs(unittest.TestCase):
         text = self.POLICY.read_text(encoding="utf-8")
         body = re.search(r"^### NS-8 .*?(?=^### |\Z)", text, re.M | re.S).group(0)
         self.assertIn("Enforcement (2026-10-04)", body)
+        self.assertIn("label `NS-8`", body, "the paragraph must name the gate label")
         for needle in ("withheld", "compensation", "cancellation_fee_sgd"):
             self.assertIn(needle, body, needle)
 
