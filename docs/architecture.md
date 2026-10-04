@@ -216,6 +216,8 @@ an approval keeps the proposal's Basis line (the plain titles of the cited rules
 rules excluded), while a change or a rejection never carries one, because the citations may
 contradict the person's decision. The reviewer's name and reason never reach a party.
 
+The operator console presents a review queue for withheld cases, where a reviewer opens a case file and completes a decision form. A local confirm screen restates the chosen action, amount, fare and AI proposal before the reviewer sends it. The Overrides view groups changed and rejected decisions while counting approvals accepted as proposed. The console loads a case through `/api/review/<run_id>/case` and expands server event payloads through `/api/review/<run_id>/payloads/<name>`; both are read-only JSON paths with no-store responses.
+
 The server exposes the loop as JSON, all `Cache-Control: no-store`:
 
 | Endpoint | Purpose |

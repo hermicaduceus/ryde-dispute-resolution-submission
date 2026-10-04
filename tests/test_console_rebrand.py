@@ -25,7 +25,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 UI = REPO / "ui"
 
-APP_JS_SHA = "e3ce88f05842a5ce7873bbaa6d576f7e88c2258dd3e7228b38c70d44ee1cc68a"
+APP_JS_SHA = "c603e052f83b5d505ddce7256a7724b524f229c87ff3d3d87ebda1f2642af62a"
 
 CONSOLE_IDS = {
     "loader-title", "case-picker", "run-folder-picker", "load-status", "payload-status",
@@ -34,6 +34,9 @@ CONSOLE_IDS = {
     "evidence-title", "evidence-content", "claims-section", "claims-title", "claims-content",
     "policy-content", "resolution-section", "resolution-title", "resolution-content",
     "events-section", "events-title", "events-content",
+    "queue-panel", "queue-title", "queue-refresh", "queue-status", "queue-content",
+    "overrides-panel", "overrides-title", "overrides-status", "overrides-content",
+    "decision-section", "decision-title", "decision-content",
 }
 
 # New :root values. Brand values from the private design reference; derived values are

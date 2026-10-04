@@ -1192,6 +1192,249 @@ input[type="file"] {
   word-break: break-word;
 }
 
+#queue-panel,
+#overrides-panel {
+  margin-top: 24px;
+  padding: 20px 22px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+#overrides-panel {
+  margin-top: 0;
+}
+
+#queue-panel .section-heading {
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#queue-panel .section-heading > div,
+#overrides-panel .section-heading > div {
+  min-width: 0;
+}
+
+#queue-refresh,
+.queue-open {
+  padding: 8px 12px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+#queue-refresh:hover,
+.queue-open:hover {
+  background: var(--canvas);
+  border-color: var(--muted);
+}
+
+#queue-status,
+#overrides-status {
+  min-height: 20px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.queue-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.queue-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) auto minmax(140px, 1fr) minmax(150px, 1.2fr) minmax(130px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.queue-category,
+.queue-amount,
+.queue-held,
+.queue-waiting {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.queue-category {
+  font-weight: 700;
+}
+
+.queue-safety {
+  color: var(--amber);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.queue-amount,
+.queue-held,
+.queue-waiting {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.overrides-approved {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.override-group {
+  margin-top: 12px;
+  padding: 14px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.override-group h3 {
+  margin-bottom: 10px;
+}
+
+.override-group ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.override-entry {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.override-entry + .override-entry {
+  margin-top: 5px;
+}
+
+#decision-content {
+  padding: 22px 24px 26px;
+}
+
+.decision-options {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.decision-option {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--ink);
+}
+
+.decision-note {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+#decision-form label {
+  display: block;
+  margin: 12px 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+#decision-form input[type="text"],
+#decision-form input[type="number"],
+#decision-form textarea,
+#decision-form select {
+  width: 100%;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+#decision-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#decision-review,
+#decision-confirm-send,
+#decision-confirm-back {
+  margin-top: 18px;
+  padding: 9px 13px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+#decision-confirm-back {
+  margin-left: 8px;
+}
+
+#decision-error {
+  min-height: 20px;
+  margin: 10px 0 0;
+  color: var(--red);
+  font-size: 13px;
+}
+
+.decision-confirm {
+  color: var(--ink);
+}
+
+.decision-confirm p {
+  margin-bottom: 8px;
+}
+
+.confirm-warning {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.human-decision-record {
+  padding: 16px;
+  color: var(--ink);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+}
+
+.human-decision-record h3 {
+  margin-bottom: 12px;
+}
+
+.human-decision-record p:last-child {
+  margin-bottom: 0;
+}
+
+.decision-result {
+  padding: 16px;
+  color: var(--green);
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.decision-result blockquote {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  color: var(--ink);
+  background: var(--canvas);
+  border-left: 3px solid var(--line);
+}
+
 @media (max-width: 760px) {
   .app-shell {
     width: min(100% - 24px, 1180px);

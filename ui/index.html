@@ -20,6 +20,29 @@
       <p class="intro">A single record for the grievance, computed evidence, competing cases, and final decision.</p>
     </header>
 
+    <section id="queue-panel" aria-labelledby="queue-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">OPERATOR CONSOLE</p>
+          <h2 id="queue-title">Review queue</h2>
+        </div>
+        <button id="queue-refresh" type="button">Refresh</button>
+      </div>
+      <p id="queue-status" role="status" aria-live="polite">Loading review queue…</p>
+      <div id="queue-content"></div>
+    </section>
+
+    <section id="overrides-panel" aria-labelledby="overrides-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">OPERATOR CONSOLE</p>
+          <h2 id="overrides-title">Overrides</h2>
+        </div>
+      </div>
+      <p id="overrides-status" role="status">Loading Overrides…</p>
+      <div id="overrides-content"></div>
+    </section>
+
     <section class="loader-panel" aria-labelledby="loader-title">
       <div class="section-heading">
         <p class="eyebrow">INPUT</p>
@@ -88,9 +111,20 @@
         <div id="resolution-content"></div>
       </section>
 
-      <section id="events-section" class="story-section" aria-labelledby="events-title">
+      <section id="decision-section" class="story-section" aria-labelledby="decision-title" hidden>
         <div class="section-heading">
           <p class="section-index">05</p>
+          <div>
+            <p class="eyebrow">HUMAN DECISION</p>
+            <h2 id="decision-title">Decide this case</h2>
+          </div>
+        </div>
+        <div id="decision-content"></div>
+      </section>
+
+      <section id="events-section" class="story-section" aria-labelledby="events-title">
+        <div class="section-heading">
+          <p class="section-index">06</p>
           <div>
             <p class="eyebrow">OBSERVABILITY</p>
             <h2 id="events-title">Agent traffic</h2>

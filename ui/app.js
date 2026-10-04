@@ -14,7 +14,8 @@
     caseFile: null,
     evidenceIndex: {},
     policyIndex: {},
-    payloadFiles: {}
+    payloadFiles: {},
+    openRun: null
   };
 
   var picker = document.getElementById("case-picker");
@@ -30,6 +31,16 @@
   var policyContent = document.getElementById("policy-content");
   var resolutionContent = document.getElementById("resolution-content");
   var eventsContent = document.getElementById("events-content");
+  var queueRefresh = document.getElementById("queue-refresh");
+  var queueStatus = document.getElementById("queue-status");
+  var queueContent = document.getElementById("queue-content");
+  var overridesStatus = document.getElementById("overrides-status");
+  var overridesContent = document.getElementById("overrides-content");
+  var decisionSection = document.getElementById("decision-section");
+  var decisionContent = document.getElementById("decision-content");
+  var reviewUi = queueRefresh && queueStatus && queueContent && overridesStatus
+    && overridesContent && decisionSection && decisionContent;
+  var decisionUi = null;
 
   function clear(element) {
     while (element.firstChild) {
@@ -752,6 +763,20 @@
       panel.appendChild(element("p", "payload-unavailable", "No safe relative payload reference was supplied for this event."));
       return;
     }
+    if (state.openRun) {
+      panel.appendChild(element("p", "payload-loading", "Reading " + reference + "…"));
+      fetchJson("/api/review/" + encodeURIComponent(state.openRun.runId) + "/" + reference)
+        .then(function (payload) {
+          clear(panel);
+          panel.appendChild(element("p", "payload-path", reference));
+          panel.appendChild(element("pre", "payload-json", JSON.stringify(payload, null, 2)));
+        })
+        .catch(function () {
+          clear(panel);
+          panel.appendChild(element("p", "payload-error", "The payload could not be read."));
+        });
+      return;
+    }
     var file = state.payloadFiles[reference];
     if (!file) {
       panel.appendChild(element("p", "payload-unavailable", "Attach the run directory to open this payload."));
@@ -834,6 +859,7 @@
     renderClaims(caseFile);
     renderResolution(caseFile);
     renderEvents(caseFile);
+    renderDecisionSection(caseFile);
     workspace.hidden = false;
     setStatus("Loaded " + fileName + ".", "success");
   }
@@ -843,6 +869,10 @@
       return;
     }
 
+    state.openRun = null;
+    if (decisionSection) {
+      decisionSection.hidden = true;
+    }
     state.payloadFiles = {};
     setPayloadStatus("Payload files are not attached.", "idle");
     setStatus("Reading " + file.name + "…", "loading");
@@ -858,6 +888,10 @@
       }
       renderCase(file.name, parsed);
     }).catch(function (error) {
+      state.openRun = null;
+      if (decisionSection) {
+        decisionSection.hidden = true;
+      }
       workspace.hidden = true;
       clear(metadataList);
       clear(grievanceContent);
@@ -870,6 +904,568 @@
     });
   }
 
+  function fetchJson(url, options) {
+    if (typeof fetch !== "function") {
+      return Promise.reject(new Error("Review API is unavailable."));
+    }
+    var request;
+    try {
+      request = fetch(url, options);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+    return Promise.resolve(request).then(function (response) {
+      if (!response || !response.ok) {
+        throw new Error("Review request failed.");
+      }
+      return response.json();
+    });
+  }
+
+  function fetchJsonAny(url, options) {
+    if (typeof fetch !== "function") {
+      return Promise.resolve({ ok: false, status: 0, payload: {} });
+    }
+    var request;
+    try {
+      request = fetch(url, options);
+    } catch (error) {
+      return Promise.resolve({ ok: false, status: 0, payload: {} });
+    }
+    return Promise.resolve(request).then(function (response) {
+      var parsed = response && typeof response.json === "function"
+        ? response.json()
+        : Promise.resolve({});
+      return Promise.resolve(parsed).then(function (payload) {
+        return {
+          ok: Boolean(response && response.ok),
+          status: response && response.status,
+          payload: payload
+        };
+      }, function () {
+        return {
+          ok: Boolean(response && response.ok),
+          status: response && response.status,
+          payload: {}
+        };
+      });
+    }, function () {
+      return { ok: false, status: 0, payload: {} };
+    });
+  }
+
+  function finiteNumber(value) {
+    return typeof value === "number" && isFinite(value);
+  }
+
+  function formatMoney(value) {
+    return finiteNumber(value) ? "SGD " + value.toFixed(2) : null;
+  }
+
+  function categoryLabel(category) {
+    if (category === "route_deviation") {
+      return "Route deviation";
+    }
+    if (category === "no_show_charge") {
+      return "No-show charge";
+    }
+    return "Other";
+  }
+
+  function heldLabel(heldBy) {
+    if (!Array.isArray(heldBy) || heldBy.length === 0) {
+      return "not recorded";
+    }
+    return heldBy.map(function (gate) {
+      return gate === "model_failure" ? "model failure" : displayValue(gate);
+    }).join(", ");
+  }
+
+  function waitingLabel(value) {
+    var seconds = Number(value);
+    if (!finiteNumber(seconds)) {
+      seconds = 0;
+    }
+    seconds = Math.max(0, Math.floor(seconds));
+    if (seconds < 60) {
+      return "Waiting under a minute";
+    }
+    if (seconds < 3600) {
+      return "Waiting " + Math.floor(seconds / 60) + " min";
+    }
+    if (seconds < 86400) {
+      return "Waiting " + Math.floor(seconds / 3600) + " h "
+        + Math.floor((seconds % 3600) / 60) + " min";
+    }
+    return "Waiting " + Math.floor(seconds / 86400) + " d "
+      + Math.floor((seconds % 86400) / 3600) + " h";
+  }
+
+  function queueAmountText(entry) {
+    var amount = entry && entry.amount_sgd;
+    var money = formatMoney(amount);
+    if (!money) {
+      return "No amount on record";
+    }
+    if (entry.amount_source === "proposed") {
+      return money + " proposed";
+    }
+    if (entry.amount_source === "claimed") {
+      return money + " claimed";
+    }
+    return money;
+  }
+
+  function renderQueue(data) {
+    clear(queueContent);
+    var cases = data && Array.isArray(data.cases) ? data.cases : [];
+    if (cases.length === 0) {
+      queueStatus.textContent = "No cases are waiting for a human decision.";
+      return;
+    }
+    queueStatus.textContent = cases.length === 1
+      ? "1 case waiting."
+      : cases.length + " cases waiting.";
+    var list = element("ol", "queue-list");
+    cases.forEach(function (rawEntry) {
+      var entry = rawEntry && typeof rawEntry === "object" ? rawEntry : {};
+      var row = element("li", "queue-row");
+      row.appendChild(element("span", "queue-category", categoryLabel(entry.category)));
+      if (entry.safety === true) {
+        row.appendChild(element("span", "queue-safety", "Safety"));
+      }
+      row.appendChild(element("span", "queue-amount", queueAmountText(entry)));
+      row.appendChild(element("span", "queue-held", "Held by: " + heldLabel(entry.held_by)));
+      row.appendChild(element("span", "queue-waiting", waitingLabel(entry.waiting_seconds)));
+      var open = element("button", "queue-open", "Open case");
+      open.type = "button";
+      open.addEventListener("click", function () {
+        openCase(entry);
+      });
+      row.appendChild(open);
+      list.appendChild(row);
+    });
+    queueContent.appendChild(list);
+  }
+
+  function renderOverrides(data) {
+    clear(overridesContent);
+    var approved = data && data.approved_count;
+    overridesContent.appendChild(element("p", "overrides-approved", "Approved as proposed: " + displayValue(approved)));
+    var groups = data && Array.isArray(data.groups) ? data.groups : [];
+    if (groups.length === 0) {
+      overridesStatus.textContent = "No changed or rejected decisions yet.";
+      return;
+    }
+    overridesStatus.textContent = "";
+    groups.forEach(function (groupValue) {
+      var group = groupValue && typeof groupValue === "object" ? groupValue : {};
+      var article = element("article", "override-group");
+      var count = group.count === 1 ? "1 case" : displayValue(group.count) + " cases";
+      var heading = categoryLabel(group.category) + " · " + heldLabel(group.held_by)
+        + " · " + displayValue(group.decision) + " to " + displayValue(group.action)
+        + " · " + count;
+      article.appendChild(element("h3", null, heading));
+      var list = element("ul", null);
+      var decisions = Array.isArray(group.decisions) ? group.decisions : [];
+      decisions.forEach(function (decisionValue) {
+        var decision = decisionValue && typeof decisionValue === "object" ? decisionValue : {};
+        var entry = element("li", "override-entry");
+        var identifier = decision.dispute_id || decision.run_id || "Not recorded";
+        var amount = formatMoney(decision.amount_sgd) || "No amount on record";
+        var proposed = decision.proposed;
+        var proposalText = "No AI proposal";
+        if (proposed && typeof proposed === "object") {
+          if (proposed.action === "no action") {
+            proposalText = "AI proposed no action";
+          } else if (finiteNumber(proposed.amount_sgd)) {
+            proposalText = "AI proposed " + formatMoney(proposed.amount_sgd);
+          }
+        }
+        entry.appendChild(element("span", null, displayValue(identifier)));
+        entry.appendChild(element("span", null, displayValue(decision.reviewer)));
+        entry.appendChild(element("span", null, amount));
+        entry.appendChild(element("span", null, proposalText));
+        entry.appendChild(element("span", null, displayValue(decision.reason)));
+        list.appendChild(entry);
+      });
+      article.appendChild(list);
+      overridesContent.appendChild(article);
+    });
+  }
+
+  function loadQueue() {
+    return fetchJson("/api/review/queue").then(function (data) {
+      renderQueue(data);
+    }).catch(function () {
+      clear(queueContent);
+      queueStatus.textContent = "The review queue is not available. Open the console from the running server to use it.";
+    });
+  }
+
+  function loadOverrides() {
+    return fetchJson("/api/review/overrides").then(function (data) {
+      renderOverrides(data);
+    }).catch(function () {
+      clear(overridesContent);
+      overridesStatus.textContent = "Overrides are not available.";
+    });
+  }
+
+  function loadReviewPanels() {
+    loadQueue();
+    loadOverrides();
+  }
+
+  function openCase(entry) {
+    var runId = entry && typeof entry.run_id === "string" ? entry.run_id : "";
+    fetchJson("/api/review/" + encodeURIComponent(runId) + "/case").then(function (data) {
+      if (!data || !data.case_file || typeof data.case_file !== "object" || Array.isArray(data.case_file)) {
+        throw new Error("Invalid case file");
+      }
+      state.openRun = {
+        runId: runId,
+        entry: entry && typeof entry === "object" ? entry : {},
+        humanDecision: data.human_decision || null
+      };
+      renderCase(runId, data.case_file);
+    }).catch(function () {
+      state.openRun = null;
+      if (decisionSection) {
+        decisionSection.hidden = true;
+      }
+      setStatus("The case could not be opened.", "error");
+    });
+  }
+
+  function decisionProposal() {
+    var entry = state.openRun && state.openRun.entry;
+    var proposed = entry && entry.proposed;
+    return proposed && typeof proposed === "object" && !Array.isArray(proposed) ? proposed : null;
+  }
+
+  function decisionFare() {
+    var pack = state.caseFile && state.caseFile.evidence_pack;
+    var fare = pack && pack.fare;
+    return fare && typeof fare === "object" ? fare.charged_sgd : null;
+  }
+
+  function typedAmount(value) {
+    if (typeof value !== "string" || value.trim() === "") {
+      return NaN;
+    }
+    return Number(value);
+  }
+
+  function syncDecisionControls() {
+    if (!decisionUi) {
+      return;
+    }
+    var enabled = decisionUi.change.checked === true;
+    decisionUi.action.disabled = !enabled;
+    decisionUi.amount.disabled = !enabled;
+  }
+
+  function appendDecisionLabel(form, forId, text) {
+    var label = element("label", null, text);
+    label.htmlFor = forId;
+    form.appendChild(label);
+  }
+
+  function buildDecisionForm() {
+    var entry = state.openRun && state.openRun.entry ? state.openRun.entry : {};
+    var form = element("form");
+    form.id = "decision-form";
+    var options = element("div", "decision-options");
+    var radios = [];
+    [
+      ["decision-approve", "approve", "Approve the AI's proposal"],
+      ["decision-change", "change", "Change the decision"],
+      ["decision-reject", "reject", "Reject: no action"]
+    ].forEach(function (definition) {
+      var option = element("div", "decision-option");
+      var radio = element("input");
+      radio.id = definition[0];
+      radio.type = "radio";
+      radio.name = "decision";
+      radio.value = definition[1];
+      radio.checked = false;
+      radio.addEventListener("change", syncDecisionControls);
+      option.appendChild(radio);
+      var label = element("label", null, definition[2]);
+      label.htmlFor = radio.id;
+      option.appendChild(label);
+      options.appendChild(option);
+      radios.push(radio);
+    });
+    form.appendChild(options);
+
+    var canApprove = entry.can_approve === true && decisionProposal() !== null;
+    if (!canApprove) {
+      radios[0].disabled = true;
+      form.appendChild(element("p", "decision-note", "No AI proposal to approve; use Change."));
+    }
+
+    appendDecisionLabel(form, "decision-reviewer", "Your name");
+    var reviewer = element("input");
+    reviewer.id = "decision-reviewer";
+    reviewer.type = "text";
+    reviewer.maxLength = 80;
+    form.appendChild(reviewer);
+
+    appendDecisionLabel(form, "decision-reason", "Reason (staff only, never shown to the party)");
+    var reason = element("textarea");
+    reason.id = "decision-reason";
+    reason.maxLength = 1000;
+    form.appendChild(reason);
+
+    appendDecisionLabel(form, "decision-action", "Action");
+    var action = element("select");
+    action.id = "decision-action";
+    ["refund", "compensation", "no action"].forEach(function (value) {
+      var option = element("option", null, value);
+      option.value = value;
+      action.appendChild(option);
+    });
+    form.appendChild(action);
+
+    appendDecisionLabel(form, "decision-amount", "Amount (SGD)");
+    var amount = element("input");
+    amount.id = "decision-amount";
+    amount.type = "number";
+    amount.step = "0.01";
+    amount.min = "0";
+    form.appendChild(amount);
+
+    action.disabled = true;
+    amount.disabled = true;
+    var review = element("button", null, "Review decision");
+    review.id = "decision-review";
+    review.type = "submit";
+    form.appendChild(review);
+
+    var error = element("p");
+    error.id = "decision-error";
+    error.setAttribute("role", "alert");
+    error.textContent = "";
+    form.appendChild(error);
+
+    decisionUi = {
+      form: form,
+      radios: radios,
+      approve: radios[0],
+      change: radios[1],
+      reject: radios[2],
+      reviewer: reviewer,
+      reason: reason,
+      action: action,
+      amount: amount,
+      review: review,
+      error: error,
+      confirm: null,
+      send: null,
+      sending: false
+    };
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      reviewDecision();
+    });
+    return form;
+  }
+
+  function selectedDecision() {
+    if (!decisionUi) {
+      return null;
+    }
+    for (var index = 0; index < decisionUi.radios.length; index += 1) {
+      if (decisionUi.radios[index].checked) {
+        return decisionUi.radios[index].value;
+      }
+    }
+    return null;
+  }
+
+  function aiProposalText(proposed) {
+    if (!proposed || typeof proposed !== "object") {
+      return "AI proposed: no proposal on record";
+    }
+    if (proposed.action === "no action") {
+      return "AI proposed: no action";
+    }
+    if (finiteNumber(proposed.amount_sgd)) {
+      return "AI proposed: " + displayValue(proposed.action) + " of " + formatMoney(proposed.amount_sgd);
+    }
+    return "AI proposed: no proposal on record";
+  }
+
+  function buildConfirmation(decision) {
+    if (!decisionUi.confirm) {
+      var confirm = element("div", "decision-confirm");
+      confirm.id = "decision-confirm";
+      var send = element("button", null, "Confirm and send");
+      send.id = "decision-confirm-send";
+      send.type = "button";
+      var back = element("button", null, "Go back and edit");
+      back.id = "decision-confirm-back";
+      back.type = "button";
+      send.addEventListener("click", sendDecision);
+      back.addEventListener("click", function () {
+        if (decisionUi) {
+          decisionUi.confirm.hidden = true;
+          decisionUi.form.hidden = false;
+        }
+      });
+      decisionUi.confirm = confirm;
+      decisionUi.send = send;
+      decisionUi.back = back;
+      decisionContent.appendChild(confirm);
+    }
+    var confirmBox = decisionUi.confirm;
+    clear(confirmBox);
+    var proposed = decisionProposal();
+    var amountForWarning = NaN;
+    var amountLine;
+    if (decision === "approve") {
+      if (proposed && proposed.action && finiteNumber(proposed.amount_sgd)) {
+        amountForWarning = proposed.amount_sgd;
+        amountLine = "Amount: " + proposed.action + " of " + formatMoney(proposed.amount_sgd);
+      } else {
+        amountLine = "Amount: no action";
+      }
+    } else if (decision === "reject") {
+      amountLine = "Amount: no action";
+    } else {
+      amountForWarning = typedAmount(decisionUi.amount.value);
+      if (finiteNumber(amountForWarning)) {
+        amountLine = "Amount: " + decisionUi.action.value + " of SGD " + amountForWarning.toFixed(2);
+      } else {
+        amountLine = "Amount: " + decisionUi.action.value + ", amount not a number";
+      }
+    }
+    confirmBox.appendChild(element("p", null, "Decision: " + (decision === "approve" ? "Approve" : decision === "change" ? "Change" : "Reject")));
+    confirmBox.appendChild(element("p", null, amountLine));
+    var fare = decisionFare();
+    if (finiteNumber(fare)) {
+      confirmBox.appendChild(element("p", null, "Trip fare charged: " + formatMoney(fare)));
+    } else {
+      confirmBox.appendChild(element("p", null, "Trip fare charged: not on record"));
+    }
+    confirmBox.appendChild(element("p", null, aiProposalText(proposed)));
+    if (finiteNumber(amountForWarning) && finiteNumber(fare) && amountForWarning > fare) {
+      confirmBox.appendChild(element("p", "confirm-warning", "This amount is more than the trip fare."));
+    }
+    confirmBox.appendChild(decisionUi.send);
+    confirmBox.appendChild(decisionUi.back);
+    confirmBox.hidden = false;
+    decisionUi.form.hidden = true;
+  }
+
+  function reviewDecision() {
+    var decision = selectedDecision();
+    if (!decision) {
+      decisionUi.error.textContent = "Choose approve, change or reject.";
+      return;
+    }
+    decisionUi.error.textContent = "";
+    buildConfirmation(decision);
+  }
+
+  function decisionRequestBody(decision) {
+    var body = {
+      decision: decision,
+      reviewer: decisionUi.reviewer.value,
+      reason: decisionUi.reason.value
+    };
+    if (decision === "change") {
+      body.action = decisionUi.action.value;
+      body.amount_sgd = typedAmount(decisionUi.amount.value);
+    }
+    return body;
+  }
+
+  function showDecisionError(payload) {
+    var message = payload && typeof payload.error === "string" && payload.error
+      ? payload.error
+      : "The decision could not be recorded.";
+    decisionUi.confirm.hidden = true;
+    decisionUi.form.hidden = false;
+    decisionUi.error.textContent = message;
+    decisionUi.send.disabled = false;
+    decisionUi.sending = false;
+  }
+
+  function sendDecision() {
+    if (!decisionUi || decisionUi.sending || !state.openRun) {
+      return;
+    }
+    var decision = selectedDecision();
+    if (!decision) {
+      return;
+    }
+    if (decision === "change" && !finiteNumber(typedAmount(decisionUi.amount.value))) {
+      return;
+    }
+    decisionUi.sending = true;
+    decisionUi.send.disabled = true;
+    var body = decisionRequestBody(decision);
+    fetchJsonAny(
+      "/api/review/" + encodeURIComponent(state.openRun.runId) + "/decision",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }
+    ).then(function (result) {
+      if (!result.ok) {
+        showDecisionError(result.payload);
+        return;
+      }
+      var resultBox = element("div", "decision-result");
+      resultBox.appendChild(element("p", null, "Decision recorded. The party now sees:"));
+      var partyView = result.payload && result.payload.party_view;
+      resultBox.appendChild(element("blockquote", null, partyView && partyView.message));
+      clear(decisionContent);
+      decisionContent.appendChild(resultBox);
+      decisionUi = null;
+      loadReviewPanels();
+    }, function () {
+      if (decisionUi) {
+        showDecisionError({});
+      }
+    });
+  }
+
+  function renderRecordedDecision(decision) {
+    var article = element("article", "human-decision-record");
+    article.appendChild(element("h3", null, "Human decision recorded"));
+    article.appendChild(element("p", null, "Decision: " + displayValue(decision.decision)));
+    article.appendChild(element("p", null, "Reviewer: " + displayValue(decision.reviewer)));
+    article.appendChild(element("p", null, "Reason: " + displayValue(decision.reason)));
+    article.appendChild(element("p", null, "Action: " + displayValue(decision.action)));
+    article.appendChild(element("p", null, "Amount: " + (formatMoney(decision.amount_sgd) || "no action")));
+    article.appendChild(element("p", null, "Decided at: " + displayValue(decision.decided_at)));
+    return article;
+  }
+
+  function renderDecisionSection(caseFile) {
+    if (!decisionSection || !decisionContent) {
+      return;
+    }
+    decisionSection.hidden = true;
+    clear(decisionContent);
+    decisionUi = null;
+    var resolution = caseFile && caseFile.resolution;
+    if (!state.openRun || !resolution || resolution.outcome !== "withheld") {
+      return;
+    }
+    decisionSection.hidden = false;
+    if (state.openRun.humanDecision && typeof state.openRun.humanDecision === "object") {
+      decisionContent.appendChild(renderRecordedDecision(state.openRun.humanDecision));
+      return;
+    }
+    decisionContent.appendChild(buildDecisionForm());
+  }
+
   picker.addEventListener("change", function () {
     handleFile(picker.files[0]);
   });
@@ -877,4 +1473,9 @@
   runFolderPicker.addEventListener("change", function () {
     attachRunFiles(runFolderPicker.files);
   });
+
+  if (reviewUi && typeof fetch === "function") {
+    queueRefresh.addEventListener("click", loadReviewPanels);
+    loadReviewPanels();
+  }
 }());

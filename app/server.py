@@ -82,6 +82,7 @@ MAX_BODY_BYTES = 64 * 1024
 DEFAULT_PORT = 8000
 
 _RUN_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
+_PAYLOAD_NAME_RE = re.compile(r"^[0-9]{4}-[A-Za-z0-9._-]+\.json$")
 #: A dispute reference from the party page. Deliberately tighter than the run id: a
 #: lookup never names a path, so only the pattern and the id's existence decide.
 _DISPUTE_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
@@ -890,7 +891,7 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
 
     # ------------------------------------------------------------- plumbing
 
-    def _send_json(self, status: int, payload: Dict[str, Any]) -> None:
+    def _send_json(self, status: int, payload: Any) -> None:
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -985,6 +986,18 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
         if split.path == "/api/review/overrides":
             self._send_json(200, _review_overrides(state))
             return
+        case_match = re.fullmatch(r"/api/review/([^/]+)/case", split.path)
+        if case_match:
+            self._review_case(state, unquote(case_match.group(1)))
+            return
+        payload_match = re.fullmatch(r"/api/review/([^/]+)/payloads/(.*)", split.path)
+        if payload_match:
+            self._review_payload(
+                state,
+                unquote(payload_match.group(1)),
+                unquote(payload_match.group(2)),
+            )
+            return
         raise _HTTPError(404, "not found")
 
     def _dispute_lookup(self, state: "_ServerState", dispute_id: str) -> None:
@@ -1025,6 +1038,30 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
         if not run_dir.is_relative_to(state.out_dir.resolve()) or not run_dir.is_dir():
             raise _HTTPError(404, "unknown run")
         return run_dir
+
+    def _review_case(self, state: "_ServerState", run_id: str) -> None:
+        run_dir = self._resolve_run_dir(state, run_id)
+        case_file = _read_json_object(run_dir / CASE_FILE_NAME)
+        if case_file is None:
+            raise _HTTPError(404, "unknown run")
+        self._send_json(200, {
+            "case_file": case_file,
+            "human_decision": load_decision(run_dir),
+        })
+
+    def _review_payload(self, state: "_ServerState", run_id: str, name: str) -> None:
+        run_dir = self._resolve_run_dir(state, run_id)
+        if not _PAYLOAD_NAME_RE.fullmatch(name):
+            raise _HTTPError(404, "unknown payload")
+        payload_dir = (run_dir / "payloads").resolve()
+        payload_path = (payload_dir / name).resolve()
+        if not payload_path.is_relative_to(payload_dir) or not payload_path.is_file():
+            raise _HTTPError(404, "unknown payload")
+        try:
+            payload = json.loads(payload_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            raise _HTTPError(404, "unknown payload")
+        self._send_json(200, payload)
 
     def _record_human_decision(self, state: "_ServerState", run_id: str) -> None:
         """Store one human decision on a withheld run and return it with the new view."""

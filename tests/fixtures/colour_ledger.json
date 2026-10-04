@@ -1016,6 +1016,211 @@
    "#e7eef7"
   ],
   [
+   "#queue-panel, #overrides-panel",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   "#queue-panel, #overrides-panel",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   "#queue-panel, #overrides-panel",
+   "border-left",
+   "4px solid var(--accent)"
+  ],
+  [
+   "#queue-panel, #overrides-panel",
+   "box-shadow",
+   "var(--shadow)"
+  ],
+  [
+   "#queue-refresh, .queue-open",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   "#queue-refresh, .queue-open",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   "#queue-refresh, .queue-open",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   "#queue-refresh:hover, .queue-open:hover",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   "#queue-refresh:hover, .queue-open:hover",
+   "border-color",
+   "var(--muted)"
+  ],
+  [
+   "#queue-status, #overrides-status",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".queue-row",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".queue-row",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   ".queue-row",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".queue-safety",
+   "color",
+   "var(--amber)"
+  ],
+  [
+   ".queue-amount, .queue-held, .queue-waiting",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".overrides-approved",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".override-group",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".override-group",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   ".override-group",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".override-entry",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".decision-option",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".decision-note",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   "#decision-form label",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   "#decision-form input[type=\"text\"], #decision-form input[type=\"number\"], #decision-form textarea, #decision-form select",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   "#decision-form input[type=\"text\"], #decision-form input[type=\"number\"], #decision-form textarea, #decision-form select",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   "#decision-form input[type=\"text\"], #decision-form input[type=\"number\"], #decision-form textarea, #decision-form select",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   "#decision-review, #decision-confirm-send, #decision-confirm-back",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   "#decision-review, #decision-confirm-send, #decision-confirm-back",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   "#decision-review, #decision-confirm-send, #decision-confirm-back",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   "#decision-error",
+   "color",
+   "var(--red)"
+  ],
+  [
+   ".decision-confirm",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".confirm-warning",
+   "color",
+   "var(--amber)"
+  ],
+  [
+   ".human-decision-record",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".human-decision-record",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   ".human-decision-record",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".decision-result",
+   "color",
+   "var(--green)"
+  ],
+  [
+   ".decision-result",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   ".decision-result",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".decision-result blockquote",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".decision-result blockquote",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   ".decision-result blockquote",
+   "border-left",
+   "3px solid var(--line)"
+  ],
+  [
    ".evidence-provenance .info-row:nth-child(3n)",
    "border-right",
    "1px solid var(--line)"
