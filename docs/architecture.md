@@ -16,7 +16,7 @@ before any model is called; agents cite pack fields by reference and are forbidd
 doing their own arithmetic, and the only other number they see is the amount the party
 asked for. The decisions that must never depend on a model's obedience — the confidence
 threshold, the SGD 50 autonomous cap, the requirement that a route ruling rest on a measured
-deviation, the three money gates NS-6, RD-5 and RD-4, the one-round follow-up limit, and the routing of
+deviation, the four money gates NS-6, NS-8, RD-5 and RD-4, the one-round follow-up limit, and the routing of
 out-of-scope categories to human review — are enforced in Python code, not asked of the model in
 a prompt. The system
 has two surfaces: an operator console that shows the full case file and the agent-to-agent
@@ -51,7 +51,7 @@ flowchart TD
     O4 --> PA["Party answers follow-ups"]
     PA -- "Fresh run with the answers" --> B
     S -- "No" --> J
-    J --> G{"Gates pass? Confidence, cap, measured deviation, NS-6, RD-5, RD-4"}
+    J --> G{"Gates pass? Confidence, cap, measured deviation, NS-6, NS-8, RD-5, RD-4"}
     G -- "Yes" --> O1["Ruled"]
     G -- "No" --> O2["Withheld"]
     O2 -- "Candidate ruling queued" --> H
@@ -129,7 +129,7 @@ emitting an event at each:
 
 ## Gates enforced in code
 
-Nine gates stand between a filing and a ruling, and each is enforced in Python, not asked of
+Ten gates stand between a filing and a ruling, and each is enforced in Python, not asked of
 the model in a prompt:
 
 | Gate | File | Condition as written in code |
@@ -138,6 +138,7 @@ the model in a prompt:
 | ESC-4, the autonomous cap | `app/agents/judge.py` | A money ruling whose `recommended_amount_sgd` exceeds the cap is withheld; the cap is SGD 50 from `app/config.json` |
 | ESC-2, unmeasured deviation, unproven charge or unreadable fare input | `app/agents/judge.py` | On a route-deviation case, the ruling is withheld when `route.deviation_pct` is not a recorded finite figure, when `fare.charged_sgd` is not one (or the fare block is absent), or when the record states a fare input it cannot read (`fare.unreadable_inputs` non-empty: a broken tariff rate or promo) — EV-1 names the deviation and the fare charged as the figures a fare finding needs, and a figure the record cannot prove is a missing figure |
 | NS-6, contested no-show | `app/agents/judge.py` | On a no-show case where the driver marked a no-show, the rider claims the driver was absent, and `cancellation.driver_distance_from_pickup_m` is null, the fee has no GPS proof: a refund is issued automatically only when the fee is at most SGD 10 and the rider's `fraud_flags` are recorded and zero with no more than half of past disputes rejected; any other ruling is withheld, and the refund must equal the fee to the cent |
+| NS-8, no-show refund ceiling | `app/agents/judge.py` | On a no-show case, a refund larger than the recorded `cancellation.cancellation_fee_sgd` is withheld — the fee is the ceiling every no-show rule orders within — and a `compensation` ruling is always withheld, because a no-show record proves nothing owed to the driver; a fee that is missing or not a recorded finite figure withholds any refund, since the records then prove no ceiling either way |
 | RD-5, proven overcharge | `app/agents/judge.py` | On a route-deviation case where `fare.difference_sgd` is recorded and at least SGD 1.00, a ruling that refunds less than the proven difference is withheld |
 | RD-4, unproven refund | `app/agents/judge.py` | On a route-deviation case, a refund larger than the records prove the rider overpaid is withheld — the proof is the largest of a positive `fare.difference_sgd`, the charge above an inconsistent breakdown total (EV-3, no rates needed), and, only for a material deviation under RD-1, the charge above `fare.recomputed_estimated_route_sgd` — and a `compensation` ruling is always withheld, because a route record proves nothing owed to the driver |
 | One-round follow-up limit | `app/pipeline.py` | `if questions and not dispute.follow_up_answers` — a dispute is asked at most once; with answers present the Judge always runs and fresh questions are recorded but not sent |

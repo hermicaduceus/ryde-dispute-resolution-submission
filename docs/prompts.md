@@ -7,16 +7,18 @@ and what the party sees as a result. It exists because the challenge asks for it
 mostly a story about prompts and what surrounds them.
 
 One rule governs everything below: **a prompt is a request, not a constraint.** The rules
-the code enforces — six gates listed below, all of them in Python — decide whether a
+the code enforces — seven gates listed below, all of them in Python — decide whether a
 ruling is delivered at all; the prompts ask for good behaviour, the code decides what
 reaches the parties. The gates are deliberately narrow: each one names a specific defect
 the records can show (low confidence, an amount above the autonomous cap, an
-unmeasurable deviation, an unsupported contested no-show refund, a short refund of a
-proven overcharge, an unproven refund), and anything they do not name is the model's
-call. The gates do not decide the case; they decide who decides it. What is *not* gated
-is equally deliberate and equally visible: on a no-show case with a recorded arrival
-position, for example, the only bound on a refund is the autonomous cap — the policy's
-fee-based limits for that case are left to the model and the evidence, not to a gate.
+unmeasurable deviation, an unsupported contested no-show refund, a no-show refund beyond
+the recorded fee, a short refund of a proven overcharge, an unproven refund), and
+anything they do not name is the model's call. The gates do not decide the case; they
+decide who decides it. What is *not* gated is equally deliberate and equally visible:
+on a no-show case with a recorded arrival position, for example, whether the fee was
+earned under NS-1 to NS-3, and so whether it is refunded at all, is left to the model
+and the evidence — the gate bounds a refund to the recorded fee; it does not decide the
+case.
 
 ## How the three agents work
 
@@ -116,7 +118,7 @@ none of them is asked of the model:
   no-action ruling's amount is forced to 0.00 (and noted on the case), amounts are
   rounded to the cent, confidence to four decimals. The gates see the normalised values;
   the case file carries the note, so nothing is silent.
-- **The six gates.** In `app/agents/judge.py`, between the ruling and the parties, each
+- **The seven gates.** In `app/agents/judge.py`, between the ruling and the parties, each
   withholding the candidate ruling (never rewriting it) for a human:
   - **Confidence.** Below the threshold from `app/config.json`, currently 0.65, the
     ruling is withheld.
@@ -128,6 +130,9 @@ none of them is asked of the model:
     driver arrival position: only a full refund of the recorded fee, for a low fee and a
     clean rider record, goes out automatically; every other ruling on such a case —
     including no action — is withheld.
+  - **NS-8.** On a no-show case, a refund larger than the recorded cancellation fee is
+    withheld; a compensation ruling is always withheld, and a fee the record cannot read
+    withholds any refund. No action is never held by this gate.
   - **RD-5.** On a route case, when the records prove an overcharge of at least the
     SGD 1.00 de minimis, a ruling that refunds less than that proof is withheld; a
     difference figure that is present but not a finite number is withheld too.
@@ -201,7 +206,7 @@ operator console and the case file, where a human reviewer reads it. The prompt'
 keeps the model writing for a plain audience, which is the point of the sentence.
 
 **What the code checks after:** the citation validation (recorded, not blocking), then the
-six gates above. Only a ruling that clears every gate is delivered; a gate failure
+seven gates above. Only a ruling that clears every gate is delivered; a gate failure
 withholds the candidate ruling and the case is queued for human review.
 
 ## Worked example

@@ -4,12 +4,14 @@ Weighs both advocates' cases, applies the policy document, and issues one ruling
 confidence score and a natural-language explanation.
 
 The confidence gate is the Judge's contract, not a policy rule: a ruling whose confidence
-is below the configured threshold is not delivered to the parties. It stands beside five
+is below the configured threshold is not delivered to the parties. It stands beside six
 other Python-enforced gates: ESC-4 (the recommended amount above the autonomous cap),
 ESC-2 (a route-deviation case whose deviation could not be measured, whose fare charged is
 not a recorded figure, or whose record states a fare input it cannot read), NS-6 (a contested
 no-show whose fee has no recorded arrival position may only be refunded in full, and only
-for a low fee and a clean rider record), RD-5 (a proven overcharge of at least the de
+for a low fee and a clean rider record), NS-8 (a no-show refund larger than the recorded
+fee, any compensation on a no-show case, or any refund whose fee the record cannot read,
+is withheld for a human), RD-5 (a proven overcharge of at least the de
 minimis amount must actually be refunded) and RD-4 (a route refund larger than the records
 prove the rider overpaid, or any compensation on a route case, is withheld for a human).
 The Judge's candidate is still produced and
@@ -161,6 +163,27 @@ def provable_refund_sgd(pack: EvidencePack) -> float:
     ):
         proven = max(proven, fare.charged_sgd - fare.recomputed_estimated_route_sgd)
     return round(proven, 2)
+
+
+def ns8_provable_refund_ceiling_sgd(pack: EvidencePack) -> Optional[float]:
+    """NS-8: the recorded no-show fee — the largest refund a no-show record proves.
+
+    A no-show dispute is, at its widest, a dispute about the one fee the record states:
+    the policy's no-show rules (NS-1..NS-5) never order more than that fee back to the
+    rider. The fee rounded to the cent is therefore the ceiling any refund must fit
+    under, and a compensation ruling fits under no ceiling at all.
+
+    ``None`` means the records prove no ceiling either way: the pack carries no
+    cancellation block, or the fee is missing or not a finite figure (bool is not a
+    figure). A gate reading ``None`` holds the refund rather than guessing.
+    """
+    cancellation = pack.cancellation
+    if cancellation is None:
+        return None
+    fee = cancellation.cancellation_fee_sgd
+    if not _is_figure(fee):
+        return None
+    return round(fee, 2)
 
 
 class Judge(BaseAgent):
@@ -379,6 +402,47 @@ class Judge(BaseAgent):
                 gate_summaries.append(
                     "the contested no-show refund is not a supported automatic refund (NS-6)"
                 )
+
+        if (
+            dispute.category == CATEGORY_NO_SHOW_CHARGE
+            and ruling.action != RulingAction.NO_ACTION.value
+        ):
+            # NS-8: on a no-show case, money may only move as far as the recorded fee
+            # proves. A refund larger than the fee is held (equal goes out — the fee is
+            # the ceiling every no-show rule orders within), and compensation is always
+            # held, because a no-show record proves nothing owed to the driver. A fee
+            # that is missing or not a finite figure proves no ceiling either way, so
+            # any refund on such a record is held rather than guessed. The candidate is
+            # never rewritten; the human receives exactly what the Judge proposed.
+            ceiling = ns8_provable_refund_ceiling_sgd(pack)
+            if ruling.action == RulingAction.COMPENSATION.value:
+                held = True
+                reason = (
+                    "NS-8: a no-show record proves nothing owed to the driver; the "
+                    "proposed compensation of SGD %.2f is not supported"
+                    % ruling.recommended_amount_sgd
+                )
+                summary = "the ruling pays compensation a no-show record does not support (NS-8)"
+            elif ceiling is None:
+                held = True
+                reason = (
+                    "NS-8: the cancellation fee in the record is missing or not a "
+                    "readable figure, so the records prove no ceiling either way; the "
+                    "refund of SGD %.2f is held"
+                    % ruling.recommended_amount_sgd
+                )
+                summary = "the no-show fee in the records could not be read (NS-8)"
+            else:
+                held = round(ruling.recommended_amount_sgd, 2) > ceiling
+                reason = (
+                    "NS-8: the records prove a no-show fee of SGD %.2f; the proposed "
+                    "refund of SGD %.2f is more than that"
+                    % (ceiling, ruling.recommended_amount_sgd)
+                )
+                summary = "the ruling refunds more than the no-show fee the records prove (NS-8)"
+            if held:
+                gate_failures.append(("NS-8", reason))
+                gate_summaries.append(summary)
 
         fare = pack.fare
         if (
