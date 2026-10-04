@@ -493,7 +493,7 @@ class ContestedNoShowRefusesBrokenFigures(_JudgeHarness):
                 self.assertWithheldBy(
                     self.judge(_ruling("refund", 6.61, rules=("NS-6", "GEN-3"),
                                        refs=("cancellation.cancellation_fee_sgd",)), pack=pack),
-                    ["NS-6"], 6.61)
+                    ["NS-6", "NS-8"], 6.61)
 
 
 # ---------------------------------------------------------------------- docs
@@ -537,14 +537,15 @@ class DocsNameTheChargedFareClause(unittest.TestCase):
 
     def test_the_gate_count_is_unchanged(self):
         # One gate, wider: the clause joins ESC-2, it is not a gate of its own. The count
-        # moved to nine on 2026-10-02 for RD-4 (W28), a separate gate, not this clause.
+        # moved to nine on 2026-10-02 for RD-4 (W28) and ten on 2026-10-04 for NS-8,
+        # separate gates, not clauses of this one.
         text = (REPO / "docs" / "architecture.md").read_text(encoding="utf-8")
         section = text.split("## Gates enforced in code", 1)[1]
-        self.assertTrue(section.lstrip().startswith("Nine gates"))
+        self.assertTrue(section.lstrip().startswith("Ten gates"))
 
     def test_the_readme_esc2_clause_names_the_charged_fare(self):
         text = (REPO / "README.md").read_text(encoding="utf-8")
-        para = next(p for p in text.split("\n\n") if "Six gates" in p)  # five until W28
+        para = next(p for p in text.split("\n\n") if "Seven gates" in p)  # five until W28, six until W29
         esc2 = para.split("ESC-2", 1)[1].split("NS-6", 1)[0]
         self.assertIn("deviation", esc2)
         self.assertIn("fare charged", esc2)

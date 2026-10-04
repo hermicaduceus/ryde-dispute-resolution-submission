@@ -567,11 +567,11 @@ class Docs(unittest.TestCase):
                        "difference_sgd", "breakdown"):
             self.assertIn(needle, body, needle)
 
-    def test_architecture_has_nine_gates_and_an_rd4_row(self):
+    def test_architecture_has_ten_gates_and_an_rd4_row(self):
         gates = _section(_text(ARCH), "Gates enforced in code")
-        self.assertTrue(gates.lstrip().startswith("Nine gates"), "the count sentence leads")
+        self.assertTrue(gates.lstrip().startswith("Ten gates"), "the count sentence leads")
         rows = [l for l in gates.splitlines() if l.startswith("| ") and "---" not in l][1:]
-        self.assertEqual(9, len(rows))
+        self.assertEqual(10, len(rows))
         row = next((r for r in rows if "RD-4" in r.split("|")[1]), None)
         self.assertIsNotNone(row, "a table row whose first cell names RD-4")
         self.assertIn("`app/agents/judge.py`", row)
@@ -585,11 +585,12 @@ class Docs(unittest.TestCase):
                 line = next(l for l in block.splitlines() if l.strip().startswith("J --> G{"))
                 self.assertIn("RD-4", line)
 
-    def test_readme_gate_paragraph_names_six_gates(self):
+    def test_readme_gate_paragraph_names_seven_gates(self):
         body = _section(_text(README), "Run")
         para = next(p for p in body.split("\n\n") if "enforced in Python" in p)
-        self.assertRegex(para, r"(?i)\bsix gates\b")
+        self.assertRegex(para, r"(?i)\bseven gates\b")
         self.assertIn("RD-4", para)
+        self.assertIn("NS-8", para)
 
 
 if __name__ == "__main__":

@@ -426,7 +426,24 @@ the three conditions hold, a ruling that is not a refund of exactly the fee is w
 human; where any condition fails, the ruling is withheld whatever it says. The gate never rewrites
 a ruling.
 
-### NS-7 — Advance bookings [RYDE-ACTUAL]
+### NS-8 — A no-show remedy is bounded by the fee [SYNTHESISED]
+
+A no-show dispute is, at its widest, a dispute about one recorded fee: NS-1 through NS-5
+order at most that fee back to the rider and never more. So a refund larger than the
+recorded fee is not a remedy any no-show record supports, and a no-show record proves
+nothing owed to the driver either — a `compensation` ruling on a no-show case is
+unsupported the same way RD-4 treats it on a route case.
+
+The recorded fee (`cancellation.cancellation_fee_sgd`) is the ceiling. A fee that is
+missing or not a readable figure is a missing fee: the records then prove no ceiling
+either way, so any refund is held rather than guessed. `No action` is never held.
+
+Enforcement (2026-10-04): in code, beside the other gates, label `NS-8`. On a no-show
+case, a refund larger than the recorded fee is withheld for a human, a compensation ruling
+is always withheld, and a missing or unreadable fee withholds any refund. The gate never
+rewrites a ruling; the withheld candidate carries the reason.
+
+ ### NS-7 — Advance bookings [RYDE-ACTUAL]
 
 For advance trips, cancellations more than 15 minutes before the scheduled time are free. Inside
 that window the cancellation fee applies, except that a booking accepted less than 15 minutes

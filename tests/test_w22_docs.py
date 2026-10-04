@@ -65,14 +65,14 @@ class ReadmeTruth(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertNotRegex(self.text, r"(?i)\b%s\b" % name)
 
-    def test_the_gate_paragraph_names_all_six_judge_gates(self):
-        # Five gates until 2026-10-02; W28 added RD-4 (asserted in test_w28_unproven_refunds).
+    def test_the_gate_paragraph_names_all_seven_judge_gates(self):
+        # Five gates until 2026-10-02; W28 added RD-4; W29 added NS-8.
         body = _section(self.text, "Run")
         self.assertNotIn("Three gates", body)
         para = next(p for p in body.split("\n\n") if "enforced in Python" in p)
-        for gate in ("confidence", "ESC-4", "ESC-2", "NS-6", "RD-5"):
+        for gate in ("confidence", "ESC-4", "ESC-2", "NS-6", "NS-8", "RD-5"):
             self.assertIn(gate, para, gate)
-        self.assertRegex(para, r"(?i)\bsix gates\b")
+        self.assertRegex(para, r"(?i)\bseven gates\b")
 
     def test_the_run_section_shows_the_eval_command(self):
         body = _section(self.text, "Run")
@@ -88,11 +88,11 @@ class ArchitectureGates(unittest.TestCase):
     def _rows(self):
         return [l for l in self.gates.splitlines() if l.startswith("| ") and "---" not in l][1:]
 
-    def test_nine_gates_and_the_count_matches_the_table(self):
-        # Eight until 2026-10-02; W28 added the RD-4 row.
-        self.assertTrue(self.gates.lstrip().startswith("Nine gates"),
+    def test_ten_gates_and_the_count_matches_the_table(self):
+        # Eight until 2026-10-02; W28 added RD-4; W29 added NS-8.
+        self.assertTrue(self.gates.lstrip().startswith("Ten gates"),
                         "the count sentence leads the section")
-        self.assertEqual(9, len(self._rows()))
+        self.assertEqual(10, len(self._rows()))
 
     def test_ns6_row(self):
         row = next((r for r in self._rows() if "NS-6" in r.split("|")[1]), None)

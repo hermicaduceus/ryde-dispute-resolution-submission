@@ -145,7 +145,7 @@ class ContestedNoShowGate(_JudgeHarness):
 
     def test_compensation_is_withheld(self):
         res, gates = self.judge(_ruling("compensation", 6.61))
-        self.assertWithheldBy(res, gates, ["NS-6"], 6.61)
+        self.assertWithheldBy(res, gates, ["NS-6", "NS-8"], 6.61)
 
     def test_a_partial_refund_is_withheld(self):
         res, gates = self.judge(_ruling("refund", 6.60))
@@ -153,7 +153,7 @@ class ContestedNoShowGate(_JudgeHarness):
 
     def test_a_refund_above_the_fee_is_withheld(self):
         res, gates = self.judge(_ruling("refund", 6.62))
-        self.assertWithheldBy(res, gates, ["NS-6"], 6.62)
+        self.assertWithheldBy(res, gates, ["NS-6", "NS-8"], 6.62)
 
     def test_the_fee_is_compared_to_the_cent(self):
         self.assertRuled(*self.judge(_ruling("refund", 6.614)))
@@ -173,7 +173,7 @@ class ContestedNoShowGate(_JudgeHarness):
     def test_an_unrecorded_fee_is_withheld(self):
         pack = _replace_cancellation(self.pack, cancellation_fee_sgd=None)
         res, gates = self.judge(_ruling("refund", 6.61), pack=pack)
-        self.assertWithheldBy(res, gates, ["NS-6"], 6.61)
+        self.assertWithheldBy(res, gates, ["NS-6", "NS-8"], 6.61)
 
     def test_fraud_flags_other_than_a_recorded_zero_are_withheld(self):
         for flags in (1, 3, None):
@@ -362,7 +362,7 @@ class GateOrder(_JudgeHarness):
     def test_esc4_before_ns6(self):
         pack = _replace_rider(self.pack, fraud_flags=1)
         res, gates = self.judge(_ruling("refund", 60.0), pack=pack)
-        self.assertWithheldBy(res, gates, ["ESC-4", "NS-6"], 60.0)
+        self.assertWithheldBy(res, gates, ["ESC-4", "NS-6", "NS-8"], 60.0)
 
     def _summary(self, dispute, pack, ruling):
         tmp = Path(tempfile.mkdtemp())
