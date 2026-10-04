@@ -25,6 +25,7 @@ These tests are RED until the gate exists.
 import re
 import sys
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -148,6 +149,23 @@ class NS8Gate(unittest.TestCase):
         cf = run_case("NS-0202", judge_refund(3.0), self._tmp.name)
         self.assertEqual("ruled", cf.resolution["outcome"])
 
+    def test_one_cent_above_the_fee_is_held_by_ns8_alone(self):
+        cf = run_case("NS-0202", judge_refund(6.62), self._tmp.name)
+        self.assertEqual("withheld", cf.resolution["outcome"])
+        self.assertEqual(6.62, cf.resolution["withheld_candidate"]["recommended_amount_sgd"])
+        event = next(e for e in EventLog.read_events(Path(self._tmp.name))
+                     if e["type"] == "judge.ruling_withheld")
+        import json
+        payload = json.loads((Path(self._tmp.name) / event["payload_ref"]).read_text())
+        self.assertEqual(["NS-8"], payload["gates_failed"])
+        self.assertEqual([
+            "the ruling was not delivered: NS-8: the records prove a no-show fee of "
+            "SGD 6.61; the proposed refund of SGD 6.62 is more than that"
+        ], notes(cf))
+        self.assertEqual(
+            "Judge withheld the ruling: the ruling refunds more than the no-show fee "
+            "the records prove (NS-8)", event["summary"])
+
     def test_no_action_is_never_held_by_ns8(self):
         cf = run_case("NS-0202", judge_no_action(), self._tmp.name)
         self.assertEqual("ruled", cf.resolution["outcome"])
@@ -161,6 +179,15 @@ class NS8Gate(unittest.TestCase):
         # even below the fee: a no-show record proves nothing owed to the driver
         cf = run_case("NS-0202", judge_compensation(0.5), self._tmp.name)
         self.assertEqual("withheld", cf.resolution["outcome"])
+        self.assertEqual([
+            "the ruling was not delivered: NS-8: a no-show record proves nothing owed "
+            "to the driver; the proposed compensation of SGD 0.50 is not supported"
+        ], notes(cf))
+        event = next(e for e in EventLog.read_events(Path(self._tmp.name))
+                     if e["type"] == "judge.ruling_withheld")
+        self.assertEqual(
+            "Judge withheld the ruling: the ruling pays compensation a no-show record "
+            "does not support (NS-8)", event["summary"])
 
     def test_the_withheld_event_carries_the_gate_label(self):
         import json as _json
@@ -191,10 +218,14 @@ class NS8MissingFee(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         import json as _json
         original = _json.loads((PACK / "NS-0202.json").read_text())
-        original["cancellation_policy"]["cancellation_fee_after_wait"] = None
+        original["trip_data"]["cancellation_fee"] = None
         path = Path(self._tmp.name) / "record.json"
         path.write_text(_json.dumps(original))
         self.record = path
+        pack = compute.build_evidence_pack(load_dispute(path))
+        assert pack.cancellation is not None
+        self.assertIsNone(pack.cancellation.cancellation_fee_sgd)
+        self.assertIsNotNone(pack.cancellation.driver_distance_from_pickup_m)
 
     def run_case_from_record(self, judge_reply, tmp):
         dispute = load_dispute(self.record)
@@ -211,9 +242,35 @@ class NS8MissingFee(unittest.TestCase):
     def test_refund_with_a_null_fee_is_withheld(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            cf = self.run_case_from_record(judge_refund(45.0), tmp)
+            cf = self.run_case_from_record(judge_refund(3.0), tmp)
+            self.assertEqual("withheld", cf.resolution["outcome"])
+            event = next(e for e in EventLog.read_events(Path(tmp))
+                         if e["type"] == "judge.ruling_withheld")
+            import json
+            payload = json.loads((Path(tmp) / event["payload_ref"]).read_text())
         self.assertEqual("withheld", cf.resolution["outcome"])
-        self.assertIn("NS-8", " ".join(notes(cf)))
+        self.assertEqual(["NS-8"], payload["gates_failed"])
+        self.assertEqual(3.0, cf.resolution["withheld_candidate"]["recommended_amount_sgd"])
+        self.assertEqual([
+            "the ruling was not delivered: NS-8: the cancellation fee in the record is "
+            "missing or not a readable figure, so the records prove no ceiling either "
+            "way; the refund of SGD 3.00 is held"
+        ], notes(cf))
+        self.assertEqual(
+            "Judge withheld the ruling: the no-show fee in the records could not be "
+            "read (NS-8)", event["summary"])
+
+    def test_one_cent_refund_with_a_null_fee_is_withheld(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            cf = self.run_case_from_record(judge_refund(0.01), tmp)
+            self.assertEqual("withheld", cf.resolution["outcome"])
+            event = next(e for e in EventLog.read_events(Path(tmp))
+                         if e["type"] == "judge.ruling_withheld")
+            import json
+            payload = json.loads((Path(tmp) / event["payload_ref"]).read_text())
+        self.assertEqual(["NS-8"], payload["gates_failed"])
+        self.assertEqual(0.01, cf.resolution["withheld_candidate"]["recommended_amount_sgd"])
 
     def test_no_action_with_a_null_fee_is_delivered(self):
         import tempfile
@@ -244,6 +301,24 @@ class NS8Unit(unittest.TestCase):
         dispute = load_dispute(PACK / "RD-0103.json")
         pack = compute.build_evidence_pack(dispute)
         self.assertIsNone(judge_module.ns8_provable_refund_ceiling_sgd(pack))
+
+    def test_helper_rounds_the_fee_to_cents(self):
+        pack = compute.build_evidence_pack(load_dispute(PACK / "NS-0202.json"))
+        assert pack.cancellation is not None
+        for fee, expected in ((6.614, 6.61), (6.616, 6.62), (0, 0.0)):
+            with self.subTest(fee=fee):
+                changed = replace(pack, cancellation=replace(
+                    pack.cancellation, cancellation_fee_sgd=fee))
+                self.assertEqual(expected, judge_module.ns8_provable_refund_ceiling_sgd(changed))
+
+    def test_helper_rejects_missing_nonfinite_and_non_numeric_fees(self):
+        pack = compute.build_evidence_pack(load_dispute(PACK / "NS-0202.json"))
+        assert pack.cancellation is not None
+        for fee in (None, float("nan"), float("inf"), -float("inf"), True, False, "6.61"):
+            with self.subTest(fee=fee):
+                changed = replace(pack, cancellation=replace(
+                    pack.cancellation, cancellation_fee_sgd=fee))
+                self.assertIsNone(judge_module.ns8_provable_refund_ceiling_sgd(changed))
 
 
 class NS8Docs(unittest.TestCase):
@@ -289,7 +364,11 @@ class NS8Docs(unittest.TestCase):
 
     def test_policy_ns8_section_states_the_enforcement(self):
         text = self.POLICY.read_text(encoding="utf-8")
-        body = re.search(r"^### NS-8 .*?(?=^### |\Z)", text, re.M | re.S).group(0)
+        match = re.search(r"^### NS-8 .*?(?=^ *#{1,3} |\Z)", text, re.M | re.S)
+        assert match is not None, "the NS-8 policy section must exist"
+        body = match.group(0)
+        self.assertNotIn("NS-7", body)
+        self.assertNotIn("## 5.", body)
         self.assertIn("Enforcement (2026-10-04)", body)
         self.assertIn("label `NS-8`", body, "the paragraph must name the gate label")
         for needle in ("withheld", "compensation", "cancellation_fee_sgd"):
