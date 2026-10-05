@@ -66,6 +66,7 @@ from .schemas import (
     OUTCOME_RULED,
     OUTCOME_WITHHELD,
     UNDER_REVIEW_MESSAGE,
+    intake_questions_for,
     is_party_safe,
 )
 
@@ -792,7 +793,10 @@ def _validate_filing(body: Dict[str, Any]) -> Dict[str, Any]:
     answers = body.get("answers", {})
     if not isinstance(answers, dict):
         raise _HTTPError(400, "answers must be an object")
-    questionnaire = QUESTIONNAIRES.get(category, ())
+    # The questionnaire is selected by category and the canonical filer: a driver
+    # filing may not carry rider-only keys and vice versa. Shared safety_concern is
+    # valid for both. QUESTIONNAIRES stays the rider-compatible export.
+    questionnaire = tuple(key for key, _label in intake_questions_for(category, filed_by))
     for key, value in answers.items():
         if key not in questionnaire:
             raise _HTTPError(400, "unknown intake answer: %s" % key)

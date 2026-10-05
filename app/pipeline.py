@@ -42,8 +42,8 @@ from .schemas import (
     AdvocateCase,
     Resolution,
     blank_field_question,
+    intake_questions_for,
     is_party_safe,
-    INTAKE_QUESTIONS,
 )
 
 CASE_FILE_NAME = "case_file.json"
@@ -358,8 +358,8 @@ def _questions_for_party(
 
     # Fallback: nothing the advocates wrote is safe to send. Ask about the blank
     # intake fields in code-built words, one per field, in form order — the label
-    # table is the one owner of those words.
-    labels = dict(INTAKE_QUESTIONS.get(dispute.category, ()))
+    # table for the filing role is the one owner of those words.
+    labels = dict(intake_questions_for(dispute.category, dispute.filed_by))
     return [
         blank_field_question(labels[key])
         for key in labels

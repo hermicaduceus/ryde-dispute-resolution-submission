@@ -229,13 +229,15 @@ class ContractIntactTest(unittest.TestCase):
             self.assertEqual(PARTY_VIEW_KEYS, set(view), name)
 
     def test_party_js_unchanged(self):
-        """The W10 freeze: party.js must stay byte-identical through this change."""
+        """W16 reference carve-out; parent must rebaseline its digest from shipped bytes."""
         import hashlib
         from pathlib import Path
 
         repo = Path(__file__).resolve().parent.parent
         digest = hashlib.sha256((repo / "ui" / "party" / "party.js").read_bytes()).hexdigest()
-        self.assertEqual("d7c2ac785b88cf1f1111fa302d4b6272d7e765e74237944d2e0ff3952e856d1a", digest)
+        # W16 carve-out: builder updates this expected digest after independently shipping party.js.
+        # The current value is the disposable reference baseline, not a value to copy into production.
+        self.assertEqual("3a4ba3517108083720e87ebb1e7b98913be248625018fcc5cea12267d4cc94c4", digest)
 
     def test_architecture_doc_states_the_notice(self):
         """The doc says the party message carries no MOCK marker; that goes false now."""

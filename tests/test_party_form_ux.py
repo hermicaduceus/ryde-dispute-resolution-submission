@@ -269,32 +269,27 @@ class YesNoButtonsInSource(unittest.TestCase):
     """
 
     def test_questionnaire_tags_every_question_with_a_kind(self):
-        js = _js()
-        kinds = _kinds(js)
-        self.assertTrue(kinds, "no kind-tagged questionnaire entries found")
-        by_key = {}
-        for key, kind in kinds:
-            if key in by_key:
-                self.assertEqual(by_key[key], kind,
-                                 f"{key} is tagged inconsistently across categories")
-            by_key[key] = kind
-        for key in YES_NO_KEYS:
-            self.assertEqual("yes_no", by_key.get(key),
-                             f'{key} must be tagged kind: "yes_no"')
-        for key in ("expected_route", "where_were_you"):
-            self.assertEqual("open", by_key.get(key),
-                             f'{key} must be tagged kind: "open"')
+        from tests.w16_support import drive, RIDER, DRIVER
+        for role, table in ((None, RIDER), ("driver", DRIVER)):
+            for index, (category, rows) in enumerate(table.items()):
+                with self.subTest(role=role, category=category):
+                    rendered = drive(role, category=index, pending=True)["initial"]
+                    self.assertEqual([(k, kind) for k, label, kind in rows],
+                                     [(r["key"], r["kind"]) for r in rendered])
 
     def test_the_page_kind_tags_match_the_python_owner(self):
-        """One owner: app.schemas.YES_NO_INTAKE_KEYS. The page must agree key for key."""
-        from app.schemas import INTAKE_QUESTIONS, YES_NO_INTAKE_KEYS
-
-        expected = {}
-        for category, items in INTAKE_QUESTIONS.items():
-            for key, _label in items:
-                expected[key] = "yes_no" if key in YES_NO_INTAKE_KEYS else "open"
-        self.assertEqual(expected, dict(_kinds(_js())),
-                         "party.js kind tags drifted from app/schemas.py")
+        from app import schemas
+        from tests.w16_support import drive
+        driver = getattr(schemas, "DRIVER_INTAKE_QUESTIONS", None)
+        driver_kinds = getattr(schemas, "DRIVER_YES_NO_INTAKE_KEYS", None)
+        self.assertIsInstance(driver, dict, "driver table missing")
+        self.assertIsInstance(driver_kinds, frozenset, "driver kinds missing")
+        for role, table, kinds in ((None, schemas.INTAKE_QUESTIONS, schemas.YES_NO_INTAKE_KEYS),
+                                  ("driver", driver, driver_kinds)):
+            for index, (category, items) in enumerate(table.items()):
+                expected = [(k, "yes_no" if k in kinds else "open") for k, label in items]
+                rendered = drive(role, category=index, pending=True)["initial"]
+                self.assertEqual(expected, [(r["key"], r["kind"]) for r in rendered])
 
     def test_build_questions_dispatches_on_kind(self):
         """The dispatch has to be inside buildQuestions, wired to the right builders."""

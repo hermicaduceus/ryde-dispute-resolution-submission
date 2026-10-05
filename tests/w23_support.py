@@ -166,7 +166,13 @@ class Server:
     def file(self, trip_id="T-RD0109", claim=55.16, safety="No", filed_by="rider",
              category="route_deviation", answers=None, expected_route="Expressway, about 31 km."):
         if answers is None:
-            if category == "route_deviation":
+            if filed_by == "driver" and category == "route_deviation":
+                answers = {"route_shown_to_driver": expected_route, "route_agreed_with_rider": "No",
+                           "rider_requested_stop": "No", "safety_concern": safety}
+            elif filed_by == "driver" and category == "no_show_charge":
+                answers = {"driver_waiting_place": "At the pickup point.", "driver_contacted_rider": "No",
+                           "safety_concern": safety}
+            elif category == "route_deviation":
                 answers = {"expected_route": expected_route, "was_route_agreed": "No",
                            "asked_driver_to_stop": "No", "safety_concern": safety}
             elif category == "no_show_charge":

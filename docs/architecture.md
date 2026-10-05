@@ -35,7 +35,7 @@ the run files the operator attaches.
 flowchart TD
     PACK["Dataset pack"] --> B["Server"]
     PACK --> CL["Command-line runner"]
-    A["Rider intake form"] --> B
+    A["Rider and driver intake forms"] --> B
     B --> C{"Category in scope?"}
     CL --> C
     C -- "Out of scope" --> H["Human review"]
@@ -81,7 +81,7 @@ flowchart TD
 | Command-line runner | `app/cli.py` | Runs one dispute from the terminal and prints the event strip |
 | Runtime configuration | `app/config.json` | Confidence threshold, autonomous cap, default dataset pack, provider settings |
 | Operator console | `ui/app.js` | Renders the case file: grievance, evidence, both claims, resolution, event strip |
-| Party page | `ui/party/party.js` | The intake form and the outcome view the filing party sees |
+| Party forms | `ui/party/index.html`, `ui/party/driver-filing.html`, `ui/party/party.js` | Separate rider and driver entry pages with shared form, outcome and reply logic |
 | Policy document | `docs/policy.md` | The rule set the agents cite, with per-rule provenance |
 
 ## Lifecycle of a dispute
@@ -193,14 +193,18 @@ exactly `tencent` suppresses it, and any other record, missing, mock or malforme
 so a decision made on an illustrative run never reads like a live review, while a proven
 real-provider decision shows no notice.
 Follow-up questions are selected by the advocates as slot IDs; code renders each sentence
-from the fixed category bank or from an intake form label. Bank slots are offered only when
-the rider filed, while form slots work for either filer. Any question text written by the
+from the fixed category bank or from a role-specific intake form label. Category and filer
+select the offered questions for both advocates. Driver form slots use distinct actor-directed
+keys and labels, never rider bank slots. Bank slots are offered only when
+the rider filed, while each filer is offered only their own form slots. Any question text written by the
 model is ignored, so no model-written text reaches a party. The word check (`is_party_safe`,
 applied in `_questions_for_party` in `app/pipeline.py` and again in `party_view`) remains a
 backstop, as it is for the code-composed decision message. When no rendered question survives,
 the pipeline falls back to plain template questions built from the form's own labels. A run
 that asked for more information is answered through `POST /api/disputes/<run_id>/answers`, and
-the answers start a fresh run on the same dispute.
+the answers start a fresh run on the same dispute, keeping driver identity and intake.
+Reference lookup at `ui/party/status.html` recovers persisted question strings and the current
+run. Old driver submissions remain answerable without translating their stored keys.
 
 ## Human decision
 
@@ -302,11 +306,16 @@ What the system does not do yet, stated plainly:
   is rejected, never converted, because the value moves money.
 - **Two categories only.** Route deviation and no-show charge. Property damage and safety
   incidents route to human review by design.
-- **The driver-side form is not built.** The party page files as the rider only; the
-  pipeline itself accepts driver-filed disputes, but no web form offers it yet.
+- The driver form is a local demo, not authentication. It lets the filer select a sample
+  trip and submit from that trip driver's perspective, without a signed-in ownership check.
+  The read-only driver account stays fixed to D-2009, including T-RD0109. Other sample drivers'
+  filings need reference lookup and never appear in that account.
+- A cleaning report is persisted and routed to support with no evidence pack or model call.
+  It does not enter the withheld-case review queue and has no operator human-decision workflow,
+  upload or image analysis. No cleaning-fee payment or delivery promise is added.
 - **Follow-up wording is code-owned.** Advocates select slot IDs; code renders each question
   from the fixed category bank or an intake form label, and model-written question text is
-  ignored. Bank slots are rider-only; form slots are available to either filer.
+  ignored. Bank slots are rider-only; each filer is offered only their own form slots.
 - **The word check is a backstop.** Rendered follow-up questions and the code-composed decision
   message pass the keyword gate, which is not a semantic guarantee; blank fields still use
   template questions built from the form's own labels.

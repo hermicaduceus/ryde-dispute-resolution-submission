@@ -24,7 +24,9 @@ from tests.test_party_surface import FORBIDDEN_PARTY_WORDS
 
 REPO = Path(__file__).resolve().parent.parent
 PARTY_UI = REPO / "ui" / "party"
-PARTY_JS_SHA = "d7c2ac785b88cf1f1111fa302d4b6272d7e765e74237944d2e0ff3952e856d1a"
+# W16 carve-out: the builder updates only this digest and its W12 twin after
+# rider+driver behavioural checks pass, using the independently shipped party.js bytes.
+PARTY_JS_SHA = "3a4ba3517108083720e87ebb1e7b98913be248625018fcc5cea12267d4cc94c4"
 
 ROOT_TOKENS = [("--ink", "#31373e"), ("--muted", "#5a6470"), ("--line", "#e5e0dc"),
                ("--paper", "#f7dde3"), ("--accent", "#e93864"), ("--error", "#c0392b"),

@@ -1,0 +1,19 @@
+{
+  "root": "drafts/w16-red-preparation/acceptance",
+  "note": "Pre-build SHA-256 of approved acceptance files. Builder may change only the two party.js digest literals + their comments in tests/test_party_rebrand.py and tests/test_w12_demo_notice.py.",
+  "files": {
+    "README.md": "f794a0007fec7ccde5dea94ab39d4418034eec347e62912d115cbcbe9be87b0d",
+    "docs/architecture.md": "964a7b952d987785e8c5e39321e500df3aa671e0fbc18bbfd33133fcba13f952",
+    "docs/prompts.md": "3aaf58c5d9cad040a53ded2cfe6078d25b6e8dcc18379cc429db34891921f884",
+    "tests/test_party_form_ux.py": "57034bc64079ce5bf65456b53bdfa458488bc4143035674c61fca4851bbc1c6d",
+    "tests/test_party_rebrand.py": "e0a0e0a32559a4f03581a989bb1c409b0e9e1b5637245ce83795cbdf4190a9d7",
+    "tests/test_session_eight.py": "a9853f141cc3c31ee2a62a4ff9df4a198d224717c5ce6f74cf469cb2789f3b46",
+    "tests/test_session_six_fixes.py": "5c430e4ca981b8c4953825681f478bf3ca427eed1ab66225313659f9251a1e9b",
+    "tests/test_w12_demo_notice.py": "dc88c5c0888d58f6083858868d96a353728da50326f5b0ac283943f95ea8f7c4",
+    "tests/test_w16_driver_contract.py": "64a43719f855290daa8899a200ca32955d3b07bce2a1dba7a0ba114e3b42db0b",
+    "tests/test_w16_driver_filing.py": "04bcb674e1a9fa86b282556d1110bbe81e2907904828c2b35e7e6232102ae1fa",
+    "tests/test_w16_driver_pages.py": "47fb8cb0648b51cd178e96810aa1cf227dba42f1dc283d8ff4d6ef4c472d446c",
+    "tests/w16_support.py": "8cb04ae999a2bc9b8fd86f56f601a03d46eb1d366203c32d7d4d05010666a713",
+    "tests/w23_support.py": "960349f8f1bfd838307e1723c4333ae7c5ebd323d0bc7b4dd841f609811c66ce"
+  }
+}

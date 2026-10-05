@@ -76,7 +76,11 @@ wrong) and how to cite only the fields the ruling rests on.
 5. `POLICY DOCUMENT` and `POLICY RULE IDS` — the full policy text and the rule IDs it
    contains.
 6. `FOLLOW-UP QUESTION SLOTS` (advocates only) — the fixed sentences code can render for
-   this category, so an agent can only choose from sentences a human wrote.
+   this category and filer, so an agent can only choose from sentences a human wrote.
+   Both advocates receive the same filer-specific list. Driver submissions offer only
+   driver form slots; rider submissions retain their bank and form slots. A driver form
+   answer is attributable intake, not corroborated evidence. The original driver keys and
+   `filed_by: driver` remain in the dispute block and any follow-up replies in every prompt.
 7. `YOUR TASK` — one or two sentences saying what to argue and what to return.
 
 ## The hard rules

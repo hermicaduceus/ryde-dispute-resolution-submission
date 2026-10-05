@@ -15,7 +15,7 @@ import json
 from typing import Any, Dict, List
 
 from .base import LLMClient, LLMError, LLMRequest, LLMResponse
-from ..schemas import FORM_SLOT_PREFIX, INTAKE_QUESTIONS
+from ..schemas import FORM_SLOT_PREFIX, intake_questions_for
 
 MOCK_MARKER = "MOCK"
 
@@ -91,7 +91,7 @@ class MockLLMClient(LLMClient):
         # form label from each selected slot.
         follow_up_slots: List[str] = []
         if party == filed_by and not has_answers:
-            labels = dict(INTAKE_QUESTIONS.get(category, ()))
+            labels = dict(intake_questions_for(category, filed_by))
             follow_up_slots = [
                 FORM_SLOT_PREFIX + key for key in blank_keys if key in labels
             ]
