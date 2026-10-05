@@ -208,8 +208,8 @@ input[type="file"] {
 
 #case-workspace {
   display: grid;
-  gap: 24px;
-  margin-top: 24px;
+  gap: 28px;
+  margin-top: 28px;
 }
 
 .story-section {
@@ -1194,17 +1194,13 @@ input[type="file"] {
 
 #queue-panel,
 #overrides-panel {
-  margin-top: 24px;
+  margin-top: 28px;
   padding: 20px 22px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-left: 4px solid var(--accent);
   border-radius: 16px;
   box-shadow: var(--shadow);
-}
-
-#overrides-panel {
-  margin-top: 0;
 }
 
 #queue-panel .section-heading {

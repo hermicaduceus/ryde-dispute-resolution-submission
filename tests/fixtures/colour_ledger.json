@@ -1283,6 +1283,16 @@
    "#1eb848"
   ],
   [
+   ":root",
+   "--tint",
+   "#fff0f3"
+  ],
+  [
+   ":root",
+   "--float-shadow",
+   "0 8px 24px rgba(0, 0, 0, 0.08)"
+  ],
+  [
    "body",
    "background",
    "var(--paper)"
@@ -1295,7 +1305,17 @@
   [
    ".party-header .eyebrow",
    "color",
-   "var(--muted)"
+   "var(--accent)"
+  ],
+  [
+   ".party-header .eyebrow",
+   "background",
+   "var(--tint)"
+  ],
+  [
+   ".party-header .eyebrow",
+   "border",
+   "1px solid var(--accent)"
   ],
   [
    ".intro",
@@ -1309,8 +1329,13 @@
   ],
   [
    ".demo-note",
-   "border-left",
-   "3px solid var(--line)"
+   "background",
+   "var(--tint)"
+  ],
+  [
+   ".demo-note",
+   "border",
+   "1px solid var(--line)"
   ],
   [
    ".step",
@@ -1321,6 +1346,11 @@
    ".step",
    "border",
    "1px solid var(--line)"
+  ],
+  [
+   ".step",
+   "box-shadow",
+   "var(--float-shadow)"
   ],
   [
    ".step-number",
@@ -1353,14 +1383,19 @@
    "var(--accent)"
   ],
   [
-   ".option-card.selected",
-   "border-color",
-   "var(--accent)"
+   ".option-card:hover",
+   "box-shadow",
+   "var(--float-shadow)"
   ],
   [
    ".option-card.selected",
-   "box-shadow",
-   "0 0 0 2px #fff0f3"
+   "background",
+   "var(--tint)"
+  ],
+  [
+   ".option-card.selected",
+   "border",
+   "2px solid var(--accent)"
   ],
   [
    ".choice-button",
@@ -1403,7 +1438,7 @@
    "var(--muted)"
   ],
   [
-   "textarea, input[type=\"number\"]",
+   "textarea, input[type=\"text\"], input[type=\"number\"]",
    "border",
    "1px solid var(--line)"
   ],
@@ -1413,9 +1448,24 @@
    "2px solid var(--accent)"
   ],
   [
+   "textarea:focus, input:focus",
+   "box-shadow",
+   "0 0 0 4px var(--tint)"
+  ],
+  [
    "button:focus-visible",
    "outline",
    "2px solid var(--accent)"
+  ],
+  [
+   ".step-actions",
+   "background",
+   "var(--card)"
+  ],
+  [
+   ".step-actions",
+   "border-top",
+   "1px solid var(--line)"
   ],
   [
    "button",
@@ -1471,6 +1521,56 @@
    ".status-line",
    "color",
    "var(--muted)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a",
+   "background",
+   "var(--card)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a:hover",
+   "background",
+   "var(--tint)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a:hover",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a:hover",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a:focus-visible",
+   "background",
+   "var(--tint)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a:focus-visible",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a:focus-visible",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a:focus-visible",
+   "outline",
+   "2px solid var(--accent)"
   ]
  ]
 }

@@ -75,3 +75,19 @@ per session is enough; date each entry.
   confirmed: --muted failed AA on the pastel canvas (3.70) and was darkened to #5A6470
   (4.70). One driver bug found by the human: a PTY prompt write needs its own \r — a prompt
   typed without the carriage return sits unsubmitted.
+
+## 2026-10-05 to 2026-10-06
+
+- W15 UI review follow-ups used CodeBuddy CLI v2.161.3 on Deepseek-V4.1-Flash at
+  max effort. The scoped CSS fixes separated the driver's amount helper, aligned
+  console card gaps and made driver-header links quiet outlined pills.
+- Independent review caught a sticky action bar covering filing options. A rendered
+  check found the same defect at desktop sizes, so a mobile-only exception would
+  have missed it. the operator approved normal-flow action bars at every width. RED tests
+  preceded CodeBuddy's two-declaration repair; the bar's visual styling stayed intact.
+- Verification finished with 1104 tests OK, 41 unique regression mutations failing
+  assertions with no errors or survivors, and 36 filing-stage checks across 12 real
+  browser views. Final GLM-5.3 review endorsed the repair and closed the overlap finding.
+- the operator supplied genuine CLI screenshots at close-out. Evidence frames 45 and 46 show
+  the product/model banner and the repair completion report respectively. The second
+  frame's test table is builder output; the independent verification is separate.

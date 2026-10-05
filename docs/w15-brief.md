@@ -1,8 +1,10 @@
 # W15 build brief: full-layout restyle of the party pages
 
 You are building in the `ryde-build` repo. This brief carries the CONTRACT for the W15
-layout pass. The acceptance tests are already committed and RED; your job is to make
-them green by restyling `ui/party/party.css`. **Do not edit `party.js`** — two digest
+layout pass. This is the original RED-first build contract, now implemented. The
+review follow-ups are scoped in `docs/w15-feedback-brief.md` and
+`docs/w15-actions-repair-brief.md`; their explicit exceptions supersede this base
+brief's file restrictions. **Do not edit `party.js`** — two digest
 freezes pin its bytes and this is a CSS/layout pass.
 
 ## What W15 is
@@ -50,10 +52,13 @@ Cards:
 - `.option-card.selected`: the app's selected ride-row treatment — `background: var(--tint)`,
   `border: 2px solid var(--accent)`, `box-shadow: none`
 
-Sticky step actions (the app's sticky bottom bar, kept inside the card):
-- `.step-actions`: `position: sticky`, `bottom: 0`, `background: var(--card)`,
+Normal-flow step actions, following the operator's 2026-10-06 review repair ruling:
+- `.step-actions`: `position: static`, no `bottom` offset, `background: var(--card)`,
   `border-top: 1px solid var(--line)`, `border-radius: 0 0 20px 20px`, plus padding
   (e.g. `0.75rem 0 0.25rem`)
+- The original sticky requirement is superseded because browser probes reproduced
+  action bars covering category options on desktop as well as mobile. Keep bars
+  below the form content at all widths. Repair scope: `docs/w15-actions-repair-brief.md`.
 
 CTA and inputs:
 - `button`: `font-weight: 600`, `padding: 0.7rem 1.5rem` (keep `border-radius: 29px`)
@@ -70,18 +75,19 @@ carries the tint as a token — see the updated test file, which is already comm
 
 ## What you should see when done
 
-- `/usr/bin/python3 -B -m unittest discover -s tests -t .` → **1091 tests OK**
+- `/usr/bin/python3 -B -m unittest discover -s tests -t .` → **full suite OK**
+  (use the runner's current tally, not the initial W15-base count)
   (NOTE: use `/usr/bin/python3`, not `python3` — the latter resolves a tools/ package
   collision that breaks 5 imports as loader errors)
 - `tests.test_w15_layout` → 14/14 OK
 - `tests.test_party_rebrand` → 12/12 OK
-- The colour ledger re-baselined (`party.css` will report 57 rows)
+- The colour ledger byte-identical to the current `tools/colour_ledger.py` output
 - `ui/party/party.js` byte-identical to before you started (sha256 equals the two
   freeze literals in the test files)
 - A quick visual sanity check by serving the party pages on a loopback port with the
   mock provider (`make_server(0, out_dir=<fresh tmp>, provider="mock")`, never the
   repo's `runs/`): rider and driver filing pages show the pastel canvas, floating
-  white step cards, pill eyebrow chip, sticky step actions at card bottom.
+  white step cards, pill eyebrow chip, normal-flow step actions at card bottom.
 
 ## Out of scope (do not build)
 
@@ -90,4 +96,4 @@ carries the tint as a token — see the updated test file, which is already comm
 - No operator console changes (`ui/styles.css` is out of bounds; a test asserts the
   layout tokens do not leak there).
 - No behaviour changes: filing, recovery, questions, outcomes all keep working — the
-  suite's 1077 existing tests pin them.
+  existing regression suite pins them.

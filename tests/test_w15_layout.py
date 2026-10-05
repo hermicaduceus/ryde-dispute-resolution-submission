@@ -9,8 +9,8 @@ research/ryde-design/ in the planning repo — never ships here):
   * the eyebrow reads as a pill chip (tint fill, accent border, 9999px)
   * selected option = the app's selected ride-row treatment: #FFF0F3
     fill + 2px accent border, not a ring
-  * sticky step actions: the Ryde app's sticky bottom action bar,
-    in-card (white bg, top border, card's bottom radius)
+  * normal-flow step actions, following the operator's reviewed W15 repair ruling:
+    in-card (white bg, top border, card's bottom radius), never covering options
   * primary CTA weight 600, larger pill padding
   * inputs 14px radius with a #FFF0F3 focus halo
 
@@ -127,20 +127,20 @@ class W15LayoutTest(unittest.TestCase):
         self.assertRegex(_decl(hov, "box-shadow"), r"var\(--float-shadow\)",
                          "hover must add the floating shadow")
 
-    # -- sticky step actions (the app's sticky bottom bar, in-card) --------------
+    # -- normal-flow step actions (the operator's W15 repair ruling, in-card) -------------
 
-    def test_step_actions_are_sticky(self):
+    def test_step_actions_remain_in_normal_flow(self):
         sa = _block(self.css, ".step-actions")
-        self.assertRegex(_decl(sa, "position"), r"sticky",
-                         ".step-actions must be sticky")
-        self.assertRegex(_decl(sa, "bottom"), r"^0$",
-                         "sticky bar sits at the card bottom")
+        self.assertEqual("static", _decl(sa, "position"),
+                         ".step-actions must not cover form options at any width")
+        self.assertNotRegex(sa, r"\bbottom\s*:",
+                            "the obsolete sticky bottom offset is removed")
         self.assertIn("var(--card)", _decl(sa, "background"),
-                      "sticky bar keeps the card surface (no transparent gap)")
+                      "action bar keeps the card surface")
         self.assertRegex(_decl(sa, "border-top"), r"1px solid var\(--line\)",
-                         "sticky bar carries a top rule")
+                         "action bar retains its top rule")
         self.assertRegex(_decl(sa, "border-radius"), r"0 0 20px 20px",
-                         "sticky bar wears the card's bottom radius")
+                         "action bar retains the card's bottom radius")
 
     # -- CTA and inputs -----------------------------------------------------------
 
