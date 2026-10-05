@@ -117,16 +117,24 @@ class RebrandTokensTest(unittest.TestCase):
                         f".step card radius must be 12-20px, got {m.group(1)}px")
 
     def test_option_card_and_input_radius(self):
-        for sel in [".option-card", "input[type=\"number\"]"]:
+        # W15 layout pass (the operator, 2026-10-05): option cards sit at the top of the app
+        # reference's 12-16px card range (16px); inputs stay at 14px.
+        for sel, want in [(".option-card", "16.0"), ("input[type=\"number\"]", "14.0")]:
             block = _block(self.css, sel)
             m = re.search(r"border-radius:\s*([\d.]+)px", block)
             self.assertIsNotNone(m, f"{sel} must declare border-radius")
-            self.assertTrue(10.0 <= float(m.group(1)) <= 14.0,
-                            f"{sel} radius must be 10-14px, got {m.group(1)}px")
+            self.assertEqual(float(m.group(1)), float(want),
+                            f"{sel} radius must be {want}px, got {m.group(1)}px")
 
     def test_selected_ring_uses_tint(self):
+        # W15: the selected card now fills with the tint token (the app's selected
+        # ride-row treatment) instead of a ring shadow; the literal lives in :root.
         sel = _block(self.css, ".option-card.selected")
-        self.assertIn("#fff0f3", sel, ".option-card.selected must use the #FFF0F3 tint")
+        self.assertIn("background: var(--tint)", sel,
+                      ".option-card.selected must fill with var(--tint)")
+        root = _block(self.css, ":root")
+        self.assertRegex(root, r"--tint:\s*#fff0f3\b",
+                         ":root must define --tint as the #FFF0F3 tint")
 
     # -- freezes ----------------------------------------------------------------
 
