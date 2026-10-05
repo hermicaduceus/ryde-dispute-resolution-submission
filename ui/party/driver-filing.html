@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ryde - file a driver trip dispute</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+  <link rel="stylesheet" href="./party.css">
+</head>
+<body>
+  <main class="party-shell">
+    <header class="party-header">
+      <p class="eyebrow">RYDE / DRIVER HELP</p>
+      <h1>File a driver trip dispute</h1>
+      <p class="intro">Tell us what happened on a trip from your side as the driver. Three quick steps.</p>
+      <p class="demo-note">Demo filing: choose a sample trip and file from that trip's driver's perspective. This is not a signed-in account.</p>
+      <p class="demo-note">The driver demo account shows only trips for driver D-2009, including T-RD0109. A filing on another sample trip will not appear there.</p>
+      <p class="hint">Save your reference number. Use it on the status page to answer questions or check the outcome. Driver filings are not listed in the rider demo list.</p>
+      <p><a href="./status.html#reference-input">Look up your reference number</a> · <a href="./index.html">Go to rider help</a> · <a href="./driver.html">View the driver demo account</a></p>
+    </header>
+
+    <section id="form-steps" data-filed-by="driver">
+      <section class="step" id="step-category">
+        <h2><span class="step-number">1</span> What went wrong?</h2>
+        <div id="category-options" class="option-grid"></div>
+        <p class="error" id="category-error" hidden></p>
+        <div class="step-actions">
+          <button id="category-next" class="primary" disabled>Continue</button>
+        </div>
+      </section>
+
+      <section class="step" id="step-trip" hidden>
+        <h2><span class="step-number">2</span> Which trip?</h2>
+        <p class="hint">Pick the trip this dispute is about.</p>
+        <div id="trip-options" class="option-grid"></div>
+        <p class="error" id="trip-error" hidden></p>
+        <div class="step-actions">
+          <button id="trip-back">Back</button>
+          <button id="trip-next" class="primary" disabled>Continue</button>
+        </div>
+      </section>
+
+      <section class="step" id="step-details" hidden>
+        <h2><span class="step-number">3</span> Tell us more</h2>
+        <form id="details-form" novalidate>
+          <div class="field">
+            <label for="description">What happened? <span class="field-note">required</span></label>
+            <textarea id="description" rows="4" maxlength="2000" placeholder="Describe it in your own words."></textarea>
+          </div>
+          <div id="question-list"></div>
+          <div class="field">
+            <label for="claim-amount">Amount you are asking for, in SGD <span class="field-note">optional</span></label>
+            <input id="claim-amount" type="number" min="0" max="500" step="0.01" inputmode="decimal" placeholder="0.00">
+            <p class="hint">An amount you enter is a request, not a payment.</p>
+          </div>
+          <p class="error" id="details-error" hidden></p>
+          <div class="step-actions">
+            <button type="button" id="details-back">Back</button>
+            <button type="submit" id="details-submit" class="primary">Send my dispute</button>
+          </div>
+        </form>
+      </section>
+    </section>
+
+    <section class="step outcome" id="outcome" hidden>
+      <h2 id="outcome-title"></h2>
+      <p class="reference">Reference number: <strong id="outcome-reference"></strong></p>
+      <p id="outcome-message" class="outcome-message"></p>
+      <p class="hint">Save your reference number. Use it on the status page to answer questions or check the outcome. Driver filings are not listed in the rider demo list.</p>
+      <p><a href="./status.html#reference-input">Look up your reference number</a></p>
+      <div id="outcome-questions" hidden>
+        <p class="hint">Please answer each question below, then send your replies.</p>
+        <div id="question-boxes"></div>
+        <p class="error" id="answers-error" hidden></p>
+        <div class="step-actions">
+          <button id="answers-submit" class="primary">Send my answers</button>
+        </div>
+      </div>
+      <p id="outcome-status" class="status-line" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="./party.js" defer></script>
+</body>
+</html>

@@ -242,13 +242,15 @@ class R2QuestionsPassAGateInCode(unittest.TestCase):
         """The Python labels that templates quote must match what the party page shows."""
         from app.schemas import INTAKE_QUESTIONS
 
-        source = (REPO / "ui" / "party" / "party.js").read_text(encoding="utf-8")
-        js = dict(re.findall(r'key:\s*"([a-z_]+)",\s*label:\s*"([^"]+)"', source))
-        self.assertTrue(js, "could not read party.js questionnaire labels")
-        for category, items in INTAKE_QUESTIONS.items():
-            for key, label in items:
-                with self.subTest(category=category, key=key):
-                    self.assertEqual(js.get(key), label)
+        from app import schemas
+        from tests.w16_support import drive
+        driver = getattr(schemas, "DRIVER_INTAKE_QUESTIONS", None)
+        self.assertIsInstance(driver, dict, "driver label owner missing")
+        for role, table in ((None, INTAKE_QUESTIONS), ("driver", driver)):
+            for index, (category, items) in enumerate(table.items()):
+                with self.subTest(role=role, category=category):
+                    rendered = drive(role, category=index, pending=True)["initial"]
+                    self.assertEqual(list(items), [(row["key"], row["label"]) for row in rendered])
         from app.server import QUESTIONNAIRES
 
         self.assertEqual(

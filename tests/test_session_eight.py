@@ -125,7 +125,8 @@ class W13Bank(unittest.TestCase):
         from app.schemas import render_follow_up_slot
 
         self.assertIsNone(render_follow_up_slot("route_deviation", "route_shown", filed_by="driver"))
-        self.assertIsNotNone(render_follow_up_slot("route_deviation", "form:expected_route", filed_by="driver"))
+        self.assertIsNone(render_follow_up_slot("route_deviation", "form:expected_route", filed_by="driver"))
+        self.assertIsNotNone(render_follow_up_slot("route_deviation", "form:route_shown_to_driver", filed_by="driver"))
 
 
 # ----------------------------------------------------------------- the pipeline
@@ -222,7 +223,7 @@ class W13Pipeline(unittest.TestCase):
 
         record = copy.deepcopy(_record(ORG_DIR, "RD-0101.json"))
         record["dispute_ticket"]["filed_by"] = "driver"
-        case = _run(record, llm=_llm(driver_slots=["route_shown", "form:expected_route"]))
+        case = _run(record, llm=_llm(driver_slots=["route_shown", "form:route_shown_to_driver"]))
         self.assertEqual(
             [FORM_SLOT_QUESTION_TEMPLATE % "What route did the app show you, and roughly how long was it?"],
             case["resolution"]["questions_for_party"],

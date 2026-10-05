@@ -105,9 +105,10 @@ OUTCOME_NEEDS_INFO = "needs_info"
 
 #: The intake-form questions per category, with the exact labels the party page shows
 #: (ui/party/party.js must agree; a test reads the page and asserts it). This table is
-#: the ONE owner of the labels: the server's questionnaire validation derives from it,
-#: and template questions quote it, so a party is asked about a field by the same words
-#: everywhere.
+#: the ONE owner of the rider labels: the server's questionnaire validation derives from
+#: it, and template questions quote it, so a party is asked about a field by the same
+#: words everywhere. Driver filings use DRIVER_INTAKE_QUESTIONS below; the selector
+#: intake_questions_for picks between the two.
 INTAKE_QUESTIONS: Dict[str, tuple] = {
     "route_deviation": (
         ("expected_route", "What route did the app show you, and roughly how long was it?"),
@@ -132,6 +133,51 @@ YES_NO_INTAKE_KEYS = frozenset({
     "safety_concern",
     "did_driver_contact_you",
 })
+
+#: The driver-filing questionnaire, the same shape as INTAKE_QUESTIONS. Driver keys
+#: make the actor direction explicit, so a driver answer can never be read as a rider
+#: answer with swapped meaning. Only safety_concern is shared: its question is about
+#: the filer in either form. This table is the ONE owner of the driver labels.
+DRIVER_INTAKE_QUESTIONS: Dict[str, tuple] = {
+    "route_deviation": (
+        ("route_shown_to_driver", "What route did the app show you, and roughly how long was it?"),
+        ("route_agreed_with_rider", "Did you and the rider agree to take a different route?"),
+        ("rider_requested_stop", "Did the rider ask you to stop anywhere along the way?"),
+        ("safety_concern", "At any point were you worried for your safety?"),
+    ),
+    "no_show_charge": (
+        ("driver_waiting_place", "Where did you wait, and for roughly how long?"),
+        ("driver_contacted_rider", "Did you try to call or message the rider?"),
+        ("safety_concern", "At any point were you worried for your safety?"),
+    ),
+}
+
+#: The driver yes/no keys, cross-checked against DRIVER_INTAKE_QUESTIONS by the tests.
+DRIVER_YES_NO_INTAKE_KEYS = frozenset({
+    "route_agreed_with_rider",
+    "rider_requested_stop",
+    "safety_concern",
+    "driver_contacted_rider",
+})
+
+
+def intake_questions_for(category: Any, filed_by: str = "rider") -> tuple:
+    """The ordered (key, label) pairs for one role and category, or () when not offered.
+
+    The one selector for validation, slot generation/rendering, the mock's blank-key
+    lookup and the pipeline fallback. Total by design: malformed arguments return (),
+    never raise, so a bad role or category cannot crash the filing path. Roles are
+    canonical here ("rider"/"driver"); normalization happens at the input boundary.
+    """
+    if filed_by == "rider":
+        table = INTAKE_QUESTIONS
+    elif filed_by == "driver":
+        table = DRIVER_INTAKE_QUESTIONS
+    else:
+        return ()
+    if not isinstance(category, str):
+        return ()
+    return tuple(table.get(category, ()))
 
 #: The code-built question sent when an intake field was left blank. The label comes
 #: from INTAKE_QUESTIONS — never the raw field key, which is internal vocabulary.
@@ -169,19 +215,38 @@ FORM_SLOT_PREFIX = "form:"
 FORM_SLOT_QUESTION_TEMPLATE = 'About the form question "%s": could you tell us a little more?'
 
 
-def follow_up_slot_ids(category: str) -> List[str]:
-    """Every slot id an advocate may pick for this category: bank ids, then form ids."""
-    bank = [slot for slot, _ in FOLLOW_UP_QUESTION_BANK.get(category, ())]
-    form = [FORM_SLOT_PREFIX + key for key, _ in INTAKE_QUESTIONS.get(category, ())]
-    return bank + form
+def follow_up_slot_ids(category: Any, filed_by: str = "rider") -> List[str]:
+    """Every slot id an advocate may pick for this role and category.
+
+    Rider (default) keeps the legacy order: bank ids, then rider form ids. A driver
+    filing is offered driver form ids only, in table order. Unknown roles, unknown
+    categories and malformed categories return [] rather than raising.
+    """
+    if filed_by == "rider":
+        bank = [slot for slot, _ in FOLLOW_UP_QUESTION_BANK.get(category, ())] if isinstance(category, str) else []
+        return bank + [FORM_SLOT_PREFIX + key for key, _ in intake_questions_for(category, "rider")]
+    if filed_by == "driver":
+        return [FORM_SLOT_PREFIX + key for key, _ in intake_questions_for(category, "driver")]
+    return []
 
 
 def render_follow_up_slot(category: Any, slot_id: Any, filed_by: str = "rider") -> Optional[str]:
-    """The party-facing sentence for one slot id, or None when the id is not offered."""
+    """The party-facing sentence for one slot id, or None when the id is not offered.
+
+    Rider keeps the legacy behaviour: bank ids and rider form ids. A driver filing is
+    offered driver form ids only — every rider bank id and every rider-only form id is
+    refused. Malformed arguments return None, never raise.
+    """
     if not isinstance(category, str) or not isinstance(slot_id, str):
         return None
+    if filed_by == "rider":
+        rows = INTAKE_QUESTIONS
+    elif filed_by == "driver":
+        rows = DRIVER_INTAKE_QUESTIONS
+    else:
+        return None
     if slot_id.startswith(FORM_SLOT_PREFIX):
-        label = dict(INTAKE_QUESTIONS.get(category, ())).get(slot_id[len(FORM_SLOT_PREFIX):])
+        label = dict(rows.get(category, ())).get(slot_id[len(FORM_SLOT_PREFIX):])
         return FORM_SLOT_QUESTION_TEMPLATE % label if label else None
     if filed_by != "rider":
         return None

@@ -1,29 +1,55 @@
 (function () {
   "use strict";
 
-  // The intake questions per category, in form order. Keys match what the server
-  // accepts; blank answers are allowed and are what the follow-up round is for.
-  var QUESTIONNAIRES = {
-    route_deviation: [
-      { key: "expected_route", label: "What route did the app show you, and roughly how long was it?", kind: "open" },
-      { key: "was_route_agreed", label: "Did you and the driver agree to take a different route?", kind: "yes_no" },
-      { key: "asked_driver_to_stop", label: "Did you ask the driver to stop anywhere along the way?", kind: "yes_no" },
-      { key: "safety_concern", label: "At any point were you worried for your safety?", kind: "yes_no" }
-    ],
-    no_show_charge: [
-      { key: "where_were_you", label: "Where were you when the trip was meant to start?", kind: "open" },
-      { key: "did_driver_contact_you", label: "Did the driver try to contact you?", kind: "yes_no" },
-      { key: "safety_concern", label: "At any point were you worried for your safety?", kind: "yes_no" }
-    ]
+  // The intake questions per role and category, in form order. Keys match what the
+  // server accepts; blank answers are allowed and are what the follow-up round is
+  // for. The driver table mirrors app/schemas.DRIVER_INTAKE_QUESTIONS and uses
+  // actor-directed keys, so a driver answer can never be read as a rider answer.
+  var QUESTIONNAIRES_BY_ROLE = {
+    rider: {
+      route_deviation: [
+        { key: "expected_route", label: "What route did the app show you, and roughly how long was it?", kind: "open" },
+        { key: "was_route_agreed", label: "Did you and the driver agree to take a different route?", kind: "yes_no" },
+        { key: "asked_driver_to_stop", label: "Did you ask the driver to stop anywhere along the way?", kind: "yes_no" },
+        { key: "safety_concern", label: "At any point were you worried for your safety?", kind: "yes_no" }
+      ],
+      no_show_charge: [
+        { key: "where_were_you", label: "Where were you when the trip was meant to start?", kind: "open" },
+        { key: "did_driver_contact_you", label: "Did the driver try to contact you?", kind: "yes_no" },
+        { key: "safety_concern", label: "At any point were you worried for your safety?", kind: "yes_no" }
+      ]
+    },
+    driver: {
+      route_deviation: [
+        { key: "route_shown_to_driver", label: "What route did the app show you, and roughly how long was it?", kind: "open" },
+        { key: "route_agreed_with_rider", label: "Did you and the rider agree to take a different route?", kind: "yes_no" },
+        { key: "rider_requested_stop", label: "Did the rider ask you to stop anywhere along the way?", kind: "yes_no" },
+        { key: "safety_concern", label: "At any point were you worried for your safety?", kind: "yes_no" }
+      ],
+      no_show_charge: [
+        { key: "driver_waiting_place", label: "Where did you wait, and for roughly how long?", kind: "open" },
+        { key: "driver_contacted_rider", label: "Did you try to call or message the rider?", kind: "yes_no" },
+        { key: "safety_concern", label: "At any point were you worried for your safety?", kind: "yes_no" }
+      ]
+    }
   };
 
-  var CATEGORIES = [
-    { id: "route_deviation", label: "My trip went the wrong way" },
-    { id: "no_show_charge", label: "I was charged for a trip that did not happen" },
-    { id: "property_damage_mess", label: "Property damage or a mess left behind" },
-    { id: "safety_incident", label: "A safety incident" },
-    { id: "other", label: "Something else" }
-  ];
+  var CATEGORIES_BY_ROLE = {
+    rider: [
+      { id: "route_deviation", label: "My trip went the wrong way" },
+      { id: "no_show_charge", label: "I was charged for a trip that did not happen" },
+      { id: "property_damage_mess", label: "Property damage or a mess left behind" },
+      { id: "safety_incident", label: "A safety incident" },
+      { id: "other", label: "Something else" }
+    ],
+    driver: [
+      { id: "route_deviation", label: "A question about the route I took" },
+      { id: "no_show_charge", label: "A no-show or waiting fee" },
+      { id: "property_damage_mess", label: "A cleaning fee or damage report" },
+      { id: "safety_incident", label: "A safety incident" },
+      { id: "other", label: "Something else" }
+    ]
+  };
 
   var STATUS_HEADINGS = {
     decided: "We have made a decision",
@@ -99,6 +125,25 @@
         return payload;
       });
     });
+  }
+
+  // ------------------------------------------------------------- page role
+
+  // The shell's own marker selects the questionnaire and the category copy. A
+  // missing marker is the original rider shell; any other explicit value refuses
+  // the whole page. This is demo copy selection, not authentication: the role is
+  // never read from the URL, the document body or the fixed driver account.
+  var formSteps = document.getElementById("form-steps");
+  var role = formSteps.getAttribute("data-filed-by");
+  if (role === null) {
+    role = "rider";
+  }
+  var QUESTIONNAIRES = QUESTIONNAIRES_BY_ROLE[role];
+  var CATEGORIES = CATEGORIES_BY_ROLE[role];
+  if (role !== "rider" && role !== "driver") {
+    showError("category-error",
+      "This filing page could not be loaded. Please return to the help page and try again.");
+    return;
   }
 
   // ------------------------------------------------------------- step one
@@ -325,7 +370,7 @@
     submit.disabled = true;
     request("POST", "/api/disputes", {
       category: state.category,
-      filed_by: "rider",
+      filed_by: role,
       trip_id: state.tripId,
       description: description,
       claim_amount_sgd: amount,

@@ -343,7 +343,7 @@ class AdvocateAgent(BaseAgent):
 
     def user_prompt(self, dispute: Dispute, pack: EvidencePack) -> str:
         offered_slots = []
-        for slot in follow_up_slot_ids(dispute.category):
+        for slot in follow_up_slot_ids(dispute.category, dispute.filed_by):
             sentence = render_follow_up_slot(dispute.category, slot, dispute.filed_by)
             if sentence is not None:
                 offered_slots.append("%s: %s" % (slot, sentence))
