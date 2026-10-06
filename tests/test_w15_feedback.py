@@ -22,8 +22,8 @@ CLAIM = '#form-steps[data-filed-by="driver"] #claim-amount + .hint'
 HEADER = '.party-header:has(+ #form-steps[data-filed-by="driver"]) > p:last-child'
 NAV = HEADER + ' a'
 FROZEN = {
-    'ui/index.html': '37bc83f88ad6e1765cf9d8cdff1e5908d9fb058ad3a5c6369b64f6ce75b0d511',
-    'ui/app.js': 'a8e8f5912d69928bdea9cd6552a526e020679d3d48eb7b6e7abe34b2ae664255',
+    'ui/index.html': 'bc77c119d2da0e199e8a987ce6cd2b3049ac4f6d08c189823a7217a3f71b1b0b',
+    'ui/app.js': 'abde2b1516912330a508d1c786c256db65bac4e3d51019b73b4c3442090dedfa',
     'ui/party/status.html': 'eaf668aea171af8f5785890048040b947e44b39a300f6ec6b712853b6d6403a7',
     'ui/party/index.html': '06fd4937b1419d397b2a8f5e61f58e772f9c6e2d55f2799e2b553046b2303c23',
     'ui/party/driver-filing.html': '4799ad45af51aa79ae22c718420cde9bd03a43e74338b20772207937418b0349',

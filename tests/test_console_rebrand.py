@@ -25,13 +25,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 UI = REPO / "ui"
 
-APP_JS_SHA = "a8e8f5912d69928bdea9cd6552a526e020679d3d48eb7b6e7abe34b2ae664255"
+APP_JS_SHA = "abde2b1516912330a508d1c786c256db65bac4e3d51019b73b4c3442090dedfa"
 
 CONSOLE_IDS = {
     "loader-title", "case-picker", "run-folder-picker", "load-status", "payload-status",
     "case-workspace", "case-summary", "summary-title", "loaded-file", "metadata-list",
     "grievance-section", "grievance-title", "grievance-content", "evidence-section",
-    "evidence-title", "evidence-content", "claims-section", "claims-title", "claims-content",
+    "evidence-title", "evidence-content", "prompts-section", "prompts-title", "prompts-content",
+    "claims-section", "claims-title", "claims-content",
     "policy-content", "resolution-section", "resolution-title", "resolution-content",
     "events-section", "events-title", "events-content",
     "queue-panel", "queue-title", "queue-refresh", "queue-status", "queue-content",
