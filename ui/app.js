@@ -18,9 +18,15 @@
     openRun: null,
     currentQueueRun: null,
     openGeneration: 0,
+    promptsGeneration: 0,
     pendingOpens: [],
     highlightTimer: null
   };
+
+  var PROMPTS_FAILURE = "Not available: open this case through the local server.";
+  var PROMPTS_UNKNOWN_RUN = "Unknown run.";
+  var PROMPTS_SHOW_FULL_TEXT = "Show full text";
+  var RUN_ID_PATTERN = /^[A-Za-z0-9._-]{1,128}$/;
 
   var picker = document.getElementById("case-picker");
   var runFolderPicker = document.getElementById("run-folder-picker");
@@ -35,6 +41,7 @@
   var policyContent = document.getElementById("policy-content");
   var resolutionContent = document.getElementById("resolution-content");
   var eventsContent = document.getElementById("events-content");
+  var promptsContent = document.getElementById("prompts-content");
   var queueRefresh = document.getElementById("queue-refresh");
   var queueStatus = document.getElementById("queue-status");
   var queueContent = document.getElementById("queue-content");
@@ -384,6 +391,123 @@
     if (Array.isArray(pack.notes) && pack.notes.length > 0) {
       appendNotes(evidenceContent, pack.notes);
     }
+  }
+
+  function promptList(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function promptFactText(value) {
+    var items = promptList(value);
+    return items.length === 0 ? "None" : items.join(", ");
+  }
+
+  function promptBadge(entry) {
+    var data = entry && typeof entry === "object" ? entry : {};
+    if (data.status === "match") {
+      var fingerprint = typeof data.recorded_fingerprint === "string"
+        ? data.recorded_fingerprint
+        : (typeof data.rebuilt_fingerprint === "string" ? data.rebuilt_fingerprint : "");
+      return "Matches what was sent (fingerprint " + fingerprint.slice(0, 8) + ")";
+    }
+    if (data.status === "changed") {
+      return "The prompts have changed since this run. Showing today's version.";
+    }
+    if (data.status === "not_called") {
+      return "This agent was not called in this run.";
+    }
+    return "Not available for this run.";
+  }
+
+  function promptPositionsText(positions) {
+    var items = promptList(positions);
+    if (items.length === 0) {
+      return "No advocate positions were recorded.";
+    }
+    return items.map(function (position) {
+      var item = position && typeof position === "object" ? position : {};
+      var side = item.side === "driver" ? "Driver" : "Rider";
+      var amount = formatMoney(item.amount_sgd);
+      return side + ": " + displayValue(item.outcome)
+        + (amount ? " of " + amount : ", no amount recorded");
+    }).join(" · ");
+  }
+
+  function appendPromptSummary(parent, summary) {
+    var data = summary && typeof summary === "object" ? summary : {};
+    var facts = data.case_facts && typeof data.case_facts === "object" ? data.case_facts : {};
+    var policy = data.policy && typeof data.policy === "object" ? data.policy : {};
+    var list = element("dl", "grievance-facts");
+    appendInfoRow(list, "Role", data.role);
+    appendInfoRow(list, "Hard rules", promptList(data.hard_rules).join(" "));
+    appendInfoRow(list, "Evidence sections", promptFactText(facts.evidence_sections));
+    appendInfoRow(list, "Citable references", facts.citable_refs);
+    appendInfoRow(list, "Form answers", facts.form_answers);
+    appendInfoRow(list, "Claim amount", facts.claim_amount_sgd, "info-row", "claim_amount_sgd");
+    if (data.advocate_positions !== null && data.advocate_positions !== undefined) {
+      appendInfoRow(list, "Advocate positions", promptPositionsText(data.advocate_positions));
+    }
+    appendInfoRow(list, "Policy", displayValue(policy.rule_count) + " rules from " + displayValue(policy.source));
+    appendInfoRow(list, "Asked to return", promptFactText(data.asked_to_return));
+    parent.appendChild(list);
+  }
+
+  function renderPromptCard(entry) {
+    var data = entry && typeof entry === "object" ? entry : {};
+    var card = element("article", "claim-card");
+    var header = element("header", "claim-card-header");
+    header.appendChild(element("h3", null, displayValue(data.label)));
+    header.appendChild(element("p", "agent-label", promptBadge(data)));
+    card.appendChild(header);
+    var body = element("div", "claim-card-body");
+    appendPromptSummary(body, data.summary);
+    var system = typeof data.system_prompt === "string" ? data.system_prompt : null;
+    var user = typeof data.user_prompt === "string" ? data.user_prompt : null;
+    if (system !== null && user !== null) {
+      var details = element("details");
+      details.appendChild(element("summary", null, PROMPTS_SHOW_FULL_TEXT));
+      details.appendChild(element("pre", "payload-json", system + "\n\n" + user));
+      body.appendChild(details);
+    }
+    card.appendChild(body);
+    return card;
+  }
+
+  function showPromptsFailure() {
+    if (!promptsContent) {
+      return;
+    }
+    clear(promptsContent);
+    promptsContent.appendChild(element("p", "empty-note", PROMPTS_FAILURE));
+  }
+
+  function settlePrompts(generation, result) {
+    if (!promptsContent || generation !== state.promptsGeneration) {
+      return;
+    }
+    var body = result && typeof result === "object" ? result.payload : null;
+    var agents = body && typeof body === "object" && !Array.isArray(body) ? body.agents : null;
+    if (!result || result.ok !== true || !Array.isArray(agents)) {
+      showPromptsFailure();
+      return;
+    }
+    clear(promptsContent);
+    agents.forEach(function (entry) {
+      promptsContent.appendChild(renderPromptCard(entry));
+    });
+  }
+
+  function renderPrompts(caseFile) {
+    if (!promptsContent) {
+      return;
+    }
+    clear(promptsContent);
+    state.promptsGeneration += 1;
+    var generation = state.promptsGeneration;
+    var runId = caseFile && typeof caseFile.run_id === "string" ? caseFile.run_id : "";
+    fetchJsonAny("/api/review/" + encodeURIComponent(runId) + "/prompts").then(function (result) {
+      settlePrompts(generation, result);
+    });
   }
 
   function policyAnchor(ruleId) {
@@ -860,6 +984,7 @@
     renderMetadata(caseFile);
     renderGrievance(caseFile);
     renderEvidence(caseFile);
+    renderPrompts(caseFile);
     renderClaims(caseFile);
     renderResolution(caseFile);
     renderEvents(caseFile);
@@ -903,6 +1028,9 @@
       clear(metadataList);
       clear(grievanceContent);
       clear(evidenceContent);
+      if (promptsContent) {
+        clear(promptsContent);
+      }
       clear(claimsContent);
       clear(policyContent);
       clear(resolutionContent);
@@ -1280,6 +1408,42 @@
     });
   }
 
+  function locationSearch() {
+    if (typeof window !== "undefined" && window.location && typeof window.location.search === "string") {
+      return window.location.search;
+    }
+    if (typeof location !== "undefined" && location && typeof location.search === "string") {
+      return location.search;
+    }
+    return "";
+  }
+
+  function deepLinkRunId() {
+    var search = locationSearch();
+    if (!search || typeof URLSearchParams !== "function") {
+      return null;
+    }
+    var runId;
+    try {
+      runId = new URLSearchParams(search).get("run");
+    } catch (error) {
+      return null;
+    }
+    return runId === null || runId === undefined ? null : runId;
+  }
+
+  function openDeepLink() {
+    var runId = deepLinkRunId();
+    if (runId === null) {
+      return;
+    }
+    if (!RUN_ID_PATTERN.test(runId)) {
+      setStatus(PROMPTS_UNKNOWN_RUN, "error");
+      return;
+    }
+    openCase({ run_id: runId }, null, null);
+  }
+
   function decisionProposal() {
     var entry = state.openRun && state.openRun.entry;
     var proposed = entry && entry.proposed;
@@ -1629,4 +1793,6 @@
     queueRefresh.addEventListener("click", loadReviewPanels);
     loadReviewPanels();
   }
+
+  openDeepLink();
 }());

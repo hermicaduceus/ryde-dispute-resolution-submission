@@ -56,6 +56,7 @@ from .llm import LLMClient, build_llm_client
 from .pipeline import run_dispute
 from .agents import RetryPolicy
 from .policy import load_policy
+from .prompt_view import build_prompt_view
 from .schemas import (
     DEMO_NOTICE_MESSAGE,
     DRIVER_YES_NO_INTAKE_KEYS,
@@ -1036,6 +1037,10 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
         if case_match:
             self._review_case(state, unquote(case_match.group(1)))
             return
+        prompts_match = re.fullmatch(r"/api/review/([^/]+)/prompts", split.path)
+        if prompts_match:
+            self._review_prompts(state, unquote(prompts_match.group(1)))
+            return
         payload_match = re.fullmatch(r"/api/review/([^/]+)/payloads/(.*)", split.path)
         if payload_match:
             self._review_payload(
@@ -1094,6 +1099,11 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
             "case_file": case_file,
             "human_decision": load_decision(run_dir),
         })
+
+    def _review_prompts(self, state: "_ServerState", run_id: str) -> None:
+        """What each agent was asked, rebuilt from this run's own stored payloads."""
+        run_dir = self._resolve_run_dir(state, run_id)
+        self._send_json(200, build_prompt_view(run_dir, state.policy))
 
     def _review_payload(self, state: "_ServerState", run_id: str, name: str) -> None:
         run_dir = self._resolve_run_dir(state, run_id)
