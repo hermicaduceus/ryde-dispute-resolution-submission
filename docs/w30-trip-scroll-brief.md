@@ -35,7 +35,8 @@ CSS, exact selectors (the W15 preservation test excludes exactly these four sele
 JS (`party.js`):
 
 - One small function that lands the trip card with `stepTrip.scrollIntoView({ block: "start" })`. The card is at most one screen tall, so aligning its top shows the bar too; on a very short screen the top stays visible.
-- Call it after the trip list has rendered, in both the "has trips" and the "no trips" branch of `loadTrips`. Do not call it from the failure path.
+- Call it after the trip list has rendered, in both the "has trips" and the "no trips" branch of `loadTrips`. **Review-repair ruling, 2026-10-06:** the operator also approved landing the current error card after rendering the failure message. The original exclusion of failure landing was the planner's restriction, now superseded. See `docs/w30-trip-requests-repair-brief.md`.
+- Ignore superseded request successes and failures before any state, list, error or scroll change. A new load, Back and category reset invalidate the previous request, even on reselecting the same category.
 - It must do nothing while `#step-trip` is hidden: a slow response that arrives after the party pressed Back must not move the page.
 - Remove `window.scrollTo(0, 0)` from the category Continue handler. Leave the trip Continue handler's `window.scrollTo(0, 0)` (step 3) as it is.
 - In the trip Back handler, after the existing `show(stepCategory)` / `hide(stepTrip)`, land the category card with `stepCategory.scrollIntoView({ block: "start" })`.

@@ -4,12 +4,11 @@
  *     node tests/browser/w30_trip_scroll.cjs BASE_URL OUTPUT_JSON
  * Battery hooks: W30_CSS_OVERRIDE / W30_JS_OVERRIDE serve a mutated party.css / party.js.
  *
- * Tall views (height >= 600) must fit the whole card on screen with a breathing gap, buttons
- * included. Short views (height < 600) may fall back to page scroll but keep the card's top in
- * view, keep a floor of two trip cards in the list, and reach the buttons by page scroll.
+ * Every viewport, including short landscape, must keep Back/Continue at the visible screen's
+ * bottom on entry, list scrolling and live resize. No two-trip floor/page-scroll fallback.
  * Every view: one visible step at each stage, no horizontal overflow, a list that scrolls
- * internally, an action bar that follows the cards, no clipped hover/selected card, a fade
- * that shows only while more trips are below (read from real pixels), and a keyboard order
+ * internally, an action bar that follows the cards, no clipped hover/selected card, no fade
+ * at either scroll position (computed style and real pixels), and a keyboard order
  * of last card -> Back -> Continue.
  */
 const assert = require('node:assert/strict');
@@ -38,9 +37,13 @@ const GAP = 16;
         report.views.push(view);
         page.on('pageerror', e => report.errors.push(String(e)));
         await page.setViewport({ width, height });
-        if (process.env.W30_CSS_OVERRIDE || process.env.W30_JS_OVERRIDE) {
+        if (process.env.W30_TREE_OVERRIDE || process.env.W30_CSS_OVERRIDE || process.env.W30_JS_OVERRIDE) {
           await page.setRequestInterception(true);
           page.on('request', r => {
+            if (process.env.W30_TREE_OVERRIDE && r.url().includes('/party/')) {
+              const name = path.basename(new URL(r.url()).pathname);
+              if (name === file || name === 'party.css') return r.respond({status:200,contentType:name.endsWith('.css')?'text/css':'text/html',body:fs.readFileSync(path.join(process.env.W30_TREE_OVERRIDE,'ui','party',name),'utf8')});
+            }
             if (process.env.W30_CSS_OVERRIDE && r.url().endsWith('/party/party.css')) {
               return r.respond({ status: 200, contentType: 'text/css', body: fs.readFileSync(process.env.W30_CSS_OVERRIDE, 'utf8') });
             }
@@ -71,7 +74,7 @@ const GAP = 16;
           const cards = [...list.querySelectorAll('.trip-card')];
           const hit = el => { const r = el.getBoundingClientRect(); const h = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return !!h && (h === el || el.contains(h)); };
           const cs = getComputedStyle(list);
-          return { vh: innerHeight, vw: innerWidth, scrollY: scrollY, card: rect(card), list: rect(list), bar: rect(bar),
+          return { vh: innerHeight, vw: innerWidth, scrollY: scrollY, header: rect(document.querySelector(".party-header")), footer: rect(document.querySelector(".filing-fine-print")), card: rect(card), list: rect(list), bar: rect(bar),
             back: rect(document.getElementById('trip-back')), next: rect(document.getElementById('trip-next')),
             backHit: hit(document.getElementById('trip-back')), nextHit: document.getElementById('trip-next').disabled ? null : hit(document.getElementById('trip-next')),
             scrollable: list.scrollHeight > list.clientHeight + 1, listClient: list.clientHeight,
@@ -91,21 +94,26 @@ const GAP = 16;
         assert.ok(g.list.bottom <= g.bar.top + 0.5, 'the bar follows the list');
         assert.equal(g.visibleCardsHit, true, 'every fully visible trip is the element at its own centre');
         assert.ok(g.card.bottom >= g.bar.bottom - 0.5, 'the bar stays inside the card');
-        assert.ok(g.listClient >= 2 * g.tallestCard - 1, 'the list keeps a floor of two trip cards');
-        if (tall) {
-          assert.ok(g.card.top >= GAP - 1, 'breathing room above the card: ' + g.card.top);
-          assert.ok(g.card.bottom <= g.vh - GAP + 1, 'breathing room below the card: ' + g.card.bottom + ' of ' + g.vh);
-          assert.ok(g.next.bottom <= g.vh && g.back.bottom <= g.vh, 'Continue/Back are on screen on entry');
-          assert.equal(g.backHit, true, 'Back is the element at its own centre');
-        } else {
-          // Floor mode: page scroll reaches the buttons.
-          await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+        const assertPinned = p => {
+          view.lastPinnedProbe = p;
+          assert.ok(p.card.top >= p.header.bottom + 4, 'header visible above rather than covered by card');
+          assert.ok(p.card.bottom <= p.vh - GAP + 1, 'whole trip card fits screen: ' + p.card.bottom + ' of ' + p.vh);
+          assert.ok(p.back.top >= 0 && p.next.top >= 0 && p.next.bottom <= p.vh && p.back.bottom <= p.vh,
+            'Continue/Back visible without scrolling the page');
+          assert.ok(p.vh - p.back.bottom <= p.footer.height + 55 && p.vh - p.next.bottom <= p.footer.height + 55, 'buttons anchored above bottom fine print');
+          assert.equal(p.backHit, true, 'Back is the element at its own centre');
+          assert.ok(p.list.height > 24 && p.list.bottom <= p.bar.top + 0.5, 'list fits above actions');
+        };
+        assertPinned(g);
+
+        // Resize the SAME loaded page, not a fresh navigation that can hide the regression.
+        for (const h of [320, 480, 700, 900, height]) {
+          await page.setViewport({ width, height: h });
           await settle();
-          const low = await geo();
-          assert.ok(low.next.bottom <= low.vh && low.back.bottom <= low.vh, 'page scroll reaches Continue/Back');
-          assert.equal(low.backHit, true);
-          await page.evaluate(() => document.getElementById('step-trip').scrollIntoView({ block: 'start' }));
-          await settle();
+          const resized = await geo();
+          assertPinned(resized);
+          assert.equal(await page.$$eval('#trip-options .trip-card', e => e.length), g.count, 'resize preserves trips');
+          view.stages.push({ stage: 'live-resize', ...resized });
         }
 
         // Scroll the region itself; the page must not move, the last card must end inside it.
@@ -120,9 +128,12 @@ const GAP = 16;
         assert.equal(end.scrollY, before, 'scrolling the list does not scroll the page');
         view.stages.push({ stage: 'list-scrolled-to-end', ...end });
 
-        // Fade: real pixels in the region's left gutter (no card paints there), just above its
-        // bottom edge. At the top of the list the fade tints it; at the end it is the card white.
+        // No fade: real pixels in the region's left gutter (no card paints there), just above
+        // its bottom edge, stay card white both before and after scrolling the list.
         async function gutterPixel() {
+          // Park the pointer away: a hovered card paints a shadow into the gutter being sampled.
+          await page.mouse.move(0, 0);
+          await settle();
           // A screenshot clip is in DOCUMENT coordinates, so add the page scroll offset.
           const place = () => page.evaluate(() => { const r = document.getElementById('trip-options').getBoundingClientRect(); return { x: r.left + 4 + scrollX, y: r.bottom - 4 + scrollY, vy: r.bottom - 4 }; });
           let spot = await place();
@@ -141,29 +152,39 @@ const GAP = 16;
         await page.evaluate(() => { document.getElementById('trip-options').scrollTop = 0; });
         await settle();
         const atTop = await gutterPixel();
-        view.stages.push({ stage: 'fade-pixels', atTop, atEnd });
+        view.stages.push({ stage: 'no-fade-pixels', atTop, atEnd });
         {
-          assert.ok(atEnd.every(c => c >= 253), 'no fade once the list is scrolled to its end: ' + atEnd);
-          assert.ok(atTop.some(c => c < 245), 'a fade shows at the bottom edge while more trips are below: ' + atTop);
+          assert.equal(g.bgImage, 'none', 'no trip-list shade or cover gradient');
+          assert.ok(atEnd.every(c => c >= 253), 'no shade at the list end: ' + atEnd);
+          assert.ok(atTop.every(c => c >= 253), 'no shade while more trips are below: ' + atTop);
         }
 
         // Hover lift and selected border stay inside the region.
-        await page.hover('#trip-options .trip-card:nth-child(1)');
+        // On a very short viewport the card may exceed the list height. Hover its
+        // visible upper part without Puppeteer's automatic whole-card scroll.
+        await page.evaluate(() => { document.getElementById('trip-options').scrollTop = 0; });
+        const hoverPoint = await page.evaluate(() => {
+          const r = document.querySelector('#trip-options .trip-card').getBoundingClientRect();
+          return { x: r.left + r.width / 2, y: r.top + 10 };
+        });
+        await page.mouse.move(hoverPoint.x, hoverPoint.y);
         await settle();
         const lift = await page.evaluate(() => {
           const l = document.getElementById('trip-options').getBoundingClientRect(); const c = document.querySelector('#trip-options .trip-card').getBoundingClientRect();
           return { topGap: c.top - l.top, leftGap: c.left - l.left, rightGap: l.right - c.right };
         });
         assert.ok(lift.topGap >= 4 && lift.leftGap >= 4 && lift.rightGap >= 4, 'a lifted card is not clipped by the region: ' + JSON.stringify(lift));
-        await page.click('#trip-options .trip-card:nth-child(1)');
+        await page.mouse.click(hoverPoint.x, hoverPoint.y);
         assert.equal(await page.$$eval('#trip-options .selected', e => e.length), 1, 'exactly one selected trip');
         assert.equal(await page.$eval('#trip-next', e => e.disabled), false);
 
         // Keyboard: last card -> Back -> Continue; focusing a hidden card scrolls the region to it.
         await page.evaluate(() => document.querySelector('#trip-options .trip-card:last-child').focus());
         const focused = await page.evaluate(() => { const l = document.getElementById('trip-options').getBoundingClientRect(); const c = document.activeElement.getBoundingClientRect();
-          return { inside: c.top >= l.top - 0.5 && c.bottom <= l.bottom + 0.5 }; });
-        assert.equal(focused.inside, true, 'a keyboard-focused trip is scrolled into the region');
+          return { inside: c.top < l.bottom && c.bottom > l.top,
+            fits: c.height <= l.height, fullyInside: c.top >= l.top - 0.5 && c.bottom <= l.bottom + 0.5 }; });
+        assert.equal(focused.inside, true, 'a keyboard-focused trip is visible inside the region');
+        if (focused.fits) assert.equal(focused.fullyInside, true, 'a trip that fits is fully visible on focus');
         await page.keyboard.press('Tab');
         assert.equal(await page.evaluate(() => document.activeElement.id), 'trip-back', 'Tab from the last trip reaches Back');
         await page.keyboard.press('Tab');
@@ -181,9 +202,7 @@ const GAP = 16;
         const again = await geo();
         view.stages.push({ stage: 'trip-after-details-back', ...again });
         assert.ok(again.card.top >= 0, 'the card lands again after Back from details');
-        if (tall) {
-          assert.ok(again.card.bottom <= again.vh - GAP + 1 && again.next.bottom <= again.vh, 'buttons on screen again');
-        }
+        assertPinned(again);
 
         // Back to the category step: it is on screen with its Continue.
         await page.evaluate(() => document.getElementById('trip-back').scrollIntoView({ block: 'center' }));

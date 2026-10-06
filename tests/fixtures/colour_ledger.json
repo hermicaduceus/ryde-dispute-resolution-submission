@@ -1438,6 +1438,11 @@
    "var(--accent)"
   ],
   [
+   ".choice-button:hover",
+   "box-shadow",
+   "var(--float-shadow)"
+  ],
+  [
    ".choice-button.selected",
    "border-color",
    "var(--accent)"
@@ -1641,6 +1646,11 @@
    ".party-shell a:focus-visible",
    "outline",
    "2px solid var(--accent)"
+  ],
+  [
+   ".filing-shell .filing-fine-print",
+   "color",
+   "var(--muted)"
   ]
  ]
 }

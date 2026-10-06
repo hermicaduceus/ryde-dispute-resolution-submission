@@ -91,3 +91,22 @@ per session is enough; date each entry.
 - the operator supplied genuine CLI screenshots at close-out. Evidence frames 45 and 46 show
   the product/model banner and the repair completion report respectively. The second
   frame's test table is builder output; the independent verification is separate.
+
+## 2026-10-06: compact rider and driver filing flow
+
+- the operator authorized a headless CodeBuddy build on Deepseek-V4.1-Flash at max effort.
+  The changes keep the filing header visible, scroll options and fields internally,
+  reserve space for Back/Continue and move sample-data notices to bottom fine print.
+- Independent GLM-5.3 review found a stale trip-request race. RED-first tests preceded
+  CodeBuddy's request-ownership repair, error-card landing and retry error reset.
+  The final scoped re-review endorsed those repairs. Its verdict does not cover the
+  later shared-frame layout.
+- the operator's final visual passes removed the trip-list shade and added the existing 2px
+  hover lift and soft shadow to Yes/No buttons, with reduced-motion support.
+  GLM-5.3 endorsed the shade removal. the operator waived another GLM round for the
+  viewport-bottom fix and the final Yes/No motion change, then approved the UI.
+- Parent verification reached 1164 passing tests and exercised both filing roles in
+  real-browser layout, resize, keyboard, request-race and hover checks. Regression
+  mutations and source reverts failed assertions. Physical-phone toolbar behaviour
+  remains unverified. Genuine CLI transcripts are retained; no new chat screenshot
+  was captured for this authorized headless work.

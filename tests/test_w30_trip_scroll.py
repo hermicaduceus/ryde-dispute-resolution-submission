@@ -5,12 +5,12 @@ the operator rulings (2026-10-06), trip step only, rider (ui/party/index.html) A
 
   1. The trip list scrolls inside its own region. Continue/Back stay in normal flow
      directly under it, never over an option (the W15 no-overlap ruling holds).
-  2. The whole card (heading, hint, list, buttons) never exceeds the viewport height,
-     with a floor of about two trip cards: a very short screen falls back to page scroll.
+  2. Updated the operator ruling: the card fills the visible viewport, with Back/Continue at its
+     bottom on entry AND after resize. No two-trip floor or page-scroll fallback.
   3. Entering the trip step scrolls the WHOLE card on screen, buttons included, on both
      pages. The rider page used to jump to the page top, which hides the buttons.
-  4. A bottom fade hints that the list scrolls. A next-card peek is not guaranteed, so the
-     fade and the scrollable state are pinned, not a peek.
+  4. the operator's final visual pass removes the bottom fade. The partial next card and scrollbar
+     are sufficient cues; the trip region must have no gradient at any scroll position.
   Hover lift and selected shadow must not clip at the region edge.
 
 HTML is frozen, so the contract uses the ids the pages already carry: #step-trip,
@@ -77,12 +77,12 @@ class TripRegionCss(unittest.TestCase):
                 s = cascade(self.css, {STEP}, width)
                 self.assertEqual("flex", s.get("display"))
                 self.assertEqual("column", s.get("flex-direction"))
-                self.assertRegex(s.get("max-height", ""),
-                                 r"^max\(calc\(100dvh - [\d.]+rem\), [\d.]+rem\)$",
-                                 "viewport-fit height with a rem floor, in dynamic viewport units")
+                self.assertNotEqual("fixed", s.get("position"), "trip card no longer covers the shared header")
+                self.assertNotIn("100dvh", s.get("height", ""), "shared frame owns viewport sizing")
+                self.assertNotIn("max(", s.get("max-height", ""), "no short-screen page-scroll floor")
 
     def test_the_vh_fallback_precedes_the_dvh_height(self):
-        props = [(p, v) for p, v in _decls(self.css, STEP) if p == "max-height"]
+        props = [(p, v) for p, v in _decls(self.css, ".filing-shell:has(#form-steps:not([hidden]))") if p == "height"]
         self.assertEqual(2, len(props), "one vh fallback, then the dvh declaration")
         self.assertIn("100vh", props[0][1])
         self.assertIn("100dvh", props[1][1])
@@ -98,6 +98,8 @@ class TripRegionCss(unittest.TestCase):
                                  "min-height: 0 lets the list shrink inside the card")
                 self.assertEqual("contain", s.get("overscroll-behavior"),
                                  "a flick at the end of the list must not scroll the page")
+                self.assertEqual("start", s.get("align-content"), "few cards do not stretch to fill the list")
+                self.assertEqual("max-content", s.get("grid-auto-rows"), "trip cards keep their natural height")
 
     def test_the_region_has_room_for_the_hover_lift_and_selected_border(self):
         s = cascade(self.css, {LIST}, 390)
@@ -110,15 +112,12 @@ class TripRegionCss(unittest.TestCase):
             self.assertEqual("-" + s["padding-" + side], s.get("margin-" + side),
                              "region padding is cancelled by an equal negative margin")
 
-    def test_the_bottom_fade_is_a_scroll_aware_gradient_made_of_tokens(self):
-        value = cascade(self.css, {LIST}, 390).get("background", "")
-        self.assertGreaterEqual(value.count("linear-gradient("), 2, "a fade and a cover")
-        self.assertRegex(value, r"\blocal\b", "a card-coloured cover that scrolls with the content")
-        self.assertRegex(value, r"\bscroll\b", "a fade fixed to the region edge")
-        self.assertNotRegex(value, r"#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(",
-                            "colour tokens only (var(--card), var(--line))")
-        self.assertIn("var(--line)", value)
-        self.assertIn("var(--card)", value)
+    def test_the_trip_region_has_no_bottom_fade(self):
+        for width in (320, 390, 1200):
+            with self.subTest(width=width):
+                s = cascade(self.css, {LIST}, width)
+                self.assertIn(s.get("background", "none"), ("none", "transparent"))
+                self.assertIn(s.get("background-image", "none"), ("none",))
 
     def test_landing_steps_keep_a_margin_so_the_card_never_sits_flush(self):
         s = cascade(self.css, LANDING, 390)
@@ -140,26 +139,33 @@ class TripRegionCss(unittest.TestCase):
         sa = cascade(self.css, {".step-actions"}, 390)
         self.assertEqual("static", sa.get("position"))
 
-    def test_only_the_three_ruled_rules_four_selectors_were_added_to_the_party_sheet(self):
+    def test_only_the_ruled_viewport_selectors_are_excluded_from_preservation(self):
         from tests.test_w15_feedback import W30_SELECTORS
-        self.assertEqual({STEP, LIST, "#step-category", "#step-trip"}, set(W30_SELECTORS),
+        self.assertEqual({STEP, LIST, "#step-category", "#step-trip",
+                          "#step-trip > h2", "#step-trip > .hint", "#step-trip > .error",
+                          "#step-trip > .step-actions"}, set(W30_SELECTORS),
                          "the W15 preservation exclusion list IS the pin: exactly these selectors")
         present = {s for _, group, _ in rules(self.css) for s in group}
         for selector in W30_SELECTORS:
             self.assertIn(selector, present, "an exclusion for a rule that does not exist is a hole")
 
-    def test_the_new_colours_are_tokens_in_the_approved_ledger(self):
+    def test_the_removed_fade_has_no_colour_ledger_entry(self):
         ledger = json.loads((REPO / "tests/fixtures/colour_ledger.json").read_text())["ui/party/party.css"]
-        mine = [row for row in ledger if row[0] == LIST]
-        self.assertTrue(mine, "the fade's background is approved in the colour ledger")
-        for _, prop, value in mine:
-            self.assertEqual("background", prop)
-            self.assertNotRegex(value, r"#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(")
+        self.assertEqual([], [row for row in ledger if row[0] == LIST],
+                         "the removed trip-list fade is no longer an approved colour declaration")
 
     def test_the_console_and_every_other_page_stylesheet_are_untouched(self):
         console = (REPO / "ui" / "styles.css").read_text()
         for token in ("#step-trip", "#trip-options"):
             self.assertNotIn(token, console)
+
+    def test_trip_heading_error_and_buttons_do_not_shrink_with_the_list(self):
+        for selector in ("#step-trip > h2", "#step-trip > .hint", "#step-trip > .error",
+                         "#step-trip > .step-actions"):
+            self.assertEqual("0 0 auto", cascade(self.css, {selector}, 390).get("flex"), selector)
+
+    def test_page_scroll_is_locked_only_while_the_trip_step_is_visible(self):
+        self.assertEqual("hidden", cascade(self.css, {"body:has(.filing-shell #form-steps:not([hidden]))"}, 390).get("overflow"))
 
 
 # ------------------------------------------------------------------ driven page
@@ -231,6 +237,21 @@ def into_view(out, element, after=0):
 
 
 class EnteringTheTripStep(unittest.TestCase):
+    def test_helper_keeps_its_hidden_step_guard_as_defence_in_depth(self):
+        # Request ownership now stops late callbacks before the helper is called.
+        # Keep the helper's explicit contract too, without allowing a sibling or
+        # comment to satisfy it. This is a source rule, not extra runtime coverage.
+        js = _strip_js((PARTY / "party.js").read_text())
+        m = re.search(r'function\s+landTripCard\s*\(\s*\)\s*\{', js)
+        self.assertIsNotNone(m)
+        assert m is not None
+        depth, i = 1, m.end()
+        while depth and i < len(js):
+            depth += (js[i] == "{") - (js[i] == "}")
+            i += 1
+        body = js[m.end():i - 1]
+        self.assertRegex(body, r'if\s*\(\s*stepTrip\.hidden\s*\)\s*\{\s*return\s*;\s*\}')
+
     def test_the_card_is_brought_on_screen_once_the_list_has_rendered(self):
         for role in (None, "driver"):
             with self.subTest(role=role):

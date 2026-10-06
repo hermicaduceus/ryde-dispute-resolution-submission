@@ -105,7 +105,7 @@ class ServedPagesAndDocs(unittest.TestCase):
               "An amount you enter is a request, not a payment."]
         for value in copy:self.assertIn(value,text)
         hint="Save your reference number. Use it on the status page to answer questions or check the outcome. Driver filings are not listed in the rider demo list."
-        self.assertEqual(2,text.count(hint));self.assertEqual(2,text.count("Look up your reference number"))
+        self.assertEqual(1,text.count(hint));self.assertEqual(2,text.count("Look up your reference number"))
         for href,label in (("./status.html#reference-input","Look up your reference number"),("./index.html","Go to rider help"),("./driver.html","View the driver demo account")):
             self.assertRegex(html,r'<a\s+href="'+re.escape(href)+r'">'+re.escape(label)+r'</a>')
         self.assertRegex(html,r'<section\b[^>]*id="form-steps"[^>]*data-filed-by="driver"')

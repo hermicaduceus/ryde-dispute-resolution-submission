@@ -25,11 +25,11 @@ FROZEN = {
     'ui/index.html': '37bc83f88ad6e1765cf9d8cdff1e5908d9fb058ad3a5c6369b64f6ce75b0d511',
     'ui/app.js': 'a8e8f5912d69928bdea9cd6552a526e020679d3d48eb7b6e7abe34b2ae664255',
     'ui/party/status.html': 'eaf668aea171af8f5785890048040b947e44b39a300f6ec6b712853b6d6403a7',
-    'ui/party/index.html': '2b6f0741ff81785a6a612e69580afce46c721d2e319b05c2e5f10c1b544fdfd9',
-    'ui/party/driver-filing.html': '621dfd68e528c1cb3678a13210ec2294b3be448763f33984609c7826f3b50a4a',
+    'ui/party/index.html': '06fd4937b1419d397b2a8f5e61f58e772f9c6e2d55f2799e2b553046b2303c23',
+    'ui/party/driver-filing.html': '4799ad45af51aa79ae22c718420cde9bd03a43e74338b20772207937418b0349',
     'ui/party/driver.html': '63b9c366f12477a9002c006fea71199f9e57e8e311d3170b55d54c671717454d',
     'ui/party/driver.js': 'fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff',
-    'ui/party/party.js': '3a4ba3517108083720e87ebb1e7b98913be248625018fcc5cea12267d4cc94c4',
+    'ui/party/party.js': '5e439af44c50a7d7a28c7e56dc0791b8fa69fbcea05e4f8c3516fc55996d4541',
     'ui/party/status.js': '127098b1603b45d2ecbd1be7550362e4b6db23920fd7292a4b9588e09465c43e',
 }
 # Excludes only the approved .step-actions position/bottom declarations in
@@ -38,7 +38,18 @@ PARTY_UNRELATED = '7e8a0a6308c851e0a106794a1363dbae1f2772f349c7cdea18bd64e295d4a
 CONSOLE_UNRELATED = '6d655bbcbbbc0725dccec64095142581c682c0cecdbbe4610f03e1e5e3b8efb4'
 # W30 (the operator 2026-10-06): the trip step's viewport-fit card, its scroll region and the
 # landing margin. The exclusion list IS the pin (tests/test_w30_trip_scroll.py).
-W30_SELECTORS = ('#step-trip:not([hidden])', '#step-trip #trip-options', '#step-category', '#step-trip')
+W30_SELECTORS = ('#step-trip:not([hidden])', '#step-trip #trip-options', '#step-category', '#step-trip',
+                 '#step-trip > h2', '#step-trip > .hint', '#step-trip > .error',
+                 '#step-trip > .step-actions')
+# the operator-approved compact shared frame; every new rule pinned in test_w30_filing_frame.
+FILING_SELECTORS = ('.filing-shell:has(#form-steps:not([hidden]))', 'body:has(.filing-shell #form-steps:not([hidden]))', '.filing-shell:has(#form-steps:not([hidden])) > .party-header', '.filing-shell:has(#form-steps:not([hidden])) > .party-header h1', '.filing-shell:has(#form-steps:not([hidden])) > .party-header .eyebrow', '.filing-shell:has(#form-steps:not([hidden])) > .party-header .intro', '.filing-shell:has(#form-steps:not([hidden])) > .party-header > .party-nav', '.filing-shell:has(#form-steps:not([hidden])) > #form-steps', '.filing-shell:has(#form-steps:not([hidden])) #form-steps > .step:not([hidden])', '.filing-shell:has(#form-steps:not([hidden])) #details-form', '.filing-shell:has(#form-steps:not([hidden])) .step-actions', '.filing-shell:has(#form-steps:not([hidden])) .step-actions button', '.filing-shell .filing-fields', '.filing-shell .filing-fine-print', '.filing-shell .filing-fine-print p', '.filing-shell:has(#form-steps:not([hidden])) .step h2', '.filing-shell:has(#form-steps:not([hidden])) #step-trip > .hint', '.filing-shell:has(#form-steps:not([hidden])) #step-trip:has(#trip-error:not([hidden])) > .hint', '.filing-shell:has(#form-steps:not([hidden])) #step-trip:has(#trip-error:not([hidden])) #trip-options', '.filing-shell:has(#form-steps:not([hidden])) #step-trip:has(#trip-error:not([hidden])) > .step-actions')
+# Final W30 visual follow-up: exclude only the five explicitly pinned motion declarations.
+CHOICE_MOTION = {
+    ((), '.choice-button'): {'transition'},
+    ((), '.choice-button:hover'): {'transform', 'box-shadow'},
+    (('@media (prefers-reduced-motion: reduce)',), '.choice-button'): {'transition'},
+    (('@media (prefers-reduced-motion: reduce)',), '.choice-button:hover'): {'transform'},
+}
 RHYTHM = {'.loader-panel', '#queue-panel', '#overrides-panel', '#case-workspace'}
 RHYTHM_PROPS = {'margin', 'margin-top', 'margin-bottom', 'gap', 'row-gap'}
 
@@ -74,8 +85,12 @@ def rules(css, context=()):
         pos = end
 
 
-def active(context, width):
+def active(context, width, reduced_motion=False):
     for query in context:
+        if query == "@media (prefers-reduced-motion: reduce)":
+            if not reduced_motion:
+                return False
+            continue
         matches = re.findall(r'(max|min)-width:\s*([\d.]+)px', query)
         assert matches, 'unsupported media query in source contract: ' + query
         if any((kind == 'max' and width > float(n)) or
@@ -120,11 +135,11 @@ def expanded(prop, value):
     return out, important
 
 
-def cascade(css, selectors, width=1200):
+def cascade(css, selectors, width=1200, reduced_motion=False):
     """Explicit markup profile, including base ancestors/types and state selectors."""
     winners = {}
     for order, (context, group, decls) in enumerate(rules(css)):
-        if not active(context, width):
+        if not active(context, width, reduced_motion):
             continue
         for selector in group:
             if selector not in selectors:
@@ -151,7 +166,7 @@ def unrelated_digest(css, party):
         for selector in selectors:
             if party and selector in {'.party-header > .party-nav', '.party-header > .party-nav a'}:
                 continue
-            if party and selector in W30_SELECTORS:
+            if party and selector in set(W30_SELECTORS) | set(FILING_SELECTORS):
                 continue
             if not party and not context and selector in {'.queue-list > .queue-row', '.queue-row > span', '.queue-row > .queue-safety', '.queue-row > .queue-open'}:
                 continue
@@ -163,7 +178,8 @@ def unrelated_digest(css, party):
                                           '.queue-open-status:empty', '#case-summary.case-open-highlight'}:
                 continue
             filtered = tuple((p, v) for p, v in decls
-                             if (not party or selector != '.step-actions' or
+                             if (not party or p not in CHOICE_MOTION.get((context, selector), set())) and
+                             (not party or selector != '.step-actions' or
                                  p not in ('position', 'bottom')) and
                              (party or selector not in RHYTHM or p not in RHYTHM_PROPS))
             if filtered:

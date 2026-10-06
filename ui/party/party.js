@@ -65,6 +65,11 @@
     runId: null
   };
 
+  // W30: request ownership. The trip list loads asynchronously, so only the newest
+  // request may render or land. Every load, category reset and trip Back bumps this
+  // epoch; a callback whose captured epoch no longer matches changes nothing.
+  var tripRequestEpoch = 0;
+
   var stepCategory = document.getElementById("step-category");
   var stepTrip = document.getElementById("step-trip");
   var stepDetails = document.getElementById("step-details");
@@ -160,7 +165,8 @@
       document.getElementById("category-next").disabled = false;
       // Changing the category resets everything downstream (R3 page side): the trip
       // list belongs to the category, so a trip picked for one category must never
-      // survive a switch to another.
+      // survive a switch to another. The epoch bump abandons any in-flight load.
+      tripRequestEpoch += 1;
       state.tripId = null;
       while (tripOptions.firstChild) {
         tripOptions.removeChild(tripOptions.firstChild);
@@ -180,12 +186,24 @@
     show(stepTrip);
     hide(stepDetails);
     loadTrips();
-    window.scrollTo(0, 0);
   });
 
   // ------------------------------------------------------------- step two
 
+  // W30: bring the whole trip card on screen once the list has rendered. The card
+  // is at most one screen tall, so aligning its top shows the Continue/Back bar
+  // too. A response that arrives after the party pressed Back must not move the
+  // page, so a hidden trip step is left alone.
+  function landTripCard() {
+    if (stepTrip.hidden) {
+      return;
+    }
+    stepTrip.scrollIntoView({ block: "start" });
+  }
+
   function loadTrips() {
+    var epoch = ++tripRequestEpoch;
+    clearError("trip-error");
     var boxes = tripOptions;
     while (boxes.firstChild) {
       boxes.removeChild(boxes.firstChild);
@@ -195,12 +213,16 @@
     boxes.appendChild(element("p", "loading", "Loading trips…"));
     request("GET", "/api/trips?category=" + encodeURIComponent(state.category))
       .then(function (payload) {
+        if (epoch !== tripRequestEpoch) {
+          return;
+        }
         while (boxes.firstChild) {
           boxes.removeChild(boxes.firstChild);
         }
         state.trips = Array.isArray(payload.trips) ? payload.trips : [];
         if (state.trips.length === 0) {
           boxes.appendChild(element("p", "hint", "No trips are available in the sample dataset."));
+          landTripCard();
           return;
         }
         state.trips.forEach(function (trip) {
@@ -230,18 +252,27 @@
           });
           boxes.appendChild(card);
         });
+        landTripCard();
       })
       .catch(function (error) {
+        if (epoch !== tripRequestEpoch) {
+          return;
+        }
         while (boxes.firstChild) {
           boxes.removeChild(boxes.firstChild);
         }
         showError("trip-error", error.message);
+        landTripCard();
       });
   }
 
   document.getElementById("trip-back").addEventListener("click", function () {
+    // Back invalidates an outstanding load immediately: no new request has to
+    // start for a late response to be stale.
+    tripRequestEpoch += 1;
     show(stepCategory);
     hide(stepTrip);
+    stepCategory.scrollIntoView({ block: "start" });
   });
 
   document.getElementById("trip-next").addEventListener("click", function () {
