@@ -15,7 +15,11 @@
     evidenceIndex: {},
     policyIndex: {},
     payloadFiles: {},
-    openRun: null
+    openRun: null,
+    currentQueueRun: null,
+    openGeneration: 0,
+    pendingOpens: [],
+    highlightTimer: null
   };
 
   var picker = document.getElementById("case-picker");
@@ -870,6 +874,9 @@
     }
 
     state.openRun = null;
+    state.currentQueueRun = null;
+    invalidatePendingOpens();
+    applyQueueSelection();
     if (decisionSection) {
       decisionSection.hidden = true;
     }
@@ -1016,6 +1023,77 @@
     return money;
   }
 
+  function setQueueRowStatus(statusElement, message) {
+    if (statusElement) {
+      statusElement.textContent = message || "";
+    }
+  }
+
+  function restoreOpenButton(button) {
+    if (button) {
+      button.textContent = "Open case";
+      button.disabled = false;
+    }
+  }
+
+  function settlePendingOpen(generation) {
+    for (var index = 0; index < state.pendingOpens.length; index += 1) {
+      if (state.pendingOpens[index].generation === generation) {
+        state.pendingOpens.splice(index, 1);
+        return;
+      }
+    }
+  }
+
+  function isButtonPending(button) {
+    for (var index = 0; index < state.pendingOpens.length; index += 1) {
+      if (state.pendingOpens[index].button === button) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function invalidatePendingOpens() {
+    state.openGeneration += 1;
+    var pendings = state.pendingOpens;
+    state.pendingOpens = [];
+    pendings.forEach(function (pending) {
+      restoreOpenButton(pending.button);
+    });
+  }
+
+  function applyQueueSelection() {
+    if (!queueContent || typeof queueContent.querySelectorAll !== "function") {
+      return;
+    }
+    var rows = queueContent.querySelectorAll(".queue-row");
+    Array.prototype.forEach.call(rows, function (row) {
+      var button = typeof row.querySelector === "function" ? row.querySelector(".queue-open") : null;
+      if (!button) {
+        return;
+      }
+      var current = state.currentQueueRun !== null
+        && Boolean(row.dataset) && row.dataset.runId === state.currentQueueRun;
+      if (current) {
+        row.classList.add("is-open");
+        button.textContent = "Currently open";
+        button.setAttribute("aria-current", "true");
+        button.disabled = false;
+        return;
+      }
+      row.classList.remove("is-open");
+      if (typeof button.removeAttribute === "function") {
+        button.removeAttribute("aria-current");
+      } else if (button.getAttribute && button.getAttribute("aria-current") !== null) {
+        button.setAttribute("aria-current", "false");
+      }
+      if (!isButtonPending(button)) {
+        restoreOpenButton(button);
+      }
+    });
+  }
+
   function renderQueue(data) {
     clear(queueContent);
     var cases = data && Array.isArray(data.cases) ? data.cases : [];
@@ -1030,6 +1108,7 @@
     cases.forEach(function (rawEntry) {
       var entry = rawEntry && typeof rawEntry === "object" ? rawEntry : {};
       var row = element("li", "queue-row");
+      row.dataset.runId = typeof entry.run_id === "string" ? entry.run_id : "";
       row.appendChild(element("span", "queue-category", categoryLabel(entry.category)));
       if (entry.safety === true) {
         row.appendChild(element("span", "queue-safety", "Safety"));
@@ -1039,13 +1118,18 @@
       row.appendChild(element("span", "queue-waiting", waitingLabel(entry.waiting_seconds)));
       var open = element("button", "queue-open", "Open case");
       open.type = "button";
+      var openStatus = element("p", "queue-open-status");
+      openStatus.setAttribute("role", "status");
+      openStatus.setAttribute("aria-live", "polite");
       open.addEventListener("click", function () {
-        openCase(entry);
+        openCase(entry, open, openStatus);
       });
       row.appendChild(open);
+      row.appendChild(openStatus);
       list.appendChild(row);
     });
     queueContent.appendChild(list);
+    applyQueueSelection();
   }
 
   function renderOverrides(data) {
@@ -1117,23 +1201,81 @@
     loadOverrides();
   }
 
-  function openCase(entry) {
+  function prefersReducedMotion() {
+    return typeof window !== "undefined"
+      && typeof window.matchMedia === "function"
+      && window.matchMedia("(prefers-reduced-motion: reduce)").matches === true;
+  }
+
+  function revealCaseSummary() {
+    var summary = document.getElementById("case-summary");
+    if (!summary) {
+      return;
+    }
+    summary.setAttribute("tabindex", "-1");
+    summary.classList.add("case-open-highlight");
+    if (typeof summary.scrollIntoView === "function") {
+      summary.scrollIntoView({
+        block: "start",
+        behavior: prefersReducedMotion() ? "auto" : "smooth"
+      });
+    }
+    if (typeof summary.focus === "function") {
+      summary.focus({ preventScroll: true });
+    }
+    if (state.highlightTimer !== null && typeof clearTimeout === "function") {
+      clearTimeout(state.highlightTimer);
+    }
+    if (typeof setTimeout === "function") {
+      state.highlightTimer = setTimeout(function () {
+        state.highlightTimer = null;
+        summary.classList.remove("case-open-highlight");
+      }, 1200);
+    }
+  }
+
+  function openCase(entry, button, statusElement) {
     var runId = entry && typeof entry.run_id === "string" ? entry.run_id : "";
+    state.openGeneration += 1;
+    var generation = state.openGeneration;
+    setQueueRowStatus(statusElement, "");
+    if (button) {
+      button.textContent = "Opening…";
+      button.disabled = true;
+    }
+    state.pendingOpens.push({ generation: generation, button: button });
     fetchJson("/api/review/" + encodeURIComponent(runId) + "/case").then(function (data) {
+      if (generation !== state.openGeneration) {
+        settlePendingOpen(generation);
+        applyQueueSelection();
+        return;
+      }
       if (!data || !data.case_file || typeof data.case_file !== "object" || Array.isArray(data.case_file)) {
         throw new Error("Invalid case file");
       }
+      settlePendingOpen(generation);
       state.openRun = {
         runId: runId,
         entry: entry && typeof entry === "object" ? entry : {},
         humanDecision: data.human_decision || null
       };
+      state.currentQueueRun = runId;
       renderCase(runId, data.case_file);
+      applyQueueSelection();
+      revealCaseSummary();
     }).catch(function () {
+      if (generation !== state.openGeneration) {
+        settlePendingOpen(generation);
+        applyQueueSelection();
+        return;
+      }
+      settlePendingOpen(generation);
       state.openRun = null;
       if (decisionSection) {
         decisionSection.hidden = true;
       }
+      setQueueRowStatus(statusElement, "The case could not be opened.");
+      applyQueueSelection();
       setStatus("The case could not be opened.", "error");
     });
   }

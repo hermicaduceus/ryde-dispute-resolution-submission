@@ -1,0 +1,9 @@
+# W31 the operator visual feedback follow-up
+the operator authorized both comments together on 2026-10-06. Use headless CodeBuddy deepseek-v4.1-flash/max again. No commit/push/settings changes.
+
+CSS only, exactly ui/party/party.css and ui/styles.css. No HTML/JS/backend/wording edits. Preserve prior W31 queue-state repairs and every other visual rule.
+
+1. Rider filing header: navigation links currently occupy separate p elements. Without changing HTML, add `.party-header:has(+ #form-steps:not([data-filed-by])) > p:has(> a)` scoped rule using display:inline-flex, vertical-align:top, max-width:100%, margin-right:0.5rem. Natural inline flow places the link paragraphs side by side only when both fit, otherwise next paragraph wraps. No viewport breakpoint for these links. Preserve current paragraph top/bottom spacing and pill styling. This selector excludes driver filing, whose wrapping flex header is already correct, and excludes status/account pages.
+2. Console queue only: append @media (max-width: 1000px) scoped `.queue-row { grid-template-columns: minmax(0, 1fr); }` and `.queue-open { justify-self:start; min-height:44px; }`. Stack actual category, optional safety badge, amount, held rules, waiting time and open button naturally, retaining any inline failure as full row. Existing desktop 6-column grid unchanged at widths above 1000px. Never conceal overflow with overflow:hidden or truncate text. No broader console restyle.
+
+Parent owns tests and ledger generator. New immutable tests tests/test_w31_responsive_feedback.py are RED (3 intended assertions); original behavior tests stay unchanged. Parent already added exact W15 preservation exclusions for the rider selector and queue selectors only inside @media(max-width:1000px), no rebaseline. Do not edit tests or ledger. Parent runs verification; no Bash needed. Read back the two additive edits and report.

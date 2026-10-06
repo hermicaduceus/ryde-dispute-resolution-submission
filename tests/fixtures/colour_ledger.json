@@ -1091,6 +1091,26 @@
    "var(--muted)"
   ],
   [
+   ".queue-row.is-open",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   ".queue-row.is-open",
+   "border-color",
+   "var(--muted)"
+  ],
+  [
+   ".queue-open-status",
+   "color",
+   "var(--red)"
+  ],
+  [
+   "#case-summary.case-open-highlight",
+   "outline",
+   "3px solid var(--muted)"
+  ],
+  [
    ".overrides-approved",
    "color",
    "var(--ink)"
@@ -1569,6 +1589,56 @@
   ],
   [
    ".party-header:has(+ #form-steps[data-filed-by=\"driver\"]) > p:last-child a:focus-visible",
+   "outline",
+   "2px solid var(--accent)"
+  ],
+  [
+   ".party-shell a",
+   "background",
+   "var(--card)"
+  ],
+  [
+   ".party-shell a",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".party-shell a",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".party-shell a:hover",
+   "background",
+   "var(--tint)"
+  ],
+  [
+   ".party-shell a:hover",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   ".party-shell a:hover",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".party-shell a:focus-visible",
+   "background",
+   "var(--tint)"
+  ],
+  [
+   ".party-shell a:focus-visible",
+   "border-color",
+   "var(--accent)"
+  ],
+  [
+   ".party-shell a:focus-visible",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".party-shell a:focus-visible",
    "outline",
    "2px solid var(--accent)"
   ]

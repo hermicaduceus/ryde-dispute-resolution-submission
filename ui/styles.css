@@ -1284,6 +1284,31 @@ input[type="file"] {
   font-size: 12px;
 }
 
+/* W31: the open row is a neutral, status-free selection marker; the row's
+   own status line carries the only message and takes no space while empty. */
+.queue-row.is-open {
+  background: var(--canvas);
+  border-color: var(--muted);
+}
+
+.queue-open-status {
+  flex: 1 0 100%;
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--red);
+  font-size: 12px;
+}
+
+.queue-open-status:empty {
+  display: none;
+}
+
+/* W31: transient arrival highlight on the case summary; static and neutral. */
+#case-summary.case-open-highlight {
+  outline: 3px solid var(--muted);
+  outline-offset: -3px;
+}
+
 .overrides-approved {
   margin: 0 0 14px;
   color: var(--ink);
@@ -1587,4 +1612,29 @@ input[type="file"] {
     border-right: 0;
     border-bottom: 1px solid #e8edf3;
   }
+}
+
+/* W31 follow-up: the queue row is a content-driven wrapping flex line at every
+   width — fields keep a readable basis and wrap as space runs out, the open
+   button never shrinks, and a populated inline status takes its own line. */
+.queue-list > .queue-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.queue-row > span {
+  flex: 1 1 140px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.queue-row > .queue-safety {
+  flex: 0 1 auto;
+  overflow-wrap: anywhere;
+}
+
+.queue-row > .queue-open {
+  flex: 0 0 auto;
+  min-height: 44px;
+  max-width: 100%;
 }

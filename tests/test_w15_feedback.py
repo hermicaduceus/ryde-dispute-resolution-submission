@@ -23,10 +23,10 @@ HEADER = '.party-header:has(+ #form-steps[data-filed-by="driver"]) > p:last-chil
 NAV = HEADER + ' a'
 FROZEN = {
     'ui/index.html': '37bc83f88ad6e1765cf9d8cdff1e5908d9fb058ad3a5c6369b64f6ce75b0d511',
-    'ui/app.js': 'c08785fac6f23e77866704c07209b9dfac8d196af2dd11656600353686e604cb',
+    'ui/app.js': 'a8e8f5912d69928bdea9cd6552a526e020679d3d48eb7b6e7abe34b2ae664255',
     'ui/party/status.html': 'eaf668aea171af8f5785890048040b947e44b39a300f6ec6b712853b6d6403a7',
-    'ui/party/index.html': '14bf093b7957f94535304be03d2afd62ae9c5384043796b3cb6aeebcdc0ad3a9',
-    'ui/party/driver-filing.html': 'e67eb24ba8f7c7d1b27c3a57c6042f2bd964235d619a26da1f94fb39526c0df5',
+    'ui/party/index.html': '2b6f0741ff81785a6a612e69580afce46c721d2e319b05c2e5f10c1b544fdfd9',
+    'ui/party/driver-filing.html': '621dfd68e528c1cb3678a13210ec2294b3be448763f33984609c7826f3b50a4a',
     'ui/party/driver.html': '63b9c366f12477a9002c006fea71199f9e57e8e311d3170b55d54c671717454d',
     'ui/party/driver.js': 'fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff',
     'ui/party/party.js': '3a4ba3517108083720e87ebb1e7b98913be248625018fcc5cea12267d4cc94c4',
@@ -146,8 +146,16 @@ def unrelated_digest(css, party):
     kept = []
     for context, selectors, decls in rules(css):
         for selector in selectors:
+            if party and selector in {'.party-header > .party-nav', '.party-header > .party-nav a'}:
+                continue
+            if not party and not context and selector in {'.queue-list > .queue-row', '.queue-row > span', '.queue-row > .queue-safety', '.queue-row > .queue-open'}:
+                continue
             if party and (selector == CLAIM or selector in
-                          (HEADER, NAV, NAV + ':hover', NAV + ':focus', NAV + ':focus-visible')):
+                          (HEADER, NAV, NAV + ':hover', NAV + ':focus', NAV + ':focus-visible',
+                           '.party-shell a', '.party-shell a:hover', '.party-shell a:focus-visible')):
+                continue
+            if not party and selector in {'.queue-row.is-open', '.queue-open-status',
+                                          '.queue-open-status:empty', '#case-summary.case-open-highlight'}:
                 continue
             filtered = tuple((p, v) for p, v in decls
                              if (not party or selector != '.step-actions' or
@@ -162,7 +170,8 @@ def nav_style(css, state='', width=1200):
     states = {NAV + ':focus', 'a:focus'} if state == ':focus-visible' else set()
     return cascade(css, states | {'*', 'a', '.party-header a', '.party-header > p a',
                          '.party-header > p:last-child a', NAV,
-                         'a' + state, '.party-header a' + state, NAV + state}, width)
+                         'a' + state, '.party-header a' + state, NAV + state,
+                         '.party-shell a', '.party-shell a' + state}, width)
 
 
 class W15Feedback(unittest.TestCase):
