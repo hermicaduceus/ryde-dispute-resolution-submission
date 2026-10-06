@@ -26,7 +26,7 @@ REPO = Path(__file__).resolve().parent.parent
 PARTY_UI = REPO / "ui" / "party"
 # W16 carve-out: the builder updates only this digest and its W12 twin after
 # rider+driver behavioural checks pass, using the independently shipped party.js bytes.
-PARTY_JS_SHA = "5e439af44c50a7d7a28c7e56dc0791b8fa69fbcea05e4f8c3516fc55996d4541"
+PARTY_JS_SHA = "0b6ce63d9366b87c5fbeb2bbf70165641c2f4ba9dd83bf7856262d96e71db1a7"
 
 ROOT_TOKENS = [("--ink", "#31373e"), ("--muted", "#5a6470"), ("--line", "#e5e0dc"),
                ("--paper", "#f7dde3"), ("--accent", "#e93864"), ("--error", "#c0392b"),

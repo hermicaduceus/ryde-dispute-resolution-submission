@@ -70,6 +70,17 @@
   // epoch; a callback whose captured epoch no longer matches changes nothing.
   var tripRequestEpoch = 0;
 
+  // W20: one serialized intake answer — choice, delimiter and explanation together —
+  // is at most this many Unicode code points. The form refuses locally before any
+  // request and leaves every control exactly as the party left it.
+  var MAX_INTAKE_ANSWER_CODE_POINTS = 2000;
+  var INTAKE_ANSWER_TOO_LONG = "Intake answers must be at most 2000 characters.";
+
+  // W20: what the current question list was built for. Trip Continue rebuilds the
+  // questions only when the category or the trip changed, so Back/Continue keeps
+  // every answer; a different trip or a category switch clears the draft.
+  var questionsKey = null;
+
   var stepCategory = document.getElementById("step-category");
   var stepTrip = document.getElementById("step-trip");
   var stepDetails = document.getElementById("step-details");
@@ -113,6 +124,23 @@
 
   function hide(node) {
     node.hidden = true;
+  }
+
+  // Unicode code points, not UTF-16 code units: an astral character (an emoji) is
+  // one character to the server and must be one here too.
+  function codePointCount(text) {
+    var count = 0;
+    for (var i = 0; i < text.length; i += 1) {
+      var code = text.charCodeAt(i);
+      if (code >= 0xD800 && code <= 0xDBFF && i + 1 < text.length) {
+        var next = text.charCodeAt(i + 1);
+        if (next >= 0xDC00 && next <= 0xDFFF) {
+          i += 1;
+        }
+      }
+      count += 1;
+    }
+    return count;
   }
 
   function request(method, path, body) {
@@ -165,9 +193,14 @@
       document.getElementById("category-next").disabled = false;
       // Changing the category resets everything downstream (R3 page side): the trip
       // list belongs to the category, so a trip picked for one category must never
-      // survive a switch to another. The epoch bump abandons any in-flight load.
+      // survive a switch to another, and neither must any answer (W20) — the shared
+      // safety question included. The epoch bump abandons any in-flight load.
       tripRequestEpoch += 1;
       state.tripId = null;
+      questionsKey = null;
+      while (questionList.firstChild) {
+        questionList.removeChild(questionList.firstChild);
+      }
       while (tripOptions.firstChild) {
         tripOptions.removeChild(tripOptions.firstChild);
       }
@@ -203,6 +236,9 @@
 
   function loadTrips() {
     var epoch = ++tripRequestEpoch;
+    // W20: the trip picked before this reload is remembered so the rendered list can
+    // restore it — Back from the details step must not lose the party's selection.
+    var wanted = state.tripId;
     clearError("trip-error");
     var boxes = tripOptions;
     while (boxes.firstChild) {
@@ -243,6 +279,14 @@
           lines.forEach(function (line) { card.appendChild(line); });
           card.appendChild(detail);
           card.addEventListener("click", function () {
+            // W20: a different trip invalidates the answers on the details step; the
+            // same trip (a re-click after Back) keeps them.
+            if (questionsKey && questionsKey.tripId !== trip.trip_id) {
+              questionsKey = null;
+              while (questionList.firstChild) {
+                questionList.removeChild(questionList.firstChild);
+              }
+            }
             state.tripId = trip.trip_id;
             Array.prototype.forEach.call(boxes.children, function (child) {
               child.classList.remove("selected");
@@ -250,6 +294,13 @@
             card.classList.add("selected");
             document.getElementById("trip-next").disabled = false;
           });
+          // W20: restore the selection the party already made when this reload's list
+          // still carries that trip. A list without it leaves the step unselected.
+          if (wanted !== null && trip.trip_id === wanted) {
+            state.tripId = wanted;
+            card.classList.add("selected");
+            document.getElementById("trip-next").disabled = false;
+          }
           boxes.appendChild(card);
         });
         landTripCard();
@@ -278,7 +329,13 @@
   document.getElementById("trip-next").addEventListener("click", function () {
     clearError("trip-error");
     hide(stepTrip);
-    buildQuestions();
+    // W20: rebuild the questions only when the category or the trip changed; the
+    // unchanged pair keeps the draft the party already typed.
+    if (!questionsKey || questionsKey.category !== state.category
+        || questionsKey.tripId !== state.tripId) {
+      buildQuestions();
+      questionsKey = { category: state.category, tripId: state.tripId };
+    }
     show(stepDetails);
     window.scrollTo(0, 0);
   });
@@ -396,6 +453,17 @@
         answers[question.key] = input ? input.value : "";
       }
     });
+
+    // W20: the cap counts the complete serialized answer — choice, delimiter and
+    // trimmed explanation together — in Unicode code points. Nothing is truncated
+    // and nothing is sent: the party keeps every character they typed.
+    var tooLong = Object.keys(answers).some(function (key) {
+      return codePointCount(answers[key]) > MAX_INTAKE_ANSWER_CODE_POINTS;
+    });
+    if (tooLong) {
+      showError("details-error", INTAKE_ANSWER_TOO_LONG);
+      return;
+    }
 
     var submit = document.getElementById("details-submit");
     submit.disabled = true;
