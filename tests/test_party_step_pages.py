@@ -70,10 +70,9 @@ class ForwardTransitionsSwap(unittest.TestCase):
                       "category Continue must hide step-category (swap, not append)")
         self.assertIn("show(stepTrip)", body)
 
-    def test_category_continue_scrolls_to_top(self):
-        body = _handler_body(_load(), "category-next")
-        self.assertRegex(body, r"scrollTo\s*\(\s*0\s*,\s*0\s*\)",
-                         "the swap must land at the top of the new step's page")
+    # W30 (the operator, 2026-10-06): the category-continue scroll-to-top is superseded. The trip step
+    # now lands its whole card on screen once the list renders; tests/test_w30_trip_scroll.py
+    # pins that and pins the absence of the old jump.
 
     def test_trip_continue_hides_the_trip_step(self):
         body = _handler_body(_load(), "trip-next")

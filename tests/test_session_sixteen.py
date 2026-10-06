@@ -109,6 +109,7 @@ function node(tag) {
     return out;
   };
   n.querySelector = sel => n.querySelectorAll(sel)[0] || null;
+  n.scrollIntoView = () => {};
   return n;
 }
 const ids = {};

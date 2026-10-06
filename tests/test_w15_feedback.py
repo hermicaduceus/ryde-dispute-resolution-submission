@@ -36,6 +36,9 @@ FROZEN = {
 # addition to the original feedback rules. Computed from the pre-repair CSS.
 PARTY_UNRELATED = '7e8a0a6308c851e0a106794a1363dbae1f2772f349c7cdea18bd64e295d4a1ae'
 CONSOLE_UNRELATED = '6d655bbcbbbc0725dccec64095142581c682c0cecdbbe4610f03e1e5e3b8efb4'
+# W30 (the operator 2026-10-06): the trip step's viewport-fit card, its scroll region and the
+# landing margin. The exclusion list IS the pin (tests/test_w30_trip_scroll.py).
+W30_SELECTORS = ('#step-trip:not([hidden])', '#step-trip #trip-options', '#step-category', '#step-trip')
 RHYTHM = {'.loader-panel', '#queue-panel', '#overrides-panel', '#case-workspace'}
 RHYTHM_PROPS = {'margin', 'margin-top', 'margin-bottom', 'gap', 'row-gap'}
 
@@ -147,6 +150,8 @@ def unrelated_digest(css, party):
     for context, selectors, decls in rules(css):
         for selector in selectors:
             if party and selector in {'.party-header > .party-nav', '.party-header > .party-nav a'}:
+                continue
+            if party and selector in W30_SELECTORS:
                 continue
             if not party and not context and selector in {'.queue-list > .queue-row', '.queue-row > span', '.queue-row > .queue-safety', '.queue-row > .queue-open'}:
                 continue

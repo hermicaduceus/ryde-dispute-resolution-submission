@@ -106,6 +106,7 @@ function node(tag) {
       && attrs.every(a => a[2] === undefined ? c.getAttribute(a[1]) !== null : c.getAttribute(a[1]) === a[2]));
   };
   n.querySelector = sel => n.querySelectorAll(sel)[0] || null;
+  n.scrollIntoView = () => {};
   return n;
 }
 const ids = {};
