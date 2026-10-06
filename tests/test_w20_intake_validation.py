@@ -34,7 +34,7 @@ class IntakeValidation(unittest.TestCase):
                     with self.assertRaises(_HTTPError):_validate_filing(filing(category,trip,role,answers={key:value}))
     def test_exact_choice_grammar_all_choice_keys(self):
         good=['','Yes','No','Yes - details','No - 😀\nmore','Yes - \t text  ']
-        bad=['Maybe - explanation','yes - explanation','No -\u2003','random prose','yes','YES','no',' Yes','No ','Yes\n','No\r\n','Yes- why','Yes: why','Yes — why','Yes -','Yes - ','No - \t\n','Yes - \u2003','Yesterday','Nope','\nYes',' ']
+        bad=['Maybe - explanation','yes - explanation','No -\u2003','random prose','yes','YES','no',' Yes','No ','Yes\n','No\r\n','Yes- why','Yes: why','Yes — why','Yes -','Yes - ','No - \t\n','Yes - \u2003','Yesterday','Nope','\nYes',' ','Yes -x','No -because',' Yes - x','Maybe Yes - x','prose No - y','\tNo - y']
         for role, category, trip, rows in SCOPES:
             for key,_,kind in rows:
                 if kind!='yes_no':continue
@@ -72,7 +72,11 @@ class IntakeValidation(unittest.TestCase):
             self.assertEqual(valid,server.case(view['run_id'])['intake']['form_answers'])
     def test_followup_cap_not_introduced(self):
         value='😀'*2001
-        self.assertEqual([{'question':'q','answer':value}],_validate_reply({'answers':[{'question':'q','answer':value}]},['q']))
+        try:
+            replies = _validate_reply({'answers':[{'question':'q','answer':value}]},['q'])
+        except _HTTPError as error:
+            self.fail('valid uncapped follow-up refused: %s' % error)
+        self.assertEqual([{'question':'q','answer':value}],replies)
 
 class IntakeUI(unittest.TestCase):
     def test_no_explanation_serialized_boundaries(self):

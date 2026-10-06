@@ -25,6 +25,20 @@ class BackState(unittest.TestCase):
                 self.assertEqual(expected,posts[0]['body']['answers'])
                 self.assertEqual('A',posts[0]['body']['trip_id'])
                 self.assertEqual('Keep description 😀',posts[0]['body']['description']);self.assertEqual(12.34,posts[0]['body']['claim_amount_sgd'])
+    def test_back_continue_without_trip_reclick_preserves_submission(self):
+        for role,category,trip,rows in SCOPES:
+            with self.subTest(role=role,category=category):
+                ops=filled(rows)+[['snapshot']]
+                for _ in range(3):ops += [['id','details-back'],['id','trip-next'],['snapshot']]
+                out=drive(role,0 if category=='route_deviation' else 1,ops+[['submit']])
+                initial=out['snapshots'][0]
+                for snapshot in out['snapshots'][1:]:self.assertEqual(initial,snapshot)
+                posts=[c for c in out['calls'] if c['method']=='POST']
+                self.assertEqual(1,len(posts));self.assertEqual('A',posts[0]['body']['trip_id'])
+                expected={key:'Open '+key+' 😀' if kind=='open' else ('Yes' if i%2 else 'No')+' - Explanation '+key+' 😀' for i,(key,_,kind) in enumerate(rows)}
+                self.assertEqual(expected,posts[0]['body']['answers'])
+                self.assertEqual('Keep description 😀',posts[0]['body']['description'])
+                self.assertEqual(12.34,posts[0]['body']['claim_amount_sgd'])
     def test_different_trip_clears_question_answers(self):
         for role,category,trip,rows in SCOPES:
             out=drive(role,0 if category=='route_deviation' else 1,filled(rows)+[['id','details-back'],['trip',1],['id','trip-next']])
