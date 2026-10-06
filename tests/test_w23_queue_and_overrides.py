@@ -111,7 +111,11 @@ class SafetyFlag(_ServerCase):
                 ("yess", False), ("no, yes", False), ("Not yes", False)]
         runs = []
         for answer, expected in rows:
-            view = self.server.file("T-RD0109", 55.16, safety=answer)
+            view = self.server.file("T-RD0109", 55.16, safety="No")
+            path = self.server.run_dir(view["run_id"]) / "case_file.json"
+            case = self.server.case(view["run_id"])
+            case["intake"]["form_answers"]["safety_concern"] = answer
+            path.write_text(json.dumps(case), encoding="utf-8")
             self.assertEqual("withheld", self.server.case(view["run_id"])["resolution"]["outcome"], answer)
             runs.append((answer, expected, view["run_id"]))
         by_run = {c["run_id"]: c["safety"] for c in self.queue()}

@@ -68,11 +68,13 @@ class DriverHTTP(unittest.TestCase):
     def test_shared_safety_rider_legacy_strings_normalization_and_optional_answers(self):
         server=self.start()
         for role in ("rider","driver"):
-            self.post(server,filing(role=role,answers={"safety_concern":"arbitrary legacy string"}))
+            self.assertEqual(400,server.json("POST","/api/disputes",filing(role=role,answers={"safety_concern":"arbitrary legacy string"}))[0])
             self.post(server,filing(role=role,answers={}))
             body=filing(role=role);body.pop("answers");view=self.post(server,body)
             self.assertEqual({},parse_dispute(self.stored(server,view)).intake)
         body=filing(role="driver",answers={"driver_waiting_place":"x"*10001});body["filed_by"]=" Driver "
+        self.assertEqual(400,server.json("POST","/api/disputes",body)[0])
+        body["answers"]={"driver_waiting_place":"x"*2000}
         view=self.post(server,body);self.assertEqual("driver",parse_dispute(self.stored(server,view)).filed_by)
 
     def test_driver_existing_invalid_fields_and_boundaries(self):
