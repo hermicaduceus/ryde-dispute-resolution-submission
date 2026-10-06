@@ -58,6 +58,7 @@ from .agents import RetryPolicy
 from .policy import load_policy
 from .schemas import (
     DEMO_NOTICE_MESSAGE,
+    DRIVER_YES_NO_INTAKE_KEYS,
     HUMAN_REVIEW_MESSAGE,
     INTAKE_QUESTIONS,
     NEEDS_INFO_MESSAGE,
@@ -66,6 +67,7 @@ from .schemas import (
     OUTCOME_RULED,
     OUTCOME_WITHHELD,
     UNDER_REVIEW_MESSAGE,
+    YES_NO_INTAKE_KEYS,
     intake_questions_for,
     is_party_safe,
 )
@@ -81,6 +83,15 @@ ANSWERED_FILE_NAME = "answered.json"
 
 MAX_BODY_BYTES = 64 * 1024
 DEFAULT_PORT = 8000
+
+#: W20: one incoming intake answer — the choice, the delimiter and the explanation
+#: together — is at most this many Unicode code points (len() on a str counts code
+#: points, not UTF-16 units). Refused at 2001; the value is never trimmed or coerced.
+MAX_INTAKE_ANSWER_CODE_POINTS = 2000
+INTAKE_ANSWER_TOO_LONG_MESSAGE = "Intake answers must be at most 2000 characters."
+#: Every yes/no key, rider and driver: the shared safety_concern plus each role's own
+#: choice keys. The tables in app/schemas.py are the one owner of that fact.
+CHOICE_INTAKE_KEYS = YES_NO_INTAKE_KEYS | DRIVER_YES_NO_INTAKE_KEYS
 
 _RUN_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
 _PAYLOAD_NAME_RE = re.compile(r"^[0-9]{4}-[A-Za-z0-9._-]+\.json$")
@@ -766,8 +777,32 @@ def _require_dict(value: Any) -> Dict[str, Any]:
     return value
 
 
+def _is_choice_answer(value: str) -> bool:
+    """The exact yes/no intake grammar (W20): '', 'Yes', 'No', or '<choice> - <text>'.
+
+    The explanation after 'Yes - ' / 'No - ' must contain at least one non-whitespace
+    character; anything else — prose, case or whitespace variants, a malformed or
+    missing delimiter, a blank explanation, a trailing newline on a bare choice — is
+    refused. An accepted value is kept exactly as sent, whitespace included.
+    """
+    if value in ("", "Yes", "No"):
+        return True
+    for choice in ("Yes", "No"):
+        prefix = choice + " - "
+        if value.startswith(prefix) and value[len(prefix):].strip():
+            return True
+    return False
+
+
 def _validate_filing(body: Dict[str, Any]) -> Dict[str, Any]:
-    """Validate one intake-form submission. Raises _HTTPError on any bad field."""
+    """Validate one intake-form submission. Raises _HTTPError on any bad field.
+
+    W20: every answer — choice, delimiter and explanation together — is at most
+    MAX_INTAKE_ANSWER_CODE_POINTS code points, and a yes/no key accepts only the exact
+    choice grammar. Both gates run here, before any run directory or model call, and
+    the accepted value is stored unchanged. Intake only: follow-up replies and saved
+    records keep their existing, more permissive treatment.
+    """
     category = body.get("category")
     if category not in FORM_CATEGORIES:
         raise _HTTPError(400, "unknown category")
@@ -802,6 +837,13 @@ def _validate_filing(body: Dict[str, Any]) -> Dict[str, Any]:
             raise _HTTPError(400, "unknown intake answer: %s" % key)
         if not isinstance(value, str):
             raise _HTTPError(400, "intake answer '%s' must be a string" % key)
+        if len(value) > MAX_INTAKE_ANSWER_CODE_POINTS:
+            raise _HTTPError(400, INTAKE_ANSWER_TOO_LONG_MESSAGE)
+        if key in CHOICE_INTAKE_KEYS and not _is_choice_answer(value):
+            raise _HTTPError(
+                400,
+                "intake answer '%s' must be Yes or No, with an optional explanation" % key,
+            )
 
     return {
         "category": category,

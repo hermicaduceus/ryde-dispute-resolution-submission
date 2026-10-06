@@ -29,7 +29,7 @@ FROZEN = {
     'ui/party/driver-filing.html': '4799ad45af51aa79ae22c718420cde9bd03a43e74338b20772207937418b0349',
     'ui/party/driver.html': '63b9c366f12477a9002c006fea71199f9e57e8e311d3170b55d54c671717454d',
     'ui/party/driver.js': 'fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff',
-    'ui/party/party.js': '5e439af44c50a7d7a28c7e56dc0791b8fa69fbcea05e4f8c3516fc55996d4541',
+    'ui/party/party.js': '0b6ce63d9366b87c5fbeb2bbf70165641c2f4ba9dd83bf7856262d96e71db1a7',
     'ui/party/status.js': '127098b1603b45d2ecbd1be7550362e4b6db23920fd7292a4b9588e09465c43e',
 }
 # Excludes only the approved .step-actions position/bottom declarations in
