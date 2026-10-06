@@ -195,7 +195,7 @@ class W15LayoutTest(unittest.TestCase):
         digest = hashlib.sha256((PARTY_UI / "party.js").read_bytes()).hexdigest()
         # The expected digest equals main's committed party.js (4683f65).
         self.assertEqual(
-            "0b6ce63d9366b87c5fbeb2bbf70165641c2f4ba9dd83bf7856262d96e71db1a7", digest,
+            "90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0", digest,
             "party.js must stay byte-identical through the layout pass")
 
 

@@ -237,7 +237,7 @@ class ContractIntactTest(unittest.TestCase):
         digest = hashlib.sha256((repo / "ui" / "party" / "party.js").read_bytes()).hexdigest()
         # W16 carve-out: builder updates this expected digest after independently shipping party.js.
         # The current value is the disposable reference baseline, not a value to copy into production.
-        self.assertEqual("0b6ce63d9366b87c5fbeb2bbf70165641c2f4ba9dd83bf7856262d96e71db1a7", digest)
+        self.assertEqual("90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0", digest)
 
     def test_architecture_doc_states_the_notice(self):
         """The doc says the party message carries no MOCK marker; that goes false now."""

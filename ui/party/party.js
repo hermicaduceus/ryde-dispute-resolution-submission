@@ -81,6 +81,12 @@
   // every answer; a different trip or a category switch clears the draft.
   var questionsKey = null;
 
+  // W20: the trip the party last picked, remembered independently of the load
+  // attempt so a failed or superseded reload does not lose it. The next successful
+  // list that still carries it restores the selection; a list that no longer does
+  // leaves the step unselected. A category switch clears it.
+  var rememberedTripId = null;
+
   var stepCategory = document.getElementById("step-category");
   var stepTrip = document.getElementById("step-trip");
   var stepDetails = document.getElementById("step-details");
@@ -197,6 +203,7 @@
       // safety question included. The epoch bump abandons any in-flight load.
       tripRequestEpoch += 1;
       state.tripId = null;
+      rememberedTripId = null;
       questionsKey = null;
       while (questionList.firstChild) {
         questionList.removeChild(questionList.firstChild);
@@ -237,8 +244,9 @@
   function loadTrips() {
     var epoch = ++tripRequestEpoch;
     // W20: the trip picked before this reload is remembered so the rendered list can
-    // restore it — Back from the details step must not lose the party's selection.
-    var wanted = state.tripId;
+    // restore it — Back from the details step must not lose the party's selection,
+    // even when an earlier attempt failed or its list omitted the trip.
+    var wanted = rememberedTripId;
     clearError("trip-error");
     var boxes = tripOptions;
     while (boxes.firstChild) {
@@ -288,6 +296,7 @@
               }
             }
             state.tripId = trip.trip_id;
+            rememberedTripId = trip.trip_id;
             Array.prototype.forEach.call(boxes.children, function (child) {
               child.classList.remove("selected");
             });
