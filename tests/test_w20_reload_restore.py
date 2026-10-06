@@ -36,3 +36,12 @@ class ReloadRestore(unittest.TestCase):
                 out=drive(role,0 if category=='route_deviation' else 1,filled(rows)+[['trips',['B']],['id','details-back'],['snapshot']])
                 self.assertEqual([],out['final']['trip']);self.assertTrue(out['final']['disabled'])
                 self.assertEqual([False,True,False],out['final']['visible'])
+    def test_category_switch_clears_remembered_trip_even_if_id_reappears(self):
+        for role,category,trip,rows in SCOPES:
+            with self.subTest(role=role,category=category):
+                index=0 if category=='route_deviation' else 1
+                ops=filled(rows)+[['id','details-back'],['id','trip-back'],['category',1-index],['id','category-next'],['snapshot']]
+                out=drive(role,index,ops)
+                self.assertEqual([],out['final']['trip'])
+                self.assertTrue(out['final']['disabled'])
+                self.assertEqual([],out['final']['rows'])
