@@ -217,7 +217,9 @@ class Judge(BaseAgent):
             "ruling actually rests on, taken verbatim from the citable refs list you are given. "
             "A ruling nobody can trace back to specific numbers cannot be reviewed by the human "
             "who receives an escalation, so cite the fields that decided it, not every field you "
-            "were shown.\n\n"
+            "were shown.\n"
+            "deviation_fare_delta_sgd is the difference between the quoted fare and the "
+            "metered fare for the route taken, not money the rider paid.\n\n"
             "OUTPUT SCHEMA\n%s"
             % (HARD_RULES, json.dumps(self.OUTPUT_SCHEMA, indent=2))
         )

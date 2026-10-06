@@ -192,6 +192,11 @@ evidence does not settle a question, the explanation must say so rather than fil
 is the one the policy and evidence support, with the gate explained: an honest low
 confidence produces a holding message to the parties instead of a wrong ruling.
 
+**Fare-field definition.** The system prompt also states one fare field's meaning directly:
+"deviation_fare_delta_sgd is the difference between the quoted fare and the metered fare for the route taken, not money the rider paid."
+The prompt gives the definition; whether a route ruling is delivered is still decided by the
+gates above, in code.
+
 **Output schema** (from `app/agents/judge.py`):
 
 | Field | Contract |
