@@ -47,7 +47,8 @@ QUEUE_DOWN = "The review queue is not available. Open the console from the runni
 CASE_FAILED = "The case could not be opened."
 
 # Byte-frozen for this round, hashed at BASE 1ae5a84. ui/app.js is the only shipped file the fix may
-# change; the W24 acceptance file and its browser script are frozen by the W24 brief.
+# change; the W24 acceptance file and its browser script are frozen by the W24 brief. W34
+# (2026-10-07) released app/server.py and the five HTML pages; tests/test_w34_launcher.py pins them.
 FROZEN = {
     "app/prompt_view.py": "3b8472f60e51f99b98a1f96f4ba4fe403986701a3ad3bf74c23a73325db985f6",
     "ui/styles.css": "4b4e7477b6503bc9b85790519e7609e3e581ecc2a78d4efe0be7f6ec2a6c7be5",

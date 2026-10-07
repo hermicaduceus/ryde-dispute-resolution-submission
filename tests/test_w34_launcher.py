@@ -1,6 +1,8 @@
-# Every W34 change is owned by the CodeBuddy builder. This RED file is planner-owned.
-# CodeBuddy must not edit tests/, tools/, app/ beyond the brief, or any scope outside W34.
-"""
+"""W34 acceptance: one-click launcher, start page and the demo switch bar.
+
+Contract: docs/build-briefs/w34-launcher-brief.md. Written RED-first by the planner; the
+builder makes this file green without editing it.
+
 What is pinned, by area:
   * app/server.py gains `--port` (default 8000, 1..65535) and nothing else changes before
     `def parse_args(`.
@@ -575,7 +577,11 @@ class LaunchModule(unittest.TestCase):
         seen = []
 
         def browser(target, *a, **k):
-            seen.append((target, _get(target, timeout=3)[0]))
+            try:
+                status = _get(target, timeout=3)[0]
+            except OSError:
+                status = "refused"  # opened before the server answered
+            seen.append((target, status))
             return True
 
         starter = threading.Timer(0.8, lambda: _ryde_server(self, port))
@@ -657,7 +663,8 @@ class LaunchProcess(unittest.TestCase):
         port = _free_run(1)
         env = dict(os.environ)
         env.pop("PYTHONPATH", None)
-        env["BROWSER"] = "%s %s %%s %%s" % (sys.executable, recorder)
+        # webbrowser replaces EVERY "%s" in BROWSER with the URL, so the record path is literal.
+        env["BROWSER"] = "%s %s %%s %s" % (sys.executable, recorder, record)
         proc = subprocess.Popen(
             [sys.executable, str(LAUNCH_PY), "--ports", "%d-%d" % (port, port)],
             cwd=str(tmp), env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -692,7 +699,7 @@ class LaunchProcess(unittest.TestCase):
         proc, port, _record = self._start()
         proc.send_signal(signal.SIGHUP)
         try:
-            proc.wait(timeout=10)
+            proc.communicate(timeout=10)
         except subprocess.TimeoutExpired:
             self.fail("SIGHUP did not stop the launcher")
         time.sleep(0.3)
@@ -702,7 +709,7 @@ class LaunchProcess(unittest.TestCase):
         proc, port, _record = self._start()
         proc.send_signal(signal.SIGINT)
         try:
-            proc.wait(timeout=10)
+            proc.communicate(timeout=10)
         except subprocess.TimeoutExpired:
             self.fail("Ctrl+C did not stop the launcher")
         self.assertEqual(0, proc.returncode)
@@ -787,8 +794,7 @@ class StartCommand(unittest.TestCase):
 
     def test_hands_over_with_exec_so_the_window_owns_one_process(self):
         body = _strip_sh_comments(_read_text(self, START_COMMAND))
-        self.assertRegex(body, r'(?m)^\s*exec\s+"?\$?\{?[A-Za-z_]*\}?"?\s*tools/launch\.py\s*$|'
-                               r'(?m)^\s*exec\s+python3\s+tools/launch\.py\s*$')
+        self.assertRegex(body, r'(?m)^\s*exec\s+(python3|"?\$\{?[A-Za-z_]+\}?"?)\s+tools/launch\.py\s*$')
 
 
 class StartBat(unittest.TestCase):
@@ -810,7 +816,12 @@ class StartBat(unittest.TestCase):
         self.assertRegex(body, r"(?m)^\s*py -3 -c \"[^\"]*" + re.escape(VERSION_CHECK))
         self.assertRegex(body, r"(?m)^\s*python -c \"[^\"]*" + re.escape(VERSION_CHECK))
         self.assertLess(body.index("py -3 -c"), body.index("python -c"), "py -3 is tried first")
-        self.assertIn("echo %MISSING%", body)
+        literal = re.search(r"(?im)^\s*echo\s+" + re.escape(MISSING_PYTHON) + r"\s*$", body)
+        via_var = re.search(r'(?im)^\s*set\s+"(\w+)=' + re.escape(MISSING_PYTHON) + r'"\s*$', body)
+        if via_var:
+            self.assertRegex(body, r"(?im)^\s*echo\s+%" + via_var.group(1) + r"%\s*$",
+                             "the variable holding the sentence is echoed")
+        self.assertTrue(literal or via_var, "start.bat prints the exact missing-Python sentence")
         self.assertRegex(body, r"(?im)^\s*pause\s*$")
         self.assertRegex(body, r"(?m)tools\\launch\.py")
 

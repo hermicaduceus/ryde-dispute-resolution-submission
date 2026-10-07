@@ -5,7 +5,8 @@ Comments are stripped. Named-selector profiles resolve all matching rules by
 gap, border and background shorthands. Media rules are checked at 360 and 1200px.
 Profiles deliberately describe the existing markup, not a general CSS engine.
 The new scoped rules use the existing driver form/header selector contract below.
-HTML/JS and all unrelated CSS declarations are frozen to the reviewed W15 tree.
+JS and all unrelated CSS declarations are frozen to the reviewed W15 tree. W34 (2026-10-07)
+released the HTML pages; their only permitted change is pinned in tests/test_w34_launcher.py.
 the operator's review-repair carve-out allows only .step-actions position/bottom to change.
 Browser wrap, geometry, actual hover/focus and accessibility remain separate gates.
 """
