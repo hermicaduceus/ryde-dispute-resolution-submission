@@ -22,12 +22,7 @@ CLAIM = '#form-steps[data-filed-by="driver"] #claim-amount + .hint'
 HEADER = '.party-header:has(+ #form-steps[data-filed-by="driver"]) > p:last-child'
 NAV = HEADER + ' a'
 FROZEN = {
-    'ui/index.html': 'bc77c119d2da0e199e8a987ce6cd2b3049ac4f6d08c189823a7217a3f71b1b0b',
     'ui/app.js': '1ca5e7b9687f5d40448c74e8e036a801a317d37fa93f01d390002fa77e1e046b',
-    'ui/party/status.html': 'eaf668aea171af8f5785890048040b947e44b39a300f6ec6b712853b6d6403a7',
-    'ui/party/index.html': '06fd4937b1419d397b2a8f5e61f58e772f9c6e2d55f2799e2b553046b2303c23',
-    'ui/party/driver-filing.html': '4799ad45af51aa79ae22c718420cde9bd03a43e74338b20772207937418b0349',
-    'ui/party/driver.html': '63b9c366f12477a9002c006fea71199f9e57e8e311d3170b55d54c671717454d',
     'ui/party/driver.js': 'fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff',
     'ui/party/party.js': '90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0',
     'ui/party/status.js': '127098b1603b45d2ecbd1be7550362e4b6db23920fd7292a4b9588e09465c43e',
@@ -314,11 +309,11 @@ class W15Feedback(unittest.TestCase):
         self.assertEqual(CONSOLE_UNRELATED, unrelated_digest(self.console, False),
                          'console inner layout, colours and padding stay unchanged')
 
-    def test_all_html_and_javascript_bytes_stay_frozen(self):
-        actual = {str(p.relative_to(REPO)): hashlib.sha256(p.read_bytes()).hexdigest()
-                  for p in (REPO / 'ui').rglob('*') if p.suffix in ('.html', '.js')}
+    def test_all_javascript_bytes_stay_frozen(self):
+        actual = {rel: hashlib.sha256((REPO / rel).read_bytes()).hexdigest()
+                  for rel in FROZEN}
         self.assertEqual(FROZEN, actual,
-                         'preserve anchors/hrefs/copy/separators and every HTML/JS byte')
+                         'preserve every JavaScript byte while W34 adds navigation HTML')
 
     def test_cascade_reader_handles_existing_shared_reset_and_shorthands(self):
         css = stripped('''/* #overrides-panel { margin-top: 28px; } */

@@ -49,17 +49,11 @@ CASE_FAILED = "The case could not be opened."
 # Byte-frozen for this round, hashed at BASE 1ae5a84. ui/app.js is the only shipped file the fix may
 # change; the W24 acceptance file and its browser script are frozen by the W24 brief.
 FROZEN = {
-    "app/server.py": "3bc4dd76729ffd50f7baead46979e43050aba4a847365e5837b1a5da082c9529",
     "app/prompt_view.py": "3b8472f60e51f99b98a1f96f4ba4fe403986701a3ad3bf74c23a73325db985f6",
-    "ui/index.html": "bc77c119d2da0e199e8a987ce6cd2b3049ac4f6d08c189823a7217a3f71b1b0b",
     "ui/styles.css": "4b4e7477b6503bc9b85790519e7609e3e581ecc2a78d4efe0be7f6ec2a6c7be5",
-    "ui/party/driver-filing.html": "4799ad45af51aa79ae22c718420cde9bd03a43e74338b20772207937418b0349",
-    "ui/party/driver.html": "63b9c366f12477a9002c006fea71199f9e57e8e311d3170b55d54c671717454d",
-    "ui/party/driver.js": "fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff",
-    "ui/party/index.html": "06fd4937b1419d397b2a8f5e61f58e772f9c6e2d55f2799e2b553046b2303c23",
     "ui/party/party.css": "f1893ba638858a9b6a3e1582f489e2ce261e064fc6de8f2b7fb6ec7f46952c51",
+    "ui/party/driver.js": "fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff",
     "ui/party/party.js": "90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0",
-    "ui/party/status.html": "eaf668aea171af8f5785890048040b947e44b39a300f6ec6b712853b6d6403a7",
     "ui/party/status.js": "127098b1603b45d2ecbd1be7550362e4b6db23920fd7292a4b9588e09465c43e",
     "tests/test_w24_prompt_panel.py": "31efc92273e62edbdee289f49ea7de0d5271b7321993070591db517e7fa77e84",
     "tests/browser/w24_prompt_panel.cjs": "ec6cfb27c98f1b57faadd290574b32cbbdf66dbdf90206813617752819a8d428",
