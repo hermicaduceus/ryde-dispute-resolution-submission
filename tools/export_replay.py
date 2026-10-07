@@ -29,6 +29,7 @@ import argparse
 import html
 import json
 import math
+import os
 import re
 import shutil
 import sys
@@ -148,21 +149,43 @@ def _refuse_non_empty_out(out: Path) -> None:
         raise Refusal("--out %s exists and is not empty; refusing to overwrite it" % out)
 
 
+def _same_folder(left: Path, right: Path) -> bool:
+    """True when both paths exist and are the same folder on disk.
+
+    Decided by disk identity, never by spelling: on a case-insensitive disk
+    `UI` and `ui` are one folder even though the strings differ.
+    """
+    try:
+        return os.path.samefile(left, right)
+    except OSError:
+        return False
+
+
+def _inside(out: Path, folder: Path) -> bool:
+    """True when `out` is `folder` or sits inside it, decided on disk identity.
+
+    `out` may not exist yet, so each of its existing parent folders is compared
+    too; a case-variant spelling of `folder` is still the same folder.
+    """
+    for candidate in [out, *out.parents]:
+        if _same_folder(candidate, folder):
+            return True
+    return False
+
+
 def _refuse_unsafe_paths(out: Path, before: Path, after: Path) -> None:
     """Refuse an --out that would land on the exporter's own inputs or outputs."""
     for flag, folder in (("--before", before), ("--after", after)):
-        if out == folder or out.is_relative_to(folder):
+        if _inside(out, folder):
             raise Refusal(
                 "--out %s is inside %s %s; choose an output folder outside the snapshots"
                 % (out, flag, folder)
             )
-    ui = UI_DIR.resolve()
-    if out == ui or out.is_relative_to(ui):
+    if _inside(out, UI_DIR):
         raise Refusal("--out %s is inside the repository's ui/ folder" % out)
-    replay = REPLAY_DIR.resolve()
-    if out == replay or out.is_relative_to(replay):
+    if _inside(out, REPLAY_DIR):
         raise Refusal("--out %s is inside tools/replay/" % out)
-    if before == after:
+    if _same_folder(before, after):
         raise Refusal("--before and --after resolve to the same folder: %s" % before)
 
 
