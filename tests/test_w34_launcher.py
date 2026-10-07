@@ -23,6 +23,7 @@ the <head> line on every page. They are here so the build cannot quietly break t
 from __future__ import annotations
 
 import contextlib
+import errno
 import hashlib
 import importlib.util
 import io
@@ -478,6 +479,16 @@ class FixRound(unittest.TestCase):
                 contextlib.redirect_stdout(io.StringIO()):
             with self.assertRaises(RuntimeError):
                 self.launch.main([])
+        # An OSError that is not the bind race (here: permission denied) is a real fault,
+        # not "port taken", and must not be reworded into one.
+        with mock.patch.object(self.launch, "pick_port", return_value=(_free_run(1), False)), \
+                mock.patch.object(self.launch, "open_when_ready", lambda *a, **k: None), \
+                mock.patch.object(self.launch.server, "main",
+                                  side_effect=OSError(errno.EACCES, "Permission denied")), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            with self.assertRaises(OSError):
+                self.launch.main([])
+        self.assertNotIn("was taken", out.getvalue())
 
     def test_readme_says_a_running_copy_is_reused_as_it_is(self):
         text = _read_text(self, REPO / "README.md")
