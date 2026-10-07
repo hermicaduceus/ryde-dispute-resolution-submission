@@ -7,7 +7,7 @@ whole suite green, and each fix proven by reverting it and watching its test go 
 A third cross-family review (glm-5.3) of round two found these. Every item was reproduced
 firsthand. **This is the last round on the party-safety filter** (the operator ruling). The filter is a
 backstop; the real protection is structural and already verified by three reviews. Round-one
-and round-two rules in `docs/session-six-fix-brief.md` and `docs/session-six-fix-brief-2.md`
+and round-two rules in `docs/build-briefs/session-six-fix-brief.md` and `docs/build-briefs/session-six-fix-brief-2.md`
 still apply.
 
 ## The four items

@@ -15,7 +15,7 @@ Only:
 - tests/test_party_rebrand.py: PARTY_JS_SHA value only.
 - tests/test_w12_demo_notice.py: matching party.js digest value only.
 
-The two digest rebaselines are authorized only after rider+driver behavioural tests pass; compute the values from actual shipped party.js bytes. All other code, tests, docs, parent amendments, data, policy, fixtures and files are read-only. No new dependency, commit, stash, merge, push, memory edit, paid provider or default server launch. Main/rehearsal is outside this scope and must remain untouched. Do not modify the old docs/w16-acceptance-manifest.json; it records historical pre-build bytes. docs/w16-repair-acceptance-manifest.json records the operator's current files before this repair.
+The two digest rebaselines are authorized only after rider+driver behavioural tests pass; compute the values from actual shipped party.js bytes. All other code, tests, docs, parent amendments, data, policy, fixtures and files are read-only. No new dependency, commit, stash, merge, push, memory edit, paid provider or default server launch. Main/rehearsal is outside this scope and must remain untouched. Do not modify the old docs/build-briefs/w16-acceptance-manifest.json; it records historical pre-build bytes. docs/build-briefs/w16-repair-acceptance-manifest.json records the operator's current files before this repair.
 
 ## Commands and acceptance
 

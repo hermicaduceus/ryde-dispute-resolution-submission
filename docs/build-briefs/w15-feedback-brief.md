@@ -1,6 +1,6 @@
 # W15 follow-up: the operator's narrow UI review feedback
 
-the operator has finished reviewing the current W15 layout. Make only these three CSS changes. Existing uncommitted W15 party CSS and colour ledger are intentional and must be preserved. This follow-up explicitly authorizes the console spacing addition that the original docs/w15-brief.md prohibited. All its other scope limits stand.
+the operator has finished reviewing the current W15 layout. Make only these three CSS changes. Existing uncommitted W15 party CSS and colour ledger are intentional and must be preserved. This follow-up explicitly authorizes the console spacing addition that the original docs/build-briefs/w15-brief.md prohibited. All its other scope limits stand.
 
 ## Allowed writes
 

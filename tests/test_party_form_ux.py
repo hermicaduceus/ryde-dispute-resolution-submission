@@ -1,6 +1,6 @@
 """Session twelve acceptance target: the step-three form gets a UX rebuild.
 
-RED until the CodeBuddy build lane ships docs/session-twelve-brief.md.
+RED until the CodeBuddy build lane ships docs/build-briefs/session-twelve-brief.md.
 
 Operator rulings (the operator, 2026-09-27, planning discussed in-session):
   1. WHAT_WENT_WRONG IS GONE. It duplicated "What happened?" (required) and the
@@ -263,7 +263,7 @@ class YesNoButtonsInSource(unittest.TestCase):
     """The four yes/no questions render as buttons; open questions stay textareas.
 
     The identifiers pinned here are the contract written in
-    docs/session-twelve-brief.md: buildQuestions dispatches on `kind`, a
+    docs/build-briefs/session-twelve-brief.md: buildQuestions dispatches on `kind`, a
     buildChoiceQuestion builder emits two choice buttons plus one elaborate box,
     and the submitted value joins choice and elaboration with " - ".
     """

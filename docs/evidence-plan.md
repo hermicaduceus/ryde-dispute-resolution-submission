@@ -47,4 +47,4 @@ reconstructed later.
 
 - [ ] Screenshot(s) from this session in `evidence/`, correctly named
 - [ ] Anything notable about how the tools behaved is noted in `docs/tool-experiences.md`
-      (create on first entry; one line per session is enough)
+      (one line per session is enough)

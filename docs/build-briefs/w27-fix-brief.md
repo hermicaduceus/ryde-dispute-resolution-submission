@@ -1,6 +1,6 @@
 # W27 fix round: exporter fixes after the cross-family review
 
-Prepared against main `1ae5a84` (full suite 1287 OK, skipped=1, on `env -u PYTHONPATH /usr/bin/python3 -B`). You are resuming the W27 session in a worktree. The original contract, `docs/w27-replay-export-brief.md`, still holds. This brief changes it in five places:
+Prepared against main `1ae5a84` (full suite 1287 OK, skipped=1, on `env -u PYTHONPATH /usr/bin/python3 -B`). You are resuming the W27 session in a worktree. The original contract, `docs/build-briefs/w27-replay-export-brief.md`, still holds. This brief changes it in five places:
 
 | Finding | Defect |
 |---|---|

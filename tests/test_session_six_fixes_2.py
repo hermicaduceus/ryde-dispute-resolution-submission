@@ -1,7 +1,7 @@
 """Session six, fix round two: acceptance target for five confirmed review findings.
 
 Written BEFORE the fixes, so it is RED until the build lane ships them. Each test names
-its item (S1..S5, see docs/session-six-fix-brief-2.md). Every finding was reproduced
+its item (S1..S5, see docs/build-briefs/session-six-fix-brief-2.md). Every finding was reproduced
 firsthand before being written down.
 """
 

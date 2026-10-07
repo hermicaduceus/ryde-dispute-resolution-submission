@@ -1,6 +1,8 @@
 # PROJECT: Ryde — Multi-Agent Autonomous Dispute Resolution
 
-**Status: BUILDING (2026-09-21).** Planning closed **2026-09-19** and the scope, stack and
+**Status: BUILT, IN POLISH (updated 2026-10-07).** The system runs end to end on the mock and on
+the real Tencent model; the application build freezes on **12 Oct 2026** (operator ruling), after
+which only recording, documentation and deploy work continue. Building started 2026-09-21. Planning closed **2026-09-19** and the scope, stack and
 workflow are ruled. This file is CodeBuddy's memory for this project: the builder's entry
 point. The ruled scope lives in
 the planning repository and is deliberately unreadable from here (the permission fence in
@@ -122,21 +124,27 @@ ryde-build/
 ├── CODEBUDDY.md            # this file — project memory + locked scope
 ├── README.md               # judge's entry point (judge-first: what it is → see it run → diagram)
 ├── .codebuddy/
-│   ├── settings.json       # permission fence
-│   └── rules/              # topic-scoped rules (added as the build needs them)
-├── app/                    # Python backend — agents, evidence layer, LLM calls
-├── ui/                     # plain HTML/JS front end — case-file observability view
-├── data/                   # synthesised dispute corpus, ground-truth labelled (17 cases; swappable)
+│   └── settings.json       # permission fence
+├── app/                    # Python backend — agents, evidence layer, LLM calls, server, eval
+├── ui/                     # plain HTML/JS front end — operator console (case-file view)
+│   └── party/              # rider and driver intake forms, driver account, status page
+├── data/packs/             # two swappable dataset packs, ground-truth labelled:
+│                           #   organiser-style-v1 (default) and ryde-synth-v1
 ├── docs/
 │   ├── statement-extract.md  # challenge statement, verbatim — the only requirements source
-│   ├── policy.md             # policy rule set (32 rules; swappable; provenance stated in-file)
+│   ├── policy.md             # policy rule set (swappable; provenance stated in-file)
 │   ├── dataset.md            # dataset description + provenance
 │   ├── architecture.md       # required deliverable: diagram + system description
-│   └── evidence-plan.md      # §8 evidence rules and naming
+│   ├── prompts.md            # how the prompts drive each agent
+│   ├── replay.md             # static replay export for the public link
+│   ├── evidence-plan.md      # §8 evidence rules and naming
+│   ├── tool-experiences.md   # running log of how the tools behaved
+│   └── build-briefs/         # one brief per build session, kept as a process record
 ├── evidence/               # §8 screenshots (YYYY-MM-DD_<tool>_<topic>.png|.jpg)
 ├── tools/                  # NON-APP helper scripts — app/ never imports from here
+│   └── replay/             # static replay page and its shim
 └── tests/                  # NON-APP tests (stdlib only)
 ```
 
-Files marked "(to come)" are authored in their own build sessions; do not create them as a
-side effect of other work.
+New session briefs go in `docs/build-briefs/`. Do not create a document as a side effect of
+other work; each one is authored in the session whose brief names it.

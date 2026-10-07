@@ -1,7 +1,7 @@
 """W27 static replay exporter: CLI end to end, manifest coverage, copies, refusals, secret scan.
 
 Runs tools/export_replay.py against a fixture the real pipeline produced on the mock (see
-tests/w27_replay_support.py). Contract: docs/w27-replay-export-brief.md.
+tests/w27_replay_support.py). Contract: docs/build-briefs/w27-replay-export-brief.md.
 """
 
 from __future__ import annotations

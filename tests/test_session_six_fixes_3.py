@@ -1,7 +1,7 @@
 """Session six, fix round three (final): acceptance target for four confirmed findings.
 
 Written BEFORE the fixes, so it is RED until the build lane ships them. Each test names its
-item (T1..T4, see docs/session-six-fix-brief-3.md). Every item was reproduced firsthand
+item (T1..T4, see docs/build-briefs/session-six-fix-brief-3.md). Every item was reproduced firsthand
 before it was written down.
 
 This is the last round on the party-safety filter. The filter is a backstop: the real

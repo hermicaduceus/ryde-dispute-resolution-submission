@@ -1,7 +1,7 @@
 """Session twenty round two (W22 review fix): the same class, the inputs round one missed.
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-twenty-round-two-brief.md. Ruled by the operator on 2026-10-01 (night) after the
+docs/build-briefs/session-twenty-round-two-brief.md. Ruled by the operator on 2026-10-01 (night) after the
 review of round one reproduced:
 
 1. MAJOR: a JSON integer too large for a float (json.loads returns a Python int of any size)

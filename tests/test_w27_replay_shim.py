@@ -3,7 +3,7 @@
 tests/browser/w27_replay_shim.cjs loads the EXPORTED replay/replay-shim.js (the file the
 exporter wrote, placeholders filled) into a fresh vm context per page and reports what each
 fetch returned and what the banner says; this file asserts on that report.
-Contract: docs/w27-replay-export-brief.md.
+Contract: docs/build-briefs/w27-replay-export-brief.md.
 """
 
 from __future__ import annotations

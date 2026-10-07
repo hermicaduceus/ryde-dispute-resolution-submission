@@ -2,8 +2,8 @@
 
 You are building in the `ryde-build` repo. This brief carries the CONTRACT for the W15
 layout pass. This is the original RED-first build contract, now implemented. The
-review follow-ups are scoped in `docs/w15-feedback-brief.md` and
-`docs/w15-actions-repair-brief.md`; their explicit exceptions supersede this base
+review follow-ups are scoped in `docs/build-briefs/w15-feedback-brief.md` and
+`docs/build-briefs/w15-actions-repair-brief.md`; their explicit exceptions supersede this base
 brief's file restrictions. **Do not edit `party.js`** — two digest
 freezes pin its bytes and this is a CSS/layout pass.
 
@@ -58,7 +58,7 @@ Normal-flow step actions, following the operator's 2026-10-06 review repair ruli
   (e.g. `0.75rem 0 0.25rem`)
 - The original sticky requirement is superseded because browser probes reproduced
   action bars covering category options on desktop as well as mobile. Keep bars
-  below the form content at all widths. Repair scope: `docs/w15-actions-repair-brief.md`.
+  below the form content at all widths. Repair scope: `docs/build-briefs/w15-actions-repair-brief.md`.
 
 CTA and inputs:
 - `button`: `font-weight: 600`, `padding: 0.7rem 1.5rem` (keep `border-radius: 29px`)

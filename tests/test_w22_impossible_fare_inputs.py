@@ -1,7 +1,7 @@
 """Session twenty round three (W22 review fix): impossible fare inputs go to a human.
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-twenty-round-three-brief.md. Ruled by the operator on 2026-10-01 (late night)
+docs/build-briefs/session-twenty-round-three-brief.md. Ruled by the operator on 2026-10-01 (late night)
 after the round-two review reproduced, on this branch AND on main:
 
   RD-0106 with a promo of SGD 30 recomputes the fare as -14.24, reports a 33.40

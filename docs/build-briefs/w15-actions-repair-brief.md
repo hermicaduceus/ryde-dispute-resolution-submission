@@ -1,6 +1,6 @@
 # W15 action-bar repair, the operator approved 2026-10-06
 
-The GLM review endorsed all three feedback fixes. A separate W15-original regression remains: sticky .step-actions cover category options on mobile AND desktop. the operator approved normal-flow action bars at all widths, then verification and re-review. This supersedes the original sticky-action requirement in docs/w15-brief.md. The three endorsed feedback changes remain untouched.
+The GLM review endorsed all three feedback fixes. A separate W15-original regression remains: sticky .step-actions cover category options on mobile AND desktop. the operator approved normal-flow action bars at all widths, then verification and re-review. This supersedes the original sticky-action requirement in docs/build-briefs/w15-brief.md. The three endorsed feedback changes remain untouched.
 
 ## Exact implementation scope
 

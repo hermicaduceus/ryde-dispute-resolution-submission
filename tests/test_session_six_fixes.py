@@ -1,7 +1,7 @@
 """Session six fix round: acceptance target for the ten confirmed review findings.
 
 Written BEFORE the fixes, so it is RED until the CodeBuddy build lane ships them. Each
-test names the finding it pins (R1..R10, see docs/session-six-fix-brief.md). Every
+test names the finding it pins (R1..R10, see docs/build-briefs/session-six-fix-brief.md). Every
 finding was reproduced firsthand before it was written down here.
 
 the operator ruled option A for R1 on 2026-09-23: the party-facing decision message is BUILT IN

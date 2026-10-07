@@ -1,7 +1,7 @@
 """Session twenty acceptance target (W22 review fix): a figure the record cannot prove goes to a human.
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-twenty-brief.md. Ruled by the operator on 2026-10-01 (night) as ONE class:
+docs/build-briefs/session-twenty-brief.md. Ruled by the operator on 2026-10-01 (night) as ONE class:
 
 1. The evidence layer reads a non-finite number (NaN, Infinity, -Infinity: json.loads
    accepts all three) as MISSING, never as a figure, and never crashes on one.

@@ -3,7 +3,7 @@
 EXPECTED SIBLING RED for BOTH lanes until lane B (W24, GET /api/review/<run_id>/prompts)
 merges: at the prepared baseline the server answers 404 for /prompts, the exporter omits the
 optional URL, and the manifest has no prompts entry. Neither lane repairs this file; it turns
-green on the first tree that carries both lanes. Contract: docs/w27-replay-export-brief.md.
+green on the first tree that carries both lanes. Contract: docs/build-briefs/w27-replay-export-brief.md.
 """
 
 from __future__ import annotations

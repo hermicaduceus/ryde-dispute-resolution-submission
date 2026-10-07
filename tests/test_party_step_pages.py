@@ -1,6 +1,6 @@
 """Session eleven acceptance target: one step per screen (swap-in-place navigation).
 
-RED until the CodeBuddy build lane ships docs/session-eleven-brief.md.
+RED until the CodeBuddy build lane ships docs/build-briefs/session-eleven-brief.md.
 
 Operator ruling (the operator, 2026-09-27): minimize scrolling on the party page. Today the forward
 transitions only SHOW the next section and leave the previous one on the page, so the form

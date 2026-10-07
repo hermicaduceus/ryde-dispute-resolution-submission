@@ -1,7 +1,7 @@
 """W28 acceptance target: a route refund may never be more than the records prove.
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-twenty-one-brief.md.
+docs/build-briefs/session-twenty-one-brief.md.
 
 Found by the live eval of 2026-10-02 (real Tencent ADP model, build 3cbbda2): two route
 cases paid the rider money the policy says is not owed, and no code gate stopped either.

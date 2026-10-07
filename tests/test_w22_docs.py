@@ -1,7 +1,7 @@
 """Session A acceptance target (W22): README truth fixes and the two new gates in the docs.
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-nineteen-brief.md. Grill rulings 2026-10-01:
+docs/build-briefs/session-nineteen-brief.md. Grill rulings 2026-10-01:
 
 - Q5: the README's false lines go ("Status: building", "skeleton", the walkthrough line
   that waits for things that already exist).

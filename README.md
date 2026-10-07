@@ -72,7 +72,11 @@ flowchart TD
 - [`docs/architecture.md`](docs/architecture.md) — architecture diagram and system description
 - [`docs/policy.md`](docs/policy.md) — the policy rule set the Judge applies, with per-rule provenance
 - [`docs/dataset.md`](docs/dataset.md) — the labelled corpus, its provenance and its limitations
+- [`docs/prompts.md`](docs/prompts.md) — how the prompts drive each agent, and what code checks after the model answers
+- [`docs/replay.md`](docs/replay.md) — the static replay of a recorded run: how it is exported and what it shows
 - [`docs/evidence-plan.md`](docs/evidence-plan.md) — development-process evidence rules
+- [`docs/tool-experiences.md`](docs/tool-experiences.md) — running log of how the development tools behaved
+- [`docs/build-briefs/`](docs/build-briefs/) — the brief each CodeBuddy build session worked from, kept as a record of the process
 - [`CODEBUDDY.md`](CODEBUDDY.md) — builder's entry point and project memory
 
 ## Development tooling

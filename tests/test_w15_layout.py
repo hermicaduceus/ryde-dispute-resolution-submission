@@ -1,6 +1,6 @@
 """W15 acceptance target: full-layout restyle of the party pages.
 
-RED until the CodeBuddy build lane ships docs/w15-brief.md. The layout
+RED until the CodeBuddy build lane ships docs/build-briefs/w15-brief.md. The layout
 values are the Ryde design reference's real ones (private reference,
 research/ryde-design/ in the planning repo — never ships here):
   * generous canvas and page rhythm (720px shell, 2.25rem h1)

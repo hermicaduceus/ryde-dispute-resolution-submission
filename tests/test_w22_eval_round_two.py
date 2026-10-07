@@ -2,7 +2,7 @@
 autonomy and consistency.
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-nineteen-brief.md. Grill rulings 2026-10-01:
+docs/build-briefs/session-nineteen-brief.md. Grill rulings 2026-10-01:
 
 - Q2/Q10: when round one stops to ask the party (needs_info), the harness answers every
   question with "I have nothing more to add", runs round two, and scores the FINAL ruling.

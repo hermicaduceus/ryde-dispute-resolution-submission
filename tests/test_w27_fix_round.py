@@ -7,7 +7,7 @@ m1  the landing page's step texts are fixed claims instead of the saved runs' fa
 M2  the secret scan matches raw UTF-8 only, so an escaped secret ships;
 m2  the shim lets the bare '/api' path reach the network.
 
-Contract: docs/w27-fix-brief.md. Every hand-made shape below is a copy of the fixture with one
+Contract: docs/build-briefs/w27-fix-brief.md. Every hand-made shape below is a copy of the fixture with one
 labelled edit; the shared fixture itself is never touched.
 """
 

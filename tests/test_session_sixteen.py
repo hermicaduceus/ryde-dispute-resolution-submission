@@ -1,6 +1,6 @@
 """Session sixteen acceptance target: fixes from the glm-5.3 review of sessions twelve and thirteen.
 
-RED until the CodeBuddy build lane ships docs/session-sixteen-brief.md.
+RED until the CodeBuddy build lane ships docs/build-briefs/session-sixteen-brief.md.
 
 Reviewed 2026-09-29 by glm-5.3 (two parallel lanes); every finding below was reproduced
 by the operator before it was accepted:

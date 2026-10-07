@@ -1,7 +1,7 @@
 """Session eight acceptance target: W13 (follow-up questions built in code) + W11.
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-eight-brief.md. the operator ruled 2026-09-24 (W13 option a): an advocate no longer
+docs/build-briefs/session-eight-brief.md. the operator ruled 2026-09-24 (W13 option a): an advocate no longer
 writes follow-up questions. It picks slot ids from a fixed bank and code renders the
 sentence, exactly like the decision message. Free text in `follow_up_questions` is
 ignored. The word filter stays as a backstop, not the protection.

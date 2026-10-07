@@ -55,7 +55,7 @@ outside the run is refused with `unknown payload`. A normal payload in the same 
 
 - Allowed files: `ui/app.js`, `app/server.py`, `docs/architecture.md`. Nothing else. **Do not edit
   `tests/`** — the nine pins are the contract; if one looks wrong, stop and ask.
-- Do not change any fixed string the brief `docs/session-twenty-three-brief.md` pins, and do not weaken any
+- Do not change any fixed string the brief `docs/build-briefs/session-twenty-three-brief.md` pins, and do not weaken any
   existing guard. The full suite was 995 green before this round; it must be **1004 green** after (995 + 9).
 - Standard library only; Python 3.9; `textContent` only in `app.js` (no `innerHTML`, `outerHTML`,
   `insertAdjacentHTML`, `document.write`).

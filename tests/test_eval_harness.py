@@ -1,7 +1,7 @@
 """Session seventeen acceptance target: W4, the evaluation harness (app/eval.py).
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-seventeen-brief.md. The harness runs every labelled case in a pack through the
+docs/build-briefs/session-seventeen-brief.md. The harness runs every labelled case in a pack through the
 real pipeline and scores the result against ground-truth.json, case by case, with a named
 reason. It is the ONLY reader of ground-truth.json under app/.
 

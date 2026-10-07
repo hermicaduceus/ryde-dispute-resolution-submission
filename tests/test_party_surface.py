@@ -1,7 +1,7 @@
 """Session six acceptance target: the party-facing surface (intake form, follow-up, outcome).
 
 Non-app test, written BEFORE the build, so it is RED until the CodeBuddy build lane ships
-docs/session-six-brief.md. It pins the Python contract only; the pages themselves are
+docs/build-briefs/session-six-brief.md. It pins the Python contract only; the pages themselves are
 verified in a real browser by the planner lane.
 
 Operator rulings behind it (2026-09-23):

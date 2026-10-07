@@ -1,6 +1,6 @@
 """Session nine acceptance target: W10 token pass — the Ryde visual rebrand of ui/party/.
 
-RED until the CodeBuddy build lane ships docs/session-nine-brief.md; then hardened in
+RED until the CodeBuddy build lane ships docs/build-briefs/session-nine-brief.md; then hardened in
 the review-fix round after the a second-model review found the original tests were
 false-green (whole-file greps satisfied by decoy rules and comments).
 

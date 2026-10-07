@@ -1,7 +1,7 @@
 """Session A acceptance target (W22): the two money gates ruled in the 2026-10-01 grill.
 
 Written BEFORE the build, so it is RED until the CodeBuddy lane ships
-docs/session-nineteen-brief.md. Both gates live in app/agents/judge.py beside the
+docs/build-briefs/session-nineteen-brief.md. Both gates live in app/agents/judge.py beside the
 confidence, ESC-4 and ESC-2 gates. Both WITHHOLD; neither ever rewrites a ruling.
 
 NS-6 (grill Q11, Q11b-d): a contested no-show (driver marked a no-show, rider says the

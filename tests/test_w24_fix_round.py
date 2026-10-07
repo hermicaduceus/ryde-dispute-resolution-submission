@@ -1,7 +1,7 @@
 """W24 fix round (lane B): the console deep link and the stale prompts panel.
 
 Written RED-first by the planner's RED-test preparer against BASE 1ae5a84. The contract is
-docs/w24-fix-brief.md; in short:
+docs/build-briefs/w24-fix-brief.md; in short:
 
   1. `?run=<id>` with the review queue available (reviewUi present, fetch available): the deep-link
      open waits for the FIRST queue load (the one started at page load; a Refresh's load does not

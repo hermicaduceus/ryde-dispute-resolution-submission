@@ -1,6 +1,6 @@
 """Session thirteen acceptance target: W18 console token pass + W17 selected-choice outline.
 
-RED until the CodeBuddy build lane ships docs/session-thirteen-brief.md.
+RED until the CodeBuddy build lane ships docs/build-briefs/session-thirteen-brief.md.
 
 W18 (the operator ruling 2026-09-27): the operator console wears the Ryde theme as a TOKEN PASS
 (colour, type, shape only) on a NEUTRAL canvas. The status colours keep their meaning:

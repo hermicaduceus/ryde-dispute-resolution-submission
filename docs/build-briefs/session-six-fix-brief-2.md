@@ -5,7 +5,7 @@
 whole suite green, and each fix proven by reverting it and watching its test go RED.
 
 A second cross-family review (glm-5.3) of fix round one found these. Every item was
-reproduced firsthand. None is MAJOR; all are small. Read `docs/session-six-fix-brief.md`
+reproduced firsthand. None is MAJOR; all are small. Read `docs/build-briefs/session-six-fix-brief.md`
 for the rules round one established; they still apply.
 
 ## The five items
