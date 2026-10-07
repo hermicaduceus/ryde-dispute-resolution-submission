@@ -86,10 +86,25 @@ development happens in the tool and evidence is captured as it occurs.
 
 ## Run
 
-No dependencies and no API key needed for a first look: it runs on a stock Python 3.9+ with the
-standard library only, using a deterministic mock in place of the LLM.
+### One-click start
 
-To see it in a browser, start the server and open the two pages:
+Double-click **`start.command`** (macOS) or **`start.bat`** (Windows). That is the whole setup:
+Python 3.9 or newer is the only requirement, and no API key is needed, because the demo runs on
+the deterministic mock.
+
+The launcher picks a free port and opens `http://127.0.0.1:8000/start/` — the start page, which
+links to the two surfaces. If port 8000 is busy it reuses a Ryde demo already running there;
+otherwise it tries 8001 to 8010 and uses the first free one. The terminal window stays open while
+the demo runs: closing it (or pressing Ctrl+C in it) stops the server, while closing only the
+browser tab does not.
+
+A macOS ZIP download may need System Settings, Privacy & Security, **Open Anyway** for the first
+double-click. Windows SmartScreen may need **More info**, then **Run anyway**.
+
+### Manual start (fallback)
+
+No dependencies: it runs on a stock Python 3.9+ with the standard library only, using a
+deterministic mock in place of the LLM. Start the server and open the pages:
 
 ```bash
 python3 -m app.server
@@ -97,6 +112,7 @@ python3 -m app.server
 
 - `http://127.0.0.1:8000/` is the operator console (case files, the review queue, human decisions)
 - `http://127.0.0.1:8000/party/` is the rider's dispute form, which links to the driver form and the status page
+- `python3 -m app.server --port 8011` serves the same pages on another port
 
 To run the tests and single cases from the command line:
 

@@ -1,0 +1,3 @@
+# Keep the Windows launcher's CRLF line endings exactly as committed: cmd.exe
+# needs them, and a normalisation to LF would break the file on Windows.
+*.bat -text

@@ -1337,12 +1337,34 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="LLM provider (default: app/config.json). 'tencent' calls the three ADP apps "
         "and needs their keys in .env.",
     )
+    parser.add_argument(
+        "--port",
+        type=_port_number,
+        default=DEFAULT_PORT,
+        help="TCP port to bind on 127.0.0.1 (default: %(default)s)",
+    )
     return parser.parse_args(argv)
+
+
+def _port_number(raw: str) -> int:
+    """A TCP port as argparse takes one: an integer in 1..65535, or exit 2.
+
+    argparse turns the ArgumentTypeError into the usage message and status 2, so a
+    refused port stops the process before anything binds. The launcher in
+    tools/launch.py picks a free port and passes it through --port.
+    """
+    try:
+        value = int(raw)
+    except ValueError:
+        raise argparse.ArgumentTypeError("port must be an integer between 1 and 65535")
+    if not 1 <= value <= 65535:
+        raise argparse.ArgumentTypeError("port must be between 1 and 65535")
+    return value
 
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = parse_args(argv)
-    httpd = make_server(DEFAULT_PORT, provider=args.llm)
+    httpd = make_server(args.port, provider=args.llm)
     port = httpd.server_address[1]
     print("Ryde party surface on http://127.0.0.1:%d" % port)
     print("  party page:   http://127.0.0.1:%d/party/" % port)

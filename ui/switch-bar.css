@@ -1,0 +1,51 @@
+/* The demo switch bar: three ways between the start page, the party pages and the
+   operator console. It scrolls away with the page — never pinned — because a sticky
+   bar would push the filing form's buttons off a phone screen. It wraps instead of
+   shrinking, so every link keeps a full-size tap target. */
+
+.switch-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: #ffffff;
+  border-bottom: 1px solid #E5E0DC;
+  font-family: Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+}
+
+.switch-bar a {
+  display: inline-block;
+  padding: 0.55rem 1rem;
+  color: #31373E;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+}
+
+.switch-bar a:hover {
+  border-color: #E93864;
+}
+
+.switch-bar a:focus-visible {
+  outline: 3px solid #E93864;
+  outline-offset: 2px;
+}
+
+.switch-bar a[aria-current] {
+  color: #ffffff;
+  background: #E93864;
+  font-weight: 600;
+}
+
+@media (max-width: 420px) {
+  .switch-bar {
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .switch-bar a {
+    padding: 0.45rem 0.6rem;
+  }
+}
