@@ -49,10 +49,13 @@ DECISION_REFUSAL = ("This is a replay. In the recorded run, the reviewer chose: 
                     "the decision' in the banner to see the result.")
 NOT_IN_REPLAY = {"error": "Not in this replay."}
 LANDING_TITLE = "Ryde dispute resolution: replay"
+#: The mock fixture's landing steps. W27 fix round: steps 1-3 are built from the saved runs
+#: (docs/w27-fix-brief.md), so these are the texts the mock fixture's data produces.
 LANDING_STEPS = [
-    ("A no-show refund decided by the AI alone", "/party/status.html?snapshot=after"),
-    ("An above-cap detour held for a human", "/index.html?snapshot=before&run=%(rd)s"),
-    ("The human approves the held ruling", "/index.html?snapshot=after&run=%(rd)s"),
+    ("A no-show case the AI decided alone: no action", "/party/status.html?snapshot=after"),
+    ("A detour case the AI held for a human: it proposed refund SGD 55.16",
+     "/index.html?snapshot=before&run=%(rd)s"),
+    ("The human approved: refund SGD 55.16", "/index.html?snapshot=after&run=%(rd)s"),
     ("What the rider sees", "/party/status.html?snapshot=after"),
 ]
 REFUSAL_PREFIX = "export_replay: "
