@@ -166,6 +166,10 @@ carry weakens the rider's case rather than strengthening it.
 | `requested_amount_sgd` | number, 0.00 for no action |
 | `follow_up_slots` | at most 3 slot ids, or empty |
 
+The limit of 3 is what the prompt asks for. The code is looser: it accepts up to 6 slot ids
+and ignores any beyond that, recording how many it dropped (`MAX_FOLLOW_UP_SLOTS` in
+`app/schemas.py`).
+
 **What the party sees:** nothing from this agent's output except, if the intake form is
 conflicting or incomplete, the fixed slot sentences chosen in `follow_up_slots`. The
 argument text stays in the operator console and the case file.
@@ -251,8 +255,14 @@ The Judge ruled no action at confidence 0.90, citing RD-1 and RD-4:
 }
 ```
 
+The ruling rests on RD-1: the deviation is too small to be material. The RD-4 citation is the
+model's own loose reading. RD-4 covers a deviation that cost the rider nothing because the fare
+was fixed or the delta is zero or negative, and RD-0103 is a metered fare with a positive delta
+of SGD 0.74, so its condition is not met.
+
 Citation validation passed: every ref and rule ID resolves against the pack and the
-policy document. The gates had nothing to withhold, so the ruling was delivered. The
+policy document. That check proves a cited rule exists, not that it applies, which is why the
+RD-4 citation went through. The gates had nothing to withhold, so the ruling was delivered. The
 party message the run produced was: "Decision: no action. Basis: When a deviation is
 material; Deviation with no fare consequence." — the action plus the plain titles of the
 two cited rules, nothing of the explanation above.
