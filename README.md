@@ -89,6 +89,17 @@ development happens in the tool and evidence is captured as it occurs.
 No dependencies and no API key needed for a first look: it runs on a stock Python 3.9+ with the
 standard library only, using a deterministic mock in place of the LLM.
 
+To see it in a browser, start the server and open the two pages:
+
+```bash
+python3 -m app.server
+```
+
+- `http://127.0.0.1:8000/` is the operator console (case files, the review queue, human decisions)
+- `http://127.0.0.1:8000/party/` is the rider's dispute form, which links to the driver form and the status page
+
+To run the tests and single cases from the command line:
+
 ```bash
 python3 -m unittest discover -s tests -t .
 python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0101
