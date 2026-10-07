@@ -407,6 +407,111 @@ class ServerPort(unittest.TestCase):
         self.assertIn("http://127.0.0.1:%d/" % port, out.decode())
 
 
+# ---------------------------------------------------------------- W34 fix round (review findings)
+
+
+PORT_TAKEN = "Port {port} was taken just as the demo started. Open this file again."
+README_REUSE = ("If you already started the demo yourself, the launcher reuses that copy "
+                "as it is.")
+PROXY_ENV_KEYS = ("http_proxy", "HTTP_PROXY", "https_proxy", "HTTPS_PROXY",
+                  "all_proxy", "ALL_PROXY", "no_proxy", "NO_PROXY")
+
+
+class FixRound(unittest.TestCase):
+    """Review findings on 49ce669, each reproduced before it was pinned."""
+
+    def setUp(self):
+        self.launch = _load_launch(self)
+
+    def _probe_through_proxy(self, code: str) -> subprocess.CompletedProcess:
+        # A fresh process, because urllib caches its global opener on first use: an
+        # in-process check could pass on an opener built before the proxy was set.
+        demo = _ryde_server(self)
+        proxy = _free_run(1)
+        _fake_server(self, proxy, 403, "CorporateProxy/1.0")
+        env = {k: v for k, v in os.environ.items() if k not in PROXY_ENV_KEYS}
+        env.pop("PYTHONPATH", None)
+        env["http_proxy"] = env["HTTP_PROXY"] = "http://127.0.0.1:%d" % proxy
+        script = ("import sys\nsys.path.insert(0, %r)\nimport launch\n" % str(LAUNCH_PY.parent)) + \
+            code.replace("PORT", str(demo))
+        return subprocess.run([sys.executable, "-c", script], cwd=str(REPO), env=env,
+                              capture_output=True, text=True, timeout=30)
+
+    def test_a_configured_http_proxy_never_hides_the_running_demo(self):
+        proc = self._probe_through_proxy("print(launch.is_ryde_demo(PORT))\n")
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertEqual("True", proc.stdout.strip(),
+                         "loopback probes go direct, not through the user's proxy")
+
+    def test_a_configured_http_proxy_never_blocks_the_browser(self):
+        proc = self._probe_through_proxy(
+            "launch.webbrowser.open = lambda url, *a, **k: print('OPENED ' + url) or True\n"
+            "launch.open_when_ready(launch.start_url(PORT), timeout=5)\n")
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        lines = proc.stdout.strip().splitlines()
+        self.assertEqual(1, len(lines), "opens once and prints nothing else: %r" % lines)
+        self.assertRegex(lines[0], r"^OPENED http://127\.0\.0\.1:\d+/start/$")
+
+    def test_a_port_taken_before_the_bind_prints_a_plain_line_not_a_traceback(self):
+        port = _free_run(1)
+        squatter = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        squatter.bind(("127.0.0.1", port))
+        squatter.listen(1)
+        self.addCleanup(squatter.close)
+        out = io.StringIO()
+        with mock.patch.object(self.launch, "pick_port", return_value=(port, False)), \
+                mock.patch.object(self.launch, "open_when_ready", lambda *a, **k: None), \
+                contextlib.redirect_stdout(out):
+            try:
+                code = self.launch.main([])
+            except BaseException as exc:  # noqa: BLE001 - the window would show this
+                self.fail("a bind failure escaped as %s: %s" % (type(exc).__name__, exc))
+        self.assertEqual(1, code)
+        self.assertIn(PORT_TAKEN.format(port=port), out.getvalue().splitlines())
+        self.assertEqual(PORT_TAKEN, _attr(self, self.launch, "PORT_TAKEN"))
+
+    def test_other_server_failures_still_surface(self):
+        # Only the bind race is turned into a plain line; a real bug must stay visible.
+        with mock.patch.object(self.launch, "pick_port", return_value=(_free_run(1), False)), \
+                mock.patch.object(self.launch, "open_when_ready", lambda *a, **k: None), \
+                mock.patch.object(self.launch.server, "main", side_effect=RuntimeError("boom")), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(RuntimeError):
+                self.launch.main([])
+
+    def test_readme_says_a_running_copy_is_reused_as_it_is(self):
+        text = _read_text(self, REPO / "README.md")
+        start = text.find("## Run")
+        self.assertGreaterEqual(start, 0, "README has a ## Run section")
+        end = text.find("\n## ", start + 1)
+        section = text[start:end if end > 0 else len(text)]
+        self.assertIn(README_REUSE, " ".join(section.split()),
+                      "the Run section warns that an already-running copy is reused unchanged")
+
+    def _pick_one(self, connect):
+        port = _free_run(1)
+        with mock.patch.object(self.launch, "is_ryde_demo", return_value=False), \
+                mock.patch.object(self.launch.socket, "create_connection", connect):
+            return port, self.launch.pick_port(port, port)
+
+    def test_a_slow_refusal_still_reads_as_a_free_port(self):
+        # Windows retries a refused loopback connect for about a second or two before it
+        # reports the refusal; that port is free, not busy.
+        def slow_refusal(address, timeout=None, *a, **k):
+            if timeout is not None and timeout < 2.5:
+                raise socket.timeout("timed out before the refusal arrived")
+            time.sleep(1.5)
+            raise ConnectionRefusedError(61, "Connection refused")
+        port, picked = self._pick_one(slow_refusal)
+        self.assertEqual((port, False), picked)
+
+    def test_a_connect_that_times_out_is_not_a_free_port(self):
+        def timeout(address, timeout=None, *a, **k):
+            raise socket.timeout("timed out")
+        _, picked = self._pick_one(timeout)
+        self.assertEqual((None, False), picked, "a port that never answers is skipped")
+
+
 # ---------------------------------------------------------------- tools/launch.py, in process
 
 
@@ -524,6 +629,30 @@ class LaunchModule(unittest.TestCase):
         self.assertEqual([url], calls["opener"], "the browser opener gets the start page URL")
         self.assertIn("Ryde demo running at %s" % url, lines)
         self.assertIn("Close this window (or press Ctrl+C) to stop the demo.", lines)
+
+    def test_a_stuck_browser_waiter_never_keeps_the_process_alive(self):
+        # The waiter runs beside the server; when the server returns, the process ends
+        # even if the waiter is still polling (a daemon thread).
+        _load_launch(self)
+        script = (
+            "import sys, time\n"
+            "sys.path.insert(0, %r)\n"
+            "import launch\n"
+            "launch.pick_port = lambda first, last: (%d, False)\n"
+            "launch.open_when_ready = lambda *a, **k: time.sleep(60)\n"
+            "launch.server.main = lambda argv: 0\n"
+            "sys.exit(launch.main([]))\n"
+        ) % (str(LAUNCH_PY.parent), _free_run(1))
+        env = dict(os.environ)
+        env.pop("PYTHONPATH", None)
+        started = time.time()
+        try:
+            proc = subprocess.run([sys.executable, "-c", script], cwd=str(REPO), env=env,
+                                  capture_output=True, text=True, timeout=20)
+        except subprocess.TimeoutExpired:
+            self.fail("the process waited for the browser thread after the server returned")
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertLess(time.time() - started, 15)
 
     def test_main_returns_the_server_exit_code(self):
         port = _free_run(1)
@@ -792,6 +921,27 @@ class StartCommand(unittest.TestCase):
         self.assertIn(MISSING_PYTHON, proc.stdout.splitlines())
         self.assertEqual([], calls)
 
+    def test_an_old_python_keeps_the_window_open_until_a_key_is_pressed(self):
+        # A double-clicked window that closes at once hides the message; the script waits.
+        tmp = Path(tempfile.mkdtemp(prefix="w34-key-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        (tmp / "bin").mkdir()
+        fake = tmp / "bin" / "python3"
+        fake.write_text(FAKE_PYTHON, encoding="utf-8")
+        fake.chmod(0o755)
+        env = {"PATH": "%s:/usr/bin:/bin" % (tmp / "bin"), "HOME": str(tmp),
+               "W34_RECORD": str(tmp / "calls.txt"), "W34_VERSION_RC": "1"}
+        _read_bytes(self, START_COMMAND)
+        proc = subprocess.Popen(["/bin/bash", str(START_COMMAND)], cwd=str(tmp), env=env,
+                                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        self.addCleanup(lambda: proc.poll() is None and proc.kill())
+        time.sleep(1.5)
+        self.assertIsNone(proc.poll(), "the window waits for a key after the message")
+        out, _ = proc.communicate(input=b"x", timeout=10)
+        self.assertNotEqual(0, proc.returncode)
+        self.assertIn(MISSING_PYTHON, out.decode("utf-8").splitlines())
+
     def test_hands_over_with_exec_so_the_window_owns_one_process(self):
         body = _strip_sh_comments(_read_text(self, START_COMMAND))
         self.assertRegex(body, r'(?m)^\s*exec\s+(python3|"?\$\{?[A-Za-z_]+\}?"?)\s+tools/launch\.py\s*$')
@@ -822,8 +972,49 @@ class StartBat(unittest.TestCase):
             self.assertRegex(body, r"(?im)^\s*echo\s+%" + via_var.group(1) + r"%\s*$",
                              "the variable holding the sentence is echoed")
         self.assertTrue(literal or via_var, "start.bat prints the exact missing-Python sentence")
-        self.assertRegex(body, r"(?im)^\s*pause\s*$")
         self.assertRegex(body, r"(?m)tools\\launch\.py")
+
+    # Each pause is pinned on its own path, so one can never satisfy the other: a
+    # whole-file search for "pause" passed with either of the two removed.
+    def _lines(self):
+        body = _strip_bat_comments(_read_bytes(self, START_BAT).decode("utf-8"))
+        return [line.strip() for line in body.splitlines() if line.strip()]
+
+    def _block_pauses_before_exit(self, lines, start):
+        """True when, from lines[start] onward, a pause comes before the next exit."""
+        for line in lines[start:]:
+            low = line.lower()
+            if low == "pause":
+                return True
+            if low.startswith("exit") or low.startswith("goto ") or low.startswith(":"):
+                return False
+        return False
+
+    def test_the_missing_python_message_is_followed_by_a_pause(self):
+        lines = self._lines()
+        echo = [i for i, line in enumerate(lines)
+                if line.lower().startswith("echo ") and (MISSING_PYTHON in line or
+                re.fullmatch(r"(?i)echo\s+%\w+%", line))]
+        self.assertEqual(1, len(echo), "one line prints the missing-Python sentence")
+        self.assertTrue(self._block_pauses_before_exit(lines, echo[0] + 1),
+                        "a pause follows the message before the script exits")
+
+    def test_a_failed_launch_pauses_so_the_window_does_not_vanish(self):
+        lines = self._lines()
+        runs = [i for i, line in enumerate(lines) if re.search(r"tools\\launch\.py", line)]
+        self.assertTrue(runs, "start.bat runs tools\\launch.py")
+        after = lines[runs[-1] + 1:]
+        self.assertTrue(after, "something handles the launcher's exit code")
+        first = after[0].lower()
+        direct = re.fullmatch(r"if\s+(errorlevel\s+1|%errorlevel%\s+neq\s+0)\s+pause", first)
+        jump = re.fullmatch(r"if\s+(errorlevel\s+1|%errorlevel%\s+neq\s+0)\s+goto\s+:?(\w+)", first)
+        if direct:
+            return
+        self.assertTrue(jump, "the line after the launch checks its exit code: %r" % after[0])
+        label = [i for i, line in enumerate(lines) if line.lower() == ":" + jump.group(2).lower()]
+        self.assertEqual(1, len(label), "the failure label exists once")
+        self.assertTrue(self._block_pauses_before_exit(lines, label[0] + 1),
+                        "the failure path pauses before it exits")
 
 
 # ---------------------------------------------------------------- start page
