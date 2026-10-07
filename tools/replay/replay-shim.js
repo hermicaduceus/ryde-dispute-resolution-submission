@@ -192,7 +192,7 @@
       method = String(init.method).toUpperCase();
     }
     var target = requestTarget(input);
-    if (target.pathname.indexOf("/api/") !== 0) {
+    if (target.pathname !== "/api" && target.pathname.indexOf("/api/") !== 0) {
       return nativeFetch.apply(window, arguments);
     }
     if (method === "GET") {

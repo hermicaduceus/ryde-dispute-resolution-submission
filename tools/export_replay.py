@@ -6,7 +6,9 @@ replay: for each snapshot (before and after the human decision) it starts the
 real app.server on a throwaway copy of the snapshot, GETs every URL the site
 needs, saves each 200 body byte-for-byte, copies ui/ with one shim script line
 added to every page, and writes the replay shim and the landing page from
-tools/replay/ with their placeholders filled.
+tools/replay/ with their placeholders filled. The landing page's first three
+steps are built from the recorded case bodies, so they state what the replay
+shows.
 
 Usage:
 
@@ -24,13 +26,16 @@ exported site.
 from __future__ import annotations
 
 import argparse
+import html
 import json
+import math
 import re
 import shutil
 import sys
 import tempfile
 import threading
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime
 from pathlib import Path
@@ -48,8 +53,10 @@ REFUSAL_PREFIX = "export_replay: "
 SHIM_TAG = '<script src="/replay/replay-shim.js"></script>'
 LABELS = ("before", "after")
 RD_TRIP_ID = "T-RD0109"
+NS_TRIP_ID = "T-NS0202"
 MOCK_PROVIDER = "mock"
 MOCK_PREFIX = "TEST REPLAY (mock model). "
+NO_ACTION = "no action"
 CASE_FILE_NAME = "case_file.json"
 DISPUTE_FILE_NAME = "dispute.json"
 EVENTS_FILE_NAME = "events.jsonl"
@@ -61,7 +68,6 @@ REPLAY_DIR = REPO_ROOT / "tools" / "replay"
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 CATEGORY_RE = re.compile(r'\{\s*id:\s*"([a-z_]+)",\s*label:')
-DECISION_PATH_RE = re.compile(r"^/api/review/([^/]+)/decision$")
 
 #: The fixed URLs every snapshot records, before the per-run ones.
 FIXED_PATHS = ("/api/review/queue", "/api/review/overrides", "/api/demo/rider", "/api/demo/driver")
@@ -142,6 +148,24 @@ def _refuse_non_empty_out(out: Path) -> None:
         raise Refusal("--out %s exists and is not empty; refusing to overwrite it" % out)
 
 
+def _refuse_unsafe_paths(out: Path, before: Path, after: Path) -> None:
+    """Refuse an --out that would land on the exporter's own inputs or outputs."""
+    for flag, folder in (("--before", before), ("--after", after)):
+        if out == folder or out.is_relative_to(folder):
+            raise Refusal(
+                "--out %s is inside %s %s; choose an output folder outside the snapshots"
+                % (out, flag, folder)
+            )
+    ui = UI_DIR.resolve()
+    if out == ui or out.is_relative_to(ui):
+        raise Refusal("--out %s is inside the repository's ui/ folder" % out)
+    replay = REPLAY_DIR.resolve()
+    if out == replay or out.is_relative_to(replay):
+        raise Refusal("--out %s is inside tools/replay/" % out)
+    if before == after:
+        raise Refusal("--before and --after resolve to the same folder: %s" % before)
+
+
 def _require_dir(path: Path, flag: str) -> None:
     if not path.is_dir():
         raise Refusal("%s %s is not a directory" % (flag, path))
@@ -175,24 +199,56 @@ def _trip_id(record: Dict[str, Any]) -> Any:
     return trip.get("trip_id") if isinstance(trip, dict) else None
 
 
-def _rd0109_run(snapshot: Path) -> str:
-    """The run whose dispute record's trip is T-RD0109; exactly one per snapshot."""
+def _run_by_trip(snapshot: Path, trip_id: str) -> str:
+    """The run whose dispute record's trip is `trip_id`; exactly one per snapshot."""
     found = [
         run_id
         for run_id, _case in _runs(snapshot)
-        if _trip_id(_read_json_object(snapshot / run_id / DISPUTE_FILE_NAME) or {}) == RD_TRIP_ID
+        if _trip_id(_read_json_object(snapshot / run_id / DISPUTE_FILE_NAME) or {}) == trip_id
     ]
     if len(found) != 1:
-        raise Refusal("%s must hold exactly one %s run, found %d" % (snapshot, RD_TRIP_ID, len(found)))
+        raise Refusal("%s must hold exactly one %s run, found %d" % (snapshot, trip_id, len(found)))
     return found[0]
 
 
-def _run_started_provider(run_dir: Path) -> Any:
-    """The llm_provider of the run.started event payload, or None when unreadable."""
+# ------------------------------------------------------------------ provider gate
+
+
+def _provider_from_event(run_dir: Path, event: Dict[str, Any]) -> Optional[str]:
+    """The llm_provider of one run.started event, or None when it cannot be read.
+
+    A payload_ref that escapes the run folder — a relative climb, an absolute
+    path elsewhere, or a symlink pointing outside — is as unreadable as a
+    missing or malformed payload.
+    """
+    ref = event.get("payload_ref")
+    if not isinstance(ref, str) or not ref:
+        return None
+    try:
+        payload_path = (run_dir / ref).resolve()
+        if not payload_path.is_relative_to(run_dir.resolve()):
+            return None
+    except (OSError, ValueError, RuntimeError):
+        return None
+    payload = _read_json_object(payload_path)
+    if payload is None:
+        return None
+    provider = payload.get("llm_provider")
+    if not isinstance(provider, str) or not provider:
+        return None
+    return provider
+
+
+def _run_provider_verdict(run_dir: Path) -> str:
+    """'mock' when any run.started payload says mock, else 'unreadable' when any cannot be
+    read, else 'readable'. Every run.started event of the run is read."""
     try:
         lines = (run_dir / EVENTS_FILE_NAME).read_text(encoding="utf-8").splitlines()
-    except OSError:
-        return None
+    except (OSError, ValueError):
+        return "unreadable"
+    saw_started = False
+    saw_mock = False
+    saw_unreadable = False
     for line in lines:
         if not line.strip():
             continue
@@ -202,20 +258,39 @@ def _run_started_provider(run_dir: Path) -> Any:
             continue
         if not isinstance(event, dict) or event.get("type") != RUN_STARTED:
             continue
-        ref = event.get("payload_ref")
-        if not isinstance(ref, str) or not ref:
-            return None
-        payload = _read_json_object(run_dir / ref)
-        return payload.get("llm_provider") if payload is not None else None
+        saw_started = True
+        provider = _provider_from_event(run_dir, event)
+        if provider is None:
+            saw_unreadable = True
+        elif provider == MOCK_PROVIDER:
+            saw_mock = True
+    if not saw_started:
+        return "unreadable"
+    if saw_mock:
+        return "mock"
+    if saw_unreadable:
+        return "unreadable"
+    return "readable"
+
+
+def _provider_refusal(before: Path, after: Path) -> Optional[str]:
+    """The mock or unreadable refusal line, or None. Runs before anything is recorded."""
+    verdicts: Dict[str, List[str]] = {}
+    for snapshot in (before, after):
+        for run_id, _case in _runs(snapshot):
+            verdicts.setdefault(run_id, []).append(_run_provider_verdict(snapshot / run_id))
+    mocked = sorted(run_id for run_id, states in verdicts.items() if MOCK_PROVIDER in states)
+    if mocked:
+        return ("run(s) %s were recorded with the mock model; pass --allow-mock to export a test replay"
+                % ", ".join(mocked))
+    unreadable = sorted(run_id for run_id, states in verdicts.items() if "unreadable" in states)
+    if unreadable:
+        return ("the model provider of run(s) %s could not be read; pass --allow-mock to export a test replay"
+                % ", ".join(unreadable))
     return None
 
 
-def _mock_runs(snapshot: Path) -> List[str]:
-    return [
-        run_id
-        for run_id, _case in _runs(snapshot)
-        if _run_started_provider(snapshot / run_id) == MOCK_PROVIDER
-    ]
+# ------------------------------------------------------------------ secrets
 
 
 def _secret_values(secrets_file: Optional[str]) -> List[str]:
@@ -225,6 +300,24 @@ def _secret_values(secrets_file: Optional[str]) -> List[str]:
     except OSError as error:
         raise Refusal("could not read --secrets-file %s: %s" % (path, error))
     return sorted({value for value in values.values() if len(value) >= 8})
+
+
+def _secret_needles(values: List[str]) -> List[bytes]:
+    """Every form a value can ship in: raw, JSON-escaped (ASCII and not), HTML-escaped
+    and percent-encoded."""
+    needles = set()
+    for value in values:
+        forms = (
+            value,
+            json.dumps(value)[1:-1],
+            json.dumps(value, ensure_ascii=False)[1:-1],
+            html.escape(value),
+            urllib.parse.quote(value, safe=""),
+        )
+        for form in forms:
+            if form:
+                needles.add(form.encode("utf-8"))
+    return sorted(needles)
 
 
 def _categories() -> List[str]:
@@ -320,6 +413,108 @@ def _record_snapshot(snapshot: Path, dest: Path) -> None:
         shutil.rmtree(copy_root, ignore_errors=True)
 
 
+def _recorded_json(work: Path, label: str, key: str) -> Dict[str, Any]:
+    """One recorded body from the staging tree, by its manifest key."""
+    data_dir = work / "replay" / "data" / label
+    manifest = _read_json_object(data_dir / "manifest.json")
+    if manifest is None:
+        raise Refusal("the %s recording has no manifest" % label)
+    name = manifest.get(key)
+    if not isinstance(name, str) or not name:
+        raise Refusal("the %s recording has no %s" % (label, key))
+    body = _read_json_object(data_dir / name)
+    if body is None:
+        raise Refusal("the %s recording of %s is not a JSON object" % (label, key))
+    return body
+
+
+# ------------------------------------------------------------------ landing steps
+
+
+def _is_finite_number(value: Any) -> bool:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except OverflowError:
+        return False
+
+
+def _phrase(container: Any, amount_field: str) -> Optional[str]:
+    """The phrase for an action/amount pair, or None when the container gives no phrase."""
+    if not isinstance(container, dict):
+        return None
+    action = container.get("action")
+    if not isinstance(action, str) or not action:
+        return None
+    if action == NO_ACTION:
+        return NO_ACTION
+    amount = container.get(amount_field)
+    if _is_finite_number(amount):
+        return "%s SGD %.2f" % (action, float(amount))
+    return action
+
+
+def _case_and_decision(body: Dict[str, Any]) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]]]:
+    case = body.get("case_file")
+    decision = body.get("human_decision")
+    return (case if isinstance(case, dict) else {},
+            decision if isinstance(decision, dict) else None)
+
+
+def _resolution(case: Dict[str, Any]) -> Dict[str, Any]:
+    resolution = case.get("resolution")
+    return resolution if isinstance(resolution, dict) else {}
+
+
+def _outcome_text(outcome: Any) -> str:
+    return outcome if isinstance(outcome, str) and outcome else "unknown"
+
+
+def _step_one(body: Dict[str, Any]) -> str:
+    case, decision = _case_and_decision(body)
+    resolution = _resolution(case)
+    phrase = _phrase(resolution.get("ruling"), "recommended_amount_sgd")
+    if (resolution.get("outcome") == "ruled"
+            and resolution.get("delivered_to_parties") is True
+            and decision is None
+            and phrase is not None):
+        return "A no-show case the AI decided alone: %s" % phrase
+    return "A no-show case: %s" % _outcome_text(resolution.get("outcome"))
+
+
+def _step_two(body: Dict[str, Any]) -> str:
+    case, decision = _case_and_decision(body)
+    resolution = _resolution(case)
+    phrase = _phrase(resolution.get("withheld_candidate"), "recommended_amount_sgd")
+    if resolution.get("outcome") == "withheld" and decision is None and phrase is not None:
+        return "A detour case the AI held for a human: it proposed %s" % phrase
+    return "A detour case: %s" % _outcome_text(resolution.get("outcome"))
+
+
+def _step_three(body: Dict[str, Any]) -> str:
+    _case, decision = _case_and_decision(body)
+    if decision is None:
+        return "No human decision was recorded"
+    choice = decision.get("decision")
+    phrase = _phrase(decision, "amount_sgd")
+    if choice == "reject":
+        return "The human rejected it: no action"
+    if choice == "approve" and phrase is not None:
+        return "The human approved: %s" % phrase
+    if choice == "change" and phrase is not None:
+        return "The human changed it to: %s" % phrase
+    return "The human decided: %s" % (phrase if phrase is not None else _outcome_text(choice))
+
+
+def _landing_steps(work: Path, ns_run: str, rd_run: str) -> List[str]:
+    """Steps 1-3 from the recorded case bodies, so the page states what the replay shows."""
+    ns_after = _recorded_json(work, "after", "GET /api/review/%s/case" % ns_run)
+    rd_before = _recorded_json(work, "before", "GET /api/review/%s/case" % rd_run)
+    rd_after = _recorded_json(work, "after", "GET /api/review/%s/case" % rd_run)
+    return [_step_one(ns_after), _step_two(rd_before), _step_three(rd_after), "What the rider sees"]
+
+
 # ------------------------------------------------------------------ static site
 
 
@@ -341,7 +536,7 @@ def _fill_placeholders(template: str, values: Dict[str, str], where: str) -> str
     return text
 
 
-def _write_site(work: Path, rd_run_id: str, recorded_on: str, mock: bool) -> None:
+def _write_site(work: Path, rd_run_id: str, recorded_on: str, mock: bool, steps: List[str]) -> None:
     for source in sorted(UI_DIR.rglob("*")):
         if not source.is_file():
             continue
@@ -362,26 +557,32 @@ def _write_site(work: Path, rd_run_id: str, recorded_on: str, mock: bool) -> Non
     (replay / "replay-shim.js").write_text(shim, encoding="utf-8")
     landing = _fill_placeholders(
         (REPLAY_DIR / "index.html").read_text(encoding="utf-8"),
-        {"{{RECORDED_ON}}": recorded_on, "{{RD_RUN_ID}}": rd_run_id},
+        {
+            "{{RECORDED_ON}}": recorded_on,
+            "{{RD_RUN_ID}}": rd_run_id,
+            "{{STEP_1}}": html.escape(steps[0]),
+            "{{STEP_2}}": html.escape(steps[1]),
+            "{{STEP_3}}": html.escape(steps[2]),
+        },
         "tools/replay/index.html",
     )
     (replay / "index.html").write_text(landing, encoding="utf-8")
 
 
 def _scan_for_secrets(work: Path, secrets: List[str]) -> None:
-    """Refuse when any secret value (length >= 8) occurs in any output file.
+    """Refuse when any secret value (length >= 8) occurs in any output file, in any form.
 
     Runs before anything is moved into --out; the message names the file and
     never the value.
     """
     if not secrets:
         return
-    needles = [(value, value.encode("utf-8")) for value in secrets]
+    needles = _secret_needles(secrets)
     for path in sorted(work.rglob("*")):
         if not path.is_file():
             continue
         data = path.read_bytes()
-        for _value, needle in needles:
+        for needle in needles:
             if needle in data:
                 raise Refusal(
                     "refusing to publish: a value from --secrets-file occurs in %s"
@@ -400,27 +601,31 @@ def _publish(work: Path, out: Path) -> None:
 
 def _export(args: argparse.Namespace) -> int:
     recorded_on = _validated_date(args.recorded_on)
-    out = Path(args.out)
+    out = Path(args.out).resolve()
+    before = Path(args.before).resolve()
+    after = Path(args.after).resolve()
     _refuse_non_empty_out(out)
-    before = Path(args.before)
-    after = Path(args.after)
+    _refuse_unsafe_paths(out, before, after)
     _require_dir(before, "--before")
     _require_dir(after, "--after")
 
-    rd_before = _rd0109_run(before)
-    rd_after = _rd0109_run(after)
+    rd_before = _run_by_trip(before, RD_TRIP_ID)
+    rd_after = _run_by_trip(after, RD_TRIP_ID)
     if rd_before != rd_after:
         raise Refusal(
             "--before and --after name different %s runs (%s, %s)" % (RD_TRIP_ID, rd_before, rd_after)
         )
+    ns_before = _run_by_trip(before, NS_TRIP_ID)
+    ns_after = _run_by_trip(after, NS_TRIP_ID)
+    if ns_before != ns_after:
+        raise Refusal(
+            "--before and --after name different %s runs (%s, %s)" % (NS_TRIP_ID, ns_before, ns_after)
+        )
 
     if not args.allow_mock:
-        mocked = sorted(set(_mock_runs(before)) | set(_mock_runs(after)))
-        if mocked:
-            raise Refusal(
-                "run(s) %s were recorded with the mock model; pass --allow-mock to export a test replay"
-                % ", ".join(mocked)
-            )
+        refusal = _provider_refusal(before, after)
+        if refusal:
+            raise Refusal(refusal)
 
     secrets = _secret_values(args.secrets_file)
 
@@ -428,7 +633,8 @@ def _export(args: argparse.Namespace) -> int:
     try:
         for label, snapshot in zip(LABELS, (before, after)):
             _record_snapshot(snapshot, work / "replay" / "data" / label)
-        _write_site(work, rd_before, recorded_on, mock=args.allow_mock)
+        steps = _landing_steps(work, ns_before, rd_before)
+        _write_site(work, rd_before, recorded_on, mock=args.allow_mock, steps=steps)
         _scan_for_secrets(work, secrets)
         _publish(work, out)
     finally:
