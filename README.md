@@ -94,9 +94,10 @@ the deterministic mock.
 
 The launcher picks a free port and opens `http://127.0.0.1:8000/start/` — the start page, which
 links to the two surfaces. If port 8000 is busy it reuses a Ryde demo already running there;
-otherwise it tries 8001 to 8010 and uses the first free one. The terminal window stays open while
-the demo runs: closing it (or pressing Ctrl+C in it) stops the server, while closing only the
-browser tab does not.
+otherwise it tries 8001 to 8010 and uses the first free one. If you already started the demo
+yourself, the launcher reuses that copy as it is. The terminal window stays open while the demo
+runs: closing it (or pressing Ctrl+C in it) stops the server, while closing only the browser tab
+does not.
 
 A macOS ZIP download may need System Settings, Privacy & Security, **Open Anyway** for the first
 double-click. Windows SmartScreen may need **More info**, then **Run anyway**.

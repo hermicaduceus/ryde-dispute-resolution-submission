@@ -16,6 +16,7 @@ This is a helper for the demo, not part of the app: app/ and ui/ never import it
 from __future__ import annotations
 
 import argparse
+import errno
 import socket
 import sys
 import threading
@@ -42,6 +43,10 @@ START_PATH = "/start/"
 #: How long one probe may wait for an answer: a listener that accepts the connection
 #: but never speaks must not stall the launcher.
 PROBE_TIMEOUT = 1.0
+#: How long a refused loopback connect may take before it counts as busy. Windows
+#: retries a refusal for a second or two, so a shorter wait would read every free
+#: port as taken there.
+CONNECT_TIMEOUT = 3.0
 #: The browser waiter's polling cadence, and how long it waits for the server to
 #: answer before printing the URL instead.
 POLL_SECONDS = 0.1
@@ -51,12 +56,19 @@ READY_TIMEOUT = 30.0
 #: serves this demo and not some other program.
 SERVER_HEADER = "RydePartyServer/"
 
+#: Every loopback probe goes through this opener, which ignores the user's proxy
+#: settings: urllib honours http_proxy and the system proxy, and macOS's default
+#: proxy exceptions do not include 127.0.0.1, so a configured proxy would hide a
+#: running demo from the launcher.
+_opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
 RUNNING = "Ryde demo running at {url}"
 STOP_HINT = "Close this window (or press Ctrl+C) to stop the demo."
 ALREADY_RUNNING = "The Ryde demo is already running at {url}. Opening it in your browser."
 NO_FREE_PORT = ("Ports {first} to {last} are all in use by other programs. "
                 "Close one of them, then open this file again.")
 OPEN_YOURSELF = "Could not open a browser. Open {url} yourself."
+PORT_TAKEN = "Port {port} was taken just as the demo started. Open this file again."
 
 
 def start_url(port: int) -> str:
@@ -76,7 +88,7 @@ def _answer(url: str) -> Optional[Tuple[int, str]]:
     something that is not HTTP — reads as None, never as a status.
     """
     try:
-        with urllib.request.urlopen(url, timeout=PROBE_TIMEOUT) as response:
+        with _opener.open(url, timeout=PROBE_TIMEOUT) as response:
             return response.status, response.headers.get("Server", "")
     except urllib.error.HTTPError as exc:
         return exc.code, exc.headers.get("Server", "")
@@ -97,7 +109,7 @@ def is_ryde_demo(port: int) -> bool:
 def _is_free(port: int) -> bool:
     """True when a TCP connect to 127.0.0.1:port is refused (nobody is listening)."""
     try:
-        with socket.create_connection(("127.0.0.1", port), timeout=PROBE_TIMEOUT):
+        with socket.create_connection(("127.0.0.1", port), timeout=CONNECT_TIMEOUT):
             return False
     except ConnectionRefusedError:
         return True
@@ -198,7 +210,16 @@ def main(argv: Optional[list] = None) -> int:
     # server keeps the main thread: Ctrl+C reaches app.server's own handler, and a
     # closed terminal window ends this one process and frees the port.
     threading.Thread(target=open_when_ready, args=(url,), daemon=True).start()
-    return server.main(server_argv(port))
+    try:
+        return server.main(server_argv(port))
+    except OSError as exc:
+        # Two quick double-clicks can both pick the same free port; the loser's bind
+        # fails with EADDRINUSE. That is a race, not a bug: say so in one line, and
+        # the next double-click reuses the winner or takes the next free port.
+        if exc.errno in (errno.EADDRINUSE, 10048):
+            print(PORT_TAKEN.format(port=port))
+            return 1
+        raise
 
 
 if __name__ == "__main__":
