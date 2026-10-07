@@ -20,6 +20,8 @@
     openGeneration: 0,
     promptsGeneration: 0,
     pendingOpens: [],
+    queueEntries: null,
+    userActionSeen: false,
     highlightTimer: null
   };
 
@@ -998,9 +1000,12 @@
       return;
     }
 
+    state.userActionSeen = true;
     state.openRun = null;
     state.currentQueueRun = null;
     invalidatePendingOpens();
+    state.promptsGeneration += 1;
+    var readGeneration = state.openGeneration;
     applyQueueSelection();
     if (decisionSection) {
       decisionSection.hidden = true;
@@ -1009,6 +1014,9 @@
     setPayloadStatus("Payload files are not attached.", "idle");
     setStatus("Reading " + file.name + "…", "loading");
     file.text().then(function (text) {
+      if (readGeneration !== state.openGeneration) {
+        return;
+      }
       var parsed;
       try {
         parsed = JSON.parse(text);
@@ -1020,6 +1028,9 @@
       }
       renderCase(file.name, parsed);
     }).catch(function (error) {
+      if (readGeneration !== state.openGeneration) {
+        return;
+      }
       state.openRun = null;
       if (decisionSection) {
         decisionSection.hidden = true;
@@ -1225,6 +1236,7 @@
   function renderQueue(data) {
     clear(queueContent);
     var cases = data && Array.isArray(data.cases) ? data.cases : [];
+    state.queueEntries = cases;
     if (cases.length === 0) {
       queueStatus.textContent = "No cases are waiting for a human decision.";
       return;
@@ -1250,6 +1262,7 @@
       openStatus.setAttribute("role", "status");
       openStatus.setAttribute("aria-live", "polite");
       open.addEventListener("click", function () {
+        state.userActionSeen = true;
         openCase(entry, open, openStatus);
       });
       row.appendChild(open);
@@ -1311,6 +1324,7 @@
       renderQueue(data);
     }).catch(function () {
       clear(queueContent);
+      state.queueEntries = null;
       queueStatus.textContent = "The review queue is not available. Open the console from the running server to use it.";
     });
   }
@@ -1325,8 +1339,9 @@
   }
 
   function loadReviewPanels() {
-    loadQueue();
+    var queueLoad = loadQueue();
     loadOverrides();
+    return queueLoad;
   }
 
   function prefersReducedMotion() {
@@ -1432,13 +1447,35 @@
     return runId === null || runId === undefined ? null : runId;
   }
 
-  function openDeepLink() {
+  function deepLinkEntry(runId) {
+    var entries = state.queueEntries;
+    if (Array.isArray(entries)) {
+      for (var index = 0; index < entries.length; index += 1) {
+        var entry = entries[index];
+        if (entry && typeof entry === "object" && entry.run_id === runId) {
+          return entry;
+        }
+      }
+    }
+    return { run_id: runId };
+  }
+
+  function openDeepLink(queueLoad) {
     var runId = deepLinkRunId();
     if (runId === null) {
       return;
     }
     if (!RUN_ID_PATTERN.test(runId)) {
       setStatus(PROMPTS_UNKNOWN_RUN, "error");
+      return;
+    }
+    if (queueLoad && typeof queueLoad.then === "function") {
+      queueLoad.then(function () {
+        if (state.userActionSeen) {
+          return;
+        }
+        openCase(deepLinkEntry(runId), null, null);
+      });
       return;
     }
     openCase({ run_id: runId }, null, null);
@@ -1789,10 +1826,11 @@
     attachRunFiles(runFolderPicker.files);
   });
 
+  var startupQueueLoad = null;
   if (reviewUi && typeof fetch === "function") {
     queueRefresh.addEventListener("click", loadReviewPanels);
-    loadReviewPanels();
+    startupQueueLoad = loadReviewPanels();
   }
 
-  openDeepLink();
+  openDeepLink(startupQueueLoad);
 }());
