@@ -549,6 +549,18 @@ class LandingSteps(_Base):
             "The human changed it to: refund SGD 40.00",
         ])
 
+    def test_an_approval_states_the_decision_record_not_the_proposal(self):
+        # HAND-MADE SHAPE (planner, fix-round tightening 2026-10-07): the approval's own amount
+        # differs from the held proposal (SGD 55.16), so step 3 must read the decision record.
+        # On genuine data the two are equal, which is why a proposal-sourced phrase survived.
+        fx = w27.copy_fixture()
+        _set_decision(fx, "after", "rd", {"decision": "approve", "action": "refund", "amount_sgd": 30})
+        self.assertSteps(_export(fx, allow_mock=True), fx, [
+            "A no-show case the AI decided alone: no action",
+            "A detour case the AI held for a human: it proposed refund SGD 55.16",
+            "The human approved: refund SGD 30.00",
+        ])
+
     def test_reject_decision_and_a_withheld_no_show_and_a_decided_detour_before(self):
         # HAND-MADE SHAPE: the human rejected; NS-0202 reads withheld; RD-0109 already carries a
         # decision in the before snapshot.
@@ -782,6 +794,13 @@ class ReplayDocFixRound(unittest.TestCase):
         text = _read(w27.REPO / "docs" / "replay.md")
         for needle in ("could not be read", "T-NS0202", "No human decision was recorded"):
             self.assertIn(needle, text)
+
+    def test_docs_replay_quotes_the_unreadable_provider_refusal_in_full(self):
+        # Planner tightening 2026-10-07: "could not be read" also appears in the prose, so the
+        # refusal line itself is pinned verbatim, on a line of its own.
+        text = _read(w27.REPO / "docs" / "replay.md")
+        refusal = UNREADABLE % "<ids>"
+        self.assertIn(refusal, [line.strip() for line in text.splitlines()])
 
 
 if __name__ == "__main__":
