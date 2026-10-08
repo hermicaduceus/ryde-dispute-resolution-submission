@@ -25,10 +25,10 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 UI = REPO / "ui"
 
-APP_JS_SHA = "1ca5e7b9687f5d40448c74e8e036a801a317d37fa93f01d390002fa77e1e046b"
+# W35 lane C released APP_JS_SHA: that round edits ui/app.js (tests/test_w35_C.py pins it).
 
 CONSOLE_IDS = {
-    "loader-title", "case-picker", "run-folder-picker", "load-status", "payload-status",
+    "loader-title", "run-folder-picker", "run-folder-hint", "load-status", "payload-status",
     "case-workspace", "case-summary", "summary-title", "loaded-file", "metadata-list",
     "grievance-section", "grievance-title", "grievance-content", "evidence-section",
     "evidence-title", "evidence-content", "prompts-section", "prompts-title", "prompts-content",
@@ -37,6 +37,7 @@ CONSOLE_IDS = {
     "events-section", "events-title", "events-content",
     "queue-panel", "queue-title", "queue-refresh", "queue-status", "queue-content",
     "overrides-panel", "overrides-title", "overrides-status", "overrides-content",
+    "runs-panel", "runs-title", "runs-status", "runs-content",
     "decision-section", "decision-title", "decision-content",
 }
 
@@ -286,10 +287,6 @@ class ConsoleTokensTest(unittest.TestCase):
         self.assertGreaterEqual(float(m.group(1)), 12.0, f".citation must be a pill, got {m.group(1)}px")
 
     # -- freezes --------------------------------------------------------------------
-
-    def test_app_js_unchanged(self):
-        digest = hashlib.sha256((UI / "app.js").read_bytes()).hexdigest()
-        self.assertEqual(APP_JS_SHA, digest, "app.js must stay byte-identical in the token pass")
 
     def test_console_ids_unchanged(self):
         ids_now = set(re.findall(r'id="([^"]+)"', self.html))

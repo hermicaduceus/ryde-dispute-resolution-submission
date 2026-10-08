@@ -47,8 +47,8 @@ class LocalFileReadGuard(unittest.TestCase):
     def test_a_slow_local_read_never_replaces_a_newer_local_pick(self):
         out = F.drive(T.routes_for("A"), [F.pick("slow.json", body=T.case_for("SLOW"), text_delay=200),
                                           F.pick("fast.json", body=T.case_for("FAST")), F.wait(400)])
-        self.assertEqual("fast.json", F.node(out, "loaded-file")["text"], "the older pick replaced the newer one")
-        self.assertEqual("Loaded fast.json.", F.node(out, "load-status")["text"])
+        self.assertEqual("fast/case_file.json", F.node(out, "loaded-file")["text"], "the older pick replaced the newer one")
+        self.assertEqual("Loaded fast/case_file.json.", F.node(out, "load-status")["text"])
 
     def test_a_slow_failing_local_read_never_clears_a_newer_queue_open(self):
         # Parent addition: the read itself rejects after a newer queue open; only the catch-path

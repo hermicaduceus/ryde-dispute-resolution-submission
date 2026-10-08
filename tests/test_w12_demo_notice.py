@@ -228,17 +228,6 @@ class ContractIntactTest(unittest.TestCase):
             view = party_view(_run(_record(ORG_DIR, name)))
             self.assertEqual(PARTY_VIEW_KEYS, set(view), name)
 
-    def test_party_js_unchanged(self):
-        """W16 reference carve-out; parent must rebaseline its digest from shipped bytes."""
-        import hashlib
-        from pathlib import Path
-
-        repo = Path(__file__).resolve().parent.parent
-        digest = hashlib.sha256((repo / "ui" / "party" / "party.js").read_bytes()).hexdigest()
-        # W16 carve-out: builder updates this expected digest after independently shipping party.js.
-        # The current value is the disposable reference baseline, not a value to copy into production.
-        self.assertEqual("90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0", digest)
-
     def test_architecture_doc_states_the_notice(self):
         """The doc says the party message carries no MOCK marker; that goes false now."""
         from pathlib import Path

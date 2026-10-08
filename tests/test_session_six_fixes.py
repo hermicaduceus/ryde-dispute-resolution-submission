@@ -379,8 +379,8 @@ class N { constructor(t){ this.tagName=t; this.children=[]; this.className=""; t
 (async()=>{ const roots={}; const doc={getElementById:(id)=>roots[id]||(roots[id]=new N("div")),createElement:(t)=>new N(t)};
   vm.runInNewContext(fs.readFileSync(process.env.UI,"utf8"),{document:doc});
   const cf=JSON.parse(fs.readFileSync(process.env.CF,"utf8"));
-  roots["case-picker"].files=[{name:"case_file.json",text:()=>Promise.resolve(JSON.stringify(cf))}];
-  roots["case-picker"].dispatch("change"); await new Promise(r=>setTimeout(r,0));
+  roots["run-folder-picker"].files=[{name:"case_file.json",webkitRelativePath:"RUN-1/case_file.json",text:()=>Promise.resolve(JSON.stringify(cf))}];
+  roots["run-folder-picker"].dispatch("change"); await new Promise(r=>setTimeout(r,0));
   process.stdout.write(JSON.stringify({g:roots["grievance-content"].textContent}));
 })().catch(e=>{process.stderr.write(String(e.stack||e)); process.exit(1);});
 '''

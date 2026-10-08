@@ -50,7 +50,7 @@ class QueueBehaviour(unittest.TestCase):
  def test_open_case_encodes_run_and_file_picker_clears_decidability(self):
   routes=base_routes([queue_row()]);routes["/api/review/RUN%20%2F%207/case"]=[ok({"case_file":case_file(),"human_decision":None})]
   o=drive(routes,[{"className":"queue-open","op":"click"}]);self.assertIn("/api/review/RUN%20%2F%207/case",[r["url"] for r in o["requests"]]);self.assertEqual("RUN / 7",o["ids"]["loaded-file"]["text"]);self.assertFalse(o["ids"]["decision-section"]["hidden"])
-  o=drive(routes,[{"className":"queue-open","op":"click"},{"id":"case-picker","op":"pick","body":case_file()}]);self.assertTrue(o["ids"]["decision-section"]["hidden"])
+  o=drive(routes,[{"className":"queue-open","op":"click"},{"id":"run-folder-picker","op":"pick","body":case_file()}]);self.assertTrue(o["ids"]["decision-section"]["hidden"])
  def test_failed_open_sets_exact_error(self):
   routes=base_routes([queue_row()]);routes["/api/review/RUN%20%2F%207/case"]=[bad()]
   o=drive(routes,[{"className":"queue-open","op":"click"}]);self.assertEqual(("The case could not be opened.","error"),(o["ids"]["load-status"]["text"],o["ids"]["load-status"]["dataset"].get("state")))

@@ -2,6 +2,14 @@
  * PUPPETEER_MODULE optionally points at an existing installation. No app writes.
  * Run: PUPPETEER_MODULE=/path/to/puppeteer BROWSER_EXECUTABLE=/path/to/browser
  *      node tests/browser/w15_actions.cjs BASE_URL OUTPUT_JSON
+ *
+ * W35 correction (the app did not change): since W30 (d50a891, the operator-approved one-screen
+ * filing frame) the options and fields live in a region that scrolls inside the step,
+ * so a card scrolled out of that region still has a layout box under the action bar
+ * while nobody can see or click it there. Each control is now measured by the part
+ * of it its scroll containers actually show; a control with no visible part is out
+ * of this check (the W30 scripts pin that the region scrolls to it). The assertions
+ * themselves are unchanged and apply to every visible part.
  */
 const assert = require('node:assert/strict');
 const fs = require('fs');
@@ -39,15 +47,31 @@ const report = {views:[], errors:[], passed:false};
             const step=document.querySelector(selector);
             const bar=step.querySelector('.step-actions');
             const b=bar.getBoundingClientRect(),s=getComputedStyle(bar);
+            // The part of an element its scrolling ancestors show (body and html scroll
+            // the viewport, so they never clip here).
+            const shown=e=>{
+              const r=e.getBoundingClientRect();
+              let top=r.top,bottom=r.bottom,left=r.left,right=r.right;
+              for(let a=e.parentElement;a&&a!==document.body&&a!==document.documentElement;a=a.parentElement){
+                const st=getComputedStyle(a);
+                if(st.overflowY==='visible'&&st.overflowX==='visible')continue;
+                const q=a.getBoundingClientRect();
+                top=Math.max(top,q.top);bottom=Math.min(bottom,q.bottom);
+                left=Math.max(left,q.left);right=Math.min(right,q.right);
+              }
+              return {top,bottom,left,right};
+            };
             const controls=[...step.querySelectorAll('.option-card,.field,.choice-button')]
               .filter(e=>e.getBoundingClientRect().height>0).map(e=>{
-                const r=e.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;
+                const r=shown(e);
+                if(r.bottom-r.top<1||r.right-r.left<1)return null;
+                const x=(r.left+r.right)/2,y=(r.top+r.bottom)/2;
                 const hit=document.elementFromPoint(x,y);
                 return {text:e.textContent.trim(),bottom:r.bottom,
                   covered:r.left<b.right&&r.right>b.left&&r.top<b.bottom&&r.bottom>b.top,
                   visibleCenter:y>=0&&y<innerHeight&&x>=0&&x<innerWidth,
                   clickable:!!hit&&(hit===e||e.contains(hit)),hit:hit?.id||hit?.className};
-              });
+              }).filter(Boolean);
             const visible=[...document.querySelectorAll('#form-steps > .step')].filter(e=>!e.hidden).map(e=>e.id);
             return {position:s.position,bottom:s.bottom,barTop:b.top,controls,visible,
               overflow:document.documentElement.scrollWidth-innerWidth};

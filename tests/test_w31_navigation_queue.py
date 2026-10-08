@@ -54,7 +54,7 @@ class QueueFeedback(unittest.TestCase):
                 routes = scenario()
                 ca = case_file()
                 routes['/api/review/A/case'] = [dict(ok({'case_file': ca}), delay=250, reject=rejected), ok({'case_file': ca})]
-                actions = [OPEN, {'id':'case-picker','op':'pick','body':ca}, OPEN, {'op':'wait','ms':400}]
+                actions = [OPEN, {'id':'run-folder-picker','op':'pick','body':ca}, OPEN, {'op':'wait','ms':400}]
                 o = drive(routes, actions)
                 button = o['classes']['queue-open'][0]
                 self.assertEqual('Currently open', button['text'])
@@ -64,7 +64,7 @@ class QueueFeedback(unittest.TestCase):
         routes = scenario()
         ca = case_file()
         routes['/api/review/A/case'] = [dict(ok({'case_file':ca}),delay=200,reject=True), dict(ok({'case_file':ca}),delay=650)]
-        o = drive(routes, [OPEN, {'id':'case-picker','op':'pick','body':ca}, OPEN, {'op':'wait','ms':350}, {'op':'snapshot'}, {'op':'wait','ms':500}])
+        o = drive(routes, [OPEN, {'id':'run-folder-picker','op':'pick','body':ca}, OPEN, {'op':'wait','ms':350}, {'op':'snapshot'}, {'op':'wait','ms':500}])
         button = o['checkpoints'][0]['buttons'][0]
         self.assertEqual('Opening…', button['text'])
         self.assertTrue(button['disabled'])
@@ -133,12 +133,12 @@ class QueueFeedback(unittest.TestCase):
         self.assertEqual(['Currently open','Open case'],[b['text'] for b in o['classes']['queue-open']])
 
     def test_local_file_load_clears_queue_selection(self):
-        o=drive(scenario(),[OPEN,WAIT,{'id':'case-picker','op':'pick','body':case_file()},WAIT])
+        o=drive(scenario(),[OPEN,WAIT,{'id':'run-folder-picker','op':'pick','body':case_file()},WAIT])
         self.assertNotIn('Currently open',[b['text'] for b in o['classes']['queue-open']])
 
     def test_local_file_load_invalidates_pending_queue_request(self):
-        o=drive(scenario(delay=160),[OPEN,{'id':'case-picker','op':'pick','name':'picked.json','body':case_file()},{'op':'wait','ms':200}])
-        self.assertEqual('picked.json',o['ids']['loaded-file']['text'])
+        o=drive(scenario(delay=160),[OPEN,{'id':'run-folder-picker','op':'pick','path':'picked/case_file.json','body':case_file()},{'op':'wait','ms':200}])
+        self.assertEqual('picked/case_file.json',o['ids']['loaded-file']['text'])
         self.assertTrue(o['ids']['decision-section']['hidden'])
 
 

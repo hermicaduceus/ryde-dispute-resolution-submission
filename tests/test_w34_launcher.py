@@ -81,11 +81,10 @@ PAGES = [
 ]
 # sha256 of each page at e13cbe5, before W34.
 ORIGINAL_PAGE_SHA = {
-    "ui/index.html": "bc77c119d2da0e199e8a987ce6cd2b3049ac4f6d08c189823a7217a3f71b1b0b",
-    "ui/party/index.html": "06fd4937b1419d397b2a8f5e61f58e772f9c6e2d55f2799e2b553046b2303c23",
-    "ui/party/driver-filing.html": "4799ad45af51aa79ae22c718420cde9bd03a43e74338b20772207937418b0349",
+    # W35 (2026-10-08): ui/party/index.html, driver-filing.html and status.html released;
+    # W35 adds the step 3 summary, the pending-send status line and the status-page regions
+    # (tests/test_w35_P.py pins that markup).
     "ui/party/driver.html": "63b9c366f12477a9002c006fea71199f9e57e8e311d3170b55d54c671717454d",
-    "ui/party/status.html": "eaf668aea171af8f5785890048040b947e44b39a300f6ec6b712853b6d6403a7",
 }
 # Everything W34 must not touch, hashed at e13cbe5: app/ except server.py, every existing
 # ui/ script and stylesheet, the policy.
@@ -115,15 +114,12 @@ FROZEN_W34 = {
     "app/prompt_view.py": "3b8472f60e51f99b98a1f96f4ba4fe403986701a3ad3bf74c23a73325db985f6",
     "app/schemas.py": "371334cabd7a75f23dd2f6cb353adccfef48b16fb0197befe5e80e6b33360ce5",
     "docs/policy.md": "d6a3e63c4da7223af1e05e96f6e58982af2b9f2a3253348f79b8fd6aa2a3408e",
-    "ui/app.js": "1ca5e7b9687f5d40448c74e8e036a801a317d37fa93f01d390002fa77e1e046b",
     "ui/party/driver.js": "fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff",
-    "ui/party/party.css": "f1893ba638858a9b6a3e1582f489e2ce261e064fc6de8f2b7fb6ec7f46952c51",
-    "ui/party/party.js": "90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0",
+    # W35 (2026-10-08): ui/party/party.css and ui/party/party.js released (tests/test_w35_P.py).
     "ui/party/status.js": "127098b1603b45d2ecbd1be7550362e4b6db23920fd7292a4b9588e09465c43e",
-    "ui/styles.css": "4b4e7477b6503bc9b85790519e7609e3e581ecc2a78d4efe0be7f6ec2a6c7be5",
 }
-# app/server.py up to (not including) "def parse_args(", hashed at e13cbe5.
-SERVER_PREFIX_SHA = "9470c0e85b16895d63627630e2ebdc53c4f24f68e28041c81f8952e14d720097"
+# W35 lane C released ui/app.js and ui/styles.css above, SERVER_PREFIX_SHA, and ui/index.html's
+# ORIGINAL_PAGE_SHA entry: that round edits all four (tests/test_w35_C.py pins the new behaviour).
 
 
 # ---------------------------------------------------------------- helpers
@@ -370,13 +366,6 @@ class ServerPort(unittest.TestCase):
                 with contextlib.redirect_stderr(io.StringIO()):
                     with self.assertRaises(SystemExit):
                         server.parse_args(["--port", raw])
-
-    def test_server_code_before_parse_args_is_unchanged(self):
-        data = (REPO / "app" / "server.py").read_bytes()
-        cut = data.find(b"def parse_args(")
-        self.assertGreater(cut, 0, "app/server.py still defines parse_args")
-        self.assertEqual(SERVER_PREFIX_SHA, _sha(data[:cut]),
-                         "only parse_args/main (and below) may change in app/server.py")
 
     def test_main_binds_the_port_it_is_given(self):
         port = _free_run(1)
@@ -1128,6 +1117,8 @@ class SwitchBar(unittest.TestCase):
 
     def test_removing_the_bar_and_its_stylesheet_line_restores_the_page_exactly(self):
         for rel, *_ in PAGES:
+            if rel not in ORIGINAL_PAGE_SHA:
+                continue  # released by W35 (see ORIGINAL_PAGE_SHA)
             with self.subTest(page=rel):
                 lines = (REPO / rel).read_bytes().split(b"\n")
                 start = [i for i, line in enumerate(lines) if b'<nav class="switch-bar"' in line]
@@ -1138,6 +1129,8 @@ class SwitchBar(unittest.TestCase):
                 self.assertEqual(1, len(css), "one line links switch-bar.css")
                 drop = set(range(start[0], end + 1)) | set(css)
                 kept = b"\n".join(line for i, line in enumerate(lines) if i not in drop)
+                if rel not in ORIGINAL_PAGE_SHA:
+                    continue  # W35 lane C released ui/index.html (the console page changes)
                 self.assertEqual(ORIGINAL_PAGE_SHA[rel], _sha(kept),
                                  "the bar and its stylesheet line are the ONLY change to %s" % rel)
 

@@ -49,14 +49,13 @@ CASE_FAILED = "The case could not be opened."
 # Byte-frozen for this round, hashed at BASE 1ae5a84. ui/app.js is the only shipped file the fix may
 # change; the W24 acceptance file and its browser script are frozen by the W24 brief. W34
 # (2026-10-07) released app/server.py and the five HTML pages; tests/test_w34_launcher.py pins them.
+# W35 lane C released ui/styles.css and tests/test_w24_prompt_panel.py (the one-picker round edits
+# both); tests/test_w35_C.py pins the new styles.
 FROZEN = {
     "app/prompt_view.py": "3b8472f60e51f99b98a1f96f4ba4fe403986701a3ad3bf74c23a73325db985f6",
-    "ui/styles.css": "4b4e7477b6503bc9b85790519e7609e3e581ecc2a78d4efe0be7f6ec2a6c7be5",
-    "ui/party/party.css": "f1893ba638858a9b6a3e1582f489e2ce261e064fc6de8f2b7fb6ec7f46952c51",
+    # W35 (2026-10-08): ui/party/party.css and ui/party/party.js released (tests/test_w35_P.py).
     "ui/party/driver.js": "fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff",
-    "ui/party/party.js": "90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0",
     "ui/party/status.js": "127098b1603b45d2ecbd1be7550362e4b6db23920fd7292a4b9588e09465c43e",
-    "tests/test_w24_prompt_panel.py": "31efc92273e62edbdee289f49ea7de0d5271b7321993070591db517e7fa77e84",
     "tests/browser/w24_prompt_panel.cjs": "ec6cfb27c98f1b57faadd290574b32cbbdf66dbdf90206813617752819a8d428",
 }
 
@@ -109,7 +108,11 @@ REVIEW = {"id": "decision-form", "op": "submit"}
 
 
 def pick(name="local.json", body=None, raw=None, text_delay=0):
-    action = {"id": "case-picker", "op": "pick", "name": name, "body": body}
+    # W35: one run-folder picker. `name` names the picked folder: "local.json" picks the
+    # folder "local" whose case file is local/case_file.json.
+    folder = name[:-len(".json")] if name.endswith(".json") else name
+    action = {"id": "run-folder-picker", "op": "pick", "name": "case_file.json",
+              "path": folder + "/case_file.json", "body": body}
     if raw is not None:
         action["raw"] = raw
     if text_delay:
@@ -305,7 +308,7 @@ class UserActionWinsOverTheDeepLink(unittest.TestCase):
         out = drive(routes, [wait(30), pick(body=T.case_for("LOCAL-1")), wait(600)], search="?run=A")
         self.assertIn("/api/review/queue", urls(out))
         self.assertEqual([], case_requests(out), "the deep link fired after the user picked a file")
-        self.assertEqual("local.json", node(out, "loaded-file")["text"])
+        self.assertEqual("local/case_file.json", node(out, "loaded-file")["text"])
         self.assertIn("SYS-l-", panel(out)["text"])
         self.assertNotIn("SYS-a-", panel(out)["text"])
         self.assertTrue(node(out, "decision-section")["hidden"], "a local file never gets the decision form")
@@ -426,7 +429,7 @@ class LocalFilePickInvalidatesPendingPrompts(unittest.TestCase):
         self.assertEqual(1, len(control["checkpoints"]))
         self.assertEqual([], articles(control["checkpoints"][0]["prompts"]))
         self.assertEqual("", control["checkpoints"][0]["prompts"]["text"])
-        self.assertEqual("local.json", node(control, "loaded-file")["text"])
+        self.assertEqual("local/case_file.json", node(control, "loaded-file")["text"])
         self.assertEqual(3, len(articles(panel(control))))
         self.assertIn("SYS-l-", panel(control)["text"])
 

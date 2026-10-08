@@ -15,7 +15,6 @@ reference (research/ryde-design/, planning repo — never ships here).
 """
 from __future__ import annotations
 
-import hashlib
 import re
 import unittest
 from pathlib import Path
@@ -24,9 +23,8 @@ from tests.test_party_surface import FORBIDDEN_PARTY_WORDS
 
 REPO = Path(__file__).resolve().parent.parent
 PARTY_UI = REPO / "ui" / "party"
-# W16 carve-out: the builder updates only this digest and its W12 twin after
-# rider+driver behavioural checks pass, using the independently shipped party.js bytes.
-PARTY_JS_SHA = "90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0"
+# W35 (2026-10-08): PARTY_JS_SHA released. W35 changes party.js (step 3 summary, pending
+# send); tests/test_w35_P.py pins the new behaviour instead.
 
 ROOT_TOKENS = [("--ink", "#31373e"), ("--muted", "#5a6470"), ("--line", "#e5e0dc"),
                ("--paper", "#f7dde3"), ("--accent", "#e93864"), ("--error", "#c0392b"),
@@ -39,6 +37,9 @@ REQUIRED_IDS = ["form-steps", "step-category", "category-options", "category-err
                 "outcome", "outcome-title", "outcome-reference", "outcome-message",
                 "outcome-questions", "question-boxes", "answers-error", "answers-submit",
                 "outcome-status"]
+# W35 releases only these four additions from the old no-new-id freeze. Their presence,
+# exact structure and behaviour are required by tests/test_w35_P.py, not this older test.
+W35_ALLOWED_IDS = {"summary-category", "summary-trip", "details-status", "details-spinner"}
 
 
 def _strip_comments(css: str) -> str:
@@ -138,18 +139,13 @@ class RebrandTokensTest(unittest.TestCase):
 
     # -- freezes ----------------------------------------------------------------
 
-    def test_party_js_unchanged(self):
-        digest = hashlib.sha256((PARTY_UI / "party.js").read_bytes()).hexdigest()
-        self.assertEqual(PARTY_JS_SHA, digest,
-                         "party.js must stay byte-identical in the token pass")
-
     def test_dom_ids_unchanged(self):
         """Every id present at build head 29ba78e must still exist, and no NEW id
-        may appear (the old whitelist-presence check could see neither)."""
+        may appear except the four W35 additions (required by test_w35_P)."""
         ids_now = set(re.findall(r'id="([^"]+)"', self.html))
         missing = set(REQUIRED_IDS) - ids_now
         self.assertEqual(set(), missing, f"required ids removed: {missing}")
-        extra = ids_now - set(REQUIRED_IDS)
+        extra = ids_now - set(REQUIRED_IDS) - W35_ALLOWED_IDS
         self.assertEqual(set(), extra, f"new ids appeared: {extra}")
 
     def test_forbidden_words_absent(self):

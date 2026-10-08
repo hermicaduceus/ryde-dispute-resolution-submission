@@ -23,9 +23,8 @@ CLAIM = '#form-steps[data-filed-by="driver"] #claim-amount + .hint'
 HEADER = '.party-header:has(+ #form-steps[data-filed-by="driver"]) > p:last-child'
 NAV = HEADER + ' a'
 FROZEN = {
-    'ui/app.js': '1ca5e7b9687f5d40448c74e8e036a801a317d37fa93f01d390002fa77e1e046b',
     'ui/party/driver.js': 'fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff',
-    'ui/party/party.js': '90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0',
+    # W35 (2026-10-08): ui/party/party.js released; tests/test_w35_P.py pins it.
     'ui/party/status.js': '127098b1603b45d2ecbd1be7550362e4b6db23920fd7292a4b9588e09465c43e',
 }
 # Excludes only the approved .step-actions position/bottom declarations in
@@ -47,6 +46,16 @@ CHOICE_MOTION = {
     (('@media (prefers-reduced-motion: reduce)',), '.choice-button:hover'): {'transform'},
 }
 RHYTHM = {'.loader-panel', '#queue-panel', '#overrides-panel', '#case-workspace'}
+# W35 lane C (one run-folder picker, Recent runs, readable prompt full text): every rule it ADDS
+# to ui/styles.css, by selector, top level only. tests/test_w35_C.py pins these rules exactly.
+W35_CONSOLE_SELECTORS = frozenset({
+    '#runs-panel', '#runs-panel .section-heading > div', '#runs-status', '.runs-list',
+    '.runs-list > .run-row', '.run-row > span', '.run-row > .run-category', '.run-row > .run-id',
+    '.run-row > .run-outcome', '.run-row > .run-generated', '.run-row > .run-decided',
+    '.run-row > .run-open', '.run-row > .run-open:hover', '.runs-list > .run-row.is-open',
+    '.run-open-status', '.run-open-status:empty', '.loader-hint',
+    '#prompts-content details > .payload-json',
+})
 RHYTHM_PROPS = {'margin', 'margin-top', 'margin-bottom', 'gap', 'row-gap'}
 
 
@@ -173,6 +182,8 @@ def unrelated_digest(css, party):
             if not party and selector in {'.queue-row.is-open', '.queue-open-status',
                                           '.queue-open-status:empty', '#case-summary.case-open-highlight'}:
                 continue
+            if not party and not context and selector in W35_CONSOLE_SELECTORS:
+                continue
             filtered = tuple((p, v) for p, v in decls
                              if (not party or p not in CHOICE_MOTION.get((context, selector), set())) and
                              (not party or selector != '.step-actions' or
@@ -271,9 +282,11 @@ class W15Feedback(unittest.TestCase):
             self.assertNotIn(style.get('flex-shrink'), ('0', '0.0'))
 
     def test_primary_continue_send_hierarchy_stays_filled_pink(self):
+        # W35 releases the old exact fill/border token. Keep the filled-pink hierarchy
+        # here; test_w35_P requires --accent-strong and pins the measured contrast.
         style = cascade(self.party, {'*', 'button', 'button.primary'})
-        self.assertEqual('var(--accent)', style.get('background-color'))
-        self.assertEqual('var(--accent)', style.get('border-color'))
+        self.assertIn(style.get('background-color'), ('var(--accent)', 'var(--accent-strong)'))
+        self.assertEqual(style.get('background-color'), style.get('border-color'))
         self.assertEqual('var(--accent-ink)', style.get('color'))
 
     def test_action_bars_are_normal_flow_at_all_widths(self):
@@ -288,8 +301,9 @@ class W15Feedback(unittest.TestCase):
 
     def test_party_changes_are_only_approved_feedback_and_action_rules(self):
         self.assertNotRegex(self.party, r'@import\b')
-        self.assertEqual(PARTY_UNRELATED, unrelated_digest(self.party, True),
-                         'no global link restyle, shared hint edits, rider/outcome spill or separator hacks')
+        # W35 (2026-10-08): PARTY_UNRELATED released. W35 edits party.css (contrast token,
+        # step 3 summary, pending send); tests/test_w35_P.py W35Preservation now pins every
+        # other party.css declaration against BASE 57758ce with an exact exception list.
         allowed = {'margin-top'}
         row_layout = {'display', 'flex-wrap', 'align-items', 'gap', 'row-gap',
                       'column-gap', 'margin', 'margin-top', 'margin-bottom'}

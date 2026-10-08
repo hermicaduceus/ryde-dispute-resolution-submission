@@ -120,7 +120,7 @@ FROZEN_RUNTIME = {
     "app/policy.py": "0d2899305cf68260f3748fa030f304183edcbb8a44fddeaedda7ed3bdd00c4e5",
     "app/schemas.py": "371334cabd7a75f23dd2f6cb353adccfef48b16fb0197befe5e80e6b33360ce5",
 }
-STYLES_CSS_SHA = "4b4e7477b6503bc9b85790519e7609e3e581ecc2a78d4efe0be7f6ec2a6c7be5"
+# W35 lane C released STYLES_CSS_SHA: that round edits ui/styles.css (tests/test_w35_C.py pins it).
 
 PROMPT_LEAK_TOKENS = ("system_prompt", "user_prompt", "HARD RULES", "Never do arithmetic",
                       "POLICY DOCUMENT", "OUTPUT SCHEMA", "CITABLE EVIDENCE REFS", "/prompts")
@@ -582,9 +582,6 @@ class RuntimeFreeze(unittest.TestCase):
             actual[rel] = _sha(REPO / rel)
         self.assertEqual(FROZEN_RUNTIME, actual)
 
-    def test_styles_are_untouched(self):
-        self.assertEqual(STYLES_CSS_SHA, _sha(UI / "styles.css"), "R5: ui/styles.css is unchanged")
-
 
 # ================================================================== console page
 
@@ -827,7 +824,7 @@ class PromptPanelDom(unittest.TestCase):
                 self.assertEqual(FAILURE, panel(out)["text"])
 
     def test_a_local_file_without_the_server_shows_the_one_sentence(self):
-        out = drive(base_routes([]), [{"id": "case-picker", "op": "pick", "name": "local.json",
+        out = drive(base_routes([]), [{"id": "run-folder-picker", "op": "pick", "path": "local/case_file.json",
                                        "body": case_for("LOCAL-1")}, WAIT])
         self.assertIn("/api/review/LOCAL-1/prompts", [r["url"] for r in out["requests"]])
         self.assertFalse(out["ids"]["case-workspace"]["hidden"])

@@ -103,7 +103,6 @@ function classes(node) {
 
 (async function () {
   const ids = [
-    "case-picker",
     "run-folder-picker",
     "load-status",
     "payload-status",
@@ -145,11 +144,12 @@ function classes(node) {
     caseFile.events[2] = null;
   }
 
-  roots["case-picker"].files = [{
+  roots["run-folder-picker"].files = [{
     name: "case_file.json",
+    webkitRelativePath: "RUN-1/case_file.json",
     text: () => Promise.resolve(JSON.stringify(caseFile)),
   }];
-  roots["case-picker"].dispatch("change");
+  roots["run-folder-picker"].dispatch("change");
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   const resolutionNodes = walk(roots["resolution-content"]);

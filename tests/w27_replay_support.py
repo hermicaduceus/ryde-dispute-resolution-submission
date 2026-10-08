@@ -235,7 +235,7 @@ def payload_names(run_dir: Path) -> List[str]:
 def required_keys(fx: Dict[str, Any], label: str) -> List[str]:
     snapshot = Path(fx[label])
     keys = ["GET /api/review/queue", "GET /api/review/overrides", "GET /api/demo/rider",
-            "GET /api/demo/driver"]
+            "GET /api/demo/driver", "GET /api/review/runs"]
     keys += ["GET /api/trips?category=%s" % c for c in CATEGORIES]
     for run_id in fx["runs"]:
         dispute = fx["ns_dispute"] if run_id == fx["ns_run"] else fx["rd_dispute"]

@@ -81,8 +81,10 @@ class W15LayoutTest(unittest.TestCase):
                       "chip fill is the tint token")
         self.assertIn("var(--accent)", _decl(eb, "border"),
                       "chip border is the accent token")
-        self.assertIn("var(--accent)", _decl(eb, "color"),
-                      "chip text is the accent token")
+        # W35 releases the old exact text-colour token. Keep the pink-chip shape here;
+        # test_w35_P requires --accent-strong and measures its contrast in the browser.
+        self.assertIn(_decl(eb, "color"), ("var(--accent)", "var(--accent-strong)"),
+                      "chip text uses a pink accent token")
 
     # -- floating cards on the pastel canvas -----------------------------------
 
@@ -186,17 +188,8 @@ class W15LayoutTest(unittest.TestCase):
                 links = re.findall(r'<link[^>]*href="([^"]+)"', html)
                 self.assertIn("./party.css", links,
                               f"{page} must link the restyled sheet by its exact href")
-
-    def test_party_js_unchanged_by_the_layout_pass(self):
-        import hashlib
-        # The two digest freezes (test_party_rebrand, test_w12_demo_notice) pin the
-        # bytes; this test pins that the layout pass never edits the file at all by
-        # requiring the builder to leave it byte-identical to main.
-        digest = hashlib.sha256((PARTY_UI / "party.js").read_bytes()).hexdigest()
-        # The expected digest equals main's committed party.js (4683f65).
-        self.assertEqual(
-            "90d55dbf1730f9991234cc2772cae27051cf4c2f5d43d6fca96e7ce54ef7efc0", digest,
-            "party.js must stay byte-identical through the layout pass")
+    # W35 (2026-10-08): the party.js byte freeze is released; W35 changes party.js and
+    # tests/test_w35_P.py pins its behaviour.
 
 
 if __name__ == "__main__":
