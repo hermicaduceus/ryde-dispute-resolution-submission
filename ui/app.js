@@ -21,6 +21,8 @@
     openGeneration: 0,
     promptsGeneration: 0,
     pendingOpens: [],
+    panelLoads: { queue: 0, overrides: 0, runs: 0 },
+    panelBusy: { queue: false, overrides: false, runs: false },
     queueEntries: null,
     userActionSeen: false,
     highlightTimer: null
@@ -1063,6 +1065,23 @@
     setStatus(message, "error");
   }
 
+  function isNonEmptyString(value) {
+    return typeof value === "string" && value !== "";
+  }
+
+  // W35: the least a case file must carry before it renders or attaches anything: a run id,
+  // a dispute id, and a resolution object that records an outcome. An outcome the console
+  // does not know still passes: the renderer shows its unknown-outcome warning. Strings,
+  // numbers and arrays carry none of these members, so they fail the member checks.
+  function isCaseFileShape(value) {
+    var resolution = value ? value.resolution : null;
+    return Boolean(value)
+      && isNonEmptyString(value.run_id)
+      && isNonEmptyString(value.dispute_id)
+      && Boolean(resolution)
+      && isNonEmptyString(resolution.outcome);
+  }
+
   function handleFile(file, label, runFiles) {
     if (!file) {
       return;
@@ -1081,7 +1100,7 @@
       } catch (error) {
         throw new Error("The selected file is not valid JSON.");
       }
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      if (!isCaseFileShape(parsed)) {
         throw new Error("The selected JSON must contain one case-file object.");
       }
       renderCase(name, parsed);
@@ -1230,10 +1249,57 @@
     }
   }
 
+  // The container of each review list and the list's name; used for the panel load state.
+  function panelContent(panel) {
+    return panel === "queue" ? queueContent : panel === "overrides" ? overridesContent : runsContent;
+  }
+
+  // True while the button sits in a list whose load is in flight: its rows are about to be
+  // replaced, so it must not start an open (the replacement row would not own the pending state).
+  function isInBusyPanel(button) {
+    for (var node = button; node; node = node.parentNode) {
+      if ((node === queueContent && state.panelBusy.queue)
+        || (node === runsContent && state.panelBusy.runs)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function restoreOpenButton(button) {
     if (button) {
       button.textContent = "Open case";
-      button.disabled = false;
+      button.disabled = isInBusyPanel(button);
+    }
+  }
+
+  // A load of a review list owns the list until a newer load begins. Beginning marks the
+  // list aria-busy and disables its Open buttons; only the owner's settle clears both, and
+  // an older response (success or failure) that finds a newer owner touches nothing.
+  function beginPanelLoad(panel) {
+    state.panelLoads[panel] += 1;
+    state.panelBusy[panel] = true;
+    var container = panelContent(panel);
+    if (container) {
+      container.setAttribute("aria-busy", "true");
+      if (typeof container.querySelectorAll === "function") {
+        Array.prototype.forEach.call(container.querySelectorAll("button"), function (button) {
+          button.disabled = true;
+        });
+      }
+    }
+    return state.panelLoads[panel];
+  }
+
+  function ownsPanelLoad(panel, generation) {
+    return state.panelLoads[panel] === generation;
+  }
+
+  function endPanelLoad(panel) {
+    state.panelBusy[panel] = false;
+    var container = panelContent(panel);
+    if (container) {
+      container.setAttribute("aria-busy", "false");
     }
   }
 
@@ -1287,7 +1353,7 @@
         row.classList.add("is-open");
         button.textContent = "Currently open";
         button.setAttribute("aria-current", "true");
-        button.disabled = false;
+        button.disabled = isInBusyPanel(button);
         return;
       }
       row.classList.remove("is-open");
@@ -1389,9 +1455,18 @@
   }
 
   function loadQueue() {
+    var generation = beginPanelLoad("queue");
     return fetchJson("/api/review/queue").then(function (data) {
+      if (!ownsPanelLoad("queue", generation)) {
+        return;
+      }
+      endPanelLoad("queue");
       renderQueue(data);
     }).catch(function () {
+      if (!ownsPanelLoad("queue", generation)) {
+        return;
+      }
+      endPanelLoad("queue");
       clear(queueContent);
       state.queueEntries = null;
       queueStatus.textContent = "The review queue is not available. Open the console from the running server to use it.";
@@ -1399,9 +1474,18 @@
   }
 
   function loadOverrides() {
+    var generation = beginPanelLoad("overrides");
     return fetchJson("/api/review/overrides").then(function (data) {
+      if (!ownsPanelLoad("overrides", generation)) {
+        return;
+      }
+      endPanelLoad("overrides");
       renderOverrides(data);
     }).catch(function () {
+      if (!ownsPanelLoad("overrides", generation)) {
+        return;
+      }
+      endPanelLoad("overrides");
       clear(overridesContent);
       overridesStatus.textContent = "Overrides are not available.";
     });
@@ -1477,28 +1561,34 @@
     if (!runsStatus || !runsContent) {
       return Promise.resolve();
     }
+    var generation = beginPanelLoad("runs");
     return fetchJson("/api/review/runs").then(function (data) {
+      if (!ownsPanelLoad("runs", generation)) {
+        return;
+      }
+      endPanelLoad("runs");
       renderRuns(data);
     }).catch(function () {
+      if (!ownsPanelLoad("runs", generation)) {
+        return;
+      }
+      endPanelLoad("runs");
       clear(runsContent);
       runsStatus.textContent = RUNS_UNAVAILABLE;
     });
   }
 
+  // Every panels load replaces the rows an open may have started from, so it first drops the
+  // pending opens (their buttons return to Open case, then the loads disable them until the
+  // new rows arrive). The Refresh button and a recorded decision both come through here.
   function loadReviewPanels() {
+    if (state.pendingOpens.length > 0) {
+      invalidatePendingOpens();
+    }
     var queueLoad = loadQueue();
     loadOverrides();
     loadRuns();
     return queueLoad;
-  }
-
-  // A Refresh the user asks for invalidates every pending open: the row it came from is
-  // about to be replaced. (No local read can be pending while a server open is.)
-  function refreshReviewPanels() {
-    if (state.pendingOpens.length > 0) {
-      invalidatePendingOpens();
-    }
-    return loadReviewPanels();
   }
 
   function prefersReducedMotion() {
@@ -1988,7 +2078,7 @@
 
   var startupQueueLoad = null;
   if (reviewUi && typeof fetch === "function") {
-    queueRefresh.addEventListener("click", refreshReviewPanels);
+    queueRefresh.addEventListener("click", loadReviewPanels);
     startupQueueLoad = loadReviewPanels();
   }
 

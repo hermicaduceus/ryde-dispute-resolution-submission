@@ -46,6 +46,7 @@ from .dispute import AGENT_CATEGORIES, is_organiser_record, normalise_category, 
 from .events import EventLog, EventType
 from .human_review import (
     HumanDecisionError,
+    bounded_run_file,
     decision_record_is_valid,
     load_decision,
     party_message_for_human_decision,
@@ -394,6 +395,21 @@ def _read_json_object(path: Path) -> Optional[Dict[str, Any]]:
     return data if isinstance(data, dict) else None
 
 
+def _read_run_json(run_dir: Path, name: str) -> Optional[Dict[str, Any]]:
+    """W35: a JSON object in a run directory, or None. The leaf must resolve inside run_dir.
+
+    A case file or dispute record that is a symlink out of its run directory reads as
+    missing (see bounded_run_file); so do the cases _read_json_object already covers.
+    """
+    leaf = bounded_run_file(run_dir, name)
+    return None if leaf is None else _read_json_object(leaf)
+
+
+def _read_case_file(run_dir: Path) -> Optional[Dict[str, Any]]:
+    """The run's case file as a JSON object, or None. Every case-file read goes through here."""
+    return _read_run_json(run_dir, CASE_FILE_NAME)
+
+
 def _direct_runs(out_dir: Path) -> List[Tuple[Path, Dict[str, Any]]]:
     """Every run that is a DIRECT child of out_dir and holds a readable case file.
 
@@ -402,14 +418,16 @@ def _direct_runs(out_dir: Path) -> List[Tuple[Path, Dict[str, Any]]]:
     """
     if not out_dir.is_dir():
         return []
+    root = out_dir.resolve()
     runs: List[Tuple[Path, Dict[str, Any]]] = []
     for child in sorted(out_dir.iterdir()):
-        if not child.is_dir():
+        try:
+            resolved = child.resolve()
+            if resolved == root or not resolved.is_relative_to(root) or not resolved.is_dir():
+                continue
+        except (OSError, RuntimeError):
             continue
-        case_path = child / CASE_FILE_NAME
-        if not case_path.is_file():
-            continue
-        case = _read_json_object(case_path)
+        case = _read_case_file(child)
         if case is not None:
             runs.append((child, case))
     return runs
@@ -419,7 +437,7 @@ def _party_record(run_dir: Path) -> Optional[Dict[str, Any]]:
     """The dispute record a party-filed run carries, or None (a CLI run has none)."""
     if not (run_dir / DISPUTE_FILE_NAME).is_file():
         return None
-    return _read_json_object(run_dir / DISPUTE_FILE_NAME)
+    return _read_run_json(run_dir, DISPUTE_FILE_NAME)
 
 
 def _record_filed_by(record: Dict[str, Any]) -> Any:
@@ -758,7 +776,7 @@ def _recent_runs(out_dir: Path) -> List[Dict[str, Any]]:
                 continue
         except (OSError, RuntimeError):
             continue
-        case = _read_json_object(run_dir / CASE_FILE_NAME)
+        case = _read_case_file(run_dir)
         if case is None:
             continue
         entry = _recent_run_entry(run_id, case, run_dir)
@@ -1165,7 +1183,7 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
 
     def _review_case(self, state: "_ServerState", run_id: str) -> None:
         run_dir = self._resolve_run_dir(state, run_id)
-        case_file = _read_json_object(run_dir / CASE_FILE_NAME)
+        case_file = _read_case_file(run_dir)
         if case_file is None:
             raise _HTTPError(404, "unknown run")
         self._send_json(200, {
@@ -1199,7 +1217,7 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
     def _record_human_decision(self, state: "_ServerState", run_id: str) -> None:
         """Store one human decision on a withheld run and return it with the new view."""
         run_dir = self._resolve_run_dir(state, run_id)
-        case_file = _read_json_object(run_dir / CASE_FILE_NAME)
+        case_file = _read_case_file(run_dir)
         if case_file is None:
             raise _HTTPError(404, "unknown run")
         body = self._read_body()
@@ -1245,14 +1263,9 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
     def _answer_run(self, state: "_ServerState", run_id: str) -> None:
         run_dir = self._resolve_run_dir(state, run_id)
 
-        case_path = run_dir / CASE_FILE_NAME
-        dispute_path = run_dir / DISPUTE_FILE_NAME
-        try:
-            case_file = json.loads(case_path.read_text(encoding="utf-8"))
-            record = json.loads(dispute_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            raise _HTTPError(404, "unknown run")
-        if not isinstance(case_file, dict) or not isinstance(record, dict):
+        case_file = _read_case_file(run_dir)
+        record = _read_run_json(run_dir, DISPUTE_FILE_NAME)
+        if case_file is None or record is None:
             raise _HTTPError(404, "unknown run")
 
         resolution = case_file.get("resolution")
