@@ -212,7 +212,7 @@ labelled exactly once, no label leaking into a record, every label carrying a ra
 checks policy agreement (no label cites a rule that is not in `docs/policy.md`, and the thresholds
 the tests use are parsed from the policy's own parameters table rather than trusted as copies).
 The part that matters most is **evidence agreement**: every labelled refund amount must match a
-number the Evidence Pack actually computes from that record. The policy's mechanical thresholds
+number the Evidence Pack actually computes from that record, and the policy's mechanical thresholds
 applied to the pack must not contradict the label.
 
 That last check earned its place during authoring. It caught two labels whose amounts were written

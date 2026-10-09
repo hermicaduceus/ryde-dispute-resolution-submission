@@ -151,8 +151,8 @@ to what it tests; `<pack>/ground-truth.json` holds the expected outcomes, delibe
 of the records the agents see.
 
 Seven gates stand between a ruling and the parties, and **all seven are enforced in Python, not
-asked of the model in a prompt**. The confidence threshold is one, and so is ESC-4's SGD 50
-autonomous cap. ESC-2 withholds a route-case ruling when the deviation cannot be measured or the
+asked of the model in a prompt**. The confidence threshold is one of them, and so is ESC-4's SGD
+50 autonomous cap. ESC-2 withholds a route-case ruling when the deviation cannot be measured or the
 fare charged cannot be established. NS-6 withholds a contested no-show unless the ruling is a
 refund of exactly the fee for a low fee and a clean rider record. NS-8 withholds a no-show refund
 larger than the recorded fee, any compensation on a no-show case, or any refund whose fee the
