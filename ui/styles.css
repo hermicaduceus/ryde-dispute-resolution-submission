@@ -1638,3 +1638,117 @@ input[type="file"] {
   min-height: 44px;
   max-width: 100%;
 }
+
+/* W35: Recent runs. The panel matches the queue panel; each row is a wrapping flex line
+   like a queue row, and a long list scrolls inside itself. */
+#runs-panel {
+  margin-top: 28px;
+  padding: 20px 22px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+#runs-panel .section-heading > div {
+  min-width: 0;
+}
+
+#runs-status {
+  min-height: 20px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.runs-list {
+  display: grid;
+  gap: 8px;
+  max-height: min(26rem, 70vh);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.runs-list > .run-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.run-row > span {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.run-row > .run-category {
+  font-weight: 700;
+}
+
+.run-row > .run-id,
+.run-row > .run-outcome,
+.run-row > .run-generated,
+.run-row > .run-decided {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.run-row > .run-open {
+  flex: 0 0 auto;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px 12px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.run-row > .run-open:hover {
+  background: var(--canvas);
+  border-color: var(--muted);
+}
+
+.runs-list > .run-row.is-open {
+  background: var(--canvas);
+  border-color: var(--muted);
+}
+
+.run-open-status {
+  flex: 1 0 100%;
+  margin: 0;
+  color: var(--red);
+  font-size: 12px;
+}
+
+.run-open-status:empty {
+  display: none;
+}
+
+/* W35: the run-folder picker's hint. */
+.loader-hint {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* W35: the prompt card's full text takes the dark code panel of the event payloads, so the
+   light text is readable (it sat on the white claim card at 1.15:1). */
+#prompts-content details > .payload-json {
+  margin-top: 10px;
+  padding: 12px;
+  background: #182334;
+  border: 1px solid #2f455f;
+  color: #e7eef7;
+}

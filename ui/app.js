@@ -17,6 +17,7 @@
     payloadFiles: {},
     openRun: null,
     currentQueueRun: null,
+    currentList: null,
     openGeneration: 0,
     promptsGeneration: 0,
     pendingOpens: [],
@@ -30,7 +31,13 @@
   var PROMPTS_SHOW_FULL_TEXT = "Show full text";
   var RUN_ID_PATTERN = /^[A-Za-z0-9._-]{1,128}$/;
 
-  var picker = document.getElementById("case-picker");
+  var CASE_FILE_NAME = "case_file.json";
+  var RUN_FOLDER_NO_CASE_FILE = "This folder has no case_file.json. Pick the run folder itself, "
+    + "named like 20260921T161731Z-RD-0109, not a folder inside it such as payloads/.";
+  var RUN_FOLDER_SEVERAL_RUNS = "This folder holds run folders, not one run. "
+    + "Open it and pick one run folder, named like 20260921T161731Z-RD-0109.";
+  var RUNS_UNAVAILABLE = "Recent runs are not available here. Open the console from the running server to use them.";
+  var RUNS_EMPTY = "No runs yet.";
   var runFolderPicker = document.getElementById("run-folder-picker");
   var status = document.getElementById("load-status");
   var payloadStatus = document.getElementById("payload-status");
@@ -49,6 +56,8 @@
   var queueContent = document.getElementById("queue-content");
   var overridesStatus = document.getElementById("overrides-status");
   var overridesContent = document.getElementById("overrides-content");
+  var runsStatus = document.getElementById("runs-status");
+  var runsContent = document.getElementById("runs-content");
   var decisionSection = document.getElementById("decision-section");
   var decisionContent = document.getElementById("decision-content");
   var reviewUi = queueRefresh && queueStatus && queueContent && overridesStatus
@@ -162,6 +171,27 @@
     var relative = file.webkitRelativePath || file.name;
     var separator = relative.indexOf("/");
     return separator === -1 ? relative : relative.slice(separator + 1);
+  }
+
+  // W35: a picked run folder carries its case file at <picked>/case_file.json. The browser
+  // names every file "<picked folder>/<path inside it>", so the case file is the one whose
+  // path has exactly two parts. A case file one level further down means the picked folder
+  // holds run folders (runs/ itself), which is a different mistake with its own message.
+  function pickedRunFolder(files) {
+    var found = { file: null, label: "", error: RUN_FOLDER_NO_CASE_FILE };
+    var nested = false;
+    Array.prototype.forEach.call(files || [], function (file) {
+      var parts = String(file && file.webkitRelativePath || "").split("/");
+      if (parts.length === 2 && parts[0] !== "" && parts[1] === CASE_FILE_NAME) {
+        found = { file: file, label: parts[0] + "/" + CASE_FILE_NAME, error: null };
+      } else if (parts.length === 3 && parts[2] === CASE_FILE_NAME) {
+        nested = true;
+      }
+    });
+    if (!found.file && nested) {
+      found.error = RUN_FOLDER_SEVERAL_RUNS;
+    }
+    return found;
   }
 
   function attachRunFiles(files) {
@@ -995,24 +1025,52 @@
     setStatus("Loaded " + fileName + ".", "success");
   }
 
-  function handleFile(file) {
-    if (!file) {
-      return;
-    }
-
+  // A local load is a user action: it wins over a pending deep link, drops every pending
+  // server open and any late /prompts reply, and clears the server selection. Returns the
+  // generation the local read must still own when it settles.
+  function beginLocalLoad() {
     state.userActionSeen = true;
     state.openRun = null;
     state.currentQueueRun = null;
+    state.currentList = null;
     invalidatePendingOpens();
     state.promptsGeneration += 1;
-    var readGeneration = state.openGeneration;
     applyQueueSelection();
     if (decisionSection) {
       decisionSection.hidden = true;
     }
     state.payloadFiles = {};
     setPayloadStatus("Payload files are not attached.", "idle");
-    setStatus("Reading " + file.name + "…", "loading");
+    return state.openGeneration;
+  }
+
+  function showLoadFailure(message) {
+    state.openRun = null;
+    if (decisionSection) {
+      decisionSection.hidden = true;
+    }
+    workspace.hidden = true;
+    clear(metadataList);
+    clear(grievanceContent);
+    clear(evidenceContent);
+    if (promptsContent) {
+      clear(promptsContent);
+    }
+    clear(claimsContent);
+    clear(policyContent);
+    clear(resolutionContent);
+    clear(eventsContent);
+    setStatus(message, "error");
+  }
+
+  function handleFile(file, label, runFiles) {
+    if (!file) {
+      return;
+    }
+
+    var readGeneration = beginLocalLoad();
+    var name = label || file.name;
+    setStatus("Reading " + name + "…", "loading");
     file.text().then(function (text) {
       if (readGeneration !== state.openGeneration) {
         return;
@@ -1026,28 +1084,32 @@
       if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
         throw new Error("The selected JSON must contain one case-file object.");
       }
-      renderCase(file.name, parsed);
+      renderCase(name, parsed);
+      if (runFiles) {
+        attachRunFiles(runFiles);
+      }
     }).catch(function (error) {
       if (readGeneration !== state.openGeneration) {
         return;
       }
-      state.openRun = null;
-      if (decisionSection) {
-        decisionSection.hidden = true;
-      }
-      workspace.hidden = true;
-      clear(metadataList);
-      clear(grievanceContent);
-      clear(evidenceContent);
-      if (promptsContent) {
-        clear(promptsContent);
-      }
-      clear(claimsContent);
-      clear(policyContent);
-      clear(resolutionContent);
-      clear(eventsContent);
-      setStatus(error.message, "error");
+      showLoadFailure(error.message);
     });
+  }
+
+  // W35: one picker. The picked run folder's own case_file.json loads through handleFile and
+  // every file in the folder is attached for the event payloads, in one action.
+  function handleRunFolder(files) {
+    var list = Array.prototype.slice.call(files || []);
+    if (list.length === 0) {
+      return;
+    }
+    var picked = pickedRunFolder(list);
+    if (!picked.file) {
+      beginLocalLoad();
+      showLoadFailure(picked.error);
+      return;
+    }
+    handleFile(picked.file, picked.label, list);
   }
 
   function fetchJson(url, options) {
@@ -1202,17 +1264,24 @@
     });
   }
 
+  // The open case is marked in the list it was opened from (queue or Recent runs), so exactly
+  // one row on the page carries aria-current even when both lists show the same run.
   function applyQueueSelection() {
-    if (!queueContent || typeof queueContent.querySelectorAll !== "function") {
+    applyListSelection(queueContent, ".queue-row", ".queue-open", "queue");
+    applyListSelection(runsContent, ".run-row", ".run-open", "runs");
+  }
+
+  function applyListSelection(container, rowSelector, buttonSelector, list) {
+    if (!container || typeof container.querySelectorAll !== "function") {
       return;
     }
-    var rows = queueContent.querySelectorAll(".queue-row");
+    var rows = container.querySelectorAll(rowSelector);
     Array.prototype.forEach.call(rows, function (row) {
-      var button = typeof row.querySelector === "function" ? row.querySelector(".queue-open") : null;
+      var button = typeof row.querySelector === "function" ? row.querySelector(buttonSelector) : null;
       if (!button) {
         return;
       }
-      var current = state.currentQueueRun !== null
+      var current = state.currentQueueRun !== null && state.currentList === list
         && Boolean(row.dataset) && row.dataset.runId === state.currentQueueRun;
       if (current) {
         row.classList.add("is-open");
@@ -1338,10 +1407,98 @@
     });
   }
 
+  function outcomeLabel(outcome) {
+    if (outcome === "ruled") {
+      return "Ruled";
+    }
+    if (outcome === "withheld") {
+      return "Held for a human";
+    }
+    if (outcome === "human_review") {
+      return "Passed to support";
+    }
+    if (outcome === "needs_info") {
+      return "Asked for more information";
+    }
+    return "Outcome: " + displayValue(outcome);
+  }
+
+  // A row needs a run id the open path accepts; anything else (null, arrays, {}, strings,
+  // numbers, a malformed id) is skipped.
+  function isRunEntry(entry) {
+    return Boolean(entry) && typeof entry.run_id === "string" && RUN_ID_PATTERN.test(entry.run_id);
+  }
+
+  function renderRuns(data) {
+    clear(runsContent);
+    var runs = data && typeof data === "object" && !Array.isArray(data) && Array.isArray(data.runs)
+      ? data.runs.filter(isRunEntry)
+      : null;
+    if (runs === null) {
+      runsStatus.textContent = RUNS_UNAVAILABLE;
+      return;
+    }
+    if (runs.length === 0) {
+      runsStatus.textContent = RUNS_EMPTY;
+      return;
+    }
+    runsStatus.textContent = runs.length === 1 ? "1 run, newest first." : runs.length + " runs, newest first.";
+    var list = element("ol", "runs-list");
+    runs.forEach(function (entry) {
+      var row = element("li", "run-row");
+      row.dataset.runId = entry.run_id;
+      row.appendChild(element("span", "run-id", entry.run_id));
+      row.appendChild(element("span", "run-category", categoryLabel(entry.category)));
+      row.appendChild(element("span", "run-outcome", outcomeLabel(entry.outcome)));
+      row.appendChild(element("span", "run-generated", typeof entry.generated_at === "string" && entry.generated_at
+        ? entry.generated_at
+        : "Time not recorded"));
+      if (entry.has_human_decision === true) {
+        row.appendChild(element("span", "run-decided", "Human decision recorded"));
+      }
+      var open = element("button", "run-open", "Open case");
+      open.type = "button";
+      var openStatus = element("p", "run-open-status");
+      openStatus.setAttribute("role", "status");
+      openStatus.setAttribute("aria-live", "polite");
+      open.addEventListener("click", function () {
+        state.userActionSeen = true;
+        openCase(deepLinkEntry(entry.run_id), open, openStatus, "runs");
+      });
+      row.appendChild(open);
+      row.appendChild(openStatus);
+      list.appendChild(row);
+    });
+    runsContent.appendChild(list);
+    applyQueueSelection();
+  }
+
+  function loadRuns() {
+    if (!runsStatus || !runsContent) {
+      return Promise.resolve();
+    }
+    return fetchJson("/api/review/runs").then(function (data) {
+      renderRuns(data);
+    }).catch(function () {
+      clear(runsContent);
+      runsStatus.textContent = RUNS_UNAVAILABLE;
+    });
+  }
+
   function loadReviewPanels() {
     var queueLoad = loadQueue();
     loadOverrides();
+    loadRuns();
     return queueLoad;
+  }
+
+  // A Refresh the user asks for invalidates every pending open: the row it came from is
+  // about to be replaced. (No local read can be pending while a server open is.)
+  function refreshReviewPanels() {
+    if (state.pendingOpens.length > 0) {
+      invalidatePendingOpens();
+    }
+    return loadReviewPanels();
   }
 
   function prefersReducedMotion() {
@@ -1377,7 +1534,7 @@
     }
   }
 
-  function openCase(entry, button, statusElement) {
+  function openCase(entry, button, statusElement, list) {
     var runId = entry && typeof entry.run_id === "string" ? entry.run_id : "";
     state.openGeneration += 1;
     var generation = state.openGeneration;
@@ -1403,6 +1560,7 @@
         humanDecision: data.human_decision || null
       };
       state.currentQueueRun = runId;
+      state.currentList = list === "runs" ? "runs" : "queue";
       renderCase(runId, data.case_file);
       applyQueueSelection();
       revealCaseSummary();
@@ -1447,7 +1605,7 @@
     return runId === null || runId === undefined ? null : runId;
   }
 
-  function deepLinkEntry(runId) {
+  function queuedEntry(runId) {
     var entries = state.queueEntries;
     if (Array.isArray(entries)) {
       for (var index = 0; index < entries.length; index += 1) {
@@ -1457,7 +1615,13 @@
         }
       }
     }
-    return { run_id: runId };
+    return null;
+  }
+
+  // The entry an open passes on: the queue's own row for a queued run (its proposal makes the
+  // decision form identical to a queue click), else just the run id.
+  function deepLinkEntry(runId) {
+    return queuedEntry(runId) || { run_id: runId };
   }
 
   function openDeepLink(queueLoad) {
@@ -1474,7 +1638,7 @@
         if (state.userActionSeen) {
           return;
         }
-        openCase(deepLinkEntry(runId), null, null);
+        openCase(deepLinkEntry(runId), null, null, queuedEntry(runId) ? "queue" : "runs");
       });
       return;
     }
@@ -1818,17 +1982,13 @@
     decisionContent.appendChild(buildDecisionForm());
   }
 
-  picker.addEventListener("change", function () {
-    handleFile(picker.files[0]);
-  });
-
   runFolderPicker.addEventListener("change", function () {
-    attachRunFiles(runFolderPicker.files);
+    handleRunFolder(runFolderPicker.files);
   });
 
   var startupQueueLoad = null;
   if (reviewUi && typeof fetch === "function") {
-    queueRefresh.addEventListener("click", loadReviewPanels);
+    queueRefresh.addEventListener("click", refreshReviewPanels);
     startupQueueLoad = loadReviewPanels();
   }
 

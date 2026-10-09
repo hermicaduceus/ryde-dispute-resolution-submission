@@ -100,6 +100,9 @@ _PAYLOAD_NAME_RE = re.compile(r"^[0-9]{4}-[A-Za-z0-9._-]+\.json$")
 #: lookup never names a path, so only the pattern and the id's existence decide.
 _DISPUTE_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 
+#: W35: the console's Recent runs list shows at most this many runs, newest first.
+RECENT_RUNS_LIMIT = 100
+
 #: The driver the demo driver account speaks for: trip T-RD0109, the 33 km detour held
 #: by the SGD 50 cap, with the same id in both packs.
 DEMO_DRIVER_ID = "D-2009"
@@ -699,6 +702,73 @@ def _review_overrides(state: "_ServerState") -> Dict[str, Any]:
     return {"approved_count": approved_count, "groups": groups}
 
 
+def _recent_run_entry(run_id: str, case: Dict[str, Any], run_dir: Path) -> Optional[Dict[str, Any]]:
+    """One Recent runs row, or None when the case file lacks a field the console relies on.
+
+    The case must name this folder as its run_id (the console opens the folder by that id
+    and asks for its prompts by the case's run_id), carry a dispute id, and record an
+    outcome. Category and generated_at are shown when they are strings, else as "".
+    """
+    if case.get("run_id") != run_id:
+        return None
+    dispute_id = case.get("dispute_id")
+    if not isinstance(dispute_id, str) or not dispute_id:
+        return None
+    resolution = case.get("resolution")
+    if not isinstance(resolution, dict):
+        return None
+    outcome = resolution.get("outcome")
+    if not isinstance(outcome, str) or not outcome:
+        return None
+    category = case.get("category")
+    generated_at = case.get("generated_at")
+    return {
+        "run_id": run_id,
+        "dispute_id": dispute_id,
+        "category": category if isinstance(category, str) else "",
+        "outcome": outcome,
+        "generated_at": generated_at if isinstance(generated_at, str) else "",
+        "has_human_decision": load_decision(run_dir) is not None,
+    }
+
+
+def _recent_runs(out_dir: Path) -> List[Dict[str, Any]]:
+    """W35: the newest run folders the console can open by id, newest first. Read-only.
+
+    A folder is listed only when GET /api/review/<run_id>/case would open it: its name
+    passes the run-id rule, it resolves inside out_dir and is not out_dir itself (a
+    symlink that escapes is skipped), and it holds a case file that is a JSON object
+    with the fields the row needs. Anything else, a plain file included, is skipped,
+    never a 500. Ties on generated_at go to the larger run id; the list is cut at
+    RECENT_RUNS_LIMIT.
+    """
+    try:
+        root = out_dir.resolve()
+        children = list(out_dir.iterdir())
+    except OSError:
+        return []
+    found: List[Tuple[Any, str, Dict[str, Any]]] = []
+    for child in children:
+        run_id = child.name
+        if not _RUN_ID_RE.fullmatch(run_id) or run_id in (".", ".."):
+            continue
+        try:
+            run_dir = child.resolve()
+            if run_dir == root or not run_dir.is_relative_to(root):
+                continue
+        except (OSError, RuntimeError):
+            continue
+        case = _read_json_object(run_dir / CASE_FILE_NAME)
+        if case is None:
+            continue
+        entry = _recent_run_entry(run_id, case, run_dir)
+        if entry is None:
+            continue
+        found.append((_timestamp_key(case.get("generated_at")), run_id, entry))
+    found.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    return [entry for _key, _run_id, entry in found[:RECENT_RUNS_LIMIT]]
+
+
 # ------------------------------------------------------------------ filing builder
 
 
@@ -1026,6 +1096,9 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
                 "account": {"kind": "driver", "label": "Demo account", "driver_id": DEMO_DRIVER_ID},
                 "disputes": _account_entries(state, "driver"),
             })
+            return
+        if split.path == "/api/review/runs":
+            self._send_json(200, {"runs": _recent_runs(state.out_dir)})
             return
         if split.path == "/api/review/queue":
             self._send_json(200, {"cases": _review_queue(state)})
