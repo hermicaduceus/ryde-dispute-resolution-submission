@@ -1254,6 +1254,111 @@
    ".evidence-field, .evidence-field:nth-child(2n)",
    "border-bottom",
    "1px solid #e8edf3"
+  ],
+  [
+   "#runs-panel",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   "#runs-panel",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   "#runs-panel",
+   "border-left",
+   "4px solid var(--accent)"
+  ],
+  [
+   "#runs-panel",
+   "box-shadow",
+   "var(--shadow)"
+  ],
+  [
+   "#runs-status",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".runs-list > .run-row",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".runs-list > .run-row",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   ".runs-list > .run-row",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".run-row > .run-id, .run-row > .run-outcome, .run-row > .run-generated, .run-row > .run-decided",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".run-row > .run-open",
+   "color",
+   "var(--ink)"
+  ],
+  [
+   ".run-row > .run-open",
+   "background",
+   "var(--panel)"
+  ],
+  [
+   ".run-row > .run-open",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".run-row > .run-open:hover",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   ".run-row > .run-open:hover",
+   "border-color",
+   "var(--muted)"
+  ],
+  [
+   ".runs-list > .run-row.is-open",
+   "background",
+   "var(--canvas)"
+  ],
+  [
+   ".runs-list > .run-row.is-open",
+   "border-color",
+   "var(--muted)"
+  ],
+  [
+   ".run-open-status",
+   "color",
+   "var(--red)"
+  ],
+  [
+   ".loader-hint",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   "#prompts-content details > .payload-json",
+   "background",
+   "#182334"
+  ],
+  [
+   "#prompts-content details > .payload-json",
+   "border",
+   "1px solid #2f455f"
+  ],
+  [
+   "#prompts-content details > .payload-json",
+   "color",
+   "#e7eef7"
   ]
  ],
  "ui/party/party.css": [
@@ -1286,6 +1391,11 @@
    ":root",
    "--accent",
    "#e93864"
+  ],
+  [
+   ":root",
+   "--accent-strong",
+   "#cc2852"
   ],
   [
    ":root",
@@ -1325,7 +1435,7 @@
   [
    ".party-header .eyebrow",
    "color",
-   "var(--accent)"
+   "var(--accent-strong)"
   ],
   [
    ".party-header .eyebrow",
@@ -1375,7 +1485,7 @@
   [
    ".step-number",
    "background",
-   "var(--accent)"
+   "var(--accent-strong)"
   ],
   [
    ".step-number",
@@ -1505,12 +1615,12 @@
   [
    "button.primary",
    "background",
-   "var(--accent)"
+   "var(--accent-strong)"
   ],
   [
    "button.primary",
    "border-color",
-   "var(--accent)"
+   "var(--accent-strong)"
   ],
   [
    "button.primary",
@@ -1651,6 +1761,31 @@
    ".filing-shell .filing-fine-print",
    "color",
    "var(--muted)"
+  ],
+  [
+   ".filing-summary",
+   "background",
+   "var(--tint)"
+  ],
+  [
+   ".filing-summary",
+   "border",
+   "1px solid var(--line)"
+  ],
+  [
+   ".filing-summary-label",
+   "color",
+   "var(--muted)"
+  ],
+  [
+   ".sending-spinner",
+   "border",
+   "3px solid var(--line)"
+  ],
+  [
+   ".sending-spinner",
+   "border-top-color",
+   "var(--accent)"
   ]
  ]
 }
