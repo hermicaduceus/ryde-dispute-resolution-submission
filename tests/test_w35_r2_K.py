@@ -66,7 +66,9 @@ PROTECTED_TREE_SHA = "056bcf2ee57903367910ffa25ef621a7bd358f9430bbce8040466d2547
 PROTECTED_TREE_FILES = 49
 # app/human_review.py at 55204c1 with load_decision removed (from "def load_decision(" up to the
 # party-message section marker): everything else in the human-decision module is unchanged.
-HUMAN_REVIEW_REST_SHA = "f1bf780bb4e28bafefe70162a939e7fa291f725b15d36968542ef9db85ed5f6d"
+# Re-baselined for W35 R3 (planner): decision_record_is_valid type-checks the action before the
+# set membership test (tests/test_w35_r3.py); nothing else in that span moved.
+HUMAN_REVIEW_REST_SHA = "63b745bba4a52b570d05c6c25d8e7388b21e7f921b3a51db76a78741a7f48b5e"
 
 
 # ------------------------------------------------------------------ the fake-DOM driver
