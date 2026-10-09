@@ -574,13 +574,19 @@ body:has(.filing-shell #form-steps:not([hidden])) {
 }
 
 .filing-summary-label {
+  display: inline;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--muted);
 }
 
 .filing-summary-category {
+  display: inline;
   font-weight: 600;
+}
+
+.filing-summary-trip {
+  margin-top: 0.4rem;
 }
 
 .filing-summary-trip strong {

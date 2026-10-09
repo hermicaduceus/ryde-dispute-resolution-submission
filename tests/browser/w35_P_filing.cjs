@@ -16,7 +16,7 @@ const puppeteer = require(process.env.PUPPETEER_MODULE || 'puppeteer');
 const [base, output] = process.argv.slice(2);
 fs.mkdirSync(path.dirname(output), {recursive: true});
 
-const SUMMARY_LABEL = 'You are disputing';
+const SUMMARY_LABEL = 'Your dispute:';
 const SUBMIT = 'Send my dispute', SENDING = 'Sending\u2026';
 const STATUS = 'Sending your dispute. This can take a little while, so please keep this page open.';
 const REFUSAL = 'Fixture refusal: please try again.';

@@ -6,7 +6,7 @@ P1  Status page: on a screen at least 654px tall the page header and the "Look u
     8rem floor, and from 651px the header clips). A lookup result takes the room above the list (the list
     keeps 8rem, the header 4.5rem) and only then scrolls, inside the lookup box.
     The geometry is a real-browser contract: tests/browser/w35_P_status.cjs.
-P2+P3  Step 3 opens with a read-only summary ("You are disputing"): the step 1 category label and
+P2+P3  Step 3 opens with a read-only summary ("Your dispute:"): the step 1 category label and
     the step 2 trip card, rendered by the same code as the card. It updates whenever the party
     goes Back and changes either. It never pushes Send/Back below the fold
     (tests/browser/w35_P_filing.cjs).
@@ -39,7 +39,7 @@ REPO = Path(__file__).resolve().parent.parent
 PARTY = REPO / "ui" / "party"
 FILING_PAGES = ("index.html", "driver-filing.html")
 
-SUMMARY_LABEL = "You are disputing"
+SUMMARY_LABEL = "Your dispute:"
 SUBMIT_LABEL = "Send my dispute"
 SENDING_LABEL = "Sending\u2026"
 SENDING_STATUS = "Sending your dispute. This can take a little while, so please keep this page open."
@@ -717,10 +717,13 @@ W35_PARTY = [
     ((), ".filing-summary", "border", "1px solid var(--line)"),
     ((), ".filing-summary", "border-radius", "14px"),
     ((), ".filing-summary p", "margin", "0"),
+    ((), ".filing-summary-label", "display", "inline"),
     ((), ".filing-summary-label", "font-size", "0.75rem"),
     ((), ".filing-summary-label", "font-weight", "600"),
     ((), ".filing-summary-label", "color", "var(--muted)"),
+    ((), ".filing-summary-category", "display", "inline"),
     ((), ".filing-summary-category", "font-weight", "600"),
+    ((), ".filing-summary-trip", "margin-top", "0.4rem"),
     ((), ".filing-summary-trip strong", "display", "block"),
     ((), FRAME + " .filing-summary", "flex", "0 0 auto"),
     ((), FRAME + " .filing-summary", "max-height", "calc(100% - 10rem)"),
