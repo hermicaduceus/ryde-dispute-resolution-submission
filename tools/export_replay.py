@@ -71,7 +71,8 @@ DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 CATEGORY_RE = re.compile(r'\{\s*id:\s*"([a-z_]+)",\s*label:')
 
 #: The fixed URLs every snapshot records, before the per-run ones.
-FIXED_PATHS = ("/api/review/queue", "/api/review/overrides", "/api/demo/rider", "/api/demo/driver")
+FIXED_PATHS = ("/api/review/queue", "/api/review/overrides", "/api/demo/rider", "/api/demo/driver",
+               "/api/review/runs")
 
 
 class Refusal(Exception):

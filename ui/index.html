@@ -45,15 +45,25 @@
       <div id="overrides-content"></div>
     </section>
 
+    <section id="runs-panel" aria-labelledby="runs-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">OPERATOR CONSOLE</p>
+          <h2 id="runs-title">Recent runs</h2>
+        </div>
+      </div>
+      <p id="runs-status" role="status" aria-live="polite">Loading recent runs…</p>
+      <div id="runs-content"></div>
+    </section>
+
     <section class="loader-panel" aria-labelledby="loader-title">
       <div class="section-heading">
         <p class="eyebrow">INPUT</p>
         <h2 id="loader-title">Load a case file</h2>
       </div>
-      <label for="case-picker">Case file JSON</label>
-      <input id="case-picker" type="file" accept=".json,application/json">
-      <label for="run-folder-picker">Run directory for event payloads (optional)</label>
-      <input id="run-folder-picker" type="file" webkitdirectory directory multiple>
+      <label for="run-folder-picker">Run folder</label>
+      <p id="run-folder-hint" class="loader-hint">Pick one run folder inside runs/, named like 20260921T161731Z-RD-0109. Select the folder itself, not the files inside it.</p>
+      <input id="run-folder-picker" type="file" webkitdirectory directory multiple aria-describedby="run-folder-hint">
       <p id="load-status" role="status" aria-live="polite">No case file loaded.</p>
       <p id="payload-status" class="payload-status" role="status" aria-live="polite">Payload files are not attached.</p>
     </section>
