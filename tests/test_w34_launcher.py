@@ -104,7 +104,7 @@ FROZEN_W34 = {
     "app/evidence/__init__.py": "befc73254285cb0e6fb5039b5bd7c96cf321430e643a9295022ce17f34e3e6c4",
     "app/evidence/compute.py": "f39c6d645c366fddb97c4d9fdb6856c758ab499469e941bbb2aa248fd4e46bcb",
     "app/evidence/schema.py": "c43dde67551b751c98383700b98d0c305c9a970031e109713108430044ca59f3",
-    "app/human_review.py": "579f0f92ff3af310a2abb4d44f2b8d8be539c3a621443e76e234dfdb6768f0ac",
+    # W35 R2 lane K released app/human_review.py (tests/test_w35_r2_K.py pins the rest of the module).
     "app/llm/__init__.py": "014cc053124a4bf057bba9c3f2760c83eae0f37f3a7ac729d8e782db34c258ac",
     "app/llm/base.py": "dda8c03d2a79d37ac68d1a4f848937533af9a49f982d2bb26535d8269cf1aae4",
     "app/llm/mock.py": "37777c29c01460750df771d446b673ddb00245356e5a4f4568d069aa3a05d496",

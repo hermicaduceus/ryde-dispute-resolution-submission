@@ -566,7 +566,8 @@ STATUS_FRAME = {
                                   ("height", "100dvh"), ("overflow", "hidden")],
     "body:has(> .status-shell) > .switch-bar": [("flex", "none")],
     ".status-shell": [("flex", "1 1 auto"), ("min-height", "0"), ("width", "100%"), ("display", "flex"),
-                      ("flex-direction", "column"), ("gap", "0.5rem"), ("padding", "0.5rem 1.25rem")],
+                      ("flex-direction", "column"), ("gap", "0.5rem"), ("padding", "0.5rem 1.25rem"),
+                      ("overflow-y", "auto")],
     ".status-shell > .party-header": [("flex", "0 1 auto"), ("min-height", "4.5rem"), ("overflow-y", "auto")],
     ".status-shell > .party-header h1": [("font-size", "1.25rem"), ("line-height", "1.2"), ("margin", "0.25rem 0")],
     ".status-shell > .party-header .eyebrow": [("font-size", "0.65rem"), ("padding", "0.1rem 0.5rem")],
@@ -574,17 +575,16 @@ STATUS_FRAME = {
                                                  ("font-size", "0.75rem")],
     ".status-shell > .party-header .intro": [("font-size", "0.85rem"), ("margin", "0")],
     ".status-shell > .party-header > p:last-child": [("margin", "0.375rem 0 0")],
-    ".status-shell > .status-lookup": [("margin", "0"), ("padding", "0.75rem"), ("flex", "0 1 auto"),
-                                       ("min-height", "0"), ("display", "flex"), ("flex-direction", "column")],
-    ".status-shell > .status-lookup > :not(#lookup-result)": [("flex", "none")],
+    ".status-shell > .status-lookup": [("margin", "0"), ("padding", "0.75rem"), ("flex", "none")],
     ".status-shell > .status-list": [("margin", "0"), ("padding", "0.75rem"), ("flex", "1 1 0"),
                                      ("min-height", "8rem"), ("display", "flex"), ("flex-direction", "column")],
     ".status-shell .step h2": [("margin-bottom", "0.5rem")],
     ".status-shell > .status-lookup .field": [("margin-bottom", "0.5rem")],
     ".status-shell > .status-lookup .step-actions": [("margin-top", "0.5rem"), ("padding-top", "0.5rem")],
-    ".status-shell > .status-lookup > #lookup-result": [("flex", "0 1 auto"), ("min-height", "0"),
-                                                        ("overflow-y", "auto"), ("overscroll-behavior", "contain")],
-    ".status-shell > .status-lookup > #lookup-result > .step": [("margin", "0.5rem 0 0"), ("padding", "0.75rem")],
+    ".status-shell > #lookup-result:empty": [("display", "none")],
+    ".status-shell > #lookup-result": [("flex", "0 1 auto"), ("min-height", "5rem"),
+                                       ("overflow-y", "auto"), ("overscroll-behavior", "contain")],
+    ".status-shell > #lookup-result > .step": [("margin", "0"), ("padding", "0.75rem")],
     ".status-shell > .status-list > h2": [("flex", "0 0 auto")],
     ".status-shell > .status-list > #account-list": [("flex", "1 1 auto"), ("min-height", "0"),
                                                      ("overflow-y", "auto"), ("overscroll-behavior", "contain"),
@@ -602,7 +602,10 @@ class StatusPageFrame(unittest.TestCase):
         sections = [k for k in elements(main[0]) if k["tag"] == "section"]
         self.assertEqual([["step", "status-lookup"], ["step", "status-list"]], [classes(s) for s in sections])
         self.assertEqual("Look up a reference number", text_of(elements(sections[0])[0]))
-        self.assertTrue(find_all(sections[0], lambda n: n["attrs"].get("id") == "lookup-result"))
+        # W35 round 2: the result block is the shell's own child, between the lookup box and the
+        # list (tests/test_w35_r2_S.py pins the order), so the lookup box never holds it.
+        self.assertFalse(find_all(sections[0], lambda n: n["attrs"].get("id") == "lookup-result"))
+        self.assertEqual(1, len([k for k in elements(main[0]) if k["attrs"].get("id") == "lookup-result"]))
         self.assertEqual("My disputes", text_of(elements(sections[1])[0]))
         region = by_id(tree, "account-list")
         self.assertEqual(sections[1], next(s for s in sections if region in elements(s)))
