@@ -90,11 +90,16 @@ body:has(.filing-shell #form-steps:not([hidden])) > .filing-shell {
 /* W35: the status page is one screen too, when the screen is tall enough. The
    header and the "Look up a reference number" box stay put; only the "My
    disputes" list scrolls, inside its own region, so scrolling the list never
-   hides the lookup box. A lookup result takes the room above the list: the
-   list gives up height down to 8rem and the header down to 4.5rem, and only
-   then does the result scroll, inside the lookup box. Below 654px the page
-   scrolls normally instead: there, on a 320px phone, the fixed header and
-   lookup box would press the list to its 8rem floor and then clip the header. */
+   hides the lookup box. The lookup box itself never shrinks: its title, field,
+   error line and Check status button always keep their room. A lookup result
+   is its own block under the box and takes the room above the list: the list
+   gives up height down to 8rem and the header down to 4.5rem, and only then
+   does the result scroll, inside its own window (never below 5rem). If those
+   floors still do not fit (a long error message, or the replay banner that
+   sits above the switch bar in an exported replay) the shell scrolls, so
+   nothing is ever covered or cut off. Below 654px the page scrolls normally
+   instead: there, on a 320px phone, the fixed header and lookup box would
+   press the list to its 8rem floor and then clip the header. */
 @media (min-height: 654px) {
   body:has(> .status-shell) {
     display: flex;
@@ -116,6 +121,7 @@ body:has(.filing-shell #form-steps:not([hidden])) > .filing-shell {
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.5rem 1.25rem;
+    overflow-y: auto;
   }
 
   .status-shell > .party-header {
@@ -157,13 +163,6 @@ body:has(.filing-shell #form-steps:not([hidden])) > .filing-shell {
   }
 
   .status-shell > .status-lookup {
-    flex: 0 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .status-shell > .status-lookup > :not(#lookup-result) {
     flex: none;
   }
 
@@ -180,15 +179,19 @@ body:has(.filing-shell #form-steps:not([hidden])) > .filing-shell {
     padding-top: 0.5rem;
   }
 
-  .status-shell > .status-lookup > #lookup-result {
+  .status-shell > #lookup-result:empty {
+    display: none;
+  }
+
+  .status-shell > #lookup-result {
     flex: 0 1 auto;
-    min-height: 0;
+    min-height: 5rem;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
 
-  .status-shell > .status-lookup > #lookup-result > .step {
-    margin: 0.5rem 0 0;
+  .status-shell > #lookup-result > .step {
+    margin: 0;
     padding: 0.75rem;
   }
 
