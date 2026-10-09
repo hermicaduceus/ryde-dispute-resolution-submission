@@ -28,7 +28,7 @@ and its provenance is theirs, not ours. No real trip, rider, driver, GPS trace o
 anywhere in either pack.**
 
 The challenge statement promised a sample dataset; one sample dispute (`DISP-002`) arrived on
-2026-09-23, which is a sample rather than a corpus, and Ryde publishes no dispute statistics —
+2026-09-23, which is a sample rather than a corpus. Ryde publishes no dispute statistics —
 confirmed against LTA's Point-to-Point Quality of Service releases (which measure safety, not fare
 disputes), CASE's annual complaint reports (which have no ride-hailing category), and Ryde Group's
 own SEC filings. The absence is documented, not assumed.
@@ -57,7 +57,7 @@ the organisers' own no-show case, copied byte-for-byte from the file they shared
 their stated ruling. Every synthetic case is a **twin** of its `ryde-synth-v1` counterpart: same
 facts, same numbers, different field names. `tests/test_organiser_pack.py` compares the two packs
 field by field, and `tests/test_organiser_reader.py` requires the Evidence Pack computed from a
-case and from its twin to agree on every number a ruling can rest on — a reader that maps one
+case and from its twin to agree on every number a ruling can rest on. A reader that maps one
 field wrong shows up there as a named mismatched field, not as a wrong ruling much later.
 
 Where the organisers' shape has no slot for something we carry (the claim amount, the intake-form
@@ -208,12 +208,12 @@ breakdown is inconsistent, and that inconsistency is the thing being tested.
 ## Verification
 
 `tests/test_corpus.py` (28 tests) is the guard on this artifact. It checks structure (every case
-labelled exactly once, no label leaking into a record, every label carrying a rationale), policy
-agreement (no label cites a rule that is not in `docs/policy.md`, and the thresholds the tests use
-are parsed from the policy's own parameters table rather than trusted as copies), and — the part
-that matters most — **evidence agreement**: every labelled refund amount must match a number the
-Evidence Pack actually computes from that record, and the policy's mechanical thresholds applied
-to the pack must not contradict the label.
+labelled exactly once, no label leaking into a record, every label carrying a rationale). It
+checks policy agreement (no label cites a rule that is not in `docs/policy.md`, and the thresholds
+the tests use are parsed from the policy's own parameters table rather than trusted as copies).
+The part that matters most is **evidence agreement**: every labelled refund amount must match a
+number the Evidence Pack actually computes from that record. The policy's mechanical thresholds
+applied to the pack must not contradict the label.
 
 That last check earned its place during authoring. It caught two labels whose amounts were written
 by hand and were wrong: RD-0101 was labelled 4.81 against a computed 5.81, and RD-0109 was labelled
@@ -236,13 +236,13 @@ Every case also runs end to end through the real pipeline without error.
 Run `python3 -m app.eval` to evaluate every labelled case. Use `--pack NAME` repeatedly to select
 packs, `--llm mock|tencent` to choose the provider, `--out DIR` to choose the output root, and
 `--repeat N` to run every case N times. Reports land under `<out>/<pack>/report.json` and
-`<out>/<pack>/report.md`, with case artifacts beside them. “Decisions matching the label” means
-outcome, action, and cent-rounded amount agree with the label. “Rulings citing every decisive rule”
+`<out>/<pack>/report.md`, with case artifacts beside them. "Decisions matching the label" means
+outcome, action, and cent-rounded amount agree with the label. "Rulings citing every decisive rule"
 means every non-`ESC-` decisive label rule appears in the candidate's citations. A case that stops
 to ask the party is answered in round two with "I have nothing more to add", and the final ruling
-is what gets scored; the stop is still reported on its own line. “Decided without a human” counts
+is what gets scored; the stop is still reported on its own line. "Decided without a human" counts
 the cases the system ruled itself, without escalating to a person. With `--repeat N`, the
-“Same decision on all N runs” line counts the cases whose decision was identical on every run —
+"Same decision on all N runs" line counts the cases whose decision was identical on every run —
 a case that failed a run is never counted. A mock run checks wiring only; this section makes no
 score claim. A case the model could not answer is scored `model failed`, never a match, and makes
 the command exit 2.

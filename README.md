@@ -144,24 +144,22 @@ not signed-in accounts. Entering an amount is a request, not a payment.
 
 The corpus lives in two swappable packs under `data/packs/`: `ryde-synth-v1` (our 17 labelled
 cases, our record shape) and `organiser-style-v1` (the same 17 cases as twins in the organisers'
-shape, plus the organisers' own `DISP-002` verbatim). `RD-0103` is a deviation too small to
-matter, `NS-0203` is a driver who marked arrival 885 m from the pickup point, `RD-0109` is a
-remedy above the autonomous cap that the system refuses to issue on its own, and `OS-0301` is an
-out-of-scope filing routed to human review without an LLM call. `docs/dataset.md` maps each case
+shape, plus the organisers' own `DISP-002` verbatim). `RD-0103` is a deviation too small to matter. `NS-0203` is a driver who marked arrival 885 m
+from the pickup point. `RD-0109` is a remedy above the autonomous cap that the system refuses to
+issue on its own. `OS-0301` is an out-of-scope filing routed to human review without an LLM call. `docs/dataset.md` maps each case
 to what it tests; `<pack>/ground-truth.json` holds the expected outcomes, deliberately kept out
 of the records the agents see.
 
 Seven gates stand between a ruling and the parties, and **all seven are enforced in Python, not
-asked of the model in a prompt**: the confidence threshold, ESC-4's SGD 50 autonomous cap, ESC-2,
-which withholds a route-case ruling when the deviation cannot be measured or the fare charged
-cannot be established, NS-6, which withholds a
-contested no-show unless the ruling is a refund of exactly the fee for a low fee and a clean rider
-record, NS-8, which withholds a no-show refund larger than the recorded fee, any compensation on a
-no-show case, or any refund whose fee the record cannot prove, RD-5, which withholds a route ruling
-that refunds less than the overcharge the records prove, and RD-4, which withholds a route refund
-larger than the records prove the rider overpaid (a fixed fare paid as quoted proves nothing) and
-any compensation on a route case. Each gate withholds the ruling for a human; none of them rewrites
-what the Judge proposed.
+asked of the model in a prompt**. The confidence threshold is one, and so is ESC-4's SGD 50
+autonomous cap. ESC-2 withholds a route-case ruling when the deviation cannot be measured or the
+fare charged cannot be established. NS-6 withholds a contested no-show unless the ruling is a
+refund of exactly the fee for a low fee and a clean rider record. NS-8 withholds a no-show refund
+larger than the recorded fee, any compensation on a no-show case, or any refund whose fee the
+record cannot prove. RD-5 withholds a route ruling that refunds less than the overcharge the
+records prove. RD-4 withholds a route refund larger than the records prove the rider overpaid (a
+fixed fare paid as quoted proves nothing) and any compensation on a route case. Each gate
+withholds the ruling for a human; none of them rewrites what the Judge proposed.
 Try them:
 
 ```bash

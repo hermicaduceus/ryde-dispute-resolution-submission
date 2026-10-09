@@ -14,11 +14,11 @@ cases, applies company policy and issues a ruling with a confidence score. Every
 figure the agents argue from comes from a deterministic Evidence Pack calculated in Python
 before any model is called; agents cite pack fields by reference and are forbidden from
 doing their own arithmetic, and the only other number they see is the amount the party
-asked for. The decisions that must never depend on a model's obedience — the confidence
-threshold, the SGD 50 autonomous cap, the requirement that a route ruling rest on a measured
-deviation, the four money gates NS-6, NS-8, RD-5 and RD-4, the one-round follow-up limit, and the routing of
-out-of-scope categories to human review — are enforced in Python code, not asked of the model in
-a prompt. The system
+asked for. The decisions that must never depend on a model's obedience are enforced in Python code,
+not asked of the model in a prompt: the confidence threshold, the SGD 50 autonomous cap, the
+requirement that a route ruling rest on a measured deviation, the four money gates NS-6,
+NS-8, RD-5 and RD-4, the one-round follow-up limit, and the routing of out-of-scope
+categories to human review. The system
 has two surfaces: an operator console that shows the full case file and the agent-to-agent
 traffic, and a party page where the filing party submits the form and reads only what they
 are allowed to read.
@@ -136,7 +136,7 @@ the model in a prompt:
 |---|---|---|
 | Confidence threshold | `app/agents/judge.py` | `ruling.confidence < confidence_threshold` — the threshold is 0.65, read from `app/config.json` |
 | ESC-4, the autonomous cap | `app/agents/judge.py` | A money ruling whose `recommended_amount_sgd` exceeds the cap is withheld; the cap is SGD 50 from `app/config.json` |
-| ESC-2, unmeasured deviation, unproven charge or unreadable fare input | `app/agents/judge.py` | On a route-deviation case, the ruling is withheld when `route.deviation_pct` is not a recorded finite figure, when `fare.charged_sgd` is not one (or the fare block is absent), or when the record states a fare input it cannot read (`fare.unreadable_inputs` non-empty: a broken tariff rate or promo) — EV-1 names the deviation and the fare charged as the figures a fare finding needs, and a figure the record cannot prove is a missing figure |
+| ESC-2, unmeasured deviation, unproven charge or unreadable fare input | `app/agents/judge.py` | On a route-deviation case, the ruling is withheld when `route.deviation_pct` is not a recorded finite figure; when `fare.charged_sgd` is not one, or the fare block is absent; or when the record states a fare input it cannot read (`fare.unreadable_inputs` non-empty: a broken tariff rate or promo). EV-1 names the deviation and the fare charged as the figures a fare finding needs, and a figure the record cannot prove is a missing figure |
 | NS-6, contested no-show | `app/agents/judge.py` | On a no-show case where the driver marked a no-show, the rider claims the driver was absent, and `cancellation.driver_distance_from_pickup_m` is null, the fee has no GPS proof: a refund is issued automatically only when the fee is at most SGD 10 and the rider's `fraud_flags` are recorded and zero with no more than half of past disputes rejected; any other ruling is withheld, and the refund must equal the fee to the cent |
 | NS-8, no-show refund ceiling | `app/agents/judge.py` | On a no-show case, a refund larger than the recorded `cancellation.cancellation_fee_sgd` is withheld — the fee is the ceiling every no-show rule orders within — and a `compensation` ruling is always withheld, because a no-show record proves nothing owed to the driver; a fee that is missing or not a recorded finite figure withholds any refund, since the records then prove no ceiling either way |
 | RD-5, proven overcharge | `app/agents/judge.py` | On a route-deviation case where `fare.difference_sgd` is recorded and at least SGD 1.00, a ruling that refunds less than the proven difference is withheld |
@@ -188,10 +188,10 @@ are protected differently. The decision message is composed in code from structu
 so nothing model-written reaches it: it names the action and the amount — a no-action ruling
 carries no amount — and at most three rule titles, never the escalation (ESC) rules. On a
 decided view the message leads with a demo notice whenever the ruling's LLM record does not
-prove the real provider — only a record that is a non-array dict whose provider field is
-exactly `tencent` suppresses it, and any other record, missing, mock or malformed, keeps it —
-so a decision made on an illustrative run never reads like a live review, while a proven
-real-provider decision shows no notice.
+prove the real provider. Only a record that is a non-array dict whose provider field is
+exactly `tencent` suppresses it; any other record, missing, mock or malformed, keeps it.
+That way a decision made on an illustrative run never reads like a live review, while a
+proven real-provider decision shows no notice.
 Follow-up questions are selected by the advocates as slot IDs; code renders each sentence
 from the fixed category bank or from a role-specific intake form label. Category and filer
 select the offered questions for both advocates. Driver form slots use distinct actor-directed
