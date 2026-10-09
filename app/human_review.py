@@ -113,7 +113,10 @@ def decision_record_is_valid(value: Any) -> bool:
     """
     if not isinstance(value, dict):
         return False
-    if value.get("action") not in {member.value for member in RulingAction}:
+    action = value.get("action")
+    # The type check comes first: a list or object action is unhashable, so the set
+    # membership test would raise instead of answering no.
+    if not isinstance(action, str) or action not in {member.value for member in RulingAction}:
         return False
     return _finite_number(value.get("amount_sgd")) is not None
 

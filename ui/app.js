@@ -1351,8 +1351,13 @@
         && Boolean(row.dataset) && row.dataset.runId === state.currentQueueRun;
       if (current) {
         row.classList.add("is-open");
-        button.textContent = "Currently open";
         button.setAttribute("aria-current", "true");
+        // A newer open of this same row may still be in flight (an older, invalidated open
+        // settling calls this too): its "Opening…" and disabled state belong to that open.
+        if (isButtonPending(button)) {
+          return;
+        }
+        button.textContent = "Currently open";
         button.disabled = isInBusyPanel(button);
         return;
       }
