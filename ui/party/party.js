@@ -101,6 +101,19 @@
   var outcomeQuestions = document.getElementById("outcome-questions");
   var outcomeStatus = document.getElementById("outcome-status");
 
+  var summaryCategory = document.getElementById("summary-category");
+  var summaryTrip = document.getElementById("summary-trip");
+  var detailsSubmit = document.getElementById("details-submit");
+  var detailsBack = document.getElementById("details-back");
+  var detailsSpinner = document.getElementById("details-spinner");
+  var detailsStatus = document.getElementById("details-status");
+
+  // W35: the pending state of "Send my dispute". Fixed text, built here.
+  var SUBMIT_LABEL = "Send my dispute";
+  var SENDING_LABEL = "Sending…";
+  var SENDING_STATUS = "Sending your dispute. This can take a little while, so please keep this page open.";
+  var sending = false;
+
   function element(tag, className, text) {
     var node = document.createElement(tag);
     if (className) {
@@ -241,6 +254,25 @@
     stepTrip.scrollIntoView({ block: "start" });
   }
 
+  // The visible lines of a trip: route, date and kind, then the trip id and the
+  // charge. W35: the step 2 card and the step 3 summary both render through here,
+  // so the summary repeats exactly what the party picked.
+  function tripLines(trip) {
+    var meta = [trip.date, trip.kind_label].filter(Boolean).join(" · ");
+    var charge = "";
+    if (trip.fare_sgd !== null && trip.fare_sgd !== undefined) {
+      charge = " · SGD " + Number(trip.fare_sgd).toFixed(2)
+        + (trip.charge_label ? " " + trip.charge_label : "");
+    }
+    var detail = element("span", "trip-meta", "");
+    detail.textContent = "Trip " + trip.trip_id + charge;
+    return [
+      element("strong", null, trip.label),
+      element("span", "trip-meta", meta),
+      detail
+    ];
+  }
+
   function loadTrips() {
     var epoch = ++tripRequestEpoch;
     // W20: the trip picked before this reload is remembered so the rendered list can
@@ -270,22 +302,9 @@
           return;
         }
         state.trips.forEach(function (trip) {
-          var meta = [trip.date, trip.kind_label].filter(Boolean).join(" · ");
-          var lines = [
-            element("strong", null, trip.label),
-            element("span", "trip-meta", meta)
-          ];
-          var charge = "";
-          if (trip.fare_sgd !== null && trip.fare_sgd !== undefined) {
-            charge = " · SGD " + Number(trip.fare_sgd).toFixed(2)
-              + (trip.charge_label ? " " + trip.charge_label : "");
-          }
-          var detail = element("span", "trip-meta", "");
-          detail.textContent = "Trip " + trip.trip_id + charge;
           var card = element("button", "option-card trip-card");
           card.type = "button";
-          lines.forEach(function (line) { card.appendChild(line); });
-          card.appendChild(detail);
+          tripLines(trip).forEach(function (line) { card.appendChild(line); });
           card.addEventListener("click", function () {
             // W20: a different trip invalidates the answers on the details step; the
             // same trip (a re-click after Back) keeps them.
@@ -345,11 +364,35 @@
       buildQuestions();
       questionsKey = { category: state.category, tripId: state.tripId };
     }
+    renderSummary();
     show(stepDetails);
     window.scrollTo(0, 0);
   });
 
   // --------------------------------------------------------- step three
+
+  // W35: a read-only summary of what is being filed, rebuilt every time the party
+  // continues to this step, so a changed category or trip always shows.
+  function renderSummary() {
+    var category = CATEGORIES.filter(function (c) { return c.id === state.category; })[0];
+    summaryCategory.textContent = category ? category.label : "";
+    while (summaryTrip.firstChild) {
+      summaryTrip.removeChild(summaryTrip.firstChild);
+    }
+    var trip = state.trips.filter(function (t) { return t.trip_id === state.tripId; })[0];
+    if (trip) {
+      tripLines(trip).forEach(function (line) { summaryTrip.appendChild(line); });
+    }
+  }
+
+  function setSending(on) {
+    sending = on;
+    detailsSubmit.disabled = on;
+    detailsBack.disabled = on;
+    detailsSubmit.textContent = on ? SENDING_LABEL : SUBMIT_LABEL;
+    detailsSpinner.hidden = !on;
+    detailsStatus.textContent = on ? SENDING_STATUS : "";
+  }
 
   function buildChoiceQuestion(question) {
     var field = element("div", "field");
@@ -426,6 +469,9 @@
 
   document.getElementById("details-form").addEventListener("submit", function (event) {
     event.preventDefault();
+    if (sending) {
+      return;
+    }
     clearError("details-error");
     var description = document.getElementById("description").value;
     if (!description.trim()) {
@@ -474,8 +520,7 @@
       return;
     }
 
-    var submit = document.getElementById("details-submit");
-    submit.disabled = true;
+    setSending(true);
     request("POST", "/api/disputes", {
       category: state.category,
       filed_by: role,
@@ -488,7 +533,7 @@
         renderOutcome(view);
       })
       .catch(function (error) {
-        submit.disabled = false;
+        setSending(false);
         showError("details-error", error.message);
       });
   });

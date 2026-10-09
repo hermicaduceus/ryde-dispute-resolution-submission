@@ -9,6 +9,7 @@
   --paper: #F7DDE3;
   --card: #ffffff;
   --accent: #E93864;
+  --accent-strong: #CC2852;
   --accent-ink: #ffffff;
   --error: #C0392B;
   --ok: #1EB848;
@@ -41,7 +42,7 @@ body {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.14em;
-  color: var(--accent);
+  color: var(--accent-strong);
   background: var(--tint);
   border: 1px solid var(--accent);
   border-radius: 9999px;
@@ -93,7 +94,7 @@ body {
   width: 1.7rem;
   height: 1.7rem;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-strong);
   color: var(--accent-ink);
   font-size: 0.9rem;
 }
@@ -250,8 +251,8 @@ button {
 }
 
 button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
   color: var(--accent-ink);
 }
 
@@ -552,4 +553,85 @@ body:has(.filing-shell #form-steps:not([hidden])) {
    keeps a breath of air from the screen edge. */
 #step-category, #step-trip {
   scroll-margin: 1.5rem 0;
+}
+
+/* W35: step 3 opens with a read-only summary of what is being filed: the
+   category from step 1 and the trip card from step 2, in the same words. It is
+   not a control. */
+.filing-summary {
+  overflow-y: auto;
+  margin: 0 0 0.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  background: var(--tint);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.filing-summary p {
+  margin: 0;
+}
+
+.filing-summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.filing-summary-category {
+  font-weight: 600;
+}
+
+.filing-summary-trip strong {
+  display: block;
+}
+
+/* Inside the one-screen frame the summary keeps its natural height while the
+   fields scroll; on a short pane it gives up height first, keeping 10rem of the
+   card for the heading, a strip of fields and the actions, so Send and Back
+   never move below the fold. */
+.filing-shell:has(#form-steps:not([hidden])) .filing-summary {
+  flex: 0 0 auto;
+  max-height: calc(100% - 10rem);
+}
+
+/* W35: while a dispute is being sent, a fixed status line sits between the
+   fields and the actions, and a small spinner sits beside the button. The
+   fields region overhangs by 0.5rem, so 1rem leaves a clear 0.5rem gap. */
+.sending-status {
+  flex: 0 0 auto;
+  margin: 1rem 0 0;
+}
+
+.sending-status:empty {
+  margin: 0;
+}
+
+.sending-spinner {
+  display: inline-block;
+  flex: 0 0 auto;
+  align-self: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: sending-spin 0.8s linear infinite;
+}
+
+.sending-spinner[hidden] {
+  display: none;
+}
+
+@keyframes sending-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sending-spinner {
+    animation: none;
+  }
 }

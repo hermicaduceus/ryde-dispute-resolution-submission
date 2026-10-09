@@ -44,6 +44,11 @@
       </section>
 
       <section class="step" id="step-details" hidden>
+        <div class="filing-summary">
+          <p class="filing-summary-label">You are disputing</p>
+          <p class="filing-summary-category" id="summary-category"></p>
+          <div class="filing-summary-trip" id="summary-trip"></div>
+        </div>
         <h2><span class="step-number">3</span> Tell us more</h2>
         <form id="details-form" novalidate>
           <div class="filing-fields">
@@ -59,8 +64,10 @@
             </div>
             <p class="error" id="details-error" hidden></p>
           </div>
+          <p class="status-line sending-status" id="details-status" role="status" aria-live="polite"></p>
           <div class="step-actions">
             <button type="button" id="details-back">Back</button>
+            <span class="sending-spinner" id="details-spinner" aria-hidden="true" hidden></span>
             <button type="submit" id="details-submit" class="primary">Send my dispute</button>
           </div>
         </form>

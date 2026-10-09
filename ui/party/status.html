@@ -12,7 +12,7 @@
 </head>
 <body>
   <nav class="switch-bar" aria-label="Demo pages"><a href="../start/">Start</a><a href="./" aria-current="true">File a dispute</a><a href="../">Operator console</a></nav>
-  <main class="party-shell">
+  <main class="party-shell status-shell">
     <header class="party-header">
       <p class="eyebrow">RYDE / HELP</p>
       <h1>Your dispute status</h1>
@@ -21,7 +21,7 @@
       <p><a href="./index.html">File a new dispute</a></p>
     </header>
 
-    <section class="step">
+    <section class="step status-lookup">
       <h2>Look up a reference number</h2>
       <div class="field">
         <label for="reference-input">Reference number</label>
@@ -34,9 +34,9 @@
       <div id="lookup-result"></div>
     </section>
 
-    <section class="step">
+    <section class="step status-list">
       <h2>My disputes</h2>
-      <div id="account-list"></div>
+      <div id="account-list" tabindex="0" role="region" aria-label="My disputes"></div>
     </section>
   </main>
 

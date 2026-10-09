@@ -35,7 +35,7 @@
 
 .switch-bar a[aria-current] {
   color: #ffffff;
-  background: #E93864;
+  background: #CC2852;
   font-weight: 600;
 }
 
@@ -78,5 +78,137 @@ body:has(.filing-shell #form-steps:not([hidden])) > .filing-shell {
 @media (max-height: 520px) {
   body:has(.filing-shell #form-steps:not([hidden])) > .switch-bar {
     display: none;
+  }
+
+  /* W35: the step 3 summary steps aside too, so the fields keep a usable strip
+     above Send and Back. */
+  .filing-shell .filing-summary {
+    display: none;
+  }
+}
+
+/* W35: the status page is one screen too, when the screen is tall enough. The
+   header and the "Look up a reference number" box stay put; only the "My
+   disputes" list scrolls, inside its own region, so scrolling the list never
+   hides the lookup box. A lookup result takes the room above the list: the
+   list gives up height down to 8rem and the header down to 4.5rem, and only
+   then does the result scroll, inside the lookup box. Below 654px the page
+   scrolls normally instead: there, on a 320px phone, the fixed header and
+   lookup box would press the list to its 8rem floor and then clip the header. */
+@media (min-height: 654px) {
+  body:has(> .status-shell) {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  body:has(> .status-shell) > .switch-bar {
+    flex: none;
+  }
+
+  .status-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+  }
+
+  .status-shell > .party-header {
+    flex: 0 1 auto;
+    min-height: 4.5rem;
+    overflow-y: auto;
+  }
+
+  .status-shell > .party-header h1 {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    margin: 0.25rem 0;
+  }
+
+  .status-shell > .party-header .eyebrow {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.5rem;
+  }
+
+  .status-shell > .party-header .demo-note {
+    margin: 0.25rem 0;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .status-shell > .party-header .intro {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .status-shell > .party-header > p:last-child {
+    margin: 0.375rem 0 0;
+  }
+
+  .status-shell > .status-lookup,
+  .status-shell > .status-list {
+    margin: 0;
+    padding: 0.75rem;
+  }
+
+  .status-shell > .status-lookup {
+    flex: 0 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-shell > .status-lookup > :not(#lookup-result) {
+    flex: none;
+  }
+
+  .status-shell .step h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .status-shell > .status-lookup .field {
+    margin-bottom: 0.5rem;
+  }
+
+  .status-shell > .status-lookup .step-actions {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .status-shell > .status-lookup > #lookup-result {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .status-shell > .status-lookup > #lookup-result > .step {
+    margin: 0.5rem 0 0;
+    padding: 0.75rem;
+  }
+
+  .status-shell > .status-list {
+    flex: 1 1 0;
+    min-height: 8rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-shell > .status-list > h2 {
+    flex: 0 0 auto;
+  }
+
+  .status-shell > .status-list > #account-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.75rem;
+    margin: -0.75rem;
   }
 }
