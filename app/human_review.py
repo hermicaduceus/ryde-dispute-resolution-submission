@@ -257,12 +257,32 @@ def record_decision(run_dir: Path, case_file: Any, body: Any) -> Dict[str, Any]:
     return record
 
 
+def bounded_run_file(run_dir: Path, name: str) -> Optional[Path]:
+    """W35: the resolved path of `name` inside `run_dir`, or None. Fails closed.
+
+    Every read of a run's case file or decision file goes through here. A leaf that is a
+    symlink is followed only while it stays inside the run directory (compared as resolved
+    paths); one that leaves it, loops, or cannot be resolved reads as missing. A leaf that
+    does not exist yet comes back as its would-be path, so the caller's own read reports it.
+    """
+    try:
+        base = Path(run_dir).resolve()
+        leaf = (base / name).resolve()
+    except (OSError, RuntimeError):
+        return None
+    if leaf == base or not leaf.is_relative_to(base):
+        return None
+    return leaf
+
+
 def load_decision(run_dir: Path) -> Optional[Dict[str, Any]]:
     """The stored decision record, or None. Fails closed on any bad shape or file."""
-    path = Path(run_dir) / HUMAN_DECISION_FILE_NAME
+    path = bounded_run_file(run_dir, HUMAN_DECISION_FILE_NAME)
+    if path is None:
+        return None
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    except (OSError, ValueError, RecursionError):
         return None
     return data if decision_record_is_valid(data) else None
 
