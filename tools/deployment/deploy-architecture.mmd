@@ -1,0 +1,19 @@
+%%{init: {"themeCSS": ".edgeLabel, .edgeLabel *, .edgeLabel text, .label text, span.edgeLabel { fill: #31373E !important; color: #31373E !important; font-family: Arial, Helvetica, sans-serif !important; font-size: 20px; } .node text, .node .label, .nodeLabel, .node foreignObject div { font-family: Arial, Helvetica, sans-serif !important; font-size: 20px; } .edgeLabel rect, .labelBkg, .edgeLabel .label rect, g.edgeLabel rect { fill: #FFFFFF !important; stroke: none !important; opacity: 1; }", "theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "primaryColor": "#31373E", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#31373E", "textColor": "#31373E", "lineColor": "#5A6470", "secondaryColor": "#F7DDE3", "tertiaryColor": "#FFFFFF", "edgeLabelBackground": "#FFFFFF"}, "flowchart": {"htmlLabels": false, "curve": "basis", "nodeSpacing": 20, "rankSpacing": 30, "wrappingWidth": 300, "padding": 12}}}%%
+flowchart LR
+  APP["Ryde app"] --> RB["Ryde backend"]
+  RB -- "signed webhook" --> EO["EdgeOne +<br/>API Gateway"]
+  EO --> TKE["TKE workers:<br/>Evidence Pack,<br/>3 agents, gates"]
+  TKE --> ADP["Tencent Cloud ADP:<br/>Rider, Driver,<br/>Judge apps"]
+  TKE --> DB[("PostgreSQL<br/>+ COS")]
+  TKE -- "signed callback" --> RB
+  RB -- "refund, notice,<br/>ticket status" --> APP
+  DB --> CON["Review console<br/>for Ryde CS"]
+  classDef ryde fill:#31373E,stroke:#31373E,color:#FFFFFF;
+  classDef core fill:#E93864,stroke:#E93864,color:#FFFFFF;
+  classDef edge fill:#5A6470,stroke:#5A6470,color:#FFFFFF;
+  classDef data fill:#F7DDE3,stroke:#E93864,color:#31373E;
+  class APP,RB ryde;
+  class TKE core;
+  class EO edge;
+  class ADP ryde;
+  class DB,CON data;
