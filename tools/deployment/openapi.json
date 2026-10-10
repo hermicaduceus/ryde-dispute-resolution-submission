@@ -1,0 +1,220 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Ryde Dispute Resolution Service: integration contract (proposal)",
+    "version": "0.1.0",
+    "description": "Proposed contract between Ryde's backend and the dispute resolution service. The service RECOMMENDS a ruling; Ryde's payments service executes any refund. Every request and callback is signed (HMAC over the body with a per-environment secret, header X-Ryde-Signature) and carries an idempotency key. This is a design artifact for the hackathon submission, not a deployed API."
+  },
+  "servers": [{ "url": "https://disputes.example.invalid/v1", "description": "placeholder" }],
+  "paths": {
+    "/disputes": {
+      "post": {
+        "summary": "File a dispute",
+        "operationId": "fileDispute",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DisputeFiled" } } }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted and queued. The outcome arrives by callback.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Accepted" } } }
+          },
+          "200": { "description": "Replay of an idempotency key already accepted; returns the original body.",
+                   "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Accepted" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/disputes/{dispute_id}/answers": {
+      "post": {
+        "summary": "Send the filer's answers to a needs_info round",
+        "description": "Accepted once per dispute. A second call returns 409.",
+        "operationId": "answerFollowUps",
+        "parameters": [
+          { "name": "dispute_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FollowUpAnswers" } } }
+        },
+        "responses": {
+          "202": { "description": "Accepted; a fresh run goes to the Judge.",
+                   "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Accepted" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "description": "Unknown dispute" },
+          "409": { "description": "Already answered" }
+        }
+      }
+    },
+    "/disputes/{dispute_id}": {
+      "get": {
+        "summary": "Current party-safe view of a dispute",
+        "description": "Returns only the five party-view keys. Withheld amounts and confidence are never present.",
+        "operationId": "getDispute",
+        "parameters": [{ "name": "dispute_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Party view",
+                   "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PartyView" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "description": "Unknown dispute" }
+        }
+      }
+    },
+    "/review/queue": {
+      "get": {
+        "summary": "Withheld cases awaiting a human (CS role only)",
+        "operationId": "reviewQueue",
+        "responses": {
+          "200": { "description": "Safety cases first, then largest amount, then longest wait",
+                   "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/QueueItem" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/review/{run_id}/decision": {
+      "post": {
+        "summary": "Record the single human decision on a withheld run",
+        "operationId": "recordDecision",
+        "parameters": [
+          { "name": "run_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HumanDecision" } } }
+        },
+        "responses": {
+          "200": { "description": "Recorded; a ruling.issued callback follows." },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "A decision already exists" },
+          "422": { "description": "Amount above the human ceiling (SGD 500) or invalid action" }
+        }
+      }
+    }
+  },
+  "x-callbacks": {
+    "description": "Service to Ryde, POSTed to the callback URL registered per environment. Signed, retried with exponential backoff, at-least-once: Ryde must dedupe on event_id.",
+    "events": {
+      "ruling.issued": { "$ref": "#/components/schemas/RulingEvent" },
+      "ruling.withheld": { "$ref": "#/components/schemas/StatusEvent" },
+      "dispute.needs_info": { "$ref": "#/components/schemas/StatusEvent" },
+      "dispute.human_review": { "$ref": "#/components/schemas/StatusEvent" }
+    }
+  },
+  "x-evidence-api": {
+    "description": "Read-only API Ryde exposes to the service over a private link. The service never writes to Ryde through it. Fields map onto the dispute record shape the Evidence Pack already reads.",
+    "operations": [
+      "GET /trips/{trip_id}: pickup, drop-off, requested/matched/arrived/cancelled timestamps, service_type",
+      "GET /trips/{trip_id}/gps: ordered points (lat, lon, ts)",
+      "GET /trips/{trip_id}/fare: quoted, charged, breakdown, tariff rates, surge, promo",
+      "GET /trips/{trip_id}/chat: messages with sender role and ts",
+      "GET /profiles/{rider_or_driver_id}: dispute counts, upheld counts, fraud flags, rating, tenure"
+    ],
+    "redaction": "Names, phone numbers, plates and exact addresses are replaced with stable tokens before any text reaches the model."
+  },
+  "components": {
+    "parameters": {
+      "IdempotencyKey": { "name": "Idempotency-Key", "in": "header", "required": true, "schema": { "type": "string", "maxLength": 128 } }
+    },
+    "responses": {
+      "BadRequest": { "description": "Malformed body" },
+      "Unauthorized": { "description": "Missing or invalid signature / token" },
+      "RateLimited": { "description": "Per-client quota exceeded; retry after the Retry-After header" }
+    },
+    "schemas": {
+      "DisputeFiled": {
+        "type": "object",
+        "required": ["dispute_id", "trip_id", "category", "filed_by", "filed_at", "claim_text"],
+        "properties": {
+          "dispute_id": { "type": "string" },
+          "trip_id": { "type": "string" },
+          "category": { "type": "string", "enum": ["route_deviation", "no_show_charge", "other"],
+                         "description": "Anything outside the two handled categories is routed to human review without an agent run." },
+          "filed_by": { "type": "string", "enum": ["rider", "driver"] },
+          "filed_at": { "type": "string", "format": "date-time" },
+          "claim_text": { "type": "string", "maxLength": 4000 },
+          "claim_amount_sgd": { "type": "number", "minimum": 0, "nullable": true,
+                                 "description": "A request, not a payment." },
+          "intake_answers": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "Accepted": {
+        "type": "object",
+        "required": ["dispute_id", "status"],
+        "properties": {
+          "dispute_id": { "type": "string" },
+          "status": { "type": "string", "enum": ["queued"] }
+        }
+      },
+      "FollowUpAnswers": {
+        "type": "object",
+        "required": ["answers"],
+        "properties": { "answers": { "type": "object", "additionalProperties": { "type": "string", "maxLength": 1000 } } }
+      },
+      "PartyView": {
+        "type": "object",
+        "required": ["run_id", "dispute_id", "status", "message", "questions"],
+        "additionalProperties": false,
+        "properties": {
+          "run_id": { "type": "string" },
+          "dispute_id": { "type": "string" },
+          "status": { "type": "string", "enum": ["decided", "under_review", "passed_to_support", "needs_info"] },
+          "message": { "type": "string", "description": "Composed in code; no model text." },
+          "questions": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "QueueItem": {
+        "type": "object",
+        "properties": {
+          "run_id": { "type": "string" },
+          "dispute_id": { "type": "string" },
+          "category": { "type": "string" },
+          "withheld_reason": { "type": "string", "description": "Gate label, e.g. ESC-4, NS-6, RD-5." },
+          "waiting_since": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HumanDecision": {
+        "type": "object",
+        "required": ["action", "reviewer_id", "reason"],
+        "properties": {
+          "action": { "type": "string", "enum": ["approve", "change", "reject"] },
+          "amount_sgd": { "type": "number", "minimum": 0, "maximum": 500 },
+          "reviewer_id": { "type": "string", "description": "From Ryde SSO. Stored, never shown to a party." },
+          "reason": { "type": "string" }
+        }
+      },
+      "StatusEvent": {
+        "type": "object",
+        "required": ["event_id", "type", "dispute_id", "occurred_at"],
+        "properties": {
+          "event_id": { "type": "string", "description": "Dedupe key; delivery is at-least-once." },
+          "type": { "type": "string", "enum": ["ruling.withheld", "dispute.needs_info", "dispute.human_review"] },
+          "dispute_id": { "type": "string" },
+          "occurred_at": { "type": "string", "format": "date-time" },
+          "party_view": { "$ref": "#/components/schemas/PartyView" }
+        }
+      },
+      "RulingEvent": {
+        "type": "object",
+        "required": ["event_id", "type", "dispute_id", "occurred_at", "action", "amount_sgd", "party_view"],
+        "properties": {
+          "event_id": { "type": "string" },
+          "type": { "type": "string", "enum": ["ruling.issued"] },
+          "dispute_id": { "type": "string" },
+          "occurred_at": { "type": "string", "format": "date-time" },
+          "action": { "type": "string", "enum": ["refund", "compensation", "no action"] },
+          "amount_sgd": { "type": "number", "minimum": 0 },
+          "remedy_form": { "type": "string", "enum": ["wallet_credit", "original_payment_method"], "description": "GEN-5." },
+          "decided_by": { "type": "string", "enum": ["ai", "human"] },
+          "cited_rule_ids": { "type": "array", "items": { "type": "string" } },
+          "party_view": { "$ref": "#/components/schemas/PartyView" }
+        }
+      }
+    }
+  }
+}
