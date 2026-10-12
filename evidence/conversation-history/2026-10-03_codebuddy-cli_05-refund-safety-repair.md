@@ -1,0 +1,287 @@
+# Policy-forbidden refund repair
+
+- Product: Tencent Cloud CodeBuddy CLI
+- Session ID: `01a0fd87-1c95-7230-b6ab-0bd62e09fdda`
+- Recorded interval: 2026-10-03T00:51:53+08:00 to 2026-10-03T00:57:09+08:00
+- Original log SHA-256: `2cde3a1c08e0ccab910484dbb198fb204d9ae37fb16be74b292d5c6a7056c7f4`
+- Export: mechanical extraction, not an AI-written reconstruction. Privacy replacements are disclosed in README.
+- Presentation: one blockquoted message per record; machine/command/error records are fenced literally. Markdown renders nonprinting controls as \uNNNN; JSONL retains their encoded source values.
+- Stored user-role records can contain operator prompts, machine notices or mixed carriers. Labels describe the recorded content, not a proven human author.
+- Historical failures, model names, tool denials, counts and claims are retained, not corrected to match today’s build.
+- External bg-task/tool-results files are not bundled. Retained checkpoints can quote earlier tool arguments.
+- Audit status: conversation-history audit completed; independent GLM review PASS_WITH_NOTES, with its sole minor native-path finding corrected and mechanically verified. This is not whole-repository/publication clearance.
+- Semantic coverage: Reader-reviewed conversation message bodies. Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.
+
+- Selected copy omits the manifest-counted automatic checkpoints, local command-display wrappers, empty messages, reasoning and snapshots. Operator command inputs and automatic task notices that survived the original selection remain visible and are labelled.
+
+Implementing the RD-4 gate after the live evaluation exposed forbidden refunds; this session records the code repair and mock checks, not the later live rerun.
+
+## Conversation
+
+## Record 1 | Recorded user-side message | 2026-10-03T00:51:53+08:00
+
+> Read docs/session-twenty-one-brief.md and docs/policy.md (the RD-4 Enforcement (2026-10-02) paragraph), then implement the brief. Target: tests/test_w28_unproven_refunds.py goes green and the full suite (/usr/bin/python3 -m unittest discover -s tests -t .) is green at 844 tests. Allowed files: app/agents/judge.py, docs/architecture.md, README.md only. Do not edit anything under tests/, tools/, data/ or ui/, and do not edit docs/policy.md; if a test looks wrong, stop and ask. Standard library only, Python 3.9. Show me your plan before editing. When green, run python3 -m app.eval --llm mock on both packs and confirm exactly RD-0103, RD-0105 and RD-0107 move to withheld by RD-4; if any other case moves, stop and report. Commit in small commits when the suite is green. Do not run the live model.
+
+## Record 15 | CodeBuddy | 2026-10-03T00:52:01+08:00
+
+> Now let me read the docs files that need updating.
+
+## Record 21 | CodeBuddy | 2026-10-03T00:52:04+08:00
+
+> Let me check the repo state and the evidence pack structure.
+
+## Record 45 | CodeBuddy | 2026-10-03T00:52:36+08:00
+
+> Let me verify the expected `provable_refund_sgd` values against the corpus with a quick computation before writing code.
+
+## Record 49 | CodeBuddy | 2026-10-03T00:52:47+08:00
+
+> The algorithm matches the corpus expectations exactly. Let me check remaining doc-test expectations and the no-rates packs.
+
+## Record 60 | CodeBuddy | 2026-10-03T00:53:07+08:00
+
+> Let me check the schemas for `RulingAction` values and look at how `JudgeRuling.recommended_amount_sgd` is typed.
+
+## Record 79 | CodeBuddy | 2026-10-03T00:53:35+08:00
+
+> Let me check `test_architecture_doc.py` for constraints on the gates table and summary paragraph.
+
+## Record 90 | CodeBuddy | 2026-10-03T00:53:56+08:00
+
+> I've read the brief, the policy RD-4 paragraph, the judge, the W28 target test and the six re-pinned files. I also verified my planned algorithm reproduces the brief's expected `provable_refund_sgd` table exactly on both packs (RD-0101 5.81 … RD-0109 55.16), and that the mock claims make exactly RD-0103/0105/0107 trip the new gate.
+> 
+> **Plan**
+> 
+> **1. `app/agents/judge.py` (the whole fix)**
+> 
+> - Constants beside `DE_MINIMIS_SGD`: `MATERIAL_DEVIATION_PCT = 20.0`, `MATERIAL_DEVIATION_KM = 1.0`, `MATERIAL_DEVIATION_GROSS_KM = 5.0`.
+> - New module-level `deviation_is_material(pack)`: `False` with no route block; `True` when `_is_figure(deviation_km) and deviation_km >= 5.0`, or when `_is_figure(deviation_pct) and _is_figure(deviation_km) and pct >= 20.0 and km >= 1.0`. Non-finite/bool/missing figures never qualify.
+> - New module-level `provable_refund_sgd(pack)`: max of `0.0`, a figure `difference_sgd`, `charged - component_sum` when `breakdown_consistent is False` and both figures, and `charged - recomputed_estimated_route_sgd` only when `deviation_is_material(pack)` and both figures. Never `deviation_fare_delta_sgd`. Returns `round(proven, 2)`, never below zero.
+> - Gate in `Judge.run` after the RD-5 `if/elif`, before `if not gate_failures:` — fires only for route-deviation cases with a non-`no action` ruling, no existing `ESC-2` entry, and no present-but-not-figure `difference_sgd`. A refund is held when `round(amount, 2) > provable_refund_sgd(pack)` (equal goes out); compensation is always held. Appends `("RD-4", reason)` and the exact summary `the ruling pays more than the records prove is owed (RD-4)`; refund reason carries both figures, compensation reason contains `driver`. Order becomes confidence, ESC-4, ESC-2, NS-6, RD-5, RD-4. Nothing rewrites the candidate.
+> - Update the module docstring ("four other gates" → five, naming RD-4) and the gates comment.
+> 
+> **2. `docs/architecture.md`**
+> - Overview paragraph: name RD-4 beside NS-6/RD-5 ("three money gates").
+> - Gates section: "Eight gates" → "Nine gates"; new RD-4 row after RD-5 naming `recomputed_estimated_route_sgd`, `difference_sgd`, `compensation`, file `app/agents/judge.py`.
+> - Mermaid gate node → `J --> G{"Gates pass? Confidence, cap, measured deviation, NS-6, RD-5, RD-4"}`.
+> 
+> **3. `README.md`**
+> - Same Mermaid node (blocks must stay identical).
+> - Gates paragraph under **Run**: "Five gates"/"all five" → "Six gates"/"all six", adding RD-4 (route refund larger than the records prove) while keeping `fare charged` inside the ESC-2 clause.
+> 
+> **4. Verify and commit**
+> - `/usr/bin/python3 -m unittest tests.test_w28_unproven_refunds` → green; full suite → 844 green.
+> - `python3 -m app.eval --llm mock` on both packs: confirm 11/18 and 10/17 decided, and that only RD-0103 (0.74), RD-0105 (5.56), RD-0107 (4.91) move to withheld by RD-4 — stop and report if anything else moves.
+> - Small commits once green. No live model, no edits under `tests/`, `tools/`, `data/`, `ui/` or `docs/policy.md`.
+> 
+> May I proceed?
+
+## Record 92 | Recorded user-side message | 2026-10-03T00:54:06+08:00
+
+> Plan approved. Proceed.
+
+## Record 114 | CodeBuddy | 2026-10-03T00:54:43+08:00
+
+> Now the constants and the two public helpers.
+
+## Record 123 | CodeBuddy | 2026-10-03T00:54:51+08:00
+
+> Now the gates comment and the RD-4 gate itself.
+
+## Record 137 | CodeBuddy | 2026-10-03T00:55:03+08:00
+
+> Code tests pass; only the four doc tests remain. Now `docs/architecture.md`.
+
+## Record 157 | CodeBuddy | 2026-10-03T00:55:18+08:00
+
+> Now README.md.
+
+## Record 177 | CodeBuddy | 2026-10-03T00:55:31+08:00
+
+> W28 target green (54 tests). Now the full suite.
+
+## Record 181 | CodeBuddy | 2026-10-03T00:56:02+08:00
+
+> Full suite green at 844 tests. Now the mock eval on both packs.
+
+## Record 194 | CodeBuddy | 2026-10-03T00:56:13+08:00
+
+> Both packs match the brief's expected totals. Let me confirm the three moves are specifically withheld by RD-4 and nothing else changed.
+
+## Record 201 | CodeBuddy | 2026-10-03T00:56:20+08:00
+
+> Confirmed: on both packs only RD-0103, RD-0105 and RD-0107 are withheld by RD-4; RD-0106 stays RD-5, RD-0108 stays ESC-2, RD-0109 stays ESC-4 — exactly the three moves the brief predicts.
+
+## Record 212 | CodeBuddy | 2026-10-03T00:56:29+08:00
+
+> Diff is clean and only the three allowed files changed. Committing in two small commits.
+
+## Record 218 | CodeBuddy | 2026-10-03T00:56:35+08:00
+
+> Both commits landed; tree clean. Final verification run on the committed state.
+
+## Record 224 | CodeBuddy | 2026-10-03T00:57:09+08:00
+
+> Done. Summary:
+> 
+> **Changes (2 commits, only the allowed files)**
+> 
+> - `app/agents/judge.py` (`3c70a65`) — RD-4 in code: `MATERIAL_DEVIATION_PCT/KM/GROSS_KM` beside `DE_MINIMIS_SGD`, public `deviation_is_material` (RD-1) and `provable_refund_sgd` (max of `difference_sgd`, the inconsistent-breakdown overcharge, and the material-deviation charge above `recomputed_estimated_route_sgd`; never `deviation_fare_delta_sgd`), and the gate after RD-5 in `Judge.run` holding an over-proof refund or any compensation, skipped when ESC-2 holds or `difference_sgd` is unreadable. Candidate never rewritten; docstring and gates comment updated.
+> - `docs/architecture.md` + `README.md` (`9eea7e2`) — Nine gates with the RD-4 row after RD-5, RD-4 named in the overview money-gates summary, "Six gates"/"all six" in the README, both Mermaid gate nodes identical with `RD-4` appended.
+> 
+> **Verification**
+> 
+> - `tests/test_w28_unproven_refunds.py`: 54 tests, OK.
+> - Full suite: `/usr/bin/python3 -m unittest discover -s tests -t .` → **844 tests, OK** (re-run on the committed state).
+> - `python3 -m app.eval --llm mock` both packs: organiser **11/18** matching, **11/18** decided (was 14), 0 round-one stops; synth **10/17**, **10/17** (was 13), 0. Case files confirm exactly RD-0103 (0.74), RD-0105 (5.56), RD-0107 (4.91) moved to withheld by RD-4; RD-0106 stays RD-5, RD-0108 stays ESC-2, RD-0109 stays ESC-4. No other case moved. Live model not run; `tests/`, `tools/`, `data/`, `ui/` and `docs/policy.md` untouched.
+
+## Tool-event index
+
+Full recorded arguments and outputs are in [2026-10-03_codebuddy-cli_05-refund-safety-repair.jsonl](2026-10-03_codebuddy-cli_05-refund-safety-repair.jsonl).
+
+| Source record | Time | Event | Tool | Recorded status |
+|---|---|---|---|---|
+| 5 | 2026-10-03T00:51:56+08:00 | function_call | Read |  |
+| 6 | 2026-10-03T00:51:56+08:00 | function_call | Read |  |
+| 7 | 2026-10-03T00:51:56+08:00 | function_call_result | Read | completed |
+| 8 | 2026-10-03T00:51:56+08:00 | function_call_result | Read | completed |
+| 10 | 2026-10-03T00:51:59+08:00 | function_call | Read |  |
+| 11 | 2026-10-03T00:51:59+08:00 | function_call | Read |  |
+| 12 | 2026-10-03T00:51:59+08:00 | function_call_result | Read | completed |
+| 13 | 2026-10-03T00:51:59+08:00 | function_call_result | Read | completed |
+| 16 | 2026-10-03T00:52:01+08:00 | function_call | Read |  |
+| 17 | 2026-10-03T00:52:01+08:00 | function_call | Read |  |
+| 18 | 2026-10-03T00:52:01+08:00 | function_call_result | Read | completed |
+| 19 | 2026-10-03T00:52:01+08:00 | function_call_result | Read | completed |
+| 22 | 2026-10-03T00:52:04+08:00 | function_call | Bash |  |
+| 23 | 2026-10-03T00:52:04+08:00 | function_call | Bash |  |
+| 24 | 2026-10-03T00:52:21+08:00 | function_call_result | Bash | completed |
+| 25 | 2026-10-03T00:52:21+08:00 | function_call_result | Bash | completed |
+| 27 | 2026-10-03T00:52:23+08:00 | function_call | Read |  |
+| 28 | 2026-10-03T00:52:23+08:00 | function_call_result | Read | completed |
+| 30 | 2026-10-03T00:52:26+08:00 | function_call | Bash |  |
+| 31 | 2026-10-03T00:52:26+08:00 | function_call | Grep |  |
+| 32 | 2026-10-03T00:52:27+08:00 | function_call_result | Bash | completed |
+| 33 | 2026-10-03T00:52:27+08:00 | function_call_result | Grep | completed |
+| 35 | 2026-10-03T00:52:29+08:00 | function_call | Grep |  |
+| 36 | 2026-10-03T00:52:29+08:00 | function_call | Grep |  |
+| 37 | 2026-10-03T00:52:29+08:00 | function_call_result | Grep | completed |
+| 38 | 2026-10-03T00:52:29+08:00 | function_call_result | Grep | completed |
+| 40 | 2026-10-03T00:52:32+08:00 | function_call | Grep |  |
+| 41 | 2026-10-03T00:52:32+08:00 | function_call | Grep |  |
+| 42 | 2026-10-03T00:52:32+08:00 | function_call_result | Grep | completed |
+| 43 | 2026-10-03T00:52:32+08:00 | function_call_result | Grep | completed |
+| 46 | 2026-10-03T00:52:36+08:00 | function_call | Bash |  |
+| 47 | 2026-10-03T00:52:36+08:00 | function_call_result | Bash | completed |
+| 50 | 2026-10-03T00:52:47+08:00 | function_call | Bash |  |
+| 51 | 2026-10-03T00:52:47+08:00 | function_call | Grep |  |
+| 52 | 2026-10-03T00:52:47+08:00 | function_call_result | Bash | completed |
+| 53 | 2026-10-03T00:52:47+08:00 | function_call_result | Grep | completed |
+| 55 | 2026-10-03T00:52:50+08:00 | function_call | Grep |  |
+| 56 | 2026-10-03T00:52:50+08:00 | function_call | Grep |  |
+| 57 | 2026-10-03T00:52:50+08:00 | function_call_result | Grep | completed |
+| 58 | 2026-10-03T00:52:50+08:00 | function_call_result | Grep | completed |
+| 61 | 2026-10-03T00:53:07+08:00 | function_call | Grep |  |
+| 62 | 2026-10-03T00:53:07+08:00 | function_call_result | Grep | completed |
+| 64 | 2026-10-03T00:53:10+08:00 | function_call | Grep |  |
+| 65 | 2026-10-03T00:53:10+08:00 | function_call_result | Grep | completed |
+| 67 | 2026-10-03T00:53:14+08:00 | function_call | Bash |  |
+| 68 | 2026-10-03T00:53:14+08:00 | function_call_result | Bash | completed |
+| 70 | 2026-10-03T00:53:17+08:00 | function_call | Bash |  |
+| 71 | 2026-10-03T00:53:17+08:00 | function_call_result | Bash | completed |
+| 73 | 2026-10-03T00:53:20+08:00 | function_call | Bash |  |
+| 74 | 2026-10-03T00:53:20+08:00 | function_call_result | Bash | completed |
+| 76 | 2026-10-03T00:53:23+08:00 | function_call | Bash |  |
+| 77 | 2026-10-03T00:53:23+08:00 | function_call_result | Bash | completed |
+| 80 | 2026-10-03T00:53:35+08:00 | function_call | Grep |  |
+| 81 | 2026-10-03T00:53:35+08:00 | function_call_result | Grep | completed |
+| 83 | 2026-10-03T00:53:39+08:00 | function_call | Read |  |
+| 84 | 2026-10-03T00:53:39+08:00 | function_call_result | Read | completed |
+| 86 | 2026-10-03T00:53:45+08:00 | function_call | Read |  |
+| 87 | 2026-10-03T00:53:45+08:00 | function_call_result | Read | completed |
+| 95 | 2026-10-03T00:54:10+08:00 | function_call | TaskCreate |  |
+| 96 | 2026-10-03T00:54:10+08:00 | function_call | TaskCreate |  |
+| 97 | 2026-10-03T00:54:10+08:00 | function_call | TaskCreate |  |
+| 98 | 2026-10-03T00:54:10+08:00 | function_call | TaskCreate |  |
+| 99 | 2026-10-03T00:54:10+08:00 | function_call | TaskCreate |  |
+| 100 | 2026-10-03T00:54:10+08:00 | function_call | TaskCreate |  |
+| 101 | 2026-10-03T00:54:10+08:00 | function_call_result | TaskCreate | completed |
+| 102 | 2026-10-03T00:54:10+08:00 | function_call_result | TaskCreate | completed |
+| 103 | 2026-10-03T00:54:10+08:00 | function_call_result | TaskCreate | completed |
+| 104 | 2026-10-03T00:54:10+08:00 | function_call_result | TaskCreate | completed |
+| 105 | 2026-10-03T00:54:10+08:00 | function_call_result | TaskCreate | completed |
+| 106 | 2026-10-03T00:54:10+08:00 | function_call_result | TaskCreate | completed |
+| 107 | 2026-10-03T00:54:12+08:00 | function_call | TaskUpdate |  |
+| 108 | 2026-10-03T00:54:12+08:00 | function_call_result | TaskUpdate | completed |
+| 110 | 2026-10-03T00:54:16+08:00 | function_call | Edit |  |
+| 113 | 2026-10-03T00:54:40+08:00 | function_call_result | Edit | completed |
+| 115 | 2026-10-03T00:54:43+08:00 | function_call | Edit |  |
+| 117 | 2026-10-03T00:54:43+08:00 | function_call_result | Edit | completed |
+| 119 | 2026-10-03T00:54:48+08:00 | function_call | Edit |  |
+| 121 | 2026-10-03T00:54:48+08:00 | function_call_result | Edit | completed |
+| 125 | 2026-10-03T00:54:51+08:00 | function_call | Edit |  |
+| 126 | 2026-10-03T00:54:51+08:00 | function_call_result | Edit | completed |
+| 127 | 2026-10-03T00:54:55+08:00 | function_call | Edit |  |
+| 129 | 2026-10-03T00:54:55+08:00 | function_call_result | Edit | completed |
+| 131 | 2026-10-03T00:54:58+08:00 | function_call | Bash |  |
+| 132 | 2026-10-03T00:54:58+08:00 | function_call_result | Bash | completed |
+| 134 | 2026-10-03T00:55:00+08:00 | function_call | Bash |  |
+| 135 | 2026-10-03T00:55:00+08:00 | function_call_result | Bash | completed |
+| 138 | 2026-10-03T00:55:03+08:00 | function_call | TaskUpdate |  |
+| 139 | 2026-10-03T00:55:03+08:00 | function_call | TaskUpdate |  |
+| 140 | 2026-10-03T00:55:03+08:00 | function_call_result | TaskUpdate | completed |
+| 141 | 2026-10-03T00:55:03+08:00 | function_call_result | TaskUpdate | completed |
+| 142 | 2026-10-03T00:55:06+08:00 | function_call | Edit |  |
+| 145 | 2026-10-03T00:55:06+08:00 | function_call_result | Edit | completed |
+| 146 | 2026-10-03T00:55:09+08:00 | function_call | Edit |  |
+| 148 | 2026-10-03T00:55:09+08:00 | function_call_result | Edit | completed |
+| 150 | 2026-10-03T00:55:13+08:00 | function_call | Edit |  |
+| 152 | 2026-10-03T00:55:13+08:00 | function_call_result | Edit | completed |
+| 153 | 2026-10-03T00:55:16+08:00 | function_call | Edit |  |
+| 155 | 2026-10-03T00:55:16+08:00 | function_call_result | Edit | completed |
+| 158 | 2026-10-03T00:55:18+08:00 | function_call | TaskUpdate |  |
+| 159 | 2026-10-03T00:55:18+08:00 | function_call | TaskUpdate |  |
+| 160 | 2026-10-03T00:55:18+08:00 | function_call_result | TaskUpdate | completed |
+| 161 | 2026-10-03T00:55:18+08:00 | function_call_result | TaskUpdate | completed |
+| 162 | 2026-10-03T00:55:21+08:00 | function_call | Edit |  |
+| 165 | 2026-10-03T00:55:21+08:00 | function_call_result | Edit | completed |
+| 166 | 2026-10-03T00:55:24+08:00 | function_call | Edit |  |
+| 168 | 2026-10-03T00:55:25+08:00 | function_call_result | Edit | completed |
+| 170 | 2026-10-03T00:55:27+08:00 | function_call | TaskUpdate |  |
+| 171 | 2026-10-03T00:55:27+08:00 | function_call | TaskUpdate |  |
+| 172 | 2026-10-03T00:55:27+08:00 | function_call_result | TaskUpdate | completed |
+| 173 | 2026-10-03T00:55:27+08:00 | function_call_result | TaskUpdate | completed |
+| 174 | 2026-10-03T00:55:29+08:00 | function_call | Bash |  |
+| 175 | 2026-10-03T00:55:29+08:00 | function_call_result | Bash | completed |
+| 178 | 2026-10-03T00:55:31+08:00 | function_call | Bash |  |
+| 179 | 2026-10-03T00:55:58+08:00 | function_call_result | Bash | completed |
+| 182 | 2026-10-03T00:56:02+08:00 | function_call | TaskUpdate |  |
+| 183 | 2026-10-03T00:56:02+08:00 | function_call | TaskUpdate |  |
+| 184 | 2026-10-03T00:56:02+08:00 | function_call | Grep |  |
+| 185 | 2026-10-03T00:56:02+08:00 | function_call_result | TaskUpdate | completed |
+| 186 | 2026-10-03T00:56:02+08:00 | function_call_result | TaskUpdate | completed |
+| 187 | 2026-10-03T00:56:02+08:00 | function_call_result | Grep | completed |
+| 188 | 2026-10-03T00:56:05+08:00 | function_call | Bash |  |
+| 189 | 2026-10-03T00:56:05+08:00 | function_call_result | Bash | completed |
+| 191 | 2026-10-03T00:56:09+08:00 | function_call | Bash |  |
+| 192 | 2026-10-03T00:56:09+08:00 | function_call_result | Bash | completed |
+| 195 | 2026-10-03T00:56:13+08:00 | function_call | Bash |  |
+| 196 | 2026-10-03T00:56:13+08:00 | function_call_result | Bash | completed |
+| 198 | 2026-10-03T00:56:16+08:00 | function_call | Bash |  |
+| 199 | 2026-10-03T00:56:16+08:00 | function_call_result | Bash | completed |
+| 202 | 2026-10-03T00:56:20+08:00 | function_call | TaskUpdate |  |
+| 203 | 2026-10-03T00:56:20+08:00 | function_call | TaskUpdate |  |
+| 204 | 2026-10-03T00:56:20+08:00 | function_call | Bash |  |
+| 205 | 2026-10-03T00:56:20+08:00 | function_call_result | TaskUpdate | completed |
+| 206 | 2026-10-03T00:56:20+08:00 | function_call_result | TaskUpdate | completed |
+| 207 | 2026-10-03T00:56:20+08:00 | function_call_result | Bash | completed |
+| 209 | 2026-10-03T00:56:23+08:00 | function_call | Bash |  |
+| 210 | 2026-10-03T00:56:23+08:00 | function_call_result | Bash | completed |
+| 213 | 2026-10-03T00:56:29+08:00 | function_call | Bash |  |
+| 214 | 2026-10-03T00:56:29+08:00 | function_call_result | Bash | completed |
+| 215 | 2026-10-03T00:56:32+08:00 | function_call | Bash |  |
+| 216 | 2026-10-03T00:56:32+08:00 | function_call_result | Bash | completed |
+| 219 | 2026-10-03T00:56:35+08:00 | function_call | Bash |  |
+| 220 | 2026-10-03T00:57:02+08:00 | function_call_result | Bash | completed |
+| 221 | 2026-10-03T00:57:04+08:00 | function_call | TaskUpdate |  |
+| 222 | 2026-10-03T00:57:04+08:00 | function_call_result | TaskUpdate | completed |
