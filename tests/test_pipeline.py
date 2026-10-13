@@ -111,7 +111,9 @@ class RouteDeviationRunTest(PipelineTestCase):
         self.assertEqual(written["dispute_id"], "RD-0001")
 
     def test_every_event_payload_ref_resolves(self):
-        log = EventLog(self.run_dir, "test-run")
+        # Reads the run's log from disk. (A second EventLog over a directory an earlier run
+        # already filled is refused — one directory belongs to one run — so the log is not
+        # reopened to read it.)
         for raw in EventLog.read_events(self.run_dir):
             if raw["payload_ref"]:
                 self.assertTrue((self.run_dir / raw["payload_ref"]).exists())
