@@ -893,6 +893,32 @@ class PackageInterface(unittest.TestCase):
         self.assertNotIn("Neither script is inside this ZIP", text)
         self.assertNotIn("never files in this ZIP", text)
 
+    def test_bearer_examples_do_not_hide_credential_like_values(self):
+        module = load_packager_module()
+        header = b"Authorization" + b": Bearer "
+        examples = [
+            header + b"<KEY>",
+            b"`" + header + b"<KEY>`",
+            json.dumps({"content": (header + b"<KEY>\nNext example").decode()}).encode(),
+            json.dumps({"content": (b"`" + header + b"<KEY>`\nNext example").decode()}).encode(),
+        ]
+        for body in examples:
+            with self.subTest(kind="literal example", bytes=len(body)):
+                self.assertEqual([], module.content_refusals("evidence/example.jsonl", body))
+        fake = b"FAKE0" + b"W47BearerFixtureNotARealCredential"
+        for value in (fake, b"<KEY>" + fake, b"<" + fake + b">"):
+            for body in (header + value, json.dumps({"content": (header + value).decode()}).encode()):
+                with self.subTest(kind="credential-like value", bytes=len(body)):
+                    self.assertTrue(module.content_refusals("evidence/example.jsonl", body),
+                                    "a literal-example exception must not hide another value")
+
+    def test_live_copy_claims_match_the_release_and_available_entry_points(self):
+        self.assertTrue(LIVE_DOC.is_file())
+        text = " ".join(LIVE_DOC.read_text(encoding="utf-8").split())
+        self.assertNotIn("only route in this copy that selects the real provider", text)
+        self.assertNotIn("No package, instruction or manifest contains an actual key.", text)
+        self.assertIn("package.purpose", text)
+
 
 class PackagePathRules(unittest.TestCase):
     """Direct checks on the packager's path and credential classifiers.
