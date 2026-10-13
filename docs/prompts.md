@@ -322,9 +322,11 @@ Transport facts a reviewer will ask about:
   reply measured 89 KB on the live endpoint, which echoes the prompt back).
 - **Pacing.** Calls are paced at one per 6.5 seconds across the whole system, with the
   model's usage and a request fingerprint (a hash of the prompts) recorded with every
-  call. The fingerprint proves what was asked, not what was answered: reproducing an
-  answer needs the model, but the exact prompt bytes remain verifiable for any run
-  recorded under the current prompt version. When a prompt sentence changes between a
-  run's recording and the review, the prompt panel reports the mismatch (`changed`)
-  rather than claiming a match — a fail-closed provenance check, so an old recording is
-  never silently presented as matching today's prompt.
+  successful agent result. The fingerprint proves what was asked, not what was answered:
+  reproducing an answer needs the model, but the exact prompt bytes remain verifiable for
+  any run recorded under the current prompt version, whenever the stored fingerprint is
+  available. A call that failed before the model answered stores no fingerprint, and the
+  prompt panel reports that provenance as `unavailable`. When a prompt sentence changes
+  between a run's recording and the review, the prompt panel reports the mismatch
+  (`changed`) rather than claiming a match — a fail-closed provenance check, so an old
+  recording is never silently presented as matching today's prompt.
