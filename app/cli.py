@@ -72,6 +72,26 @@ def _slug(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "-", value).strip("-") or "run"
 
 
+def generate_run_id(dispute_id: str, out_dir: Path, *, now: Optional[datetime] = None) -> str:
+    """A run id no earlier run already owns.
+
+    The stamp is UTC to the second and the dispute id keeps the directory readable, but two
+    documented invocations in the same second would otherwise land on one directory and merge
+    two histories into one log. So the id is uniquified against what is already on disk: the
+    first run of a second keeps the plain documented name, and each later one takes a numeric
+    suffix. ``--run-id`` overrides this entirely, and the event log refuses a directory that
+    already exists, so a collision is never silently appended to.
+    """
+    stamp = (now if now is not None else datetime.now(timezone.utc)).strftime("%Y%m%dT%H%M%SZ")
+    base = "%s-%s" % (stamp, _slug(dispute_id))
+    run_id = base
+    suffix = 1
+    while (Path(out_dir) / run_id).exists():
+        suffix += 1
+        run_id = "%s-%d" % (base, suffix)
+    return run_id
+
+
 def dispute_path(value: str, pack_dir: Path) -> Path:
     """Where --dispute points: a record file, or an id inside the selected pack.
 
@@ -104,12 +124,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return EXIT_FAILED
 
     out_dir = Path(args.out) if args.out else config.out_dir
-    run_id = args.run_id or "%s-%s" % (
-        datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
-        _slug(dispute.dispute_id),
-    )
+    run_id = args.run_id or generate_run_id(dispute.dispute_id, out_dir)
     run_dir = out_dir / run_id
-    events = EventLog(run_dir, run_id)
+    try:
+        events = EventLog(run_dir, run_id)
+    except ValueError as exc:
+        print("error: %s" % exc, file=sys.stderr)
+        return EXIT_FAILED
 
     try:
         case_file = run_dispute(

@@ -88,19 +88,21 @@ ORIGINAL_PAGE_SHA = {
 }
 # Everything W34 must not touch, hashed at e13cbe5: app/ except server.py, every existing
 # ui/ script and stylesheet, the policy.
+# W43 SHOULD (2026-10-13) re-baselined app/agents/judge.py, app/cli.py and app/events.py:
+# that lane's three fixes edit them (tests/test_w43_should_*.py pin the new behaviour).
 FROZEN_W34 = {
     "app/__init__.py": "e5d96ec8d046c894e767773130c01354dde14ecfbcef9fc58db7af36a8e17e25",
     "app/agents/__init__.py": "3880e0f6bddf40af77c0c8fc224cde247c7b98e617aff17d0336d2eda1d2dd0b",
     "app/agents/base.py": "a0398140287d42673034e09ea8438129793c6492b6d1745d4509d3f0cae34fd5",
     "app/agents/driver_advocate.py": "b104c5afce054f7f2fb7cedec55ae80c04defb015e9cfdff7e7fc8a185cbd117",
-    "app/agents/judge.py": "f3d03f6664389178dbdb35f6f12483f647cc1495469f72150eaae72e367d59c0",
+    "app/agents/judge.py": "b898210d816188397577f8be3a9f26fa4b32843f319958b3ab619e9b583c0379",
     "app/agents/rider_advocate.py": "0b782098a399861315be03768f88cc6b821a43556a5fd278c0b6b5e27c03281d",
-    "app/cli.py": "87e3038b46d662253fa478f0dc0ecfadbc3a2f854a2870163335568fab719f04",
+    "app/cli.py": "96f789a7e7e17d048e9529ca0ee9705b6efe508335ec964fccac28661a9ee70f",
     "app/config.json": "9bad3dfc71d7e81db50801e25171099e272f1ad94ff44fdd2721f3e040532bbc",
     "app/config.py": "ac535e02781cabc7e4d189769876efd4c4d2c71330a1aacf7092e9183bbc90cb",
     "app/dispute.py": "1705daa66a897b7f4c265a506b592d153a8888e8ebf112e57631007cd31bae8c",
     "app/eval.py": "e426be975cc900f83a467cc93524c9c10380625ee00adcafe5b4e06903883ff1",
-    "app/events.py": "fb63d38106ca55f32bb59f6737d8535c179df5d6198b1f59becc025adc908fe2",
+    "app/events.py": "35ee2887e05bf41be1c7bdedf5355c4f6153d149ca3f20819646fc4811817209",
     "app/evidence/__init__.py": "befc73254285cb0e6fb5039b5bd7c96cf321430e643a9295022ce17f34e3e6c4",
     "app/evidence/compute.py": "7875ef3282371575a3092eb9746c08d2ebca0d919af3a16a9fb77e958c73d559",
     "app/evidence/schema.py": "c43dde67551b751c98383700b98d0c305c9a970031e109713108430044ca59f3",
