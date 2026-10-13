@@ -218,8 +218,9 @@ class Judge(BaseAgent):
             "A ruling nobody can trace back to specific numbers cannot be reviewed by the human "
             "who receives an escalation, so cite the fields that decided it, not every field you "
             "were shown.\n"
-            "deviation_fare_delta_sgd is the difference between the quoted fare and the "
-            "metered fare for the route taken, not money the rider paid.\n\n"
+            "deviation_fare_delta_sgd is the difference between the fare recomputed for "
+            "the route actually taken and the fare recomputed for the estimated route, "
+            "not money the rider paid.\n\n"
             "OUTPUT SCHEMA\n%s"
             % (HARD_RULES, json.dumps(self.OUTPUT_SCHEMA, indent=2))
         )
@@ -447,19 +448,38 @@ class Judge(BaseAgent):
                 gate_summaries.append(summary)
 
         fare = pack.fare
+        # RD-5's floor reads the overcharge the RECORDS prove, not only the one the tariff
+        # rates recompute. A route record that states no tariff rates at all has no
+        # difference_sgd to read, yet its own inconsistent breakdown can prove an overcharge
+        # on its own (EV-3: the line items add up to less than the charge), so a floor reading
+        # only that field lets a no-action or short refund through on a record whose own
+        # numbers show the overcharge. The widening stays narrow on purpose: it reads the
+        # breakdown only where the record states NO rates (a rate the record cannot read is
+        # ESC-2's reason and ESC-2 already holds that case — one record defect reads as one
+        # reason, as RD-4 does), and a difference present but not finite remains the unreadable
+        # branch below. Refunding more than the proven figure is not this gate's concern:
+        # RD-4 is the ceiling.
+        rd5_proven_sgd = None
+        if fare is not None and _is_figure(fare.difference_sgd):
+            rd5_proven_sgd = round(fare.difference_sgd, 2)
+        elif (
+            fare is not None
+            and fare.difference_sgd is None
+            and not fare.rates
+            and fare.breakdown_consistent is False
+            and _is_figure(fare.charged_sgd)
+            and _is_figure(fare.component_sum_sgd)
+            and not any(gate == "ESC-2" for gate, _reason in gate_failures)
+        ):
+            rd5_proven_sgd = round(fare.charged_sgd - fare.component_sum_sgd, 2)
         if (
             dispute.category == CATEGORY_ROUTE_DEVIATION
-            and fare is not None
-            and _is_figure(fare.difference_sgd)
-            and fare.difference_sgd >= DE_MINIMIS_SGD
+            and rd5_proven_sgd is not None
+            and rd5_proven_sgd >= DE_MINIMIS_SGD
         ):
-            # RD-5: the records prove an overcharge of at least the de minimis amount,
-            # so a ruling that refunds less than the proven difference (or nothing) is
-            # held for a human. Refunding more than the difference is not this gate's
-            # concern.
             covered = (
                 ruling.action == RulingAction.REFUND.value
-                and round(ruling.recommended_amount_sgd, 2) >= round(fare.difference_sgd, 2)
+                and round(ruling.recommended_amount_sgd, 2) >= rd5_proven_sgd
             )
             if not covered:
                 gate_failures.append(
@@ -468,7 +488,7 @@ class Judge(BaseAgent):
                         "RD-5: the records prove an overcharge of SGD %.2f; the proposed "
                         "%s of SGD %.2f does not refund it"
                         % (
-                            fare.difference_sgd,
+                            rd5_proven_sgd,
                             ruling.action,
                             ruling.recommended_amount_sgd,
                         ),

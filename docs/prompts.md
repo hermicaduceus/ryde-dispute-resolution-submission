@@ -197,7 +197,7 @@ is the one the policy and evidence support, with the gate explained: an honest l
 confidence produces a holding message to the parties instead of a wrong ruling.
 
 **Fare-field definition.** The system prompt also states one fare field's meaning directly:
-"deviation_fare_delta_sgd is the difference between the quoted fare and the metered fare for the route taken, not money the rider paid."
+"deviation_fare_delta_sgd is the difference between the fare recomputed for the route actually taken and the fare recomputed for the estimated route, not money the rider paid."
 The prompt gives the definition; whether a route ruling is delivered is still decided by the
 gates above, in code.
 

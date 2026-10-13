@@ -123,8 +123,27 @@ class EventLog:
         self.payloads_dir = self.run_dir / PAYLOADS_DIRNAME
         self._events: List[Event] = []
 
+        # A run directory belongs to one run. Reusing a directory that already holds a run's
+        # record restarts the sequence numbering, rewrites the same payload paths and leaves
+        # two histories in one log while the case file embeds only the later one, so a second
+        # writer is refused rather than appended into the first run's log. A directory that
+        # merely EXISTS is not a run — a fresh --out path, or a temporary directory the caller
+        # made first — and is used as given.
+        if self.events_path.exists():
+            raise ValueError(
+                "refusing to reuse the run directory %s: it already holds a run's event log. "
+                "Move it aside, or choose another run id." % self.run_dir
+            )
         self.run_dir.mkdir(parents=True, exist_ok=True)
-        self.payloads_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            # The atomic claim on this run directory: of two writers racing for one id, only
+            # the one that creates the payloads directory proceeds.
+            self.payloads_dir.mkdir(exist_ok=False)
+        except FileExistsError as exc:
+            raise ValueError(
+                "refusing to reuse the run directory %s: it already holds a run's payloads. "
+                "Move it aside, or choose another run id." % self.run_dir
+            ) from exc
 
     # -------------------------------------------------------------------- writing
 
