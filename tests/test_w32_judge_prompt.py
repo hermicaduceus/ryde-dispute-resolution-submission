@@ -22,9 +22,9 @@ from app.schemas import AdvocateCase
 from tests.support import ScriptedLLM
 
 ROOT = Path(__file__).resolve().parents[1]
-SENTENCE = "deviation_fare_delta_sgd is the difference between the quoted fare and the metered fare for the route taken, not money the rider paid."
+SENTENCE = "deviation_fare_delta_sgd is the difference between the fare recomputed for the route actually taken and the fare recomputed for the estimated route, not money the rider paid."
 BASE_SYSTEM_SHA256 = "119a939789e7d800f52d884f658b4d3ddabdaf045eb695255686d6e118775780"
-BASE_JUDGE_AST_SHA256 = "e86ccd59e73067ec4e7b519c33714b2efe8888e0e9aee668ac46fc08330c8e99"
+BASE_JUDGE_AST_SHA256 = "010bdbfccdcf43779edcffc67c872fd2e489e500c7ae444c945564de637c6e35"
 
 
 def _sha(text):

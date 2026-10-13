@@ -95,7 +95,19 @@ INTAKE_ANSWER_TOO_LONG_MESSAGE = "Intake answers must be at most 2000 characters
 #: choice keys. The tables in app/schemas.py are the one owner of that fact.
 CHOICE_INTAKE_KEYS = YES_NO_INTAKE_KEYS | DRIVER_YES_NO_INTAKE_KEYS
 
+#: W43 M1: the rider no-show filing's structured absence question. The pack's own field
+#: name — the one the NS-6 gate reads on the cancellation block — accepted for the rider
+#: no-show filing only and validated with the shared yes/no choice grammar. Deliberately
+#: not in the shared intake tables in app/schemas.py: one owner per fact, and this fact
+#: belongs to this filing.
+RIDER_ABSENCE_KEY = "rider_claims_driver_absent"
+
 _RUN_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
+#: W44 (S-F01): how many fresh run ids one filing may try before giving up. An id an
+#: existing run already owns is refused by EventLog before anything is written, so
+#: retrying with a fresh id is safe; the bound keeps a pathological generator from
+#: spinning. A refused id is never deleted — that directory belongs to the first run.
+_RUN_ID_ATTEMPTS = 5
 _PAYLOAD_NAME_RE = re.compile(r"^[0-9]{4}-[A-Za-z0-9._-]+\.json$")
 #: A dispute reference from the party page. Deliberately tighter than the run id: a
 #: lookup never names a path, so only the pattern and the id's existence decide.
@@ -218,7 +230,13 @@ def party_view(
                 "questions": [],
             }
         message = resolution.get("party_message")
-        status = PARTY_STATUS_BY_OUTCOME.get(resolution.get("outcome"))
+        # W43 M3: type-check the member before the membership test. A persisted case
+        # file can carry a list or an object here, and an unhashable value used as a
+        # mapping key raises instead of failing closed to the neutral view.
+        outcome = resolution.get("outcome")
+        if not isinstance(outcome, str):
+            raise _MalformedCaseFile
+        status = PARTY_STATUS_BY_OUTCOME.get(outcome)
         if status is None:
             raise _MalformedCaseFile
         # T4: only a decision shows the file's text, so only a decision needs a
@@ -801,6 +819,22 @@ def _new_run_id() -> str:
     )
 
 
+def _stated_absence(value: Any) -> Optional[bool]:
+    """The rider's structured absence choice, or None when they made no claim.
+
+    Only the choice grammar's own words state a claim: a bare Yes/No, or either with
+    the standard " - <text>" explanation. No answer at all, an empty choice or prose
+    (which validation refuses anyway) is not a claim. The party's narrative is never
+    read for this — only the answer they chose states anything.
+    """
+    if not isinstance(value, str):
+        return None
+    for choice, flag in (("Yes", True), ("No", False)):
+        if value == choice or value.startswith(choice + " - "):
+            return flag
+    return None
+
+
 def _build_record(
     pack_record: Dict[str, Any],
     *,
@@ -814,15 +848,20 @@ def _build_record(
     """A new dispute record for one filing: platform evidence kept, party-stated
     fields replaced by the form's values.
 
-    Party-stated fields the form does not collect (rider_claims_driver_absent, any
-    carried follow-up answers) are removed, never inherited from the pack record the
-    trip came from: the new dispute must say only what this party said.
+    Party-stated fields the form did not collect (any carried follow-up answers) are
+    removed, never inherited from the pack record the trip came from: the new dispute
+    must say only what this party said. The rider no-show filing's structured absence
+    answer (W43 M1) is carried into the slot the NS-6 gate reads — ryde_extensions on
+    the organisers' shape, the cancellation block on the pack shape — and an
+    unanswered question still deletes the pack's own flag, so no claim is ever
+    fabricated.
     """
     record = copy.deepcopy(pack_record)
     claim_block: Dict[str, Any] = {"text": description}
     if claim_amount_sgd is not None:
         claim_block["amount_sgd"] = claim_amount_sgd
     filed_at = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+    absence = _stated_absence(answers.get(RIDER_ABSENCE_KEY))
 
     if is_organiser_record(record):
         ticket = record["dispute_ticket"]
@@ -834,8 +873,10 @@ def _build_record(
         extensions = record.setdefault("ryde_extensions", {})
         extensions["claim"] = claim_block
         extensions["intake"] = dict(answers)
-        extensions.pop("rider_claims_driver_absent", None)
+        extensions.pop(RIDER_ABSENCE_KEY, None)
         extensions.pop("follow_up_answers", None)
+        if absence is not None:
+            extensions[RIDER_ABSENCE_KEY] = absence
     else:
         record["dispute_id"] = dispute_id
         record["category"] = category
@@ -845,7 +886,9 @@ def _build_record(
         record["intake"] = dict(answers)
         cancellation = record.get("cancellation")
         if isinstance(cancellation, dict):
-            cancellation.pop("rider_claims_driver_absent", None)
+            cancellation.pop(RIDER_ABSENCE_KEY, None)
+            if absence is not None:
+                cancellation[RIDER_ABSENCE_KEY] = absence
         record.pop("follow_up_answers", None)
     return record
 
@@ -922,13 +965,19 @@ def _validate_filing(body: Dict[str, Any]) -> Dict[str, Any]:
     # valid for both. QUESTIONNAIRES stays the rider-compatible export.
     questionnaire = tuple(key for key, _label in intake_questions_for(category, filed_by))
     for key, value in answers.items():
-        if key not in questionnaire:
+        if key == RIDER_ABSENCE_KEY:
+            # W43 M1: rider-only and no-show-only. The structured absence question
+            # exists for the rider's contested no-show filing, so neither a driver
+            # filing nor a route filing may carry it.
+            if category != "no_show_charge" or filed_by != "rider":
+                raise _HTTPError(400, "unknown intake answer: %s" % key)
+        elif key not in questionnaire:
             raise _HTTPError(400, "unknown intake answer: %s" % key)
         if not isinstance(value, str):
             raise _HTTPError(400, "intake answer '%s' must be a string" % key)
         if len(value) > MAX_INTAKE_ANSWER_CODE_POINTS:
             raise _HTTPError(400, INTAKE_ANSWER_TOO_LONG_MESSAGE)
-        if key in CHOICE_INTAKE_KEYS and not _is_choice_answer(value):
+        if (key in CHOICE_INTAKE_KEYS or key == RIDER_ABSENCE_KEY) and not _is_choice_answer(value):
             raise _HTTPError(
                 400,
                 "intake answer '%s' must be Yes or No, with an optional explanation" % key,
@@ -1323,31 +1372,48 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
         self._send_json(200, party_view(new_case.to_dict()))
 
     def _run_record(self, state: "_ServerState", record: Dict[str, Any]):
-        run_id = _new_run_id()
-        run_dir = state.out_dir / run_id
-        try:
-            events = EventLog(run_dir, run_id)
-            case = run_dispute(
-                dispute=parse_dispute(record),
-                llm=state.llm,
-                policy=state.policy,
-                events=events,
-                confidence_threshold=state.confidence_threshold,
-                autonomous_cap_sgd=state.autonomous_cap_sgd,
-                retry_policy=RetryPolicy(budget_seconds=state.case_budget_seconds),
-            )
-            case.write(run_dir)
-            (run_dir / DISPUTE_FILE_NAME).write_text(
-                json.dumps(record, indent=2, default=str) + "\n", encoding="utf-8"
-            )
-            return case
-        except Exception:
-            # R7: a crashed run must not leave a half-written directory behind — and
-            # must remove only the directory this call created, never anything else.
-            resolved = run_dir.resolve()
-            if resolved != state.out_dir.resolve() and resolved.is_relative_to(state.out_dir.resolve()):
-                shutil.rmtree(resolved, ignore_errors=True)
-            raise
+        # W44 (S-F01): a fresh id can name a directory an existing run already owns —
+        # EventLog refuses it before anything is written. That refusal must never be
+        # answered by deleting the directory: it belongs to the first run. Try a bounded
+        # number of fresh ids instead, and only a directory THIS call acquired is ever
+        # cleaned up below.
+        for attempt in range(_RUN_ID_ATTEMPTS):
+            run_id = _new_run_id()
+            run_dir = state.out_dir / run_id
+            try:
+                events = EventLog(run_dir, run_id)
+            except ValueError:
+                # The collision: this call created nothing here, so there is nothing of
+                # its own to remove. Retry with a fresh id — unless this was the last
+                # attempt, where the refusal is the clean error the handler reports.
+                if attempt == _RUN_ID_ATTEMPTS - 1:
+                    raise
+                continue
+            # Acquisition: EventLog construction succeeded, so from here on the
+            # directory is this call's to remove.
+            try:
+                case = run_dispute(
+                    dispute=parse_dispute(record),
+                    llm=state.llm,
+                    policy=state.policy,
+                    events=events,
+                    confidence_threshold=state.confidence_threshold,
+                    autonomous_cap_sgd=state.autonomous_cap_sgd,
+                    retry_policy=RetryPolicy(budget_seconds=state.case_budget_seconds),
+                )
+                case.write(run_dir)
+                (run_dir / DISPUTE_FILE_NAME).write_text(
+                    json.dumps(record, indent=2, default=str) + "\n", encoding="utf-8"
+                )
+                return case
+            except Exception:
+                # R7: a crashed run must not leave a half-written directory behind — and
+                # must remove only the directory this call created, never anything else.
+                # "Created" means acquired above: a refused collision never reaches here.
+                resolved = run_dir.resolve()
+                if resolved != state.out_dir.resolve() and resolved.is_relative_to(state.out_dir.resolve()):
+                    shutil.rmtree(resolved, ignore_errors=True)
+                raise
 
     # ------------------------------------------------------------- static
 

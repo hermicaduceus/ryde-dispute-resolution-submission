@@ -1,0 +1,2555 @@
+{
+  "format_version": 1,
+  "exported_at": "2026-10-12T20:23:30+08:00",
+  "review_status": "CONVERSATION_HISTORY_AUDIT_COMPLETED; GLM_PASS_WITH_NOTES; G1_CORRECTED; NOT_W6_PUBLICATION_CLEARANCE",
+  "method": "Mechanical JSONL extraction, not native /export and not an AI summary",
+  "scope": "Every Ryde-related log with at least one recorded user and one recorded assistant message, including probes and interrupted rounds",
+  "source_logs_discovered": 67,
+  "sessions": [
+    {
+      "session_id": "01a0b562-3c0d-7f4f-864e-382c4346dc52",
+      "project": "main-repo",
+      "source_sha256": "59f68a65ef39c5b1b67c87357e85393ae0a397b78ced1c04258cb149d5d09df0",
+      "source_record_count": 3,
+      "source_record_types": {
+        "message": 2,
+        "file-history-snapshot": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 1
+      },
+      "recorded_start": "2026-09-19T00:38:29+08:00",
+      "recorded_end": "2026-09-19T00:38:29+08:00",
+      "first_prompt_excerpt": "Reply with exactly: FENCE_TEST_OK",
+      "markdown": "2026-09-19_codebuddy-cli_01a0b562-3c0d-7f4f-864e-382c4346dc52.md",
+      "jsonl": "2026-09-19_codebuddy-cli_01a0b562-3c0d-7f4f-864e-382c4346dc52.jsonl",
+      "message_count": 2,
+      "tool_event_count": 0,
+      "included_record_count": 2,
+      "omitted_record_types": {
+        "file-history-snapshot": 1
+      },
+      "markdown_sha256": "040dca1f7f7459bc56ce75742030259536c254658af6ab33fea9902892e03d1b",
+      "jsonl_sha256": "ad1eb1b7873bae1159b95b8f5f5a5b4070dda2b3d16ff35c53d590f533a97da7",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0b569-1086-7b5e-ac89-886f8a119216",
+      "project": "main-repo",
+      "source_sha256": "d53b4c0cfa44d9d67788ea4145eccc4065238d290d708eaade6efeaa842d6274",
+      "source_record_count": 7,
+      "source_record_types": {
+        "message": 2,
+        "file-history-snapshot": 1,
+        "reasoning": 2,
+        "function_call": 1,
+        "function_call_result": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 1
+      },
+      "recorded_start": "2026-09-19T00:45:56+08:00",
+      "recorded_end": "2026-09-19T00:46:07+08:00",
+      "first_prompt_excerpt": "Attempt to read the file [USER_HOME]/hermes-workspace/projects/tencent-ai-hackathon-2026/CLAUDE.md. If you cannot read it, reply exactly: FENCE_BLOCKED. If you can read it, reply exa",
+      "markdown": "2026-09-19_codebuddy-cli_01a0b569-1086-7b5e-ac89-886f8a119216.md",
+      "jsonl": "2026-09-19_codebuddy-cli_01a0b569-1086-7b5e-ac89-886f8a119216.jsonl",
+      "message_count": 2,
+      "tool_event_count": 2,
+      "included_record_count": 4,
+      "omitted_record_types": {
+        "file-history-snapshot": 1,
+        "reasoning": 2
+      },
+      "markdown_sha256": "cb2be4f075465de763f50c447d9be7d1e3ce75bd223afb1d2be018b4fa9654c2",
+      "jsonl_sha256": "0ffff3742018be8061429574ab9da896a71c50449b06e33a7a0a4837d968dde9",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0b572-d487-7084-a217-66761e207fa8",
+      "project": "main-repo",
+      "source_sha256": "7949ff517e6e4a1652cd528a9fca2a8e6ca37ffb46cec1586c6eadf641d2ce7e",
+      "source_record_count": 3,
+      "source_record_types": {
+        "message": 2,
+        "file-history-snapshot": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 1
+      },
+      "recorded_start": "2026-09-19T00:56:36+08:00",
+      "recorded_end": "2026-09-19T00:56:38+08:00",
+      "first_prompt_excerpt": "Reply with exactly: MODELCHECK",
+      "markdown": "2026-09-19_codebuddy-cli_01a0b572-d487-7084-a217-66761e207fa8.md",
+      "jsonl": "2026-09-19_codebuddy-cli_01a0b572-d487-7084-a217-66761e207fa8.jsonl",
+      "message_count": 2,
+      "tool_event_count": 0,
+      "included_record_count": 2,
+      "omitted_record_types": {
+        "file-history-snapshot": 1
+      },
+      "markdown_sha256": "de5fa8f9e8d81f8a67e06dd631a0ce51d8008c870c11d15828d2b62e06904728",
+      "jsonl_sha256": "0a6e9c8d7df48ae180d05cbb1eeb710450a44be26fba4f439c5df3079eb8d6b5",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c3e8-e3d2-77ec-9be1-ce95d96eae38",
+      "project": "main-repo",
+      "source_sha256": "9521ab481e96b9c79f4e7d5f21d75c55e9e84d1e3efe8edf95d59de27bca0278",
+      "source_record_count": 6,
+      "source_record_types": {
+        "message": 2,
+        "file-history-snapshot": 1,
+        "reasoning": 1,
+        "function_call": 1,
+        "function_call_result": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 1
+      },
+      "recorded_start": "2026-09-21T20:20:15+08:00",
+      "recorded_end": "2026-09-21T20:20:20+08:00",
+      "first_prompt_excerpt": "Try to Read the file [USER_HOME]/hermes-workspace/projects/tencent-ai-hackathon-2026/CLAUDE.md. If the read was denied, reply FENCE_BLOCKED. If it succeeded, reply FENCE_OPEN.",
+      "markdown": "2026-09-21_codebuddy-cli_01a0c3e8-e3d2-77ec-9be1-ce95d96eae38.md",
+      "jsonl": "2026-09-21_codebuddy-cli_01a0c3e8-e3d2-77ec-9be1-ce95d96eae38.jsonl",
+      "message_count": 2,
+      "tool_event_count": 2,
+      "included_record_count": 4,
+      "omitted_record_types": {
+        "file-history-snapshot": 1,
+        "reasoning": 1
+      },
+      "markdown_sha256": "63f2f684766e78b890b5d3bd371625e0cb3c893453bb1242854b67b70d39e9d6",
+      "jsonl_sha256": "289c68226f1ce73cf5acdeff87c5038c72cb5ae0c7b1c80ddb35172f0414636e",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c3eb-56e1-7abc-a2c8-713ccef4a768",
+      "project": "main-repo",
+      "source_sha256": "5412dad5ce91c8ebfd50acd0ddc14606442a082bba5ed1fd46845f17cb78a204",
+      "source_record_count": 27,
+      "source_record_types": {
+        "message": 12,
+        "file-history-snapshot": 3,
+        "ai-title": 1,
+        "reasoning": 3,
+        "summary": 1,
+        "turn-metrics": 2,
+        "function_call": 3,
+        "function_call_result": 2
+      },
+      "source_message_roles": {
+        "user": 9,
+        "assistant": 3
+      },
+      "recorded_start": "2026-09-21T20:23:02+08:00",
+      "recorded_end": "2026-09-21T20:27:51+08:00",
+      "first_prompt_excerpt": "/reasoning max",
+      "markdown": "2026-09-21_codebuddy-cli_01a0c3eb-56e1-7abc-a2c8-713ccef4a768.md",
+      "jsonl": "2026-09-21_codebuddy-cli_01a0c3eb-56e1-7abc-a2c8-713ccef4a768.jsonl",
+      "message_count": 12,
+      "tool_event_count": 5,
+      "included_record_count": 17,
+      "omitted_record_types": {
+        "file-history-snapshot": 3,
+        "ai-title": 1,
+        "reasoning": 3,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "a99f8227e24394ef138d2c1f611a0b070a8e4687547c192feb5be83d42d11d5e",
+      "jsonl_sha256": "b074a5c858198f2025ca868e82bbe73c17cd880d263f75a83ec3f5bb5295b050",
+      "presentation_labels": {
+        "Automatic system notice": 2,
+        "Local command display": 4,
+        "Operator command input": 1,
+        "CodeBuddy": 3,
+        "Recorded user-side message": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c3f1-1fe5-7fec-8439-5458eaa9fc66",
+      "project": "main-repo",
+      "source_sha256": "60b57b1a4f7d5b7c75dd3dd3b3e70a852466b12b90612ed8b02eed8cce9fd867",
+      "source_record_count": 34,
+      "source_record_types": {
+        "message": 21,
+        "file-history-snapshot": 4,
+        "ai-title": 1,
+        "reasoning": 4,
+        "function_call": 2,
+        "function_call_result": 1,
+        "summary": 1
+      },
+      "source_message_roles": {
+        "user": 18,
+        "assistant": 3
+      },
+      "recorded_start": "2026-09-21T20:29:25+08:00",
+      "recorded_end": "2026-09-21T20:32:23+08:00",
+      "first_prompt_excerpt": "/reasoning max",
+      "markdown": "2026-09-21_codebuddy-cli_01a0c3f1-1fe5-7fec-8439-5458eaa9fc66.md",
+      "jsonl": "2026-09-21_codebuddy-cli_01a0c3f1-1fe5-7fec-8439-5458eaa9fc66.jsonl",
+      "message_count": 21,
+      "tool_event_count": 3,
+      "included_record_count": 24,
+      "omitted_record_types": {
+        "file-history-snapshot": 4,
+        "ai-title": 1,
+        "reasoning": 4,
+        "summary": 1
+      },
+      "markdown_sha256": "5889a12b67de8600238d0c063688820d1d19e89e5fe37629e272b41df174071f",
+      "jsonl_sha256": "8ed3b0d39c22226691552c802a57b52dd4845bb5e5e7a7f933d9c902d18f6678",
+      "presentation_labels": {
+        "Automatic system notice": 6,
+        "Local command display": 8,
+        "Operator command input": 1,
+        "Recorded user-side message": 3,
+        "CodeBuddy": 3
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c3f3-51b4-7eef-81a4-814849bbd341",
+      "project": "main-repo",
+      "source_sha256": "f165022e7415dc0d43b4a6b8e471c6aa9c5ea2eecee034dda9a9f3e0afcfcac8",
+      "source_record_count": 3,
+      "source_record_types": {
+        "message": 2,
+        "file-history-snapshot": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 1
+      },
+      "recorded_start": "2026-09-21T20:31:38+08:00",
+      "recorded_end": "2026-09-21T20:31:40+08:00",
+      "first_prompt_excerpt": "Reply with exactly: EFFORT_OK",
+      "markdown": "2026-09-21_codebuddy-cli_01a0c3f3-51b4-7eef-81a4-814849bbd341.md",
+      "jsonl": "2026-09-21_codebuddy-cli_01a0c3f3-51b4-7eef-81a4-814849bbd341.jsonl",
+      "message_count": 2,
+      "tool_event_count": 0,
+      "included_record_count": 2,
+      "omitted_record_types": {
+        "file-history-snapshot": 1
+      },
+      "markdown_sha256": "9c70f8bc317c6155a9bc868dc61621a89d21a59333f6d86987f6c0a135a8731f",
+      "jsonl_sha256": "aee8ac80ad4a6dc5195c6a488a357243448c8acb4b77bf346e38ef31f2c19fbb",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c3f6-22e4-7e48-b147-cd73f37fe417",
+      "project": "main-repo",
+      "source_sha256": "9a88ab86a579070df887bc697802d9e5b454f8ea017cddca869b531a528366fe",
+      "source_record_count": 15,
+      "source_record_types": {
+        "message": 7,
+        "file-history-snapshot": 2,
+        "ai-title": 1,
+        "summary": 1,
+        "turn-metrics": 1,
+        "reasoning": 1,
+        "function_call": 1,
+        "function_call_result": 1
+      },
+      "source_message_roles": {
+        "user": 6,
+        "assistant": 1
+      },
+      "recorded_start": "2026-09-21T20:34:43+08:00",
+      "recorded_end": "2026-09-21T20:35:21+08:00",
+      "first_prompt_excerpt": "tes",
+      "markdown": "2026-09-21_codebuddy-cli_01a0c3f6-22e4-7e48-b147-cd73f37fe417.md",
+      "jsonl": "2026-09-21_codebuddy-cli_01a0c3f6-22e4-7e48-b147-cd73f37fe417.jsonl",
+      "message_count": 7,
+      "tool_event_count": 2,
+      "included_record_count": 9,
+      "omitted_record_types": {
+        "file-history-snapshot": 2,
+        "ai-title": 1,
+        "summary": 1,
+        "turn-metrics": 1,
+        "reasoning": 1
+      },
+      "markdown_sha256": "31d5b24fd108e5b1e8262389973f6d4face99d5a176b0b66ca1a4032377807fc",
+      "jsonl_sha256": "198bf626539f52abef767ad570c239440bdfcd726becd50c3d2567d38aeac4c3",
+      "presentation_labels": {
+        "Automatic system notice": 2,
+        "Local command display": 2,
+        "Recorded user-side message": 1,
+        "CodeBuddy": 1,
+        "Local command/skill expansion": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c3f6-b929-7be8-b942-673125f258d9",
+      "project": "main-repo",
+      "source_sha256": "af3dbf70b8f22c832dededa6aa747f7b68309a53a1013bbc964fd7897c2238ae",
+      "source_record_count": 11,
+      "source_record_types": {
+        "message": 6,
+        "file-history-snapshot": 1,
+        "ai-title": 1,
+        "reasoning": 1,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 5,
+        "assistant": 1
+      },
+      "recorded_start": "2026-09-21T20:35:21+08:00",
+      "recorded_end": "2026-09-21T20:35:36+08:00",
+      "first_prompt_excerpt": "test",
+      "markdown": "2026-09-21_codebuddy-cli_01a0c3f6-b929-7be8-b942-673125f258d9.md",
+      "jsonl": "2026-09-21_codebuddy-cli_01a0c3f6-b929-7be8-b942-673125f258d9.jsonl",
+      "message_count": 6,
+      "tool_event_count": 0,
+      "included_record_count": 6,
+      "omitted_record_types": {
+        "file-history-snapshot": 1,
+        "ai-title": 1,
+        "reasoning": 1,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "1a4a4f34f0c87dc1716883ee8f8d97f4b027fc97ae447e27878ccdd2558e7ee2",
+      "jsonl_sha256": "c62d7283c9db2df5a6255a8a37378818cf67e361a6748d2955bc176559fc3081",
+      "presentation_labels": {
+        "Automatic system notice": 2,
+        "Local command display": 2,
+        "Recorded user-side message": 1,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c3f6-f551-7a7f-ba09-b60642e751c8",
+      "project": "main-repo",
+      "source_sha256": "418bac84073ae08f480329d1edcc1f17c4dc9048a944453a7a6f0221e2314b9c",
+      "source_record_count": 395,
+      "source_record_types": {
+        "message": 35,
+        "file-history-snapshot": 85,
+        "ai-title": 1,
+        "function_call": 109,
+        "function_call_result": 109,
+        "reasoning": 52,
+        "summary": 2,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 7,
+        "assistant": 28
+      },
+      "recorded_start": "2026-09-21T20:35:36+08:00",
+      "recorded_end": "2026-09-22T19:14:07+08:00",
+      "first_prompt_excerpt": "We are starting the build of the Ryde Multi-Agent Autonomous Dispute Resolution project. Read CODEBUDDY.md and docs/statement-extract.md first if you have not in this session. The ",
+      "markdown": "2026-09-21_codebuddy-cli_01a0c3f6-f551-7a7f-ba09-b60642e751c8.md",
+      "jsonl": "2026-09-21_codebuddy-cli_01a0c3f6-f551-7a7f-ba09-b60642e751c8.jsonl",
+      "message_count": 35,
+      "tool_event_count": 218,
+      "included_record_count": 253,
+      "omitted_record_types": {
+        "file-history-snapshot": 85,
+        "ai-title": 1,
+        "reasoning": 52,
+        "summary": 2,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "143a361c1d9b204e3f5c305399ba48d9f86f34b50b0d2a3e96f19169e5d75fc8",
+      "jsonl_sha256": "73578bce912d103f210921e18d2211461a2961f7bd7b9cf27ccbe65b0241a682",
+      "presentation_labels": {
+        "Automatic system notice": 2,
+        "Local command display": 2,
+        "Recorded user-side message": 2,
+        "CodeBuddy": 28,
+        "Automatic compaction checkpoint": 1
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c8d2-b44a-71f2-9574-31e427384a28",
+      "project": "main-repo",
+      "source_sha256": "4970d888a5c74afe6d7ec6db492b087e39582aa08fceb610db766c41fb8b0fb6",
+      "source_record_count": 519,
+      "source_record_types": {
+        "message": 19,
+        "file-history-snapshot": 49,
+        "ai-title": 1,
+        "reasoning": 40,
+        "summary": 1,
+        "turn-metrics": 3,
+        "function_call": 203,
+        "function_call_result": 203
+      },
+      "source_message_roles": {
+        "user": 14,
+        "assistant": 5
+      },
+      "recorded_start": "2026-09-22T19:14:07+08:00",
+      "recorded_end": "2026-09-22T20:58:50+08:00",
+      "first_prompt_excerpt": "what is the model and the reasoning effort you are on now?",
+      "markdown": "2026-09-22_codebuddy-cli_01a0c8d2-b44a-71f2-9574-31e427384a28.md",
+      "jsonl": "2026-09-22_codebuddy-cli_01a0c8d2-b44a-71f2-9574-31e427384a28.jsonl",
+      "message_count": 19,
+      "tool_event_count": 406,
+      "included_record_count": 425,
+      "omitted_record_types": {
+        "file-history-snapshot": 49,
+        "ai-title": 1,
+        "reasoning": 40,
+        "summary": 1,
+        "turn-metrics": 3
+      },
+      "markdown_sha256": "2b92aa7cc3fab0a1f12193e0b96c96263c1a339b92a9951df011a23be0e155c8",
+      "jsonl_sha256": "16bf4f3b511421e16c23159eccd7fa746c528dedd8c2ee8d6e0214895f2d572c",
+      "presentation_labels": {
+        "Automatic system notice": 5,
+        "Local command display": 6,
+        "Recorded user-side message": 2,
+        "CodeBuddy": 5,
+        "Automatic task notification": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0c935-adb8-7e46-a51f-e76d4bacb051",
+      "project": "main-repo",
+      "source_sha256": "efa3ded4fb44d5530ac643422432a1c09c31c24831a87c07d8d19c13bf538020",
+      "source_record_count": 652,
+      "source_record_types": {
+        "message": 8,
+        "file-history-snapshot": 77,
+        "ai-title": 1,
+        "function_call": 254,
+        "function_call_result": 253,
+        "reasoning": 57,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 6,
+        "assistant": 2
+      },
+      "recorded_start": "2026-09-22T21:02:21+08:00",
+      "recorded_end": "2026-09-22T22:30:50+08:00",
+      "first_prompt_excerpt": "Read docs/session-three-brief.md first. It is committed in this repo and it is your spec for this session. Also read CODEBUDDY.md for the locked scope. Your job this session is the",
+      "markdown": "2026-09-22_codebuddy-cli_01a0c935-adb8-7e46-a51f-e76d4bacb051.md",
+      "jsonl": "2026-09-22_codebuddy-cli_01a0c935-adb8-7e46-a51f-e76d4bacb051.jsonl",
+      "message_count": 8,
+      "tool_event_count": 507,
+      "included_record_count": 515,
+      "omitted_record_types": {
+        "file-history-snapshot": 77,
+        "ai-title": 1,
+        "reasoning": 57,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "4d626fb51efc8ad3e17b67d18dfbee688515288d1c4e5dcbfd92b66a250253c1",
+      "jsonl_sha256": "8161d7c326635cd550b33694f1a7caf5c53e29c125d556c9e794c2e12f72da8c",
+      "presentation_labels": {
+        "Recorded user-side message": 3,
+        "Recorded provider error": 1,
+        "CodeBuddy": 1,
+        "Automatic system notice": 1,
+        "Local command display": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0cdeb-0e67-7113-a0af-41f5607cd8ef",
+      "project": "main-repo",
+      "source_sha256": "d1f19f7fe5e528866f9897346fff157be658562eaeef8317b807208f686777f6",
+      "source_record_count": 383,
+      "source_record_types": {
+        "message": 22,
+        "file-history-snapshot": 48,
+        "ai-title": 1,
+        "function_call": 131,
+        "function_call_result": 131,
+        "reasoning": 48,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 21
+      },
+      "recorded_start": "2026-09-23T18:59:57+08:00",
+      "recorded_end": "2026-09-23T19:12:09+08:00",
+      "first_prompt_excerpt": "Build session four. Read docs/session-four-brief.md in full first; it is the spec for this session. Then read data/packs/organiser-style-v1/disputes/DISP-002.json, NS-0201.json, NS",
+      "markdown": "2026-09-23_codebuddy-cli_01a0cdeb-0e67-7113-a0af-41f5607cd8ef.md",
+      "jsonl": "2026-09-23_codebuddy-cli_01a0cdeb-0e67-7113-a0af-41f5607cd8ef.jsonl",
+      "message_count": 22,
+      "tool_event_count": 262,
+      "included_record_count": 284,
+      "omitted_record_types": {
+        "file-history-snapshot": 48,
+        "ai-title": 1,
+        "reasoning": 48,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "efb2f12fe74a753933d6a78e5e73617f6bbc2a22515baebd4c5a8bfd302dcc81",
+      "jsonl_sha256": "ff3e1d5061f61368b0a250fa4f3b47bc1ac0c6ea1d6fcdecb231c330cd34a86e",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 21
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0ce11-f941-7797-84b0-6d6dd19da0c4",
+      "project": "main-repo",
+      "source_sha256": "eabb04b0f61677ca2c52a1b33e5572dc5c1837e79e418a9c3b12ecf8ba023b75",
+      "source_record_count": 303,
+      "source_record_types": {
+        "message": 41,
+        "file-history-snapshot": 29,
+        "reasoning": 40,
+        "function_call": 95,
+        "function_call_result": 95,
+        "ai-title": 1,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 4,
+        "assistant": 37
+      },
+      "recorded_start": "2026-09-23T19:41:25+08:00",
+      "recorded_end": "2026-09-23T20:03:22+08:00",
+      "first_prompt_excerpt": "Build session five. Read docs/session-five-brief.md in full first; it is the spec for this session. Then read tests/test_input_integrity.py (its docstring lists the five findings),",
+      "markdown": "2026-09-23_codebuddy-cli_01a0ce11-f941-7797-84b0-6d6dd19da0c4.md",
+      "jsonl": "2026-09-23_codebuddy-cli_01a0ce11-f941-7797-84b0-6d6dd19da0c4.jsonl",
+      "message_count": 41,
+      "tool_event_count": 190,
+      "included_record_count": 231,
+      "omitted_record_types": {
+        "file-history-snapshot": 29,
+        "reasoning": 40,
+        "ai-title": 1,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "253cf528e7eb646a149fc694f98406b67f5f4112051ea7c88da3d2fa69f4d8f1",
+      "jsonl_sha256": "39c7b7c04dbd86ddc9badbbe811cf05acfa5838529870b218ad95302fbd1082a",
+      "presentation_labels": {
+        "Automatic system notice": 1,
+        "Local command display": 2,
+        "Recorded user-side message": 1,
+        "CodeBuddy": 37
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0ce44-0226-7fd5-a7fe-3b9f24838445",
+      "project": "main-repo",
+      "source_sha256": "dfe3efb7b1ff949e176c5863c0b3a96e08af626fe3221e4889e3b3a4e42ba331",
+      "source_record_count": 594,
+      "source_record_types": {
+        "message": 78,
+        "file-history-snapshot": 81,
+        "ai-title": 1,
+        "reasoning": 73,
+        "function_call": 179,
+        "function_call_result": 179,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 76
+      },
+      "recorded_start": "2026-09-23T20:37:02+08:00",
+      "recorded_end": "2026-09-23T22:03:08+08:00",
+      "first_prompt_excerpt": "Build session six: the party-facing surface. Read docs/session-six-brief.md and tests/test_party_surface.py first; the brief is the spec and the test file is the acceptance target.",
+      "markdown": "2026-09-23_codebuddy-cli_01a0ce44-0226-7fd5-a7fe-3b9f24838445.md",
+      "jsonl": "2026-09-23_codebuddy-cli_01a0ce44-0226-7fd5-a7fe-3b9f24838445.jsonl",
+      "message_count": 78,
+      "tool_event_count": 358,
+      "included_record_count": 436,
+      "omitted_record_types": {
+        "file-history-snapshot": 81,
+        "ai-title": 1,
+        "reasoning": 73,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "31dfef2bc80356125c5acf2c3ecd9b12efef7c0f5582984f0e61ad9724bf5e83",
+      "jsonl_sha256": "1dc9b999bf4c56381ebd1194dc2a6b6cdead6a19dda23256ebfd942b5771f6fc",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 76
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0ced9-b636-7ca5-a0ea-20e98c093500",
+      "project": "main-repo",
+      "source_sha256": "7e0e0cefcd319bb6d246a18959cfebc565c3558503f7a33012aa6a536761d434",
+      "source_record_count": 298,
+      "source_record_types": {
+        "message": 35,
+        "file-history-snapshot": 19,
+        "ai-title": 1,
+        "reasoning": 38,
+        "function_call": 101,
+        "function_call_result": 101,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 33
+      },
+      "recorded_start": "2026-09-23T23:19:46+08:00",
+      "recorded_end": "2026-09-24T00:05:31+08:00",
+      "first_prompt_excerpt": "Build session six, fix round two. A second cross-family review found five small defects in round one's fixes; each was reproduced before being written down. Read docs/session-six-f",
+      "markdown": "2026-09-23_codebuddy-cli_01a0ced9-b636-7ca5-a0ea-20e98c093500.md",
+      "jsonl": "2026-09-23_codebuddy-cli_01a0ced9-b636-7ca5-a0ea-20e98c093500.jsonl",
+      "message_count": 35,
+      "tool_event_count": 202,
+      "included_record_count": 237,
+      "omitted_record_types": {
+        "file-history-snapshot": 19,
+        "ai-title": 1,
+        "reasoning": 38,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "0124462cbb8e82035e2a5fdbf419c69f913b23a9d8caf3fd0b45a628f991b115",
+      "jsonl_sha256": "9a118be293985d84a10430e3cfe270d9c5e2e22ccf4ef029355f931d02b35597",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 33
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0d32a-e49c-7923-8f2c-49f20167f579",
+      "project": "main-repo",
+      "source_sha256": "828f6f6239037632f7ed41a9c942de263446e5d913e2afc45b42f3494bd70a71",
+      "source_record_count": 296,
+      "source_record_types": {
+        "message": 22,
+        "file-history-snapshot": 31,
+        "ai-title": 1,
+        "reasoning": 39,
+        "function_call": 100,
+        "function_call_result": 100,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 5,
+        "assistant": 17
+      },
+      "recorded_start": "2026-09-24T19:28:13+08:00",
+      "recorded_end": "2026-09-24T20:31:20+08:00",
+      "first_prompt_excerpt": "Read docs/session-seven-brief.md and tests/test_architecture_doc.py, then CODEBUDDY.md and docs/statement-extract.md. Your deliverable is docs/architecture.md plus the README and C",
+      "markdown": "2026-09-24_codebuddy-cli_01a0d32a-e49c-7923-8f2c-49f20167f579.md",
+      "jsonl": "2026-09-24_codebuddy-cli_01a0d32a-e49c-7923-8f2c-49f20167f579.jsonl",
+      "message_count": 22,
+      "tool_event_count": 200,
+      "included_record_count": 222,
+      "omitted_record_types": {
+        "file-history-snapshot": 31,
+        "ai-title": 1,
+        "reasoning": 39,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "6a02ecdd0f17ea2ddfcd67d8c0828dc7ca984ad7f3be89cc3167a7ac515cd421",
+      "jsonl_sha256": "ba3638f2852d334315364b2b6d87c51b85441cda8477a918dd0c2535cbe9ddd4",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 17,
+        "Automatic system notice": 1,
+        "Local command display": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0d424-896e-7577-9ea9-e315d0ada69b",
+      "project": "main-repo",
+      "source_sha256": "b884c7d4e12d3f9dc0f18a9f3cf9bad52d63128467687c96443cddee2e8feaa1",
+      "source_record_count": 363,
+      "source_record_types": {
+        "message": 6,
+        "file-history-snapshot": 37,
+        "ai-title": 1,
+        "function_call": 141,
+        "function_call_result": 141,
+        "reasoning": 34,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 4
+      },
+      "recorded_start": "2026-09-25T00:00:15+08:00",
+      "recorded_end": "2026-09-25T00:45:58+08:00",
+      "first_prompt_excerpt": "Read docs/session-eight-brief.md and CODEBUDDY.md, then implement items B1 to B8 of the brief. Target: tests/test_session_eight.py and the full suite (python3 -m unittest, 360 test",
+      "markdown": "2026-09-25_codebuddy-cli_01a0d424-896e-7577-9ea9-e315d0ada69b.md",
+      "jsonl": "2026-09-25_codebuddy-cli_01a0d424-896e-7577-9ea9-e315d0ada69b.jsonl",
+      "message_count": 6,
+      "tool_event_count": 282,
+      "included_record_count": 288,
+      "omitted_record_types": {
+        "file-history-snapshot": 37,
+        "ai-title": 1,
+        "reasoning": 34,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "888857ec05ea5cb2b491c14217cbf14bea7543014338d59d1ac217fd0d0d6b15",
+      "jsonl_sha256": "02c0b00c8c4d3b51c12567e1c04266692f55b3bd74d19b1be2751d55a1f23e92",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 4
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0d644-dc5c-7534-81f3-f20b41ae6470",
+      "project": "main-repo",
+      "source_sha256": "5d39daa9b983e70d92dbc96b02a42ef5d8f5f49a46605465345044fe8b9803ac",
+      "source_record_count": 137,
+      "source_record_types": {
+        "message": 4,
+        "file-history-snapshot": 17,
+        "ai-title": 1,
+        "reasoning": 10,
+        "function_call": 51,
+        "function_call_result": 51,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 2
+      },
+      "recorded_start": "2026-09-25T10:02:04+08:00",
+      "recorded_end": "2026-09-25T10:09:57+08:00",
+      "first_prompt_excerpt": "Session nine: execute docs/session-nine-brief.md -- a token-pass restyle of ui/party/ (Ryde brand: pink #E93864, ink #31373E, pastel canvas #F7DDE3, Poppins, pill buttons). The acc",
+      "markdown": "2026-09-25_codebuddy-cli_01a0d644-dc5c-7534-81f3-f20b41ae6470.md",
+      "jsonl": "2026-09-25_codebuddy-cli_01a0d644-dc5c-7534-81f3-f20b41ae6470.jsonl",
+      "message_count": 4,
+      "tool_event_count": 102,
+      "included_record_count": 106,
+      "omitted_record_types": {
+        "file-history-snapshot": 17,
+        "ai-title": 1,
+        "reasoning": 10,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "f7e428382ceec0c2a8f6e8df4eb732d142401f9f1c584f3bd7bf62c5aa38109c",
+      "jsonl_sha256": "6111ebbd7d2fbb2989c00fdc96d96c38288b879a149a7a947a8b84ef2003fed7",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0d948-4d47-7e60-87e5-71f10ccc5ad8",
+      "project": "main-repo",
+      "source_sha256": "6a2dcc01d3d2f4b8e1257013f4390eaa23c01ad082d31aed839b87acb6370a90",
+      "source_record_count": 140,
+      "source_record_types": {
+        "message": 25,
+        "file-history-snapshot": 11,
+        "reasoning": 20,
+        "function_call": 40,
+        "function_call_result": 40,
+        "ai-title": 1,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 8,
+        "assistant": 17
+      },
+      "recorded_start": "2026-09-25T23:58:07+08:00",
+      "recorded_end": "2026-09-26T00:15:47+08:00",
+      "first_prompt_excerpt": "Read docs/session-ten-brief.md first. It is committed in this repo and is your complete task specification for session ten: make the committed RED acceptance tests in tests/test_w1",
+      "markdown": "2026-09-25_codebuddy-cli_01a0d948-4d47-7e60-87e5-71f10ccc5ad8.md",
+      "jsonl": "2026-09-25_codebuddy-cli_01a0d948-4d47-7e60-87e5-71f10ccc5ad8.jsonl",
+      "message_count": 25,
+      "tool_event_count": 80,
+      "included_record_count": 105,
+      "omitted_record_types": {
+        "file-history-snapshot": 11,
+        "reasoning": 20,
+        "ai-title": 1,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "da89fd5eb1f02766335ba2df845628ee47cb530518bbf2824d2d79c7b752c895",
+      "jsonl_sha256": "2f92e00b2c8301274d269331e07afd4bf6050f0cb99cd08fe6b9abe1867fa82d",
+      "presentation_labels": {
+        "Automatic system notice": 2,
+        "Local command display": 4,
+        "Recorded user-side message": 2,
+        "CodeBuddy": 17
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0e075-d3d1-795e-9179-d6a679d9226e",
+      "project": "main-repo",
+      "source_sha256": "ee65a51bc546381e2710b45617cc3825da6e4e4b47fa9fb3320530e1226d7280",
+      "source_record_count": 90,
+      "source_record_types": {
+        "message": 7,
+        "file-history-snapshot": 10,
+        "reasoning": 12,
+        "function_call": 29,
+        "function_call_result": 29,
+        "ai-title": 1,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 6
+      },
+      "recorded_start": "2026-09-27T11:03:57+08:00",
+      "recorded_end": "2026-09-27T11:28:42+08:00",
+      "first_prompt_excerpt": "Read docs/session-eleven-brief.md and implement it exactly. The acceptance tests are tests/test_party_step_pages.py (currently 4 RED). Only the two forward-transition handlers in u",
+      "markdown": "2026-09-27_codebuddy-cli_01a0e075-d3d1-795e-9179-d6a679d9226e.md",
+      "jsonl": "2026-09-27_codebuddy-cli_01a0e075-d3d1-795e-9179-d6a679d9226e.jsonl",
+      "message_count": 7,
+      "tool_event_count": 58,
+      "included_record_count": 65,
+      "omitted_record_types": {
+        "file-history-snapshot": 10,
+        "reasoning": 12,
+        "ai-title": 1,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "dc397021f6283a1a412f19fd28f0fa98c5ceeb048e236643587ccce076a6ffd6",
+      "jsonl_sha256": "007e412d7891c86e4412ae70cc63ce8de74a73b23610d10f0593e916411a6fe0",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 6
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0e134-e386-73b8-9bf1-af95691d6200",
+      "project": "main-repo",
+      "source_sha256": "35d04024c10d274911319350ca4bbc56b54c85a537054cf10d3c4e7058650530",
+      "source_record_count": 155,
+      "source_record_types": {
+        "message": 5,
+        "file-history-snapshot": 19,
+        "ai-title": 1,
+        "function_call": 58,
+        "function_call_result": 58,
+        "reasoning": 12,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 4
+      },
+      "recorded_start": "2026-09-27T12:53:25+08:00",
+      "recorded_end": "2026-09-27T13:10:11+08:00",
+      "first_prompt_excerpt": "Session twelve: read docs/session-twelve-brief.md in full first, then implement it exactly. The acceptance tests in tests/test_party_form_ux.py are already written and RED. tests/ ",
+      "markdown": "2026-09-27_codebuddy-cli_01a0e134-e386-73b8-9bf1-af95691d6200.md",
+      "jsonl": "2026-09-27_codebuddy-cli_01a0e134-e386-73b8-9bf1-af95691d6200.jsonl",
+      "message_count": 5,
+      "tool_event_count": 116,
+      "included_record_count": 121,
+      "omitted_record_types": {
+        "file-history-snapshot": 19,
+        "ai-title": 1,
+        "reasoning": 12,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "d4e077745742088b4e32b58a70bb3440b92a4f81634c871f74091f8afeff145d",
+      "jsonl_sha256": "aed2a9c4d25b6d465e4f61f5b6035cd1798381600da666a25f1de977beee1d1d",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 4
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0e149-3b22-7128-a013-7de460e66ddc",
+      "project": "main-repo",
+      "source_sha256": "f516e7fc9fe3898594afa9dffdab7884ad6880cf0bc04042d7aa97e1939e91c9",
+      "source_record_count": 102,
+      "source_record_types": {
+        "message": 8,
+        "file-history-snapshot": 10,
+        "ai-title": 1,
+        "reasoning": 21,
+        "function_call": 29,
+        "function_call_result": 29,
+        "turn-metrics": 3,
+        "summary": 1
+      },
+      "source_message_roles": {
+        "user": 3,
+        "assistant": 5
+      },
+      "recorded_start": "2026-09-27T13:14:52+08:00",
+      "recorded_end": "2026-09-27T13:19:17+08:00",
+      "first_prompt_excerpt": "Session twelve addendum: read the 'Addendum' section of docs/session-twelve-brief.md and implement exactly that in ui/party/party.js. The acceptance tests in tests/test_party_form_",
+      "markdown": "2026-09-27_codebuddy-cli_01a0e149-3b22-7128-a013-7de460e66ddc.md",
+      "jsonl": "2026-09-27_codebuddy-cli_01a0e149-3b22-7128-a013-7de460e66ddc.jsonl",
+      "message_count": 8,
+      "tool_event_count": 58,
+      "included_record_count": 66,
+      "omitted_record_types": {
+        "file-history-snapshot": 10,
+        "ai-title": 1,
+        "reasoning": 21,
+        "turn-metrics": 3,
+        "summary": 1
+      },
+      "markdown_sha256": "bb60a52b6215af550ac90c4834f66352026a6ee5efd7637fea8c4a60052c5428",
+      "jsonl_sha256": "eb5f41bb5f7b94ded2cc1bf48848a896b497d9abd9d0995e3252a0acca750b0a",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 5,
+        "Automatic task notification": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0e337-fdec-7813-87ee-6d9810d33b71",
+      "project": "main-repo",
+      "source_sha256": "a09e13bb4538b672358c84d8d51135f44b0cbf412c7c428d2ca7da324c5b3e52",
+      "source_record_count": 342,
+      "source_record_types": {
+        "message": 10,
+        "file-history-snapshot": 46,
+        "ai-title": 1,
+        "function_call": 122,
+        "function_call_result": 122,
+        "reasoning": 37,
+        "summary": 1,
+        "turn-metrics": 3
+      },
+      "source_message_roles": {
+        "user": 7,
+        "assistant": 3
+      },
+      "recorded_start": "2026-09-27T22:15:17+08:00",
+      "recorded_end": "2026-09-27T23:16:25+08:00",
+      "first_prompt_excerpt": "Session thirteen: read docs/session-thirteen-brief.md in full first, then implement it exactly. The acceptance tests in tests/test_console_rebrand.py are already written and 12 of ",
+      "markdown": "2026-09-27_codebuddy-cli_01a0e337-fdec-7813-87ee-6d9810d33b71.md",
+      "jsonl": "2026-09-27_codebuddy-cli_01a0e337-fdec-7813-87ee-6d9810d33b71.jsonl",
+      "message_count": 10,
+      "tool_event_count": 244,
+      "included_record_count": 254,
+      "omitted_record_types": {
+        "file-history-snapshot": 46,
+        "ai-title": 1,
+        "reasoning": 37,
+        "summary": 1,
+        "turn-metrics": 3
+      },
+      "markdown_sha256": "168546a0cc35660f6f21b63bab94b2f5814d7fb5c82e3bd001f1d3a1d664c852",
+      "jsonl_sha256": "f0241ac70a1fd446a5e5f6475201c9ae9f81a549da6d093a50da0514d002ade9",
+      "presentation_labels": {
+        "Recorded user-side message": 4,
+        "CodeBuddy": 3,
+        "Automatic system notice": 1,
+        "Local command display": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0e835-41c9-7c59-b049-ec7cfdc436a6",
+      "project": "main-repo",
+      "source_sha256": "0083036975e7b5af42b7b766ba3fe3e616a56531cca8d1a1e6b3a0b9213b6a65",
+      "source_record_count": 272,
+      "source_record_types": {
+        "message": 36,
+        "file-history-snapshot": 30,
+        "ai-title": 1,
+        "reasoning": 41,
+        "function_call": 79,
+        "function_call_result": 79,
+        "turn-metrics": 4,
+        "summary": 1,
+        "session-meta": 1
+      },
+      "source_message_roles": {
+        "user": 10,
+        "assistant": 26
+      },
+      "recorded_start": "2026-09-28T21:30:17+08:00",
+      "recorded_end": "2026-10-12T20:13:11+08:00",
+      "first_prompt_excerpt": "Read docs/session-fourteen-brief.md in full, then read tests/test_adp_adapter.py and the three files under tests/fixtures/adp/. Your job is session fourteen: apply the brief exactl",
+      "markdown": "2026-09-28_codebuddy-cli_01a0e835-41c9-7c59-b049-ec7cfdc436a6.md",
+      "jsonl": "2026-09-28_codebuddy-cli_01a0e835-41c9-7c59-b049-ec7cfdc436a6.jsonl",
+      "message_count": 36,
+      "tool_event_count": 158,
+      "included_record_count": 194,
+      "omitted_record_types": {
+        "file-history-snapshot": 30,
+        "ai-title": 1,
+        "reasoning": 41,
+        "turn-metrics": 4,
+        "summary": 1,
+        "session-meta": 1
+      },
+      "markdown_sha256": "5cf82ebc94c1ee025e7ef79c0a66fd4ecf68e595c92a4fd4d3d6748c5b9d0af5",
+      "jsonl_sha256": "d9df1fc32d7905b0a239b1e3d8ad64546cba55624006bc8469fd5e32cef65036",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 26,
+        "Automatic task notification": 3,
+        "Automatic system notice": 2,
+        "Local command display": 4
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0e8dd-a000-7baa-9ce7-e0ef4a6126c5",
+      "project": "main-repo",
+      "source_sha256": "9046c9dd57c7fed5e4e11e36d204a8619d737168f2d1d265109b54df4d840e30",
+      "source_record_count": 108,
+      "source_record_types": {
+        "message": 12,
+        "file-history-snapshot": 7,
+        "ai-title": 1,
+        "function_call": 35,
+        "function_call_result": 35,
+        "reasoning": 16,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 11
+      },
+      "recorded_start": "2026-09-29T00:34:08+08:00",
+      "recorded_end": "2026-09-29T00:37:12+08:00",
+      "first_prompt_excerpt": "Read docs/session-fifteen-brief.md in full, then read tests/test_adp_hardening.py. Your job is session fifteen: apply the brief exactly. Replace app/llm/tencent.py with the code bl",
+      "markdown": "2026-09-29_codebuddy-cli_01a0e8dd-a000-7baa-9ce7-e0ef4a6126c5.md",
+      "jsonl": "2026-09-29_codebuddy-cli_01a0e8dd-a000-7baa-9ce7-e0ef4a6126c5.jsonl",
+      "message_count": 12,
+      "tool_event_count": 70,
+      "included_record_count": 82,
+      "omitted_record_types": {
+        "file-history-snapshot": 7,
+        "ai-title": 1,
+        "reasoning": 16,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "5b18f0dab883167899017eb51a31e0156f185026c4137a3ebc1bce3b51b0773c",
+      "jsonl_sha256": "e2a752a1bf58c0dc134726544a4ae33566ade52057cd3d0cca4821a604043e4f",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 11
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0e91a-d599-72e9-9e60-553f79decc38",
+      "project": "main-repo",
+      "source_sha256": "196c81d9df314e7d4742d832842b0127f92e7ed0c57cf25e4e952675c2e2751e",
+      "source_record_count": 274,
+      "source_record_types": {
+        "message": 18,
+        "file-history-snapshot": 23,
+        "ai-title": 1,
+        "reasoning": 38,
+        "function_call": 96,
+        "function_call_result": 96,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 17
+      },
+      "recorded_start": "2026-09-29T01:41:05+08:00",
+      "recorded_end": "2026-09-29T01:50:12+08:00",
+      "first_prompt_excerpt": "Read docs/session-sixteen-brief.md and CODEBUDDY.md, then implement F1 to F6 exactly as written. Target: tests/test_session_sixteen.py and the full suite (python3 -m unittest disco",
+      "markdown": "2026-09-29_codebuddy-cli_01a0e91a-d599-72e9-9e60-553f79decc38.md",
+      "jsonl": "2026-09-29_codebuddy-cli_01a0e91a-d599-72e9-9e60-553f79decc38.jsonl",
+      "message_count": 18,
+      "tool_event_count": 192,
+      "included_record_count": 210,
+      "omitted_record_types": {
+        "file-history-snapshot": 23,
+        "ai-title": 1,
+        "reasoning": 38,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "28f74d1f54c8f82709bd86289202f5c5eb3a4e69886dd5e1ae211e9fe6a33e64",
+      "jsonl_sha256": "6365800709d5b89b16fee4a8f36321c5ecb6df1676391fa07a72789c807356d2",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 17
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0ed36-2d89-70d2-8f56-88cffc3ba068",
+      "project": "main-repo",
+      "source_sha256": "05101c8a1651a9afbf20a1a685ed6763735bd2a2990bdbddc694e899724c3554",
+      "source_record_count": 136,
+      "source_record_types": {
+        "message": 4,
+        "file-history-snapshot": 10,
+        "ai-title": 1,
+        "reasoning": 17,
+        "function_call": 50,
+        "function_call_result": 50,
+        "turn-metrics": 3,
+        "summary": 1
+      },
+      "source_message_roles": {
+        "user": 3,
+        "assistant": 1
+      },
+      "recorded_start": "2026-09-29T20:50:12+08:00",
+      "recorded_end": "2026-09-29T21:04:10+08:00",
+      "first_prompt_excerpt": "Read docs/session-seventeen-brief.md and CODEBUDDY.md, then implement the brief. The target is tests/test_eval_harness.py; only app/eval.py (new) and docs/dataset.md may change. Ru",
+      "markdown": "2026-09-29_codebuddy-cli_01a0ed36-2d89-70d2-8f56-88cffc3ba068.md",
+      "jsonl": "2026-09-29_codebuddy-cli_01a0ed36-2d89-70d2-8f56-88cffc3ba068.jsonl",
+      "message_count": 4,
+      "tool_event_count": 100,
+      "included_record_count": 104,
+      "omitted_record_types": {
+        "file-history-snapshot": 10,
+        "ai-title": 1,
+        "reasoning": 17,
+        "turn-metrics": 3,
+        "summary": 1
+      },
+      "markdown_sha256": "cecc7fd5485c35db61530ef79be70ee8ba7ec05eb827928b0c79579cf40bd1ce",
+      "jsonl_sha256": "6f9861fdbb195a9ab6ad8eba52640ed6704ffd594bc5d1a5a571f74cbd5c9ab5",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "Automatic task notification": 2,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0edc2-1b50-77a0-a506-8533fe5d6ef0",
+      "project": "main-repo",
+      "source_sha256": "99d619291b0209f26655b3fc752dc31b9188baf49249550d60c040beac814125",
+      "source_record_count": 175,
+      "source_record_types": {
+        "message": 13,
+        "file-history-snapshot": 13,
+        "ai-title": 1,
+        "reasoning": 30,
+        "function_call": 58,
+        "function_call_result": 58,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 12
+      },
+      "recorded_start": "2026-09-29T23:22:48+08:00",
+      "recorded_end": "2026-09-29T23:32:16+08:00",
+      "first_prompt_excerpt": "Read docs/session-seventeen-review-fix-brief.md and CODEBUDDY.md, then implement the brief. The target is tests/test_eval_harness.py; only app/eval.py may change. Run the full suit",
+      "markdown": "2026-09-29_codebuddy-cli_01a0edc2-1b50-77a0-a506-8533fe5d6ef0.md",
+      "jsonl": "2026-09-29_codebuddy-cli_01a0edc2-1b50-77a0-a506-8533fe5d6ef0.jsonl",
+      "message_count": 13,
+      "tool_event_count": 116,
+      "included_record_count": 129,
+      "omitted_record_types": {
+        "file-history-snapshot": 13,
+        "ai-title": 1,
+        "reasoning": 30,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "78c71cd9b3d31316d9e13622036701b03b976beaed6ec4fc9dc91b1309b195f5",
+      "jsonl_sha256": "864c86b781400500eb0337e60c0424b199c951e80d07bee751ce6c483924ed47",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 12
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0f455-53e3-7884-aba2-f52c5bfc623d",
+      "project": "main-repo",
+      "source_sha256": "811a639042714ffe305abc13a9daacf3e91ae59c46a80adfa43cc1b079f0f50a",
+      "source_record_count": 445,
+      "source_record_types": {
+        "message": 3,
+        "file-history-snapshot": 86,
+        "ai-title": 1,
+        "function_call": 155,
+        "function_call_result": 155,
+        "reasoning": 43,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 2
+      },
+      "recorded_start": "2026-10-01T06:00:43+08:00",
+      "recorded_end": "2026-10-01T06:22:33+08:00",
+      "first_prompt_excerpt": "Session eighteen: execute docs/session-eighteen-brief.md (W19: a failed model call is retried per the rules, then escalated to a human with the case file kept). Target: tests/test_",
+      "markdown": "2026-10-01_codebuddy-cli_01a0f455-53e3-7884-aba2-f52c5bfc623d.md",
+      "jsonl": "2026-10-01_codebuddy-cli_01a0f455-53e3-7884-aba2-f52c5bfc623d.jsonl",
+      "message_count": 3,
+      "tool_event_count": 310,
+      "included_record_count": 313,
+      "omitted_record_types": {
+        "file-history-snapshot": 86,
+        "ai-title": 1,
+        "reasoning": 43,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "663dde5fa8e07201e04c9e7a950c5724368e2a2a06345dd0acdfa6b4c13faa4f",
+      "jsonl_sha256": "2016a84e9dcbb9a6e092ce8c404395beaa3f060bf6bcd2eeef04927975ca7ef6",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0f68d-6f41-76bf-a42e-9345f533fd4f",
+      "project": "worktree:session-nineteen",
+      "source_sha256": "674e8a51c6e9fe392d11e424fac239332dee984813fc8cdd766590b2ccfc9718",
+      "source_record_count": 284,
+      "source_record_types": {
+        "message": 7,
+        "file-history-snapshot": 32,
+        "ai-title": 1,
+        "reasoning": 50,
+        "function_call": 96,
+        "function_call_result": 96,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 6
+      },
+      "recorded_start": "2026-10-01T16:21:35+08:00",
+      "recorded_end": "2026-10-01T16:28:58+08:00",
+      "first_prompt_excerpt": "Session nineteen. Read docs/session-nineteen-brief.md in full, then docs/policy.md rules NS-6 and RD-5, then the three RED test files it names (tests/test_w22_money_gates.py, tests",
+      "markdown": "2026-10-01_codebuddy-cli_01a0f68d-6f41-76bf-a42e-9345f533fd4f.md",
+      "jsonl": "2026-10-01_codebuddy-cli_01a0f68d-6f41-76bf-a42e-9345f533fd4f.jsonl",
+      "message_count": 7,
+      "tool_event_count": 192,
+      "included_record_count": 199,
+      "omitted_record_types": {
+        "file-history-snapshot": 32,
+        "ai-title": 1,
+        "reasoning": 50,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "8116ff7254ff7ccc12fad59fe1e3f12d82050b9b9c9ac67bb144adc918ed0774",
+      "jsonl_sha256": "5f1ff401acd82cd75006c659780fc57710bf26312126f82130ad6ef5c4bb455c",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 6
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0f770-e5d8-7504-b9d9-d020f0e8de17",
+      "project": "worktree:session-twenty",
+      "source_sha256": "0e02c83a001ad537923bfa035cf11a19f5ad35dc701b1ff3a67f8b910f706791",
+      "source_record_count": 532,
+      "source_record_types": {
+        "message": 18,
+        "file-history-snapshot": 55,
+        "ai-title": 1,
+        "reasoning": 94,
+        "function_call": 179,
+        "function_call_result": 179,
+        "summary": 3,
+        "turn-metrics": 3
+      },
+      "source_message_roles": {
+        "user": 5,
+        "assistant": 13
+      },
+      "recorded_start": "2026-10-01T20:29:48+08:00",
+      "recorded_end": "2026-10-01T23:48:42+08:00",
+      "first_prompt_excerpt": "Session twenty. Read docs/session-twenty-brief.md in full and follow it exactly, then read docs/policy.md sections EV-1 and ESC-2. Make tests/test_w22_unproven_figures.py and the f",
+      "markdown": "2026-10-01_codebuddy-cli_01a0f770-e5d8-7504-b9d9-d020f0e8de17.md",
+      "jsonl": "2026-10-01_codebuddy-cli_01a0f770-e5d8-7504-b9d9-d020f0e8de17.jsonl",
+      "message_count": 18,
+      "tool_event_count": 358,
+      "included_record_count": 376,
+      "omitted_record_types": {
+        "file-history-snapshot": 55,
+        "ai-title": 1,
+        "reasoning": 94,
+        "summary": 3,
+        "turn-metrics": 3
+      },
+      "markdown_sha256": "926ac2ab713fa90b0776482258af09205ea05c58c9fb6de7db880560cdf3669b",
+      "jsonl_sha256": "93a07e7da5889f0896887760fca4294c517df1b01a85037b946ba7ca353d8962",
+      "presentation_labels": {
+        "Recorded user-side message": 3,
+        "CodeBuddy": 13,
+        "Automatic compaction checkpoint": 2
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a0fd87-1c95-7230-b6ab-0bd62e09fdda",
+      "project": "worktree:session-twenty-one",
+      "source_sha256": "2cde3a1c08e0ccab910484dbb198fb204d9ae37fb16be74b292d5c6a7056c7f4",
+      "source_record_count": 225,
+      "source_record_types": {
+        "message": 20,
+        "file-history-snapshot": 16,
+        "ai-title": 1,
+        "reasoning": 41,
+        "function_call": 72,
+        "function_call_result": 72,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 18
+      },
+      "recorded_start": "2026-10-03T00:51:53+08:00",
+      "recorded_end": "2026-10-03T00:57:09+08:00",
+      "first_prompt_excerpt": "Read docs/session-twenty-one-brief.md and docs/policy.md (the RD-4 Enforcement (2026-10-02) paragraph), then implement the brief. Target: tests/test_w28_unproven_refunds.py goes gr",
+      "markdown": "2026-10-03_codebuddy-cli_01a0fd87-1c95-7230-b6ab-0bd62e09fdda.md",
+      "jsonl": "2026-10-03_codebuddy-cli_01a0fd87-1c95-7230-b6ab-0bd62e09fdda.jsonl",
+      "message_count": 20,
+      "tool_event_count": 144,
+      "included_record_count": 164,
+      "omitted_record_types": {
+        "file-history-snapshot": 16,
+        "ai-title": 1,
+        "reasoning": 41,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "65fef8b96c6d57b083e2062707ab8c2c6a63e53103d119ec72e48a4ec1c2d439",
+      "jsonl_sha256": "d9f9f41f4c84d76c97b3842efe4402e43327ec9eac541a85d3c9e8f2b8d74d73",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 18
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a10200-d46b-76d1-8331-63a8610091de",
+      "project": "worktree:session-twenty-two",
+      "source_sha256": "6e8c0bca3f03bdae5a75a6efad3285b5ded93e28626f1e592d2737e6920e3e29",
+      "source_record_count": 400,
+      "source_record_types": {
+        "message": 38,
+        "file-history-snapshot": 47,
+        "ai-title": 1,
+        "reasoning": 72,
+        "function_call": 119,
+        "function_call_result": 119,
+        "turn-metrics": 3,
+        "summary": 1
+      },
+      "source_message_roles": {
+        "user": 4,
+        "assistant": 34
+      },
+      "recorded_start": "2026-10-03T21:43:21+08:00",
+      "recorded_end": "2026-10-03T21:59:23+08:00",
+      "first_prompt_excerpt": "Read docs/session-twenty-two-brief.md in full and implement it. Target: the five tests/test_w23_*.py files go from RED to green and the full suite (/usr/bin/python3 -m unittest dis",
+      "markdown": "2026-10-03_codebuddy-cli_01a10200-d46b-76d1-8331-63a8610091de.md",
+      "jsonl": "2026-10-03_codebuddy-cli_01a10200-d46b-76d1-8331-63a8610091de.jsonl",
+      "message_count": 38,
+      "tool_event_count": 238,
+      "included_record_count": 276,
+      "omitted_record_types": {
+        "file-history-snapshot": 47,
+        "ai-title": 1,
+        "reasoning": 72,
+        "turn-metrics": 3,
+        "summary": 1
+      },
+      "markdown_sha256": "796e4c63fb2c82afc3e79536d925581b08c8c438ba6f721f1ab1a58e2e88f79e",
+      "jsonl_sha256": "1889e51b92b5611d21cbbdda4ec8a2e9c118697ee2227b6585b7bc5e7b7f73da",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 34,
+        "Automatic task notification": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a10450-619f-74fc-8ce6-db3741870da4",
+      "project": "worktree:session-twenty-three",
+      "source_sha256": "e91c650827b06f1ddc7a127887fc1b8f01b84fac940360f7fe1760a3666e433e",
+      "source_record_count": 333,
+      "source_record_types": {
+        "message": 8,
+        "file-history-snapshot": 33,
+        "ai-title": 1,
+        "function_call": 123,
+        "function_call_result": 123,
+        "reasoning": 41,
+        "summary": 1,
+        "turn-metrics": 3
+      },
+      "source_message_roles": {
+        "user": 5,
+        "assistant": 3
+      },
+      "recorded_start": "2026-10-04T08:35:37+08:00",
+      "recorded_end": "2026-10-04T09:07:56+08:00",
+      "first_prompt_excerpt": "Build the session twenty-three brief: read docs/session-twenty-three-brief.md in full and implement it exactly. 32 acceptance tests in tests/test_w23_b2_*.py are RED right now; mak",
+      "markdown": "2026-10-04_codebuddy-cli_01a10450-619f-74fc-8ce6-db3741870da4.md",
+      "jsonl": "2026-10-04_codebuddy-cli_01a10450-619f-74fc-8ce6-db3741870da4.jsonl",
+      "message_count": 8,
+      "tool_event_count": 246,
+      "included_record_count": 254,
+      "omitted_record_types": {
+        "file-history-snapshot": 33,
+        "ai-title": 1,
+        "reasoning": 41,
+        "summary": 1,
+        "turn-metrics": 3
+      },
+      "markdown_sha256": "b87d58415c064f60ec10b87f9173fb5811543d8f3b414326a29197d102dd0ca8",
+      "jsonl_sha256": "f72d79de359ca657daf484ce8f543645a98d4f9a0e87fe7aaed1cd710cd1b36a",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 3,
+        "Operator command input": 1,
+        "Automatic system notice": 1,
+        "Local command display": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a104b4-a32f-7c21-ba9f-419fcfc42055",
+      "project": "worktree:session-twenty-three",
+      "source_sha256": "e0cf43f80de3ffbbf5c1dafe2ba70c95b0052a051fa7ead44341f2a34b4b9142",
+      "source_record_count": 135,
+      "source_record_types": {
+        "message": 3,
+        "file-history-snapshot": 15,
+        "ai-title": 1,
+        "reasoning": 14,
+        "function_call": 51,
+        "function_call_result": 50,
+        "summary": 1
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 1
+      },
+      "recorded_start": "2026-10-04T10:18:51+08:00",
+      "recorded_end": "2026-10-04T10:41:41+08:00",
+      "first_prompt_excerpt": "Fix round: read docs/session-twenty-three-fix-brief.md in full and implement all six fixes exactly (N1, N2, N3, N5, N6, S1). Nine acceptance tests in tests/test_w23_b2_review_fixes",
+      "markdown": "2026-10-04_codebuddy-cli_01a104b4-a32f-7c21-ba9f-419fcfc42055.md",
+      "jsonl": "2026-10-04_codebuddy-cli_01a104b4-a32f-7c21-ba9f-419fcfc42055.jsonl",
+      "message_count": 3,
+      "tool_event_count": 101,
+      "included_record_count": 104,
+      "omitted_record_types": {
+        "file-history-snapshot": 15,
+        "ai-title": 1,
+        "reasoning": 14,
+        "summary": 1
+      },
+      "markdown_sha256": "c37bf7078da9ef55faf9e5b0cd11fe5fa151ed66fc3d120404b079e831f60ceb",
+      "jsonl_sha256": "2604499ec3e4eb643a2d3580ccf4a6f84a950e1dc9a4e91ca006bbb81f3c75a2",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a105bb-dd48-7568-9130-f9a5301603f2",
+      "project": "main-repo",
+      "source_sha256": "43fcecec7d91e16189fad4ccc4cf3aee0e7fa6674f757f49bff699d16a47c6d1",
+      "source_record_count": 325,
+      "source_record_types": {
+        "message": 25,
+        "file-history-snapshot": 25,
+        "ai-title": 1,
+        "reasoning": 66,
+        "function_call": 101,
+        "function_call_result": 101,
+        "turn-metrics": 5,
+        "summary": 1
+      },
+      "source_message_roles": {
+        "user": 5,
+        "assistant": 20
+      },
+      "recorded_start": "2026-10-04T15:08:30+08:00",
+      "recorded_end": "2026-10-04T15:18:40+08:00",
+      "first_prompt_excerpt": "Read and follow docs/session-twenty-five-brief.md in full. Build W29 NS-8 exactly as specified: implement the helper and gate in app/agents/judge.py, update only the three named ju",
+      "markdown": "2026-10-04_codebuddy-cli_01a105bb-dd48-7568-9130-f9a5301603f2.md",
+      "jsonl": "2026-10-04_codebuddy-cli_01a105bb-dd48-7568-9130-f9a5301603f2.jsonl",
+      "message_count": 25,
+      "tool_event_count": 202,
+      "included_record_count": 227,
+      "omitted_record_types": {
+        "file-history-snapshot": 25,
+        "ai-title": 1,
+        "reasoning": 66,
+        "turn-metrics": 5,
+        "summary": 1
+      },
+      "markdown_sha256": "839348c436ce631f837ce0b7e95b357c39243ae83366125ac71d081600f45210",
+      "jsonl_sha256": "8fcef290cdccb97a766ef2a2ed2b40bf1b8fd2a5c536432ffa94861f18bf64f7",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 20,
+        "Automatic task notification": 3
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a107f8-ac03-75f6-9708-64978c3eee95",
+      "project": "worktree:w16-driver-intake",
+      "source_sha256": "ab424972b5a5a461bdb6bf357926156ecc63e102a73895cef6254ae9bed1a48d",
+      "source_record_count": 449,
+      "source_record_types": {
+        "message": 50,
+        "file-history-snapshot": 44,
+        "reasoning": 70,
+        "summary": 3,
+        "turn-metrics": 6,
+        "ai-title": 1,
+        "function_call": 137,
+        "function_call_result": 137,
+        "session-meta": 1
+      },
+      "source_message_roles": {
+        "user": 8,
+        "assistant": 42
+      },
+      "recorded_start": "2026-10-05T01:32:12+08:00",
+      "recorded_end": "2026-10-05T17:52:50+08:00",
+      "first_prompt_excerpt": "Read the file docs/w16-build-brief.md in this repo and implement exactly what it specifies for W16. Set every terminal command's TMPDIR to [USER_HOME]/.hermes/cache/scratch/w16-stage",
+      "markdown": "2026-10-05_codebuddy-cli_01a107f8-ac03-75f6-9708-64978c3eee95.md",
+      "jsonl": "2026-10-05_codebuddy-cli_01a107f8-ac03-75f6-9708-64978c3eee95.jsonl",
+      "message_count": 50,
+      "tool_event_count": 274,
+      "included_record_count": 324,
+      "omitted_record_types": {
+        "file-history-snapshot": 44,
+        "reasoning": 70,
+        "summary": 3,
+        "turn-metrics": 6,
+        "ai-title": 1,
+        "session-meta": 1
+      },
+      "markdown_sha256": "3a34599d0d793f20806d177add99a65eda765ec9a6d111f540dc95c753023f8e",
+      "jsonl_sha256": "269c808049ae99e77ac479001a37ada5bd47574e49258a4ccc0a24b195439953",
+      "presentation_labels": {
+        "Recorded user-side message": 6,
+        "CodeBuddy": 42,
+        "Automatic task notification": 1,
+        "Automatic compaction checkpoint": 1
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a10c31-9704-785d-8156-d67c9e5d05df",
+      "project": "main-repo",
+      "source_sha256": "580b67aeb40ff80f50de4e74f2d367b9dace268be143904f51551213862eec9d",
+      "source_record_count": 49,
+      "source_record_types": {
+        "message": 6,
+        "file-history-snapshot": 3,
+        "reasoning": 10,
+        "function_call": 15,
+        "function_call_result": 15
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 5
+      },
+      "recorded_start": "2026-10-05T21:12:18+08:00",
+      "recorded_end": "2026-10-05T21:20:36+08:00",
+      "first_prompt_excerpt": "Build W15 per docs/w15-brief.md (read it first). The acceptance tests tests/test_w15_layout.py and the two updated pins in tests/test_party_rebrand.py are committed and RED. Make t",
+      "markdown": "2026-10-05_codebuddy-cli_01a10c31-9704-785d-8156-d67c9e5d05df.md",
+      "jsonl": "2026-10-05_codebuddy-cli_01a10c31-9704-785d-8156-d67c9e5d05df.jsonl",
+      "message_count": 6,
+      "tool_event_count": 30,
+      "included_record_count": 36,
+      "omitted_record_types": {
+        "file-history-snapshot": 3,
+        "reasoning": 10
+      },
+      "markdown_sha256": "232c0ba55918db6e46f6940f575d641c4c3fbf71cb7d5b32a720e67dec265cb0",
+      "jsonl_sha256": "4d5670f87211fc674f4466bf98ced26e2679e64b3563af59ca53378de5aaef00",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 5
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a10cb7-0733-7fe6-812b-5c09b63004f1",
+      "project": "main-repo",
+      "source_sha256": "42f6abcd67f548664c610fca0bcd4ae53ac5d87e82acc334a58fb620eda8155f",
+      "source_record_count": 130,
+      "source_record_types": {
+        "message": 6,
+        "file-history-snapshot": 8,
+        "ai-title": 1,
+        "reasoning": 22,
+        "function_call": 45,
+        "function_call_result": 45,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "source_message_roles": {
+        "user": 3,
+        "assistant": 3
+      },
+      "recorded_start": "2026-10-05T23:38:28+08:00",
+      "recorded_end": "2026-10-05T23:44:02+08:00",
+      "first_prompt_excerpt": "Read CODEBUDDY.md and docs/w15-feedback-brief.md. This is the operator's complete three-item UI review feedback: driver amount-helper spacing, consistent console top-level card gaps, and qui",
+      "markdown": "2026-10-05_codebuddy-cli_01a10cb7-0733-7fe6-812b-5c09b63004f1.md",
+      "jsonl": "2026-10-05_codebuddy-cli_01a10cb7-0733-7fe6-812b-5c09b63004f1.jsonl",
+      "message_count": 6,
+      "tool_event_count": 90,
+      "included_record_count": 96,
+      "omitted_record_types": {
+        "file-history-snapshot": 8,
+        "ai-title": 1,
+        "reasoning": 22,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "c45fc65dbe776daa0b8b0d73f8868a93fae6814549141523007942b281dfd53a",
+      "jsonl_sha256": "bb1b9b83706e7f1772ed4a8ca438e5c9759ac6f85acb3cfe83e2891790233775",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 3,
+        "Mixed user-side record: task notice and trailing instructions": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a10ce3-7576-71c8-9561-bea27b8e313a",
+      "project": "main-repo",
+      "source_sha256": "eb0eee915013ce321db66e17e2f662fb79d462a498c9157d515f120e94d753c7",
+      "source_record_count": 70,
+      "source_record_types": {
+        "message": 11,
+        "file-history-snapshot": 4,
+        "ai-title": 1,
+        "reasoning": 14,
+        "function_call": 19,
+        "function_call_result": 19,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 10
+      },
+      "recorded_start": "2026-10-06T00:27:12+08:00",
+      "recorded_end": "2026-10-06T00:32:34+08:00",
+      "first_prompt_excerpt": "Read docs/w15-actions-repair-brief.md in full and implement exactly it. the operator approved this two-declaration CSS repair at all widths. Preserve all existing dirty files, do not commit,",
+      "markdown": "2026-10-06_codebuddy-cli_01a10ce3-7576-71c8-9561-bea27b8e313a.md",
+      "jsonl": "2026-10-06_codebuddy-cli_01a10ce3-7576-71c8-9561-bea27b8e313a.jsonl",
+      "message_count": 11,
+      "tool_event_count": 38,
+      "included_record_count": 49,
+      "omitted_record_types": {
+        "file-history-snapshot": 4,
+        "ai-title": 1,
+        "reasoning": 14,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "0297070de9dc013db32ee95bbbe0cf53de56752d95f405f86efe1ae0e0675d8b",
+      "jsonl_sha256": "a23c3725f634e4bede719becf5132b3cb6fc951343c7b3172110a4c6ca6cc05b",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 10
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a10e9c-ec95-7344-8030-f1cc9b3780fe",
+      "project": "main-repo",
+      "source_sha256": "bacd259e0e470565e440e91996ce4abd2bcebf56331fdfb0ca5e9fa7c27efcae",
+      "source_record_count": 429,
+      "source_record_types": {
+        "message": 60,
+        "file-history-snapshot": 31,
+        "reasoning": 92,
+        "function_call": 122,
+        "function_call_result": 122,
+        "model-usage": 2
+      },
+      "source_message_roles": {
+        "user": 10,
+        "assistant": 50
+      },
+      "recorded_start": "2026-10-06T08:28:47+08:00",
+      "recorded_end": "2026-10-06T10:56:33+08:00",
+      "first_prompt_excerpt": "Read docs/w31-navigation-queue-brief.md and implement the authorized W31 change. The brief is the complete scope. Do not commit. Do not change acceptance tests. Use the allowed tes",
+      "markdown": "2026-10-06_codebuddy-cli_01a10e9c-ec95-7344-8030-f1cc9b3780fe.md",
+      "jsonl": "2026-10-06_codebuddy-cli_01a10e9c-ec95-7344-8030-f1cc9b3780fe.jsonl",
+      "message_count": 60,
+      "tool_event_count": 244,
+      "included_record_count": 304,
+      "omitted_record_types": {
+        "file-history-snapshot": 31,
+        "reasoning": 92,
+        "model-usage": 2
+      },
+      "markdown_sha256": "7750389c5dcc032fdd5924dcbdf9017954b81befeaff29f06ba44f8a24a4bfbb",
+      "jsonl_sha256": "076ac8ff52924c0c550869ccdb8749c4790d7cc679e53ba96131578777e308fc",
+      "presentation_labels": {
+        "Recorded user-side message": 6,
+        "CodeBuddy": 50,
+        "Automatic system notice": 2,
+        "Automatic compaction checkpoint": 1,
+        "Automatic continuation notice": 1
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a10f71-d931-7c73-92ec-d8ce3200ffdf",
+      "project": "main-repo",
+      "source_sha256": "7b8a9432bf1e8b5b2166e8e7f18281d1a9e051e6d4730520e5ea2b2720d22bee",
+      "source_record_count": 92,
+      "source_record_types": {
+        "message": 5,
+        "file-history-snapshot": 9,
+        "reasoning": 18,
+        "function_call": 30,
+        "function_call_result": 30
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 4
+      },
+      "recorded_start": "2026-10-06T12:21:21+08:00",
+      "recorded_end": "2026-10-06T12:25:39+08:00",
+      "first_prompt_excerpt": "Read docs/w30-trip-scroll-brief.md in full and implement it exactly. Edit only ui/party/party.css and ui/party/party.js. Do not edit tests, HTML or any other file; no shell is avai",
+      "markdown": "2026-10-06_codebuddy-cli_01a10f71-d931-7c73-92ec-d8ce3200ffdf.md",
+      "jsonl": "2026-10-06_codebuddy-cli_01a10f71-d931-7c73-92ec-d8ce3200ffdf.jsonl",
+      "message_count": 5,
+      "tool_event_count": 60,
+      "included_record_count": 65,
+      "omitted_record_types": {
+        "file-history-snapshot": 9,
+        "reasoning": 18
+      },
+      "markdown_sha256": "524229879f9e2c1d1129e7526a086f66ef880799a1ecd8ab358ca43ffaebc912",
+      "jsonl_sha256": "8032cc458c1d1de0f3b959432f2903691d37032ae1f794cf8e925b0161e7571a",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 4
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a10fae-58a1-731f-9791-1d7b95608ec0",
+      "project": "main-repo",
+      "source_sha256": "b827ec0ebfa58e0a18b20966a0b7ea883d434abb05df6e11187ddb230d66617a",
+      "source_record_count": 322,
+      "source_record_types": {
+        "message": 30,
+        "file-history-snapshot": 24,
+        "reasoning": 80,
+        "function_call": 94,
+        "function_call_result": 94
+      },
+      "source_message_roles": {
+        "user": 6,
+        "assistant": 24
+      },
+      "recorded_start": "2026-10-06T13:27:26+08:00",
+      "recorded_end": "2026-10-06T15:40:53+08:00",
+      "first_prompt_excerpt": "Read docs/w30-trip-requests-repair-brief.md in full and implement it. Edit only ui/party/party.js. Parent already proved the ten lifecycle tests RED on the current build and GREEN ",
+      "markdown": "2026-10-06_codebuddy-cli_01a10fae-58a1-731f-9791-1d7b95608ec0.md",
+      "jsonl": "2026-10-06_codebuddy-cli_01a10fae-58a1-731f-9791-1d7b95608ec0.jsonl",
+      "message_count": 30,
+      "tool_event_count": 188,
+      "included_record_count": 218,
+      "omitted_record_types": {
+        "file-history-snapshot": 24,
+        "reasoning": 80
+      },
+      "markdown_sha256": "91d1f0b665a61b421e827db3fe5b537f37c802942dec65fbe564b0e29f115e19",
+      "jsonl_sha256": "dea53d94a233e2ea80d82200b8dcc6ec9bfaed83c630c84eea29c68dd7fac027",
+      "presentation_labels": {
+        "Recorded user-side message": 4,
+        "CodeBuddy": 24,
+        "Automatic compaction checkpoint": 1,
+        "Automatic continuation notice": 1
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a1103c-ded0-75af-b7bc-e6f6c1c642ec",
+      "project": "main-repo",
+      "source_sha256": "1f4aef94a813a6f47ce1f4894e1e980b66d0e08e33c370c74fe567e29efc5dd2",
+      "source_record_count": 14,
+      "source_record_types": {
+        "message": 2,
+        "file-history-snapshot": 3,
+        "reasoning": 3,
+        "function_call": 3,
+        "function_call_result": 3
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 1
+      },
+      "recorded_start": "2026-10-06T16:03:07+08:00",
+      "recorded_end": "2026-10-06T16:03:16+08:00",
+      "first_prompt_excerpt": "Apply docs/w30-no-fade-brief.md. Exactly one CSS deletion plus its obsolete explanatory comment. Edit only ui/party/party.css. Do not change HTML, JS, tests, fixtures, docs or othe",
+      "markdown": "2026-10-06_codebuddy-cli_01a1103c-ded0-75af-b7bc-e6f6c1c642ec.md",
+      "jsonl": "2026-10-06_codebuddy-cli_01a1103c-ded0-75af-b7bc-e6f6c1c642ec.jsonl",
+      "message_count": 2,
+      "tool_event_count": 6,
+      "included_record_count": 8,
+      "omitted_record_types": {
+        "file-history-snapshot": 3,
+        "reasoning": 3
+      },
+      "markdown_sha256": "0aab10c2589ee627bc7beaf6d507dadeb70b52a6005035927ced38f4bdbdae3f",
+      "jsonl_sha256": "d8d2b24f29b1ba75647fe138ed9f640a79ff7c760d2348aa7fde668a2b7edcdd",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a11050-59ce-7b3d-8938-c72350b44f5e",
+      "project": "main-repo",
+      "source_sha256": "a46a334d645600f60befd04f8db52c18c014a4adada53ba48c01f3faddc99c51",
+      "source_record_count": 24,
+      "source_record_types": {
+        "message": 3,
+        "file-history-snapshot": 4,
+        "reasoning": 5,
+        "function_call": 6,
+        "function_call_result": 6
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 2
+      },
+      "recorded_start": "2026-10-06T16:24:23+08:00",
+      "recorded_end": "2026-10-06T16:25:01+08:00",
+      "first_prompt_excerpt": "Apply docs/w30-choice-motion-brief.md. Read the brief and ui/party/party.css, then edit only that CSS. Match the existing option-card hover transition, 2px lift and token shadow on",
+      "markdown": "2026-10-06_codebuddy-cli_01a11050-59ce-7b3d-8938-c72350b44f5e.md",
+      "jsonl": "2026-10-06_codebuddy-cli_01a11050-59ce-7b3d-8938-c72350b44f5e.jsonl",
+      "message_count": 3,
+      "tool_event_count": 12,
+      "included_record_count": 15,
+      "omitted_record_types": {
+        "file-history-snapshot": 4,
+        "reasoning": 5
+      },
+      "markdown_sha256": "6295972ff267f0318189e325569226fa5ebae0a064a469105b38814815eea524",
+      "jsonl_sha256": "86866e931753c353f0c8cdfc8882bc82a86348b9520e18c9f9e39736e486541a",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w32-20261006-1918",
+      "project": "worktree:w32-20261006",
+      "source_sha256": "c21b8dd1265e3d3458efe68ebe7e630cecf91eed7fb35e395731a178c0e50269",
+      "source_record_count": 127,
+      "source_record_types": {
+        "message": 25,
+        "file-history-snapshot": 6,
+        "reasoning": 26,
+        "function_call": 35,
+        "function_call_result": 35
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 23
+      },
+      "recorded_start": "2026-10-06T19:19:23+08:00",
+      "recorded_end": "2026-10-06T19:31:38+08:00",
+      "first_prompt_excerpt": "Read docs/w32-20261006-build-brief.md and implement only its W32 contract. Authorized application/doc paths ONLY app/agents/judge.py and docs/prompts.md. Do not edit acceptance tes",
+      "markdown": "2026-10-06_codebuddy-cli_w32-20261006-1918.md",
+      "jsonl": "2026-10-06_codebuddy-cli_w32-20261006-1918.jsonl",
+      "message_count": 25,
+      "tool_event_count": 70,
+      "included_record_count": 95,
+      "omitted_record_types": {
+        "file-history-snapshot": 6,
+        "reasoning": 26
+      },
+      "markdown_sha256": "7f3ba66c5a7d76a857a25468063db13b7b16160fe1ada90ff9ca21832e85256f",
+      "jsonl_sha256": "e6dc4fb7fd92cf9339e619be74f3b78525ca82dbc00a7bd68c3ce17f776291be",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 23
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w20-20261006-1918",
+      "project": "worktree:w20-20261006",
+      "source_sha256": "023fd68772948532abc19a0a119080d8307eb5fcf4df252fdc12053d7382dec1",
+      "source_record_count": 301,
+      "source_record_types": {
+        "message": 21,
+        "file-history-snapshot": 37,
+        "reasoning": 51,
+        "function_call": 96,
+        "function_call_result": 96
+      },
+      "source_message_roles": {
+        "user": 4,
+        "assistant": 17
+      },
+      "recorded_start": "2026-10-06T19:20:12+08:00",
+      "recorded_end": "2026-10-06T20:48:21+08:00",
+      "first_prompt_excerpt": "Read docs/w20-20261006-build-brief.md and implement only the three W20 units. Write ONLY app/server.py, ui/party/party.js and party.js SHA values in tests/test_party_rebrand.py, te",
+      "markdown": "2026-10-06_codebuddy-cli_w20-20261006-1918.md",
+      "jsonl": "2026-10-06_codebuddy-cli_w20-20261006-1918.jsonl",
+      "message_count": 21,
+      "tool_event_count": 192,
+      "included_record_count": 213,
+      "omitted_record_types": {
+        "file-history-snapshot": 37,
+        "reasoning": 51
+      },
+      "markdown_sha256": "003a3922205964a5fdf5ea02c12a358aaecf5237e101928aeb670cf5372bba04",
+      "jsonl_sha256": "b307e7b73efc3ac10afa5b152fc326245c3b71275751134da07f44bca80be6ce",
+      "presentation_labels": {
+        "Recorded user-side message": 3,
+        "CodeBuddy": 17,
+        "Automatic compaction checkpoint": 1
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w24-20261006-2359",
+      "project": "worktree:w24-20261006",
+      "source_sha256": "abcdd8e19bd04cece5a984438022fb5582e7788a8d7542709c1dfcc64212d4ad",
+      "source_record_count": 507,
+      "source_record_types": {
+        "message": 31,
+        "file-history-snapshot": 33,
+        "reasoning": 101,
+        "function_call": 171,
+        "function_call_result": 171
+      },
+      "source_message_roles": {
+        "user": 4,
+        "assistant": 27
+      },
+      "recorded_start": "2026-10-06T23:06:01+08:00",
+      "recorded_end": "2026-10-07T09:11:36+08:00",
+      "first_prompt_excerpt": "Read CODEBUDDY.md, then docs/w24-prompt-panel-brief.md, and complete it exactly. Follow its Dispatch protocol. Report the commit hash, the changed-file list and the focused and ful",
+      "markdown": "2026-10-06_codebuddy-cli_w24-20261006-2359.md",
+      "jsonl": "2026-10-06_codebuddy-cli_w24-20261006-2359.jsonl",
+      "message_count": 31,
+      "tool_event_count": 342,
+      "included_record_count": 373,
+      "omitted_record_types": {
+        "file-history-snapshot": 33,
+        "reasoning": 101
+      },
+      "markdown_sha256": "d170445cf938a6a3c9caf0e210b611053e83cbc928b5238a48ecd275b294aa5c",
+      "jsonl_sha256": "0ce0ec82c6b7f55809127a83b4d4464fd16a1bec283b80e7bf1449ad41d89f95",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 27,
+        "Automatic compaction checkpoint": 1,
+        "Automatic continuation notice": 1
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w27-20261006-2359",
+      "project": "worktree:w27-20261006",
+      "source_sha256": "faedfcc33b79964e8d6b23baa2fa59e74e560ddc1779b691a92cb86a26a64619",
+      "source_record_count": 353,
+      "source_record_types": {
+        "message": 37,
+        "file-history-snapshot": 20,
+        "reasoning": 62,
+        "function_call": 117,
+        "function_call_result": 117
+      },
+      "source_message_roles": {
+        "user": 5,
+        "assistant": 32
+      },
+      "recorded_start": "2026-10-06T23:06:05+08:00",
+      "recorded_end": "2026-10-07T18:22:43+08:00",
+      "first_prompt_excerpt": "Read CODEBUDDY.md, then docs/w27-replay-export-brief.md, and complete it exactly. Follow its Dispatch protocol. Report the commit hash, the changed-file list and the focused and fu",
+      "markdown": "2026-10-06_codebuddy-cli_w27-20261006-2359.md",
+      "jsonl": "2026-10-06_codebuddy-cli_w27-20261006-2359.jsonl",
+      "message_count": 37,
+      "tool_event_count": 234,
+      "included_record_count": 271,
+      "omitted_record_types": {
+        "file-history-snapshot": 20,
+        "reasoning": 62
+      },
+      "markdown_sha256": "e783dcef12aa1896037946a89c55a714da5745110b6feedc7887810a5bebf9c7",
+      "jsonl_sha256": "e520718e3db9169c83e6b2a81dba2dc833b563ee8a852b6373650cfdc7a21fa3",
+      "presentation_labels": {
+        "Recorded user-side message": 4,
+        "CodeBuddy": 32,
+        "Automatic compaction checkpoint": 1
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "01a116f9-2210-77d7-9897-aedad6be77c0",
+      "project": "worktree:w34-launcher",
+      "source_sha256": "b210ff8faf646dd385f9794982da1474a229fd49b07b492c50944d49516e5b28",
+      "source_record_count": 474,
+      "source_record_types": {
+        "message": 44,
+        "file-history-snapshot": 43,
+        "ai-title": 1,
+        "function_call": 150,
+        "function_call_result": 150,
+        "reasoning": 76,
+        "turn-metrics": 7,
+        "session-meta": 2,
+        "summary": 1
+      },
+      "source_message_roles": {
+        "user": 7,
+        "assistant": 37
+      },
+      "recorded_start": "2026-10-07T23:26:58+08:00",
+      "recorded_end": "2026-10-08T00:54:58+08:00",
+      "first_prompt_excerpt": "W34 build session. Read docs/build-briefs/w34-launcher-brief.md in full and follow it exactly, including its Protocol section on every turn. The acceptance contract is tests/test_w",
+      "markdown": "2026-10-07_codebuddy-cli_01a116f9-2210-77d7-9897-aedad6be77c0.md",
+      "jsonl": "2026-10-07_codebuddy-cli_01a116f9-2210-77d7-9897-aedad6be77c0.jsonl",
+      "message_count": 44,
+      "tool_event_count": 300,
+      "included_record_count": 344,
+      "omitted_record_types": {
+        "file-history-snapshot": 43,
+        "ai-title": 1,
+        "reasoning": 76,
+        "turn-metrics": 7,
+        "session-meta": 2,
+        "summary": 1
+      },
+      "markdown_sha256": "e6af2f1cffda9af686e0a2077c05ae7574c5d61e349fd06773c0a078a71ceceb",
+      "jsonl_sha256": "bf2554633d03bce169462f7b8c1cc13e819c0bbe590c9b7587e6841474754826",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 37,
+        "Automatic task notification": 5
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w35-console-20261009-0815",
+      "project": "worktree:w35-console",
+      "source_sha256": "d5c6875b4a6f0b85b9eabe7b7247c07688d97865ce0fad7c16b52bb60859ca88",
+      "source_record_count": 201,
+      "source_record_types": {
+        "message": 18,
+        "file-history-snapshot": 25,
+        "reasoning": 36,
+        "function_call": 61,
+        "function_call_result": 61
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 17
+      },
+      "recorded_start": "2026-10-09T07:58:57+08:00",
+      "recorded_end": "2026-10-09T08:15:55+08:00",
+      "first_prompt_excerpt": "Read docs/build-briefs/w35-console-brief.md and implement it exactly. Obey its Protocol section on every turn. Do not edit anything under tests/. When the verify steps in the brief",
+      "markdown": "2026-10-09_codebuddy-cli_w35-console-20261009-0815.md",
+      "jsonl": "2026-10-09_codebuddy-cli_w35-console-20261009-0815.jsonl",
+      "message_count": 18,
+      "tool_event_count": 122,
+      "included_record_count": 140,
+      "omitted_record_types": {
+        "file-history-snapshot": 25,
+        "reasoning": 36
+      },
+      "markdown_sha256": "4af47ce7d95395fe78cc139fd6d4daa4182646fa0da1a6da7a1accf3bdb94833",
+      "jsonl_sha256": "203bc98e30575160bf2116bd77236b83766c3edeade71a28a938ec68e3142fac",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 17
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w35-party-20261009-0815",
+      "project": "worktree:w35-party",
+      "source_sha256": "317f5b150bb9824a807f2f8ccbbabe6be2bd18aae4d57c7bf3cb43b53b0e4835",
+      "source_record_count": 232,
+      "source_record_types": {
+        "message": 13,
+        "file-history-snapshot": 33,
+        "reasoning": 36,
+        "function_call": 75,
+        "function_call_result": 75
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 12
+      },
+      "recorded_start": "2026-10-09T07:58:57+08:00",
+      "recorded_end": "2026-10-09T08:14:20+08:00",
+      "first_prompt_excerpt": "Read docs/build-briefs/w35-party-brief.md and implement it exactly. Obey its Protocol section on every turn. Do not edit anything under tests/. When the verify steps in the brief m",
+      "markdown": "2026-10-09_codebuddy-cli_w35-party-20261009-0815.md",
+      "jsonl": "2026-10-09_codebuddy-cli_w35-party-20261009-0815.jsonl",
+      "message_count": 13,
+      "tool_event_count": 150,
+      "included_record_count": 163,
+      "omitted_record_types": {
+        "file-history-snapshot": 33,
+        "reasoning": 36
+      },
+      "markdown_sha256": "0c2e06bc10e430eb7f7a3aa6aaa8ca0f7c72f5ba38cc9e91bd3a8831365c4f81",
+      "jsonl_sha256": "cf9bec824091bd7128948ecef86c9d49da493bd1d4f0aa1b9acfed966b36cfcc",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 12
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w35-r2-K-20261009-1227",
+      "project": "worktree:w35-r2-console",
+      "source_sha256": "1875e5fec273e393701b6d26f76e223b99228c008cf44c79ecb84ada36a23318",
+      "source_record_count": 118,
+      "source_record_types": {
+        "message": 19,
+        "file-history-snapshot": 20,
+        "reasoning": 17,
+        "function_call": 31,
+        "function_call_result": 31
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 18
+      },
+      "recorded_start": "2026-10-09T12:28:04+08:00",
+      "recorded_end": "2026-10-09T12:46:46+08:00",
+      "first_prompt_excerpt": "Read docs/build-briefs/w35-r2-K-brief.md and follow its protocol exactly. Implement only lane K including the directory containment guard, do not change tests, verify against the d",
+      "markdown": "2026-10-09_codebuddy-cli_w35-r2-K-20261009-1227.md",
+      "jsonl": "2026-10-09_codebuddy-cli_w35-r2-K-20261009-1227.jsonl",
+      "message_count": 19,
+      "tool_event_count": 62,
+      "included_record_count": 81,
+      "omitted_record_types": {
+        "file-history-snapshot": 20,
+        "reasoning": 17
+      },
+      "markdown_sha256": "526584652ca1603a077eab424e50805c07400e3a3e4f866123af2b8b1ac3a002",
+      "jsonl_sha256": "b66cb647014ef33bbff55e0c20202ca5c22703bbdd67e477cbabfab12b2368cf",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 18
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w35-r2-S-20261009-1227",
+      "project": "worktree:w35-r2-status",
+      "source_sha256": "8fe2738d5ccd35fdd219dd251f2e8bba5ec82b159680401f35f3b78adcc1e7b5",
+      "source_record_count": 62,
+      "source_record_types": {
+        "message": 9,
+        "file-history-snapshot": 8,
+        "reasoning": 13,
+        "function_call": 16,
+        "function_call_result": 16
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 8
+      },
+      "recorded_start": "2026-10-09T12:28:04+08:00",
+      "recorded_end": "2026-10-09T12:45:23+08:00",
+      "first_prompt_excerpt": "Read docs/build-briefs/w35-r2-S-brief.md and follow its protocol exactly. Implement only lane S, do not change tests, verify against the declared sibling RED, commit only the allow",
+      "markdown": "2026-10-09_codebuddy-cli_w35-r2-S-20261009-1227.md",
+      "jsonl": "2026-10-09_codebuddy-cli_w35-r2-S-20261009-1227.jsonl",
+      "message_count": 9,
+      "tool_event_count": 32,
+      "included_record_count": 41,
+      "omitted_record_types": {
+        "file-history-snapshot": 8,
+        "reasoning": 13
+      },
+      "markdown_sha256": "5ab6c0d3195fc161f24793666b47c933fa2e40d499f23f54f792f8abe8af9a9c",
+      "jsonl_sha256": "429126fc494476771649067ccae024d6a71a432313e2e48ba88f417a5adee7ba",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 8
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "session_id": "w35-r3-20261009-1518",
+      "project": "worktree:w35-r3",
+      "source_sha256": "f2fe49916634f839269cb8dcfeda0dead8bb8c0d742bf0b82c42d06938d06909",
+      "source_record_count": 85,
+      "source_record_types": {
+        "message": 14,
+        "file-history-snapshot": 5,
+        "reasoning": 16,
+        "function_call": 25,
+        "function_call_result": 25
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 13
+      },
+      "recorded_start": "2026-10-09T15:18:11+08:00",
+      "recorded_end": "2026-10-09T15:55:50+08:00",
+      "first_prompt_excerpt": "Read docs/build-briefs/w35-r3-brief.md and carry it out exactly, obeying its Protocol section on every turn. Report the commit hash, the full-suite result, the focused result and a",
+      "markdown": "2026-10-09_codebuddy-cli_w35-r3-20261009-1518.md",
+      "jsonl": "2026-10-09_codebuddy-cli_w35-r3-20261009-1518.jsonl",
+      "message_count": 14,
+      "tool_event_count": 50,
+      "included_record_count": 64,
+      "omitted_record_types": {
+        "file-history-snapshot": 5,
+        "reasoning": 16
+      },
+      "markdown_sha256": "02a9bcbbaca833f446f48eac362ab1b9e14280f09623d26399172cae1ede607e",
+      "jsonl_sha256": "75326d5f442d30a968309f76bbcc3b1c03dc064bf50a230e671659d68338978f",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 13
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    }
+  ],
+  "excluded_logs": [
+    {
+      "session_id": "01a0b566-1b24-7ec0-bd40-6c38a08e2071",
+      "project": "main-repo",
+      "source_sha256": "a7390b183c9d6c5b2d6ed99ad5bffe2dd17fc12a286eba98d9177945ebda55ff",
+      "source_record_count": 2,
+      "source_record_types": {
+        "message": 2
+      },
+      "source_message_roles": {
+        "user": 2
+      },
+      "recorded_start": "2026-09-19T00:47:09+08:00",
+      "recorded_end": "2026-09-19T00:47:09+08:00",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a0c3f0-5b73-760b-aa70-5419bce5054e",
+      "project": "main-repo",
+      "source_sha256": "624c929da30f5a9c9dc741c227c6a848827b7c431fca3f0337e9df64f98ec791",
+      "source_record_count": 9,
+      "source_record_types": {
+        "message": 1,
+        "file-history-snapshot": 1,
+        "ai-title": 1,
+        "reasoning": 2,
+        "function_call": 3,
+        "function_call_result": 1
+      },
+      "source_message_roles": {
+        "user": 1
+      },
+      "recorded_start": "2026-09-21T20:28:29+08:00",
+      "recorded_end": "2026-09-21T20:28:58+08:00",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a0c3f4-0250-799f-ac56-ae72c107d647",
+      "project": "main-repo",
+      "source_sha256": "bf6607fa2d0cbe103d5ff69486f2c82d5da8adc0819e101504754b86a63caa4a",
+      "source_record_count": 12,
+      "source_record_types": {
+        "message": 5,
+        "file-history-snapshot": 1,
+        "ai-title": 1,
+        "reasoning": 1,
+        "function_call": 2,
+        "function_call_result": 2
+      },
+      "source_message_roles": {
+        "user": 5
+      },
+      "recorded_start": "2026-09-21T20:32:23+08:00",
+      "recorded_end": "2026-09-21T20:34:43+08:00",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a0c931-5647-7690-9db5-0292be51b537",
+      "project": "main-repo",
+      "source_sha256": "9242e90229727d4f5911f82de0fe94a2cd9b9b2b841f42916c5de7596133cbde",
+      "source_record_count": 12,
+      "source_record_types": {
+        "message": 1,
+        "file-history-snapshot": 1,
+        "ai-title": 1,
+        "function_call": 5,
+        "function_call_result": 4
+      },
+      "source_message_roles": {
+        "user": 1
+      },
+      "recorded_start": "2026-09-22T20:59:15+08:00",
+      "recorded_end": "2026-09-22T21:00:03+08:00",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a0c932-94b5-7e0e-a355-01261c08cddc",
+      "project": "main-repo",
+      "source_sha256": "7b7e0387355f5c907ea0734448076b3be4a4f025958528639904cd76bf99233c",
+      "source_record_count": 3,
+      "source_record_types": {
+        "message": 3
+      },
+      "source_message_roles": {
+        "user": 3
+      },
+      "recorded_start": "2026-09-22T20:58:50+08:00",
+      "recorded_end": "2026-09-22T20:58:50+08:00",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a0ce0d-1ebf-769d-bf43-e1f6cc103cde",
+      "project": "main-repo",
+      "source_sha256": "78d391a46a63593382fab5931872f8d659e3fb0067e27c23bd7212f47ff04249",
+      "source_record_count": 2,
+      "source_record_types": {
+        "message": 2
+      },
+      "source_message_roles": {
+        "user": 2
+      },
+      "recorded_start": "2026-09-23T19:36:07+08:00",
+      "recorded_end": "2026-09-23T19:36:07+08:00",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a0d402-8c63-795d-a772-484974927ba6",
+      "project": "main-repo",
+      "source_sha256": "4cb73863f6b1790158491b69edcc369f2845e791f13b4df5bce60cf8ee4d0bbd",
+      "source_record_count": 2,
+      "source_record_types": {
+        "message": 2
+      },
+      "source_message_roles": {
+        "user": 2
+      },
+      "recorded_start": "2026-09-24T23:22:16+08:00",
+      "recorded_end": "2026-09-24T23:22:16+08:00",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a0f454-f73f-7b09-93e1-4ef4150b59f9",
+      "project": "main-repo",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_record_count": 0,
+      "source_record_types": {},
+      "source_message_roles": {},
+      "recorded_start": "timestamp unavailable",
+      "recorded_end": "timestamp unavailable",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a10c23-6e55-7792-b700-85aff45d25aa",
+      "project": "main-repo",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_record_count": 0,
+      "source_record_types": {},
+      "source_message_roles": {},
+      "recorded_start": "timestamp unavailable",
+      "recorded_end": "timestamp unavailable",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a10c2a-d38f-729d-8e90-8b17882c2a9f",
+      "project": "main-repo",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_record_count": 0,
+      "source_record_types": {},
+      "source_message_roles": {},
+      "recorded_start": "timestamp unavailable",
+      "recorded_end": "timestamp unavailable",
+      "reason": "No saved user-and-assistant conversation pair"
+    },
+    {
+      "session_id": "01a10ce3-3882-752f-955e-45949dc44b7d",
+      "project": "main-repo",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_record_count": 0,
+      "source_record_types": {},
+      "source_message_roles": {},
+      "recorded_start": "timestamp unavailable",
+      "recorded_end": "timestamp unavailable",
+      "reason": "No saved user-and-assistant conversation pair"
+    }
+  ],
+  "privacy_replacement_occurrences": {
+    "private-path": 12513,
+    "project-store-path": 368,
+    "email": 13,
+    "planner-name": 56,
+    "operator-name": 270,
+    "teammate-name": 0,
+    "cloud-id": 0,
+    "secret-prefix": 0,
+    "bearer": 0,
+    "credential-assignment": 7,
+    "private-key-block": 0
+  },
+  "exported_session_count": 56,
+  "recorded_message_count": 990,
+  "recorded_tool_event_count": 8220,
+  "additional_privacy_rules": {
+    "lowercase_os_user": "[REDACTED_OS_USER]",
+    "mac_temp_root": "[LOCAL_TEMP]/",
+    "codebuddy_uid": "codebuddy-[LOCAL_UID]",
+    "export_workspace": "[EXPORT_WORKSPACE]"
+  },
+  "presentation_format_version": 2,
+  "coverage_limits": {
+    "fully_read_conversation_sessions": 56,
+    "sessions_with_checkpoint_skim": [],
+    "all_tool_fields": "pattern-scanned, not semantic line-by-line review",
+    "historical_test_claims": "not rerun",
+    "initial_reader_full_conversation_sessions": 48,
+    "initial_reader_checkpoint_skim_sessions": [
+      "01a0c3f6-f551-7a7f-ba09-b60642e751c8",
+      "01a0f770-e5d8-7504-b9d9-d020f0e8de17",
+      "01a107f8-ac03-75f6-9708-64978c3eee95",
+      "01a10e9c-ec95-7344-8030-f1cc9b3780fe",
+      "01a10fae-58a1-731f-9791-1d7b95608ec0",
+      "w20-20261006-1918",
+      "w24-20261006-2359",
+      "w27-20261006-2359"
+    ],
+    "independent_checkpoint_bodies_read": 9,
+    "independent_checkpoint_sessions_read": 8
+  },
+  "review_completed_at": "2026-10-12T21:34:17+08:00",
+  "independent_review": {
+    "model": "glm-5.3",
+    "provider": "ollama-cloud",
+    "verdict": "PASS_WITH_NOTES",
+    "sole_finding": "G1 native terminal line-wrap path, reproduced and corrected",
+    "scope": "These exported copies only; not public-repo/W6 clearance"
+  }
+}

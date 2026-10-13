@@ -51,6 +51,18 @@
     ]
   };
 
+  // W43 M1: the rider's structured absence question. The pack's own field name — the
+  // one the NS-6 gate reads on the record — asked only on the rider no-show filing,
+  // as a real Yes/No control, and sent only when the party chose an answer. It is
+  // deliberately not one of the questionnaire rows: the pinned three-row rider
+  // no-show list stays exactly as it is, and no id is added to the shells.
+  var ABSENCE_KEY = "rider_claims_driver_absent";
+  var ABSENCE_QUESTION = {
+    key: ABSENCE_KEY,
+    label: "Did the driver fail to show up at the pickup point?",
+    kind: "yes_no"
+  };
+
   var STATUS_HEADINGS = {
     decided: "We have made a decision",
     under_review: "Your case is still under review",
@@ -438,6 +450,34 @@
     return field;
   }
 
+  // W43 M1: the absence field is built with the other questions but not inside the
+  // question list: the pinned list keeps exactly its three rows. Its host is the
+  // container the list sits in, so it renders directly after the list; a DOM without
+  // parent links falls back to the details step, which holds the field just the same.
+  var absenceField = null;
+  var absenceHost = null;
+
+  function placeAbsenceQuestion() {
+    if (absenceField && absenceHost) {
+      absenceHost.removeChild(absenceField);
+    }
+    absenceField = null;
+    absenceHost = null;
+    if (role !== "rider" || state.category !== "no_show_charge") {
+      return;
+    }
+    absenceField = buildChoiceQuestion(ABSENCE_QUESTION);
+    var host = questionList.parentNode;
+    absenceHost = host && typeof host.appendChild === "function" ? host : stepDetails;
+    // Sits directly after the question list, above the amount field: it is a question
+    // about the incident, and the amount is the closing request before Send.
+    if (absenceHost === host && typeof host.insertBefore === "function") {
+      host.insertBefore(absenceField, questionList.nextSibling);
+    } else {
+      absenceHost.appendChild(absenceField);
+    }
+  }
+
   function buildQuestions() {
     while (questionList.firstChild) {
       questionList.removeChild(questionList.firstChild);
@@ -459,6 +499,7 @@
         questionList.appendChild(field);
       }
     });
+    placeAbsenceQuestion();
   }
 
   document.getElementById("details-back").addEventListener("click", function () {
@@ -508,6 +549,21 @@
         answers[question.key] = input ? input.value : "";
       }
     });
+
+    // W43 M1: the absence answer is sent only when the party chose one. No choice,
+    // no key: the record then carries no claim, exactly as it does today.
+    if (absenceField) {
+      var absenceChoice = absenceField.querySelector(".choice-button.selected[data-choice]");
+      if (absenceChoice) {
+        var absenceBox = absenceField.querySelector(
+          'textarea[data-elaborate-for="' + ABSENCE_KEY + '"]'
+        );
+        var absenceText = absenceBox ? absenceBox.value.trim() : "";
+        answers[ABSENCE_KEY] = absenceText
+          ? absenceChoice.dataset.choice + " - " + absenceText
+          : absenceChoice.dataset.choice;
+      }
+    }
 
     // W20: the cap counts the complete serialized answer — choice, delimiter and
     // trimmed explanation together — in Unicode code points. Nothing is truncated

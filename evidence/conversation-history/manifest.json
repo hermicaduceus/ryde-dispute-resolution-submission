@@ -1,0 +1,360 @@
+{
+  "format_version": 1,
+  "exported_at": "2026-10-12T20:15:40+08:00",
+  "method": "Mechanical extraction from saved CodeBuddy JSONL logs; not an AI-written summary and not a native full-history export.",
+  "sessions": [
+    {
+      "title": "Initial three-agent pipeline build",
+      "description": "Initial build scope, typed evidence, agents and orchestration.",
+      "session_id": "01a0c3f6-f551-7a7f-ba09-b60642e751c8",
+      "recorded_start": "2026-09-21T20:35:36+08:00",
+      "recorded_end": "2026-09-22T19:14:07+08:00",
+      "source_sha256": "418bac84073ae08f480329d1edcc1f17c4dc9048a944453a7a6f0221e2314b9c",
+      "markdown": "2026-09-21_codebuddy-cli_01-core-pipeline.md",
+      "jsonl": "2026-09-21_codebuddy-cli_01-core-pipeline.jsonl",
+      "source_record_count": 395,
+      "source_record_types": {
+        "message": 35,
+        "file-history-snapshot": 85,
+        "ai-title": 1,
+        "function_call": 109,
+        "function_call_result": 109,
+        "reasoning": 52,
+        "summary": 2,
+        "turn-metrics": 2
+      },
+      "included_messages": {
+        "user": 2,
+        "assistant": 28
+      },
+      "included_tool_events": 218,
+      "omitted_records": {
+        "local-command-caveat": 2,
+        "local-command-display": 2,
+        "file-history-snapshot": 85,
+        "ai-title": 1,
+        "reasoning": 52,
+        "summary": 2,
+        "turn-metrics": 2,
+        "automatic-compaction-summary": 1
+      },
+      "markdown_sha256": "e780e2c916814489789e466d65936386b4434dd2e94a11c52bcd59e43cd53a34",
+      "jsonl_sha256": "2f391291fe419e79a90bedc52d5f43e480457220b48e4386e7cd7f186a73f730",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 28
+      },
+      "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "title": "Party-facing forms and delivery",
+      "description": "Building the party surface, follow-ups and fail-closed output.",
+      "session_id": "01a0ce44-0226-7fd5-a7fe-3b9f24838445",
+      "recorded_start": "2026-09-23T20:37:02+08:00",
+      "recorded_end": "2026-09-23T22:03:08+08:00",
+      "source_sha256": "dfe3efb7b1ff949e176c5863c0b3a96e08af626fe3221e4889e3b3a4e42ba331",
+      "markdown": "2026-09-23_codebuddy-cli_02-party-surface.md",
+      "jsonl": "2026-09-23_codebuddy-cli_02-party-surface.jsonl",
+      "source_record_count": 594,
+      "source_record_types": {
+        "message": 78,
+        "file-history-snapshot": 81,
+        "ai-title": 1,
+        "reasoning": 73,
+        "function_call": 179,
+        "function_call_result": 179,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "included_messages": {
+        "user": 2,
+        "assistant": 76
+      },
+      "included_tool_events": 358,
+      "omitted_records": {
+        "file-history-snapshot": 81,
+        "ai-title": 1,
+        "reasoning": 73,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "c1b1f5bd313a9b5eac43fb3c3484ec1853777a006644f5bea8d85a99224faf38",
+      "jsonl_sha256": "1dc9b999bf4c56381ebd1194dc2a6b6cdead6a19dda23256ebfd942b5771f6fc",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 76
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "title": "Tencent Cloud ADP adapter",
+      "description": "Implementing the real ADP request/stream adapter against fixtures. This session did not make live model calls.",
+      "session_id": "01a0e835-41c9-7c59-b049-ec7cfdc436a6",
+      "recorded_start": "2026-09-28T21:30:17+08:00",
+      "recorded_end": "2026-10-12T20:13:11+08:00",
+      "source_sha256": "0083036975e7b5af42b7b766ba3fe3e616a56531cca8d1a1e6b3a0b9213b6a65",
+      "markdown": "2026-09-28_codebuddy-cli_03-tencent-adp-adapter.md",
+      "jsonl": "2026-09-28_codebuddy-cli_03-tencent-adp-adapter.jsonl",
+      "source_record_count": 272,
+      "source_record_types": {
+        "message": 36,
+        "file-history-snapshot": 30,
+        "ai-title": 1,
+        "reasoning": 41,
+        "function_call": 79,
+        "function_call_result": 79,
+        "turn-metrics": 4,
+        "summary": 1,
+        "session-meta": 1
+      },
+      "included_messages": {
+        "user": 4,
+        "assistant": 26
+      },
+      "included_tool_events": 158,
+      "omitted_records": {
+        "file-history-snapshot": 30,
+        "ai-title": 1,
+        "reasoning": 41,
+        "turn-metrics": 4,
+        "summary": 1,
+        "local-command-caveat": 2,
+        "session-meta": 1,
+        "local-command-display": 4
+      },
+      "markdown_sha256": "3d9fe4b66c1eabe5a6ced38d2eb5e266b125955857a8cb76a0c757aa6827d044",
+      "jsonl_sha256": "4b8d25606e9af2548161ad70ea087434e71f995acd5b6559ca5cd474a3bbfed2",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 26,
+        "Automatic task notification": 3
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "title": "ADP adapter hardening",
+      "description": "Hardening the adapter against the recorded fixture/test contract. Live-call verification happened outside this CodeBuddy session.",
+      "session_id": "01a0e8dd-a000-7baa-9ce7-e0ef4a6126c5",
+      "recorded_start": "2026-09-29T00:34:08+08:00",
+      "recorded_end": "2026-09-29T00:37:12+08:00",
+      "source_sha256": "9046c9dd57c7fed5e4e11e36d204a8619d737168f2d1d265109b54df4d840e30",
+      "markdown": "2026-09-29_codebuddy-cli_04-adp-hardening.md",
+      "jsonl": "2026-09-29_codebuddy-cli_04-adp-hardening.jsonl",
+      "source_record_count": 108,
+      "source_record_types": {
+        "message": 12,
+        "file-history-snapshot": 7,
+        "ai-title": 1,
+        "function_call": 35,
+        "function_call_result": 35,
+        "reasoning": 16,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "included_messages": {
+        "user": 1,
+        "assistant": 11
+      },
+      "included_tool_events": 70,
+      "omitted_records": {
+        "file-history-snapshot": 7,
+        "ai-title": 1,
+        "reasoning": 16,
+        "summary": 1,
+        "turn-metrics": 1
+      },
+      "markdown_sha256": "82e56b5f8048442cfb3babc71930a7dba1746260fe559b6142476cb7d626f1f6",
+      "jsonl_sha256": "e2a752a1bf58c0dc134726544a4ae33566ade52057cd3d0cca4821a604043e4f",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 11
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "title": "Policy-forbidden refund repair",
+      "description": "Implementing the RD-4 gate after the live evaluation exposed forbidden refunds; this session records the code repair and mock checks, not the later live rerun.",
+      "session_id": "01a0fd87-1c95-7230-b6ab-0bd62e09fdda",
+      "recorded_start": "2026-10-03T00:51:53+08:00",
+      "recorded_end": "2026-10-03T00:57:09+08:00",
+      "source_sha256": "2cde3a1c08e0ccab910484dbb198fb204d9ae37fb16be74b292d5c6a7056c7f4",
+      "markdown": "2026-10-03_codebuddy-cli_05-refund-safety-repair.md",
+      "jsonl": "2026-10-03_codebuddy-cli_05-refund-safety-repair.jsonl",
+      "source_record_count": 225,
+      "source_record_types": {
+        "message": 20,
+        "file-history-snapshot": 16,
+        "ai-title": 1,
+        "reasoning": 41,
+        "function_call": 72,
+        "function_call_result": 72,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "included_messages": {
+        "user": 2,
+        "assistant": 18
+      },
+      "included_tool_events": 144,
+      "omitted_records": {
+        "file-history-snapshot": 16,
+        "ai-title": 1,
+        "reasoning": 41,
+        "summary": 1,
+        "turn-metrics": 2
+      },
+      "markdown_sha256": "678f04e4270b8fac21738e8acb1fe1e52bbc97eae24b9beb6daacee5ce740e27",
+      "jsonl_sha256": "d9f9f41f4c84d76c97b3842efe4402e43327ec9eac541a85d3c9e8f2b8d74d73",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 18
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "title": "Party status and human-review backend",
+      "description": "Building the status/follow-up and human-decision backend, session twenty-two.",
+      "session_id": "01a10200-d46b-76d1-8331-63a8610091de",
+      "recorded_start": "2026-10-03T21:43:21+08:00",
+      "recorded_end": "2026-10-03T21:59:23+08:00",
+      "source_sha256": "6e8c0bca3f03bdae5a75a6efad3285b5ded93e28626f1e592d2737e6920e3e29",
+      "markdown": "2026-10-03_codebuddy-cli_06-human-loop-backend.md",
+      "jsonl": "2026-10-03_codebuddy-cli_06-human-loop-backend.jsonl",
+      "source_record_count": 400,
+      "source_record_types": {
+        "message": 38,
+        "file-history-snapshot": 47,
+        "ai-title": 1,
+        "reasoning": 72,
+        "function_call": 119,
+        "function_call_result": 119,
+        "turn-metrics": 3,
+        "summary": 1
+      },
+      "included_messages": {
+        "user": 4,
+        "assistant": 34
+      },
+      "included_tool_events": 238,
+      "omitted_records": {
+        "file-history-snapshot": 47,
+        "ai-title": 1,
+        "reasoning": 72,
+        "turn-metrics": 3,
+        "summary": 1
+      },
+      "markdown_sha256": "4d70b643e8e403184bd94809ff7c693a6a653d568e6e448f3077eeaad4e564a3",
+      "jsonl_sha256": "1889e51b92b5611d21cbbdda4ec8a2e9c118697ee2227b6585b7bc5e7b7f73da",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 34,
+        "Automatic task notification": 2
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    },
+    {
+      "title": "Human-review console",
+      "description": "Building the review queue, human decision controls and Overrides view, session twenty-three. Later repair sessions are not included here.",
+      "session_id": "01a10450-619f-74fc-8ce6-db3741870da4",
+      "recorded_start": "2026-10-04T08:35:37+08:00",
+      "recorded_end": "2026-10-04T09:07:56+08:00",
+      "source_sha256": "e91c650827b06f1ddc7a127887fc1b8f01b84fac940360f7fe1760a3666e433e",
+      "markdown": "2026-10-04_codebuddy-cli_07-human-review-console.md",
+      "jsonl": "2026-10-04_codebuddy-cli_07-human-review-console.jsonl",
+      "source_record_count": 333,
+      "source_record_types": {
+        "message": 8,
+        "file-history-snapshot": 33,
+        "ai-title": 1,
+        "function_call": 123,
+        "function_call_result": 123,
+        "reasoning": 41,
+        "summary": 1,
+        "turn-metrics": 3
+      },
+      "included_messages": {
+        "user": 3,
+        "assistant": 3
+      },
+      "included_tool_events": 246,
+      "omitted_records": {
+        "file-history-snapshot": 33,
+        "ai-title": 1,
+        "reasoning": 41,
+        "summary": 1,
+        "turn-metrics": 3,
+        "local-command-caveat": 1,
+        "local-command-display": 1
+      },
+      "markdown_sha256": "501a0e602b625798c14f19c9b9eadd22816649efd750ec0398422796e6befd96",
+      "jsonl_sha256": "079c1e95ae74d61426d8150d7704e7e687065358cbc984d699d681e172ae4690",
+      "presentation_labels": {
+        "Recorded user-side message": 2,
+        "CodeBuddy": 3,
+        "Operator command input": 1
+      },
+      "content_review": "Reader-reviewed conversation message bodies",
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+    }
+  ],
+  "native_example": {
+    "file": "2026-09-28_codebuddy-cli_native-adp-terminal-export.txt",
+    "session_id": "01a0e835-41c9-7c59-b049-ec7cfdc436a6",
+    "warning": "Privacy-filtered native terminal-view export made 2026-10-12 for a 2026-09-28 session. Wrapping/collapsed tool output and export-only records remain; not the complete machine log.",
+    "sha256": "04f38a6ffb5af12bf4c1e577b7c0bb87f266f656fcb31e37429c1dec3c8abf9c",
+    "additional_privacy_rule": "One native-screen-only quoted export-workspace path spanning a terminal line-wrap is replaced with [EXPORT_WORKSPACE]. Other native terminal text is unchanged."
+  },
+  "privacy_replacement_occurrences": {
+    "private-path": 2126,
+    "project-store-path": 80,
+    "email": 0,
+    "planner-name": 1,
+    "operator-name": 41,
+    "teammate-name": 0,
+    "cloud-id": 0,
+    "secret-prefix": 0,
+    "bearer": 0,
+    "credential-assignment": 6
+  },
+  "review_status": "CONVERSATION_HISTORY_AUDIT_COMPLETED; GLM_PASS_WITH_NOTES; G1_CORRECTED; NOT_W6_PUBLICATION_CLEARANCE",
+  "additional_privacy_rules": {
+    "lowercase_os_user": "[REDACTED_OS_USER]",
+    "mac_temp_root": "[LOCAL_TEMP]/",
+    "codebuddy_uid": "codebuddy-[LOCAL_UID]",
+    "export_workspace": "[EXPORT_WORKSPACE]"
+  },
+  "presentation_format_version": 2,
+  "coverage_limits": {
+    "fully_read_conversation_sessions": 56,
+    "sessions_with_checkpoint_skim": [],
+    "all_tool_fields": "pattern-scanned, not semantic line-by-line review",
+    "historical_test_claims": "not rerun",
+    "initial_reader_full_conversation_sessions": 48,
+    "initial_reader_checkpoint_skim_sessions": [
+      "01a0c3f6-f551-7a7f-ba09-b60642e751c8",
+      "01a0f770-e5d8-7504-b9d9-d020f0e8de17",
+      "01a107f8-ac03-75f6-9708-64978c3eee95",
+      "01a10e9c-ec95-7344-8030-f1cc9b3780fe",
+      "01a10fae-58a1-731f-9791-1d7b95608ec0",
+      "w20-20261006-1918",
+      "w24-20261006-2359",
+      "w27-20261006-2359"
+    ],
+    "independent_checkpoint_bodies_read": 9,
+    "independent_checkpoint_sessions_read": 8
+  },
+  "review_completed_at": "2026-10-12T21:34:17+08:00",
+  "independent_review": {
+    "model": "glm-5.3",
+    "provider": "ollama-cloud",
+    "verdict": "PASS_WITH_NOTES",
+    "sole_finding": "G1 native terminal line-wrap path, reproduced and corrected",
+    "scope": "These exported copies only; not public-repo/W6 clearance"
+  }
+}
