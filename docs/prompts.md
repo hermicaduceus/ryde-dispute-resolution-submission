@@ -321,7 +321,10 @@ Transport facts a reviewer will ask about:
 - **Response cap.** A reply larger than 2 MiB is refused rather than read (a Judge-sized
   reply measured 89 KB on the live endpoint, which echoes the prompt back).
 - **Pacing.** Calls are paced at one per 6.5 seconds across the whole system, with the
-  model's usage and a request fingerprint (a hash of the prompts) recorded on every
-  payload, so the exact prompt bytes of every call are verifiable after the fact. The
-  fingerprint proves what was asked, not what was answered: reproducing an answer needs
-  the model, but a reviewer can confirm the prompt a ruling came from, byte for byte.
+  model's usage and a request fingerprint (a hash of the prompts) recorded with every
+  call. The fingerprint proves what was asked, not what was answered: reproducing an
+  answer needs the model, but the exact prompt bytes remain verifiable for any run
+  recorded under the current prompt version. When a prompt sentence changes between a
+  run's recording and the review, the prompt panel reports the mismatch (`changed`)
+  rather than claiming a match — a fail-closed provenance check, so an old recording is
+  never silently presented as matching today's prompt.
