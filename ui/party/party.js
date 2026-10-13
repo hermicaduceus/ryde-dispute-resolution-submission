@@ -469,7 +469,13 @@
     absenceField = buildChoiceQuestion(ABSENCE_QUESTION);
     var host = questionList.parentNode;
     absenceHost = host && typeof host.appendChild === "function" ? host : stepDetails;
-    absenceHost.appendChild(absenceField);
+    // Sits directly after the question list, above the amount field: it is a question
+    // about the incident, and the amount is the closing request before Send.
+    if (absenceHost === host && typeof host.insertBefore === "function") {
+      host.insertBefore(absenceField, questionList.nextSibling);
+    } else {
+      absenceHost.appendChild(absenceField);
+    }
   }
 
   function buildQuestions() {
