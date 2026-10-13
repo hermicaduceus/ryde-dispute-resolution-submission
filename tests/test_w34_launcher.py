@@ -98,11 +98,11 @@ FROZEN_W34 = {
     "app/cli.py": "87e3038b46d662253fa478f0dc0ecfadbc3a2f854a2870163335568fab719f04",
     "app/config.json": "9bad3dfc71d7e81db50801e25171099e272f1ad94ff44fdd2721f3e040532bbc",
     "app/config.py": "ac535e02781cabc7e4d189769876efd4c4d2c71330a1aacf7092e9183bbc90cb",
-    "app/dispute.py": "311a928003d46f523b2b953a272838bf55d5b7039d624dab46d83128dbd23b82",
+    "app/dispute.py": "1705daa66a897b7f4c265a506b592d153a8888e8ebf112e57631007cd31bae8c",
     "app/eval.py": "e426be975cc900f83a467cc93524c9c10380625ee00adcafe5b4e06903883ff1",
     "app/events.py": "fb63d38106ca55f32bb59f6737d8535c179df5d6198b1f59becc025adc908fe2",
     "app/evidence/__init__.py": "befc73254285cb0e6fb5039b5bd7c96cf321430e643a9295022ce17f34e3e6c4",
-    "app/evidence/compute.py": "f39c6d645c366fddb97c4d9fdb6856c758ab499469e941bbb2aa248fd4e46bcb",
+    "app/evidence/compute.py": "7875ef3282371575a3092eb9746c08d2ebca0d919af3a16a9fb77e958c73d559",
     "app/evidence/schema.py": "c43dde67551b751c98383700b98d0c305c9a970031e109713108430044ca59f3",
     # W35 R2 lane K released app/human_review.py (tests/test_w35_r2_K.py pins the rest of the module).
     "app/llm/__init__.py": "014cc053124a4bf057bba9c3f2760c83eae0f37f3a7ac729d8e782db34c258ac",

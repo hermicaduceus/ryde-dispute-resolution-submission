@@ -177,6 +177,29 @@ def _broken_keys(raw: Any) -> List[str]:
     ]
 
 
+def _unreadable_fare_keys(raw: Any) -> List[str]:
+    """The keys of a fare mapping whose present value is not a finite number.
+
+    Scoped to the fare paths — the tariff rates and the fare breakdown, where every key
+    is supposed to hold a figure. A string, a boolean, a list, an object, an explicit
+    null, NaN, Infinity or an integer too large for a float is a stated value the record
+    cannot read: it is left out of the map and it voids what it feeds, exactly as NaN
+    already does. A missing key is not unreadable — it is simply not stated.
+
+    Deliberately separate from _broken_keys: the case-policy terms keep the narrower
+    predicate, because there a non-numeric value is ordinary metadata (DISP-002's
+    "source"), and widening it there would drop a stated policy term.
+    """
+    return [
+        str(key)
+        for key, value in (raw if isinstance(raw, dict) else {}).items()
+        if value is None
+        or isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or _is_non_finite_number(value)
+    ]
+
+
 def _point_is_usable(point: Any) -> bool:
     """Whether a GPS trace point can take part in a computed distance.
 
@@ -371,12 +394,15 @@ def _build_fare(
 
     components_raw = fare.get("breakdown") if isinstance(fare.get("breakdown"), dict) else {}
     rates_raw = fare.get("rates") if isinstance(fare.get("rates"), dict) else {}
-    # A number that is present but not finite is not a recorded figure. It is left out
-    # of the maps, and it voids what it feeds: dropping a broken per-km rate and
-    # computing from the rest reads as free distance, and dropping a broken surge
-    # reads as 1.0 — a plausible wrong number either way.
-    broken_rates = _broken_keys(rates_raw)
-    broken_components = _broken_keys(components_raw)
+    # A value that is present but not a finite number is not a recorded figure. It is
+    # left out of the maps, and it voids what it feeds: dropping a broken per-km rate
+    # and computing from the rest reads as free distance, dropping a broken surge
+    # reads as 1.0, and dropping a non-numeric value of any kind (W43 M2: a string, a
+    # boolean, null, a container) would do the same — a plausible wrong number either
+    # way. Only the fare paths use this predicate; the case-policy terms keep
+    # _broken_keys, where a non-numeric value is ordinary metadata.
+    broken_rates = _unreadable_fare_keys(rates_raw)
+    broken_components = _unreadable_fare_keys(components_raw)
     promo_broken = any(
         key in broken_components for key in ("promo_sgd", "promo", "discount_sgd")
     )
