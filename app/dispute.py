@@ -348,12 +348,16 @@ def _organiser_to_record(data: Dict[str, Any]) -> Dict[str, Any]:
 
     # Their gps_telemetry is the trip trace for a route case, but for a no-show it is the
     # approach-and-wait trace: a route built from it would report a distance the trip never
-    # covered, so it becomes actual_route only where the trip actually ran.
+    # covered, so it becomes actual_route only where the trip actually ran. A row that is
+    # not an object is kept as it is (W43 M2): dropping it would shorten the trace and the
+    # evidence layer would compute a plausible distance from the remainder, where one
+    # unusable point must make the whole length unknown.
     if category == CATEGORY_ROUTE_DEVIATION:
         route = [
             {"lat": row.get("lat"), "lng": row.get("lng"), "t": row.get("timestamp")}
-            for row in (data.get("gps_telemetry") if isinstance(data.get("gps_telemetry"), list) else [])
             if isinstance(row, dict)
+            else row
+            for row in (data.get("gps_telemetry") if isinstance(data.get("gps_telemetry"), list) else [])
         ]
         if route:
             trip["actual_route"] = route
