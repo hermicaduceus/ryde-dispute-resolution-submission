@@ -61,8 +61,12 @@ MISSING_PYTHON = ("Python 3.9 or newer is needed to run the Ryde demo. Install i
 VERSION_CHECK = "sys.version_info >= (3, 9)"
 
 START_TITLE = "Ryde dispute resolution demo"
-START_INTRO = ("Runs on your computer with sample trips. The AI is a stand-in (mock), "
-               "so no key is needed.")
+#: W47 (2026-10-14): one provider-neutral sentence replaced the mock-only wording. The
+#: start page now describes the two launchers, not the current mode (the live launcher
+#: proves its provider itself).
+START_INTRO = ("Runs on your computer with sample trips. The standard launcher uses an "
+               "illustrative mock; the live launcher uses Tencent AI and needs private "
+               "access keys.")
 START_LINKS = [
     ("../party/", "File a dispute As a rider or a driver, on a sample trip"),
     ("../", "Operator console The review queue, human decisions and every case file"),
