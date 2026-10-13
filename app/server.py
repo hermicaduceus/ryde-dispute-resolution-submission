@@ -103,6 +103,11 @@ CHOICE_INTAKE_KEYS = YES_NO_INTAKE_KEYS | DRIVER_YES_NO_INTAKE_KEYS
 RIDER_ABSENCE_KEY = "rider_claims_driver_absent"
 
 _RUN_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
+#: W44 (S-F01): how many fresh run ids one filing may try before giving up. An id an
+#: existing run already owns is refused by EventLog before anything is written, so
+#: retrying with a fresh id is safe; the bound keeps a pathological generator from
+#: spinning. A refused id is never deleted — that directory belongs to the first run.
+_RUN_ID_ATTEMPTS = 5
 _PAYLOAD_NAME_RE = re.compile(r"^[0-9]{4}-[A-Za-z0-9._-]+\.json$")
 #: A dispute reference from the party page. Deliberately tighter than the run id: a
 #: lookup never names a path, so only the pattern and the id's existence decide.
@@ -1367,31 +1372,48 @@ class RydeRequestHandler(BaseHTTPRequestHandler):
         self._send_json(200, party_view(new_case.to_dict()))
 
     def _run_record(self, state: "_ServerState", record: Dict[str, Any]):
-        run_id = _new_run_id()
-        run_dir = state.out_dir / run_id
-        try:
-            events = EventLog(run_dir, run_id)
-            case = run_dispute(
-                dispute=parse_dispute(record),
-                llm=state.llm,
-                policy=state.policy,
-                events=events,
-                confidence_threshold=state.confidence_threshold,
-                autonomous_cap_sgd=state.autonomous_cap_sgd,
-                retry_policy=RetryPolicy(budget_seconds=state.case_budget_seconds),
-            )
-            case.write(run_dir)
-            (run_dir / DISPUTE_FILE_NAME).write_text(
-                json.dumps(record, indent=2, default=str) + "\n", encoding="utf-8"
-            )
-            return case
-        except Exception:
-            # R7: a crashed run must not leave a half-written directory behind — and
-            # must remove only the directory this call created, never anything else.
-            resolved = run_dir.resolve()
-            if resolved != state.out_dir.resolve() and resolved.is_relative_to(state.out_dir.resolve()):
-                shutil.rmtree(resolved, ignore_errors=True)
-            raise
+        # W44 (S-F01): a fresh id can name a directory an existing run already owns —
+        # EventLog refuses it before anything is written. That refusal must never be
+        # answered by deleting the directory: it belongs to the first run. Try a bounded
+        # number of fresh ids instead, and only a directory THIS call acquired is ever
+        # cleaned up below.
+        for attempt in range(_RUN_ID_ATTEMPTS):
+            run_id = _new_run_id()
+            run_dir = state.out_dir / run_id
+            try:
+                events = EventLog(run_dir, run_id)
+            except ValueError:
+                # The collision: this call created nothing here, so there is nothing of
+                # its own to remove. Retry with a fresh id — unless this was the last
+                # attempt, where the refusal is the clean error the handler reports.
+                if attempt == _RUN_ID_ATTEMPTS - 1:
+                    raise
+                continue
+            # Acquisition: EventLog construction succeeded, so from here on the
+            # directory is this call's to remove.
+            try:
+                case = run_dispute(
+                    dispute=parse_dispute(record),
+                    llm=state.llm,
+                    policy=state.policy,
+                    events=events,
+                    confidence_threshold=state.confidence_threshold,
+                    autonomous_cap_sgd=state.autonomous_cap_sgd,
+                    retry_policy=RetryPolicy(budget_seconds=state.case_budget_seconds),
+                )
+                case.write(run_dir)
+                (run_dir / DISPUTE_FILE_NAME).write_text(
+                    json.dumps(record, indent=2, default=str) + "\n", encoding="utf-8"
+                )
+                return case
+            except Exception:
+                # R7: a crashed run must not leave a half-written directory behind — and
+                # must remove only the directory this call created, never anything else.
+                # "Created" means acquired above: a refused collision never reaches here.
+                resolved = run_dir.resolve()
+                if resolved != state.out_dir.resolve() and resolved.is_relative_to(state.out_dir.resolve()):
+                    shutil.rmtree(resolved, ignore_errors=True)
+                raise
 
     # ------------------------------------------------------------- static
 
