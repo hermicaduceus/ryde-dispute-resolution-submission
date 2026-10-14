@@ -382,7 +382,7 @@ class SidecarPrecedence(unittest.TestCase):
         stale = {ROLE_KEYS[2]: "FAKE-stale-third"}
         values = {ROLE_KEYS[0]: FAKE_RIDER, ROLE_KEYS[1]: FAKE_DRIVER}
         with mock.patch.dict(os.environ, stale, clear=False):
-            os.environ.pop(ROLE_KEYS[2], None)
+            self.assertEqual("FAKE-stale-third", os.environ[ROLE_KEYS[2]])
             self.m.apply_credentials(values)
             self.assertNotIn(ROLE_KEYS[2], os.environ,
                              "a stale third key is not left for the client to pick up")
