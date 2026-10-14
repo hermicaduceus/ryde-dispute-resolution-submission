@@ -158,7 +158,7 @@ def _credential_path_reason(path: str) -> Optional[str]:
         return "credential store"
     if base.endswith((".pem", ".key", ".p12", ".pfx")):
         return "key material"
-    if base in ("id_rsa", "id_ed25519"):
+    if base in ("id_rsa", "id_ed25519", "id_ecdsa", "id_dsa"):
         return "private key material"
     return None
 
@@ -191,7 +191,7 @@ def _is_bearer_placeholder(tail: bytes) -> bool:
     if marker is None:
         return False
     remainder = tail[marker.end():]
-    return not remainder or remainder.startswith((b'`', b'\n', b'\r\n', b'\\n', b'\\"'))
+    return not remainder or remainder.startswith((b'`', b'\n', b'\r\n', b'\\n', b'\\"', b'"'))
 
 
 def _has_non_placeholder_bearer(data: bytes) -> bool:

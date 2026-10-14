@@ -39,9 +39,9 @@ Do not describe that mock check as a live Tencent run. The supplied live launche
 
 ## Rehearsal handoff
 
-Use synthetic inputs only. Coordinate one live caller at a time across machines, keep each run reference and its provider evidence, and preserve the local `runs/` directory across restarts. Real model waits can be several seconds per agent; provider errors are possible and must be reported as they occurred. Do not replace a failed live result with mock output or narrate a planned ending.
+Use synthetic inputs only. Coordinate one live caller at a time across machines, keep each run reference and its provider evidence, and preserve the local `runs/` directory across restarts. Real model waits can be several seconds per agent; provider errors are possible and must be reported as they occurred. If a recording shortens a model wait, label it `Waiting time shortened`. Do not replace a failed live result with mock output or narrate a planned ending.
 
-The agreed pair is one no-show rehearsal and one above-cap rehearsal using the supplied sample trips. Keep to the agreed two-rehearsal-filing allowance; do not invite unlimited retries or silently broaden it. The above-cap case demonstrates the human-review gate. If the real result differs from the filming narrative, stop for the operator and record the difference rather than changing the case, policy or outcome.
+The agreed pair is one no-show rehearsal and one above-cap rehearsal using the supplied sample trips. Keep to the agreed two-rehearsal-filing allowance; do not invite unlimited retries or silently broaden it. The above-cap case demonstrates the human-review gate. If a saved run is shown, label the sequence `Replay of saved run` with its date so it cannot look like a fresh uninterrupted live interaction. If the real result differs from the filming narrative, stop for the operator and record the difference rather than changing the case, policy or outcome.
 
 The accepted recording script is a separate teammate handoff: `drafts/w26/demo-script.md`, target 6:30. `tools/deployment/demo-video-script.md` is an included source file in the complete-source ZIP; it is an older build-repository script, not approval to use its 7:25 timing. Settle the filming edit before production footage. Never film credentials or account consoles.
 
