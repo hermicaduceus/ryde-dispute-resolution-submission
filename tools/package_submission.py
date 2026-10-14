@@ -182,6 +182,28 @@ def _env_example_has_value(data: bytes) -> bool:
     return False
 
 
+_BEARER_HEADER = re.compile(rb'(?i)authorization[ \t]*:[ \t]*bearer[ \t]+')
+
+
+def _is_bearer_placeholder(tail: bytes) -> bool:
+    """Accept only the documented literal marker and its serialized delimiters."""
+    marker = re.match(rb'(?i)<key>', tail)
+    if marker is None:
+        return False
+    remainder = tail[marker.end():]
+    return not remainder or remainder.startswith((b'`', b'\n', b'\r\n', b'\\n', b'\\"'))
+
+
+def _has_non_placeholder_bearer(data: bytes) -> bool:
+    for match in _BEARER_HEADER.finditer(data):
+        tail = data[match.end():]
+        if _is_bearer_placeholder(tail):
+            continue
+        if re.match(rb'\S+', tail):
+            return True
+    return False
+
+
 def content_refusals(path: str, data: bytes) -> List[str]:
     """Return narrow, value-free findings for one Git blob."""
     findings: List[str] = []
@@ -197,7 +219,7 @@ def content_refusals(path: str, data: bytes) -> List[str]:
         findings.append("AWS access-key-shaped content")
     if re.search(rb"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----", data):
         findings.append("private-key-shaped content")
-    if re.search(rb"(?i)authorization[ \t]*:[ \t]*bearer[ \t]+\S+", data):
+    if _has_non_placeholder_bearer(data):
         findings.append("bearer-token-shaped content")
     return findings
 

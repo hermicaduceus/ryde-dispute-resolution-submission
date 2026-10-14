@@ -1,6 +1,6 @@
 # Ryde local live copy
 
-This package is a private teammate rehearsal source copy, not an online demo link or public-release clearance. It starts the existing Ryde dispute-resolution system locally with the real Tencent AI provider when the operator supplies private access through a sidecar.
+This is a local Ryde source copy, not an online demo link. Inspect `MANIFEST.json`'s `package.purpose`: a `rehearsal` package is private and is not public-release clearance, while a `submission` package still waits for separate release gates. It starts the existing Ryde dispute-resolution system locally with the real Tencent AI provider when the operator supplies private access through a sidecar.
 
 ## Extract and prepare
 
@@ -35,7 +35,7 @@ The mock route remains available for a keyless check:
 python3 tools/launch.py
 ```
 
-Do not describe that mock check as a live Tencent run. The live launcher is the only route in this copy that selects the real provider, and a decision record does not transfer money.
+Do not describe that mock check as a live Tencent run. The supplied live launcher selects the real provider for this handoff; the existing raw `app.server` and `app.cli` entry points can also select Tencent when invoked with their provider options. A decision record does not transfer money.
 
 ## Rehearsal handoff
 
@@ -47,4 +47,4 @@ The accepted recording script is a separate teammate handoff: `drafts/w26/demo-s
 
 ## Package and release boundaries
 
-The packager selects a committed Git revision, records included and excluded source entries in `MANIFEST.json`, and preserves the executable macOS wrapper and Windows CRLF bytes. A `rehearsal` package is private. A `submission` package still waits for the separate release scrub, history and secret checks, verified access, approved private credential channel and any required form fields. The pattern scan is narrow and is not proof that no real key exists; the parent-owned gate compares against the ACTUAL live key bytes. No package, instruction or manifest contains an actual key.
+The packager selects a committed Git revision, records included and excluded source entries in `MANIFEST.json`, and preserves the executable macOS wrapper and Windows CRLF bytes. A `rehearsal` package is private. A `submission` package still waits for the separate release scrub, history and secret checks, verified access, approved private credential channel and any required form fields. The pattern scan is narrow and is not proof that no real key exists; the parent-owned gate compares against the ACTUAL live key bytes. Do not include actual keys in any package, instruction or manifest.
