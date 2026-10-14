@@ -11,8 +11,4 @@ if ! command -v python3 >/dev/null 2>&1 \
   exit 1
 fi
 
-_live_args=("$@")
-exec() {
-  builtin exec "$@" "${_live_args[@]}"
-}
-exec python3 tools/launch_live.py
+exec python3 tools/launch_live.py "$@"
