@@ -2,7 +2,13 @@
 
 The top-level reading copies cover 7 selected real development sessions and 214 recorded user/assistant messages. These are exports of logs saved when the work occurred, not newly generated accounts of development.
 
-The broader [archive](archive/README.md) contains all 56 saved Ryde conversations with both user and assistant messages: 990 message records and 8,220 tool-event records. It includes probes and interrupted sessions, retains automatic compaction/local-command messages, and has completed reader review and parent corrections with the coverage limits below. **The conversation-history audit is complete. GLM returned PASS_WITH_NOTES; its sole minor native-path finding is corrected. This is not whole-repository/publication clearance.** The 11 other one-sided/empty logs are listed in its manifest.
+The [baseline archive](archive/README.md) contains the 56 saved Ryde conversations exported and audited on 12 October: 990 message records and 8,220 tool-event records, including probes and interrupted sessions. Its GLM verdict is PASS_WITH_NOTES with the minor native-path finding corrected; its disclosed coverage limits remain below. **That audit applies to the baseline only, not whole-repository/publication clearance or newer additions.** The 11 one-sided/empty logs are listed in its unchanged manifest.
+
+## Final-build additions, 14 October
+
+The [later-history index](additions-20261014/README.md) adds 8 saved W43/W44/W47 conversations, 109 message records and 902 tool-event records. The baseline plus additions contains **64 distinct conversations, 1099 message records and 9122 tool-event records** at the 14 October export cutoff. The selected reading copies overlap the baseline and are not counted again.
+
+**Addition status: independently reviewed on GLM 5.3, PASS_WITH_NOTES.** Earlier transcripts and manifests are unchanged. A later CodeBuddy session requires another inventory check. The old audit does not clear these additions; W6 publication and form placement remain separate.
 
 ## Start here
 

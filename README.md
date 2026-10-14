@@ -10,6 +10,16 @@ observable case-file view. The challenge statement is in
 [`docs/statement-extract.md`](docs/statement-extract.md); the builder's contract is in
 [`CODEBUDDY.md`](CODEBUDDY.md).
 
+## Start here
+
+- **Try it without a key:** [Run](#run). A new server from the standard launchers uses the deterministic mock; an existing Ryde server is reused as it is.
+- **Use approved Tencent access:** [Local live-copy guide](docs/live-copy.md). The live launchers are separate and need a private sidecar.
+- **Inspect the design:** [Architecture](docs/architecture.md), [policy](docs/policy.md) and [dataset](docs/dataset.md).
+- **Inspect development evidence:** [Conversation history](evidence/conversation-history/README.md) and [screenshots and API-call records](evidence/). CodeBuddy development usage and Tencent demo-call evidence are separate records.
+
+This is a local demonstration with synthetic trip data, not a connection to Ryde's production
+accounts or payment systems. It records decisions; it does not transfer money.
+
 ## The challenge
 
 Ride-hailing platforms process thousands of dispute tickets daily: fare disputes, route deviations,
@@ -93,7 +103,7 @@ Python 3.9 or newer is the only requirement, and no API key is needed, because t
 the deterministic mock.
 
 The launcher picks a free port and opens `http://127.0.0.1:8000/start/` — the start page, which
-links to the two surfaces. If port 8000 is busy it reuses a Ryde demo already running there;
+links to the party and operator surfaces. If port 8000 is busy it reuses a Ryde demo already running there;
 otherwise it tries 8001 to 8010 and uses the first free one. If you already started the demo
 yourself, the launcher reuses that copy as it is. The terminal window stays open while the demo
 runs: closing it (or pressing Ctrl+C in it) stops the server, while closing only the browser tab
@@ -108,12 +118,32 @@ No dependencies: it runs on a stock Python 3.9+ with the standard library only, 
 deterministic mock in place of the LLM. Start the server and open the pages:
 
 ```bash
-python3 -m app.server
+python3 -m app.server --llm mock
 ```
 
+- `http://127.0.0.1:8000/start/` is the entry page
 - `http://127.0.0.1:8000/` is the operator console (case files, the review queue, human decisions)
 - `http://127.0.0.1:8000/party/` is the rider's dispute form, which links to the driver form and the status page
-- `python3 -m app.server --port 8011` serves the same pages on another port
+- `http://127.0.0.1:8000/party/driver-filing.html` is the driver's dispute form
+- `http://127.0.0.1:8000/party/status.html` looks up a filing by its reference number
+- `http://127.0.0.1:8000/party/driver.html` is the read-only sample driver account
+- `python3 -m app.server --llm mock --port 8011` serves the same pages on another port
+
+Use the port printed by the launcher if it is not 8000.
+
+### Live start (approved access only)
+
+Double-click **`start-live.command`** (macOS) or **`start-live.bat`** (Windows). This selects
+Tencent ADP explicitly, needs internet access and uses credits. Follow the
+[live-copy guide](docs/live-copy.md) to supply the private `.env.live` sidecar. No key is
+included in the public source.
+
+The live launcher uses port **8030** by default, opens the rider form rather than `/start/`,
+and prints the actual party, operator and status URLs. It refuses an occupied port and
+does not silently fall back to the mock. If private access is unavailable, use the standard
+keyless launchers instead and label the result as mock.
+
+### Tests and command-line cases
 
 To run the tests and single cases from the command line:
 
@@ -123,6 +153,7 @@ python3 -m app.cli --pack ryde-synth-v1 --dispute RD-0101
 python3 -m app.cli --pack organiser-style-v1 --dispute DISP-002
 ```
 
+Live evaluation uses credits and requires approved access; it is not needed for the keyless demo.
 The evaluation harness replays every labelled case — `python3 -m app.eval --llm tencent --repeat 3` —
 and scores the rulings against the labels, answering a round-one stop and running it again.
 

@@ -1,0 +1,772 @@
+{
+  "format_version": 1,
+  "exported_at": "2026-10-14T22:28:11+08:00",
+  "review_status": "GLM_PASS_WITH_NOTES; PARENT_SOURCE_EQUALITY_VERIFIED; LIMITS_DISCLOSED; NOT_W6_CLEARANCE",
+  "scope": "New saved Ryde conversations since the accepted 2026-10-12 archive. Earlier audit remains unchanged.",
+  "method": "Mechanical extraction from JSONL, not native export or an AI summary",
+  "baseline_archive_source_sha256": "a1c9cdbf57694a708dcc05751b94c209b8d95d587512463e30185381ff7a8fcb",
+  "source_logs_discovered": 75,
+  "prior_exported_sessions": 56,
+  "prior_excluded_logs": 11,
+  "sessions": [
+    {
+      "session_id": "w43-must-20261013",
+      "project": "W43-W44-W47 final-build work",
+      "source_sha256": "16bd154dbbb34d108b63ee2ace8ca3133d4a6b67de2fc5c2cd50cc60fba20e97",
+      "source_record_count": 39,
+      "source_record_types": {
+        "message": 6,
+        "file-history-snapshot": 1,
+        "reasoning": 8,
+        "function_call": 12,
+        "function_call_result": 12
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 5
+      },
+      "recorded_start": "2026-10-13T15:22:26+08:00",
+      "recorded_end": "2026-10-13T15:23:47+08:00",
+      "markdown": "2026-10-13_codebuddy-cli_w43-must-20261013.md",
+      "jsonl": "2026-10-13_codebuddy-cli_w43-must-20261013.jsonl",
+      "message_count": 6,
+      "tool_event_count": 24,
+      "included_record_count": 30,
+      "omitted_record_types": {
+        "file-history-snapshot": 1,
+        "reasoning": 8
+      },
+      "markdown_sha256": "b1251919b86e9787dd9759d32cf28910f34d5b1522af530a8239d48455bd7734",
+      "jsonl_sha256": "f6f1c13ab8dce7dd5285fe2f0c81ce4e1ac50ffc0f62eb4b1e32e0f8d7dd2d65",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 5
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 305,
+        "project-store-path": 0,
+        "email": 0,
+        "planner-name": 0,
+        "operator-name": 0,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 0,
+        "lowercase_os_user": 0,
+        "mac_temp_root": 0,
+        "codebuddy_uid": 0,
+        "export_workspace": 0
+      },
+      "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+    },
+    {
+      "session_id": "w43-must-20261013b",
+      "project": "W43-W44-W47 final-build work",
+      "source_sha256": "b80ed515dc3b33f3f3b3813a586cd2852277b683bd61a6d8d8f41b741b476669",
+      "source_record_count": 43,
+      "source_record_types": {
+        "message": 5,
+        "file-history-snapshot": 1,
+        "reasoning": 9,
+        "function_call": 14,
+        "function_call_result": 14
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 4
+      },
+      "recorded_start": "2026-10-13T15:25:18+08:00",
+      "recorded_end": "2026-10-13T15:26:57+08:00",
+      "markdown": "2026-10-13_codebuddy-cli_w43-must-20261013b.md",
+      "jsonl": "2026-10-13_codebuddy-cli_w43-must-20261013b.jsonl",
+      "message_count": 5,
+      "tool_event_count": 28,
+      "included_record_count": 33,
+      "omitted_record_types": {
+        "file-history-snapshot": 1,
+        "reasoning": 9
+      },
+      "markdown_sha256": "bce61b535636aee60da71a8ab5aaef3fd484c025e030352c75a33c914bb28f86",
+      "jsonl_sha256": "ecf067bd614dad7ac4c96f9c0056cac9d580ebb8d5d2da2b6254727b3f58ede0",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 4
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 188,
+        "project-store-path": 0,
+        "email": 0,
+        "planner-name": 0,
+        "operator-name": 0,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 0,
+        "lowercase_os_user": 0,
+        "mac_temp_root": 0,
+        "codebuddy_uid": 0,
+        "export_workspace": 0
+      },
+      "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+    },
+    {
+      "session_id": "w43-must-20261013c",
+      "project": "W43-W44-W47 final-build work",
+      "source_sha256": "b2be25af77190764609a98f4beb3253a657a0beec36c197137460f85dc2710f2",
+      "source_record_count": 310,
+      "source_record_types": {
+        "message": 28,
+        "file-history-snapshot": 8,
+        "reasoning": 62,
+        "function_call": 106,
+        "function_call_result": 106
+      },
+      "source_message_roles": {
+        "user": 6,
+        "assistant": 22
+      },
+      "recorded_start": "2026-10-13T15:28:00+08:00",
+      "recorded_end": "2026-10-13T16:00:21+08:00",
+      "markdown": "2026-10-13_codebuddy-cli_w43-must-20261013c.md",
+      "jsonl": "2026-10-13_codebuddy-cli_w43-must-20261013c.jsonl",
+      "message_count": 28,
+      "tool_event_count": 212,
+      "included_record_count": 240,
+      "omitted_record_types": {
+        "file-history-snapshot": 8,
+        "reasoning": 62
+      },
+      "markdown_sha256": "812c7ce49b518880eac9d5bfc8ebf1df00cbec37b9ba5563f1d5f6b11c60ede4",
+      "jsonl_sha256": "16015b7d7ace248857744f948f5445b3b5a86700f9ae2719afb1378adf185ac3",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 22,
+        "Automatic system notice": 5
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 636,
+        "project-store-path": 1,
+        "email": 1,
+        "planner-name": 1,
+        "operator-name": 1,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 0,
+        "lowercase_os_user": 94,
+        "mac_temp_root": 0,
+        "codebuddy_uid": 0,
+        "export_workspace": 0
+      },
+      "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+    },
+    {
+      "session_id": "w43-should-20261013",
+      "project": "W43-W44-W47 final-build work",
+      "source_sha256": "1f2a741895e617fe7d192206b47c385728d62df7d46a404ffa082df5915164b1",
+      "source_record_count": 52,
+      "source_record_types": {
+        "message": 4,
+        "file-history-snapshot": 1,
+        "reasoning": 11,
+        "function_call": 18,
+        "function_call_result": 18
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 2
+      },
+      "recorded_start": "2026-10-13T15:22:26+08:00",
+      "recorded_end": "2026-10-13T15:24:35+08:00",
+      "markdown": "2026-10-13_codebuddy-cli_w43-should-20261013.md",
+      "jsonl": "2026-10-13_codebuddy-cli_w43-should-20261013.jsonl",
+      "message_count": 4,
+      "tool_event_count": 36,
+      "included_record_count": 40,
+      "omitted_record_types": {
+        "file-history-snapshot": 1,
+        "reasoning": 11
+      },
+      "markdown_sha256": "73f9b11e60da0827119f96d042a0f3ba45bbce0227748a514fc2798551f8df7d",
+      "jsonl_sha256": "7f75e3f9f1755a66a3852c24a77891a2941561f16c60145c09adbfabcbbf9a33",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 2,
+        "Automatic system notice": 1
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 22,
+        "project-store-path": 3,
+        "email": 0,
+        "planner-name": 0,
+        "operator-name": 3,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 0,
+        "lowercase_os_user": 0,
+        "mac_temp_root": 0,
+        "codebuddy_uid": 0,
+        "export_workspace": 0
+      },
+      "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+    },
+    {
+      "session_id": "w43-should-20261013b",
+      "project": "W43-W44-W47 final-build work",
+      "source_sha256": "a8512f555fc45efc7db907f48d28acec4a19568b62b23186eafcb9623ecc7890",
+      "source_record_count": 73,
+      "source_record_types": {
+        "message": 7,
+        "file-history-snapshot": 1,
+        "reasoning": 13,
+        "function_call": 26,
+        "function_call_result": 26
+      },
+      "source_message_roles": {
+        "user": 2,
+        "assistant": 5
+      },
+      "recorded_start": "2026-10-13T15:25:19+08:00",
+      "recorded_end": "2026-10-13T15:26:57+08:00",
+      "markdown": "2026-10-13_codebuddy-cli_w43-should-20261013b.md",
+      "jsonl": "2026-10-13_codebuddy-cli_w43-should-20261013b.jsonl",
+      "message_count": 7,
+      "tool_event_count": 52,
+      "included_record_count": 59,
+      "omitted_record_types": {
+        "file-history-snapshot": 1,
+        "reasoning": 13
+      },
+      "markdown_sha256": "c3fbaf9362fb189f5da044aab6592ea7d833ee0e5e21a7549f0bcbb7c6696740",
+      "jsonl_sha256": "81671c70f7a3b71aa9485c8129d644a327ce2b1b40f8e1ed2f42915200344400",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 5,
+        "Automatic system notice": 1
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 70,
+        "project-store-path": 2,
+        "email": 0,
+        "planner-name": 0,
+        "operator-name": 2,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 0,
+        "lowercase_os_user": 0,
+        "mac_temp_root": 0,
+        "codebuddy_uid": 0,
+        "export_workspace": 0
+      },
+      "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+    },
+    {
+      "session_id": "w43-should-20261013c",
+      "project": "W43-W44-W47 final-build work",
+      "source_sha256": "616e3eecda5fbe70ce8bb3b7af4ab1a7ed796b2328130de911a5c37bd91fdcd9",
+      "source_record_count": 201,
+      "source_record_types": {
+        "message": 24,
+        "file-history-snapshot": 8,
+        "reasoning": 35,
+        "function_call": 67,
+        "function_call_result": 67
+      },
+      "source_message_roles": {
+        "user": 4,
+        "assistant": 20
+      },
+      "recorded_start": "2026-10-13T15:28:00+08:00",
+      "recorded_end": "2026-10-13T15:55:33+08:00",
+      "markdown": "2026-10-13_codebuddy-cli_w43-should-20261013c.md",
+      "jsonl": "2026-10-13_codebuddy-cli_w43-should-20261013c.jsonl",
+      "message_count": 24,
+      "tool_event_count": 134,
+      "included_record_count": 158,
+      "omitted_record_types": {
+        "file-history-snapshot": 8,
+        "reasoning": 35
+      },
+      "markdown_sha256": "9ebabd209ba51ce061d593a5be9d4eaf64c2fc32f1aea3c829b5938ed3ef67a0",
+      "jsonl_sha256": "21ba05aa3bc553c9287e3964c4583dc48197b23d5b6282db869d61d9989977b7",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 20,
+        "Automatic system notice": 3
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 325,
+        "project-store-path": 0,
+        "email": 0,
+        "planner-name": 0,
+        "operator-name": 1,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 0,
+        "lowercase_os_user": 0,
+        "mac_temp_root": 4,
+        "codebuddy_uid": 0,
+        "export_workspace": 0
+      },
+      "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+    },
+    {
+      "session_id": "w44-solfixes-20261013",
+      "project": "W43-W44-W47 final-build work",
+      "source_sha256": "13eef4cb4844cf2e54cda65f95d1052590f4a0f5f553949bf94d6ea56e320e04",
+      "source_record_count": 270,
+      "source_record_types": {
+        "message": 15,
+        "file-history-snapshot": 5,
+        "reasoning": 56,
+        "function_call": 97,
+        "function_call_result": 97
+      },
+      "source_message_roles": {
+        "user": 4,
+        "assistant": 11
+      },
+      "recorded_start": "2026-10-13T17:31:22+08:00",
+      "recorded_end": "2026-10-13T17:55:58+08:00",
+      "markdown": "2026-10-13_codebuddy-cli_w44-solfixes-20261013.md",
+      "jsonl": "2026-10-13_codebuddy-cli_w44-solfixes-20261013.jsonl",
+      "message_count": 15,
+      "tool_event_count": 194,
+      "included_record_count": 209,
+      "omitted_record_types": {
+        "file-history-snapshot": 5,
+        "reasoning": 56
+      },
+      "markdown_sha256": "0eb25d1e32b137dc90090b7c94146a1608c7f8b321e4458a4b67019da1c7f6a1",
+      "jsonl_sha256": "6e150e8231cc44c33522b38253b450d62c136fe921854b5ef8da1320f66ec226",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "Automatic system notice": 3,
+        "CodeBuddy": 11
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 756,
+        "project-store-path": 0,
+        "email": 2,
+        "planner-name": 1,
+        "operator-name": 2,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 0,
+        "lowercase_os_user": 0,
+        "mac_temp_root": 2,
+        "codebuddy_uid": 0,
+        "export_workspace": 0
+      },
+      "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+    },
+    {
+      "session_id": "w47-luna-20261014-061217",
+      "project": "W43-W44-W47 final-build work",
+      "source_sha256": "49205253d49d0d14130fe6ab59ee5474fb85dc14be496888cebff03ceefde13d",
+      "source_record_count": 277,
+      "source_record_types": {
+        "message": 20,
+        "file-history-snapshot": 16,
+        "function_call": 111,
+        "function_call_result": 111,
+        "reasoning": 19
+      },
+      "source_message_roles": {
+        "user": 12,
+        "assistant": 8
+      },
+      "recorded_start": "2026-10-14T06:13:05+08:00",
+      "recorded_end": "2026-10-14T18:47:14+08:00",
+      "markdown": "2026-10-14_codebuddy-cli_w47-luna-20261014-061217.md",
+      "jsonl": "2026-10-14_codebuddy-cli_w47-luna-20261014-061217.jsonl",
+      "message_count": 20,
+      "tool_event_count": 222,
+      "included_record_count": 242,
+      "omitted_record_types": {
+        "file-history-snapshot": 16,
+        "reasoning": 19
+      },
+      "markdown_sha256": "32f077d03418db2e398587f7020f2a17043ab328b603b012204a28e74ff73ff5",
+      "jsonl_sha256": "c62b7d64cd9dd6835586c656315685362ebb595416db8b6536ea8bda8863e8b6",
+      "presentation_labels": {
+        "Recorded user-side message": 4,
+        "Automatic system notice": 8,
+        "CodeBuddy": 8
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 514,
+        "project-store-path": 5,
+        "email": 0,
+        "planner-name": 2,
+        "operator-name": 16,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 2,
+        "lowercase_os_user": 0,
+        "mac_temp_root": 0,
+        "codebuddy_uid": 0,
+        "export_workspace": 0
+      },
+      "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+    }
+  ],
+  "new_excluded_logs": [],
+  "source_inventory": [
+    {
+      "session_id": "01a0b562-3c0d-7f4f-864e-382c4346dc52",
+      "sha256": "59f68a65ef39c5b1b67c87357e85393ae0a397b78ced1c04258cb149d5d09df0"
+    },
+    {
+      "session_id": "01a0b566-1b24-7ec0-bd40-6c38a08e2071",
+      "sha256": "a7390b183c9d6c5b2d6ed99ad5bffe2dd17fc12a286eba98d9177945ebda55ff"
+    },
+    {
+      "session_id": "01a0b569-1086-7b5e-ac89-886f8a119216",
+      "sha256": "d53b4c0cfa44d9d67788ea4145eccc4065238d290d708eaade6efeaa842d6274"
+    },
+    {
+      "session_id": "01a0b572-d487-7084-a217-66761e207fa8",
+      "sha256": "7949ff517e6e4a1652cd528a9fca2a8e6ca37ffb46cec1586c6eadf641d2ce7e"
+    },
+    {
+      "session_id": "01a0c3e8-e3d2-77ec-9be1-ce95d96eae38",
+      "sha256": "9521ab481e96b9c79f4e7d5f21d75c55e9e84d1e3efe8edf95d59de27bca0278"
+    },
+    {
+      "session_id": "01a0c3eb-56e1-7abc-a2c8-713ccef4a768",
+      "sha256": "5412dad5ce91c8ebfd50acd0ddc14606442a082bba5ed1fd46845f17cb78a204"
+    },
+    {
+      "session_id": "01a0c3f0-5b73-760b-aa70-5419bce5054e",
+      "sha256": "624c929da30f5a9c9dc741c227c6a848827b7c431fca3f0337e9df64f98ec791"
+    },
+    {
+      "session_id": "01a0c3f1-1fe5-7fec-8439-5458eaa9fc66",
+      "sha256": "60b57b1a4f7d5b7c75dd3dd3b3e70a852466b12b90612ed8b02eed8cce9fd867"
+    },
+    {
+      "session_id": "01a0c3f3-51b4-7eef-81a4-814849bbd341",
+      "sha256": "f165022e7415dc0d43b4a6b8e471c6aa9c5ea2eecee034dda9a9f3e0afcfcac8"
+    },
+    {
+      "session_id": "01a0c3f4-0250-799f-ac56-ae72c107d647",
+      "sha256": "bf6607fa2d0cbe103d5ff69486f2c82d5da8adc0819e101504754b86a63caa4a"
+    },
+    {
+      "session_id": "01a0c3f6-22e4-7e48-b147-cd73f37fe417",
+      "sha256": "9a88ab86a579070df887bc697802d9e5b454f8ea017cddca869b531a528366fe"
+    },
+    {
+      "session_id": "01a0c3f6-b929-7be8-b942-673125f258d9",
+      "sha256": "af3dbf70b8f22c832dededa6aa747f7b68309a53a1013bbc964fd7897c2238ae"
+    },
+    {
+      "session_id": "01a0c3f6-f551-7a7f-ba09-b60642e751c8",
+      "sha256": "418bac84073ae08f480329d1edcc1f17c4dc9048a944453a7a6f0221e2314b9c"
+    },
+    {
+      "session_id": "01a0c8d2-b44a-71f2-9574-31e427384a28",
+      "sha256": "4970d888a5c74afe6d7ec6db492b087e39582aa08fceb610db766c41fb8b0fb6"
+    },
+    {
+      "session_id": "01a0c931-5647-7690-9db5-0292be51b537",
+      "sha256": "9242e90229727d4f5911f82de0fe94a2cd9b9b2b841f42916c5de7596133cbde"
+    },
+    {
+      "session_id": "01a0c932-94b5-7e0e-a355-01261c08cddc",
+      "sha256": "7b7e0387355f5c907ea0734448076b3be4a4f025958528639904cd76bf99233c"
+    },
+    {
+      "session_id": "01a0c935-adb8-7e46-a51f-e76d4bacb051",
+      "sha256": "efa3ded4fb44d5530ac643422432a1c09c31c24831a87c07d8d19c13bf538020"
+    },
+    {
+      "session_id": "01a0cdeb-0e67-7113-a0af-41f5607cd8ef",
+      "sha256": "d1f19f7fe5e528866f9897346fff157be658562eaeef8317b807208f686777f6"
+    },
+    {
+      "session_id": "01a0ce0d-1ebf-769d-bf43-e1f6cc103cde",
+      "sha256": "78d391a46a63593382fab5931872f8d659e3fb0067e27c23bd7212f47ff04249"
+    },
+    {
+      "session_id": "01a0ce11-f941-7797-84b0-6d6dd19da0c4",
+      "sha256": "eabb04b0f61677ca2c52a1b33e5572dc5c1837e79e418a9c3b12ecf8ba023b75"
+    },
+    {
+      "session_id": "01a0ce44-0226-7fd5-a7fe-3b9f24838445",
+      "sha256": "dfe3efb7b1ff949e176c5863c0b3a96e08af626fe3221e4889e3b3a4e42ba331"
+    },
+    {
+      "session_id": "01a0ced9-b636-7ca5-a0ea-20e98c093500",
+      "sha256": "7e0e0cefcd319bb6d246a18959cfebc565c3558503f7a33012aa6a536761d434"
+    },
+    {
+      "session_id": "01a0d32a-e49c-7923-8f2c-49f20167f579",
+      "sha256": "828f6f6239037632f7ed41a9c942de263446e5d913e2afc45b42f3494bd70a71"
+    },
+    {
+      "session_id": "01a0d402-8c63-795d-a772-484974927ba6",
+      "sha256": "4cb73863f6b1790158491b69edcc369f2845e791f13b4df5bce60cf8ee4d0bbd"
+    },
+    {
+      "session_id": "01a0d424-896e-7577-9ea9-e315d0ada69b",
+      "sha256": "b884c7d4e12d3f9dc0f18a9f3cf9bad52d63128467687c96443cddee2e8feaa1"
+    },
+    {
+      "session_id": "01a0d644-dc5c-7534-81f3-f20b41ae6470",
+      "sha256": "5d39daa9b983e70d92dbc96b02a42ef5d8f5f49a46605465345044fe8b9803ac"
+    },
+    {
+      "session_id": "01a0d948-4d47-7e60-87e5-71f10ccc5ad8",
+      "sha256": "6a2dcc01d3d2f4b8e1257013f4390eaa23c01ad082d31aed839b87acb6370a90"
+    },
+    {
+      "session_id": "01a0e075-d3d1-795e-9179-d6a679d9226e",
+      "sha256": "ee65a51bc546381e2710b45617cc3825da6e4e4b47fa9fb3320530e1226d7280"
+    },
+    {
+      "session_id": "01a0e134-e386-73b8-9bf1-af95691d6200",
+      "sha256": "35d04024c10d274911319350ca4bbc56b54c85a537054cf10d3c4e7058650530"
+    },
+    {
+      "session_id": "01a0e149-3b22-7128-a013-7de460e66ddc",
+      "sha256": "f516e7fc9fe3898594afa9dffdab7884ad6880cf0bc04042d7aa97e1939e91c9"
+    },
+    {
+      "session_id": "01a0e337-fdec-7813-87ee-6d9810d33b71",
+      "sha256": "a09e13bb4538b672358c84d8d51135f44b0cbf412c7c428d2ca7da324c5b3e52"
+    },
+    {
+      "session_id": "01a0e835-41c9-7c59-b049-ec7cfdc436a6",
+      "sha256": "0083036975e7b5af42b7b766ba3fe3e616a56531cca8d1a1e6b3a0b9213b6a65"
+    },
+    {
+      "session_id": "01a0e8dd-a000-7baa-9ce7-e0ef4a6126c5",
+      "sha256": "9046c9dd57c7fed5e4e11e36d204a8619d737168f2d1d265109b54df4d840e30"
+    },
+    {
+      "session_id": "01a0e91a-d599-72e9-9e60-553f79decc38",
+      "sha256": "196c81d9df314e7d4742d832842b0127f92e7ed0c57cf25e4e952675c2e2751e"
+    },
+    {
+      "session_id": "01a0ed36-2d89-70d2-8f56-88cffc3ba068",
+      "sha256": "05101c8a1651a9afbf20a1a685ed6763735bd2a2990bdbddc694e899724c3554"
+    },
+    {
+      "session_id": "01a0edc2-1b50-77a0-a506-8533fe5d6ef0",
+      "sha256": "99d619291b0209f26655b3fc752dc31b9188baf49249550d60c040beac814125"
+    },
+    {
+      "session_id": "01a0f454-f73f-7b09-93e1-4ef4150b59f9",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_id": "01a0f455-53e3-7884-aba2-f52c5bfc623d",
+      "sha256": "811a639042714ffe305abc13a9daacf3e91ae59c46a80adfa43cc1b079f0f50a"
+    },
+    {
+      "session_id": "01a105bb-dd48-7568-9130-f9a5301603f2",
+      "sha256": "43fcecec7d91e16189fad4ccc4cf3aee0e7fa6674f757f49bff699d16a47c6d1"
+    },
+    {
+      "session_id": "01a10c23-6e55-7792-b700-85aff45d25aa",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_id": "01a10c2a-d38f-729d-8e90-8b17882c2a9f",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_id": "01a10c31-9704-785d-8156-d67c9e5d05df",
+      "sha256": "580b67aeb40ff80f50de4e74f2d367b9dace268be143904f51551213862eec9d"
+    },
+    {
+      "session_id": "01a10cb7-0733-7fe6-812b-5c09b63004f1",
+      "sha256": "42f6abcd67f548664c610fca0bcd4ae53ac5d87e82acc334a58fb620eda8155f"
+    },
+    {
+      "session_id": "01a10ce3-3882-752f-955e-45949dc44b7d",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_id": "01a10ce3-7576-71c8-9561-bea27b8e313a",
+      "sha256": "eb0eee915013ce321db66e17e2f662fb79d462a498c9157d515f120e94d753c7"
+    },
+    {
+      "session_id": "01a10e9c-ec95-7344-8030-f1cc9b3780fe",
+      "sha256": "bacd259e0e470565e440e91996ce4abd2bcebf56331fdfb0ca5e9fa7c27efcae"
+    },
+    {
+      "session_id": "01a10f71-d931-7c73-92ec-d8ce3200ffdf",
+      "sha256": "7b8a9432bf1e8b5b2166e8e7f18281d1a9e051e6d4730520e5ea2b2720d22bee"
+    },
+    {
+      "session_id": "01a10fae-58a1-731f-9791-1d7b95608ec0",
+      "sha256": "b827ec0ebfa58e0a18b20966a0b7ea883d434abb05df6e11187ddb230d66617a"
+    },
+    {
+      "session_id": "01a1103c-ded0-75af-b7bc-e6f6c1c642ec",
+      "sha256": "1f4aef94a813a6f47ce1f4894e1e980b66d0e08e33c370c74fe567e29efc5dd2"
+    },
+    {
+      "session_id": "01a11050-59ce-7b3d-8938-c72350b44f5e",
+      "sha256": "a46a334d645600f60befd04f8db52c18c014a4adada53ba48c01f3faddc99c51"
+    },
+    {
+      "session_id": "01a0f68d-6f41-76bf-a42e-9345f533fd4f",
+      "sha256": "674e8a51c6e9fe392d11e424fac239332dee984813fc8cdd766590b2ccfc9718"
+    },
+    {
+      "session_id": "01a0f770-e5d8-7504-b9d9-d020f0e8de17",
+      "sha256": "0e02c83a001ad537923bfa035cf11a19f5ad35dc701b1ff3a67f8b910f706791"
+    },
+    {
+      "session_id": "01a0fd87-1c95-7230-b6ab-0bd62e09fdda",
+      "sha256": "2cde3a1c08e0ccab910484dbb198fb204d9ae37fb16be74b292d5c6a7056c7f4"
+    },
+    {
+      "session_id": "01a10450-619f-74fc-8ce6-db3741870da4",
+      "sha256": "e91c650827b06f1ddc7a127887fc1b8f01b84fac940360f7fe1760a3666e433e"
+    },
+    {
+      "session_id": "01a104b4-a32f-7c21-ba9f-419fcfc42055",
+      "sha256": "e0cf43f80de3ffbbf5c1dafe2ba70c95b0052a051fa7ead44341f2a34b4b9142"
+    },
+    {
+      "session_id": "01a10200-d46b-76d1-8331-63a8610091de",
+      "sha256": "6e8c0bca3f03bdae5a75a6efad3285b5ded93e28626f1e592d2737e6920e3e29"
+    },
+    {
+      "session_id": "01a107f8-ac03-75f6-9708-64978c3eee95",
+      "sha256": "ab424972b5a5a461bdb6bf357926156ecc63e102a73895cef6254ae9bed1a48d"
+    },
+    {
+      "session_id": "w20-20261006-1918",
+      "sha256": "023fd68772948532abc19a0a119080d8307eb5fcf4df252fdc12053d7382dec1"
+    },
+    {
+      "session_id": "w24-20261006-2359",
+      "sha256": "abcdd8e19bd04cece5a984438022fb5582e7788a8d7542709c1dfcc64212d4ad"
+    },
+    {
+      "session_id": "w27-20261006-2359",
+      "sha256": "faedfcc33b79964e8d6b23baa2fa59e74e560ddc1779b691a92cb86a26a64619"
+    },
+    {
+      "session_id": "w32-20261006-1918",
+      "sha256": "c21b8dd1265e3d3458efe68ebe7e630cecf91eed7fb35e395731a178c0e50269"
+    },
+    {
+      "session_id": "01a116f9-2210-77d7-9897-aedad6be77c0",
+      "sha256": "b210ff8faf646dd385f9794982da1474a229fd49b07b492c50944d49516e5b28"
+    },
+    {
+      "session_id": "w35-console-20261009-0815",
+      "sha256": "d5c6875b4a6f0b85b9eabe7b7247c07688d97865ce0fad7c16b52bb60859ca88"
+    },
+    {
+      "session_id": "w35-party-20261009-0815",
+      "sha256": "317f5b150bb9824a807f2f8ccbbabe6be2bd18aae4d57c7bf3cb43b53b0e4835"
+    },
+    {
+      "session_id": "w35-r2-K-20261009-1227",
+      "sha256": "1875e5fec273e393701b6d26f76e223b99228c008cf44c79ecb84ada36a23318"
+    },
+    {
+      "session_id": "w35-r2-S-20261009-1227",
+      "sha256": "8fe2738d5ccd35fdd219dd251f2e8bba5ec82b159680401f35f3b78adcc1e7b5"
+    },
+    {
+      "session_id": "w35-r3-20261009-1518",
+      "sha256": "f2fe49916634f839269cb8dcfeda0dead8bb8c0d742bf0b82c42d06938d06909"
+    },
+    {
+      "session_id": "w43-must-20261013",
+      "sha256": "16bd154dbbb34d108b63ee2ace8ca3133d4a6b67de2fc5c2cd50cc60fba20e97"
+    },
+    {
+      "session_id": "w43-must-20261013b",
+      "sha256": "b80ed515dc3b33f3f3b3813a586cd2852277b683bd61a6d8d8f41b741b476669"
+    },
+    {
+      "session_id": "w43-must-20261013c",
+      "sha256": "b2be25af77190764609a98f4beb3253a657a0beec36c197137460f85dc2710f2"
+    },
+    {
+      "session_id": "w43-should-20261013",
+      "sha256": "1f2a741895e617fe7d192206b47c385728d62df7d46a404ffa082df5915164b1"
+    },
+    {
+      "session_id": "w43-should-20261013b",
+      "sha256": "a8512f555fc45efc7db907f48d28acec4a19568b62b23186eafcb9623ecc7890"
+    },
+    {
+      "session_id": "w43-should-20261013c",
+      "sha256": "616e3eecda5fbe70ce8bb3b7af4ab1a7ed796b2328130de911a5c37bd91fdcd9"
+    },
+    {
+      "session_id": "w44-solfixes-20261013",
+      "sha256": "13eef4cb4844cf2e54cda65f95d1052590f4a0f5f553949bf94d6ea56e320e04"
+    },
+    {
+      "session_id": "w47-luna-20261014-061217",
+      "sha256": "49205253d49d0d14130fe6ab59ee5474fb85dc14be496888cebff03ceefde13d"
+    }
+  ],
+  "privacy_rules": {
+    "private-path": "[USER_HOME]",
+    "project-store-path": "[LOCAL_PROJECT]-",
+    "email": "[REDACTED_EMAIL]",
+    "planner-name": "the planner",
+    "operator-name": "the operator",
+    "teammate-name": "the teammate",
+    "cloud-id": "[REDACTED_ACCOUNT_ID]",
+    "secret-prefix": "[REDACTED_SECRET]",
+    "bearer": "\\1[REDACTED_SECRET]",
+    "credential-assignment": "\\1[REDACTED_SECRET]",
+    "lowercase_os_user": "[REDACTED_OS_USER]",
+    "mac_temp_root": "[LOCAL_TEMP]/",
+    "codebuddy_uid": "codebuddy-[LOCAL_UID]",
+    "export_workspace": "[EXPORT_WORKSPACE]"
+  },
+  "exported_session_count": 8,
+  "recorded_message_count": 109,
+  "recorded_tool_event_count": 902,
+  "review_completed_at": "2026-10-14T22:50:15+08:00",
+  "independent_review": {
+    "model": "glm-5.3",
+    "provider": "ollama-cloud",
+    "reasoning": "provider-default",
+    "actual_session_id": "20261014_224010_c5b9ed",
+    "verdict": "PASS_WITH_NOTES",
+    "coverage": "All 109 message bodies fully read; all 902 tool events pattern-scanned, not full semantic reading",
+    "notes": {
+      "N1": "Three cancellation bodies retain CodeBuddy label; README discloses",
+      "N2": "Two harmless credential-shaped code/test tokens stay masked; README discloses",
+      "N3": "Proof-file byte scope corrected in parent record; frozen review input unchanged"
+    },
+    "source_equality": "Parent verified against unchanged originals; reviewer independently checked derivatives only"
+  }
+}

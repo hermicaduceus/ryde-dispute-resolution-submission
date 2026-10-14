@@ -1,12 +1,14 @@
-# Full CodeBuddy conversation archive
+# CodeBuddy conversation archive, audited baseline
 
-Exported 56 saved Ryde conversations with 990 user/assistant message records and 8220 tool-event records. This includes probes, repairs and interrupted sessions; it is not a curated set of completed builds.
+The 12 October 2026 export contains 56 saved Ryde conversations with 990 user/assistant message records and 8220 tool-event records. This includes probes, repairs and interrupted sessions; it is not a curated set of completed builds.
 
-**Status: conversation-history audit completed. Independent GLM review returned PASS_WITH_NOTES; its sole minor native-path finding is corrected and mechanically verified. Whole-repository/publication clearance is still separate.**
+**Baseline status: conversation-history audit completed. Independent GLM review returned PASS_WITH_NOTES; its sole minor native-path finding is corrected and mechanically verified. Whole-repository/publication clearance is still separate.**
+
+Later conversations are indexed separately in the [14 October additions](../additions-20261014/README.md). The earlier verdict and manifest apply only to this baseline; the addition review is separate.
 
 ## Scope and format
 
-- Discovered 67 Ryde-related JSONL logs. All 56 with both recorded user and assistant messages are exported. The remaining 11 one-sided/empty logs are listed in `manifest.json`, not silently discarded; originals remain private.
+- At the 12 October export cutoff, discovered 67 Ryde-related JSONL logs. All 56 with both recorded user and assistant messages are exported. The remaining 11 one-sided/empty logs are listed in `manifest.json`, not silently discarded; originals remain private.
 - Each session has a Markdown reading copy and scrubbed JSONL containing every saved user/assistant message and every recorded tool call/result.
 - Automatic compaction checkpoints, task notifications, local slash-command display and empty messages are retained here. They are labelled as recorded system/local activity, not presented as human-authored messages.
 - Reasoning, file snapshots and provider/internal metadata are excluded, with omissions counted in the manifest. This is conversation/tool history, not a byte-for-byte dump of the entire raw session store.
