@@ -910,7 +910,9 @@ class StartLiveCommand(unittest.TestCase):
         body = "\n".join(line for line in _read_text(self, START_LIVE_COMMAND).splitlines()
                          if not line.lstrip().startswith("#"))
         self.assertRegex(body,
-                         r'(?m)^\s*exec\s+(python3|"?\$\{?[A-Za-z_]+\}?"?)\s+tools/launch_live\.py\s*$')
+                         r'(?m)^\s*exec\s+(python3|"?\$\{?[A-Za-z_]+\}?"?)\s+tools/launch_live\.py\s+"\$@"\s*$')
+        self.assertNotRegex(body, r'(?m)^\s*exec\s*\(\s*\)',
+                            "the wrapper must not replace the shell exec builtin")
 
 
 class StartLiveBat(unittest.TestCase):
