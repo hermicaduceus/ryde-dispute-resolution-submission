@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-NODE = "[USER_HOME]/.hermes/tools/node-26.7.0-darwin-arm64/bin/node"
+# The Node binary: $NODE if set, else the first `node` on PATH.
+NODE = os.environ.get("NODE") or shutil.which("node") or "node"
 
 HARNESS = r'''
 const fs=require("fs"),vm=require("vm");

@@ -61,7 +61,8 @@ class ReadmeTruth(unittest.TestCase):
         self.assertRegex(body, r"(?i)failing test|red test|test first")
 
     def test_no_planning_tool_is_named_anywhere(self):
-        for name in ("the planner", "the planner", "another coding agent", "the vendor", "second-model"):
+        # Spelled in pieces so a publication scrub of these names cannot rewrite the guard itself.
+        for name in ("Her" + "mi", "Her" + "mes", "Clau" + "de", "Anthro" + "pic", "Op" + "us"):
             with self.subTest(name=name):
                 self.assertNotRegex(self.text, r"(?i)\b%s\b" % name)
 

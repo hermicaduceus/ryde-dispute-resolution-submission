@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tests.w23_b2_support import HARNESS, REPO, base_routes, bad, case_file, drive, ok, queue_row
+from tests.w23_b2_support import HARNESS, NODE, REPO, base_routes, bad, case_file, drive, ok, queue_row
 from tests.w23_support import Server
 
 import os
@@ -39,7 +39,7 @@ def drive_delayed(routes, actions=()):
     scenario = {"routes": routes, "actions": list(actions)}
     env = dict(os.environ, APP_JS=str(REPO / "ui" / "app.js"), SCENARIO=json.dumps(scenario))
     result = subprocess.run(
-        ["[USER_HOME]/.hermes/tools/node-26.7.0-darwin-arm64/bin/node", "-e", DELAYED],
+        [NODE, "-e", DELAYED],
         env=env, capture_output=True, text=True, timeout=60)
     if result.returncode:
         raise AssertionError("app.js harness failed: " + result.stderr)

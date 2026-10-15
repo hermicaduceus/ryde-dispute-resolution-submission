@@ -1,7 +1,7 @@
 {
   "permissions": {
     "deny": [
-      "Read(/[USER_HOME]/hermes-workspace/projects/tencent-ai-hackathon-2026/**)",
+      "Read(~/hermes-workspace/projects/tencent-ai-hackathon-2026/**)",
       "Read(./.env)",
       "Read(./.env.*)",
       "Read(./secrets/**)",
