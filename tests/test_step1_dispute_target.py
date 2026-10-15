@@ -20,6 +20,7 @@ with comments stripped, per the standing source-pin rules.
 
 from __future__ import annotations
 
+import json
 import re
 import unittest
 from pathlib import Path
@@ -103,10 +104,51 @@ class StatusPageDisputeParam(unittest.TestCase):
     def test_filters_by_dispute_id_only_on_matching_entries(self):
         body = _load_account_body()
         self.assertIn("entry.dispute_id === focused", body)
+        # The matched list must be the list that renders (a `disputes = disputes` no-op
+        # mutation passes the other source pins; this literal is what it breaks).
+        self.assertIn("disputes = matched;", body)
 
     def test_falls_open_when_nothing_matches(self):
         body = _load_account_body()
         self.assertIn("matched.length > 0", body)
+
+
+class MissingNsDisputeIdRefusal(unittest.TestCase):
+    """The exporter refuses a snapshot whose NS case file has no usable dispute id.
+
+    gpt-6.1-sol review of f7ec85a (2026-10-15, MINOR): the refusal shipped unpinned —
+    removing its guard left 90 relevant tests green. Each shape here must exit 2 with
+    exactly this refusal and leave nothing in --out; a dispute_id that is missing,
+    empty or not a string is all the refusal exists to catch.
+    """
+
+    REFUSAL = "the T-NS0202 run has no dispute_id in its case file"
+
+    def _refuse(self, change):
+        fx = w27.copy_fixture()
+        for label in w27.LABELS:
+            path = Path(fx[label]) / fx["ns_run"] / "case_file.json"
+            case = json.loads(path.read_text(encoding="utf-8"))
+            change(case)
+            path.write_text(json.dumps(case, indent=2) + "\n", encoding="utf-8")
+        out = w27.scratch_dir() / "site"
+        code, stdout, stderr = w27.run_cli(w27.export_args(fx, out, allow_mock=True))
+        return code, stderr, out
+
+    def _assert_refused(self, code, stderr, out):
+        self.assertEqual(2, code)
+        self.assertEqual([w27.REFUSAL_PREFIX + self.REFUSAL], w27.refusal_lines(stderr))
+        self.assertTrue(w27.is_empty_or_absent(out), "the refusal must leave nothing in --out")
+
+    def test_a_missing_dispute_id_is_refused(self):
+        self._assert_refused(*self._refuse(lambda case: case.pop("dispute_id")))
+
+    def test_an_empty_dispute_id_is_refused(self):
+        self._assert_refused(*self._refuse(lambda case: case.update(dispute_id="")))
+
+    def test_a_non_string_dispute_id_is_refused(self):
+        self._assert_refused(*self._refuse(lambda case: case.update(dispute_id=1)))
+        self._assert_refused(*self._refuse(lambda case: case.update(dispute_id=["PF-1"])))
 
 
 if __name__ == "__main__":
