@@ -169,7 +169,10 @@ class TripRequestLifecycle(unittest.TestCase):
                     self.assertTrue(out['error'])
                     self.assertTrue(out['nextDisabled'])
                     self.assertEqual(['step-trip'], out['visible'])
-                    self.assertEqual([{'id': 'step-trip', 'block': 'start'}], out['landings'])
+                    # W58: showError() brings its message into view first; the card landing
+                    # still comes LAST, so the step ends on the card exactly as before.
+                    self.assertEqual([{'id': 'trip-error', 'block': 'nearest'},
+                                      {'id': 'step-trip', 'block': 'start'}], out['landings'])
 
     def test_empty_stale_success_cannot_erase_a_new_populated_list(self):
         out = drive(self.reenter() + [resolve(1), SNAP, resolve(0, 'OLD', 0), SNAP])

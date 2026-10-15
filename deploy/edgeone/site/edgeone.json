@@ -1,0 +1,8 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/party/", "statusCode": 302 }
+  ],
+  "cloudFunctions": {
+    "python": { "maxDuration": 120 }
+  }
+}

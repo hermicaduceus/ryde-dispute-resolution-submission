@@ -141,6 +141,7 @@
     var node = document.getElementById(id);
     node.textContent = message;
     node.hidden = false;
+    node.scrollIntoView({ block: "nearest" });
   }
 
   function clearError(id) {
