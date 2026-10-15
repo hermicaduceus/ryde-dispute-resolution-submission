@@ -34,8 +34,9 @@ MOCK_LINE = ("export_replay: run(s) %s were recorded with the mock model; "
              "pass --allow-mock to export a test replay")
 SECRET_LINE = "export_replay: refusing to publish: a value from --secrets-file occurs in "
 RUN_STARTED_PAYLOAD = "0001-run-started.json"
-STEP_HREFS = ["/party/status.html?snapshot=after", "/index.html?snapshot=before&run=%s",
-              "/index.html?snapshot=after&run=%s", "/party/status.html?snapshot=after"]
+STEP_HREFS = ["/party/status.html?snapshot=after&dispute=%(ns)s",
+              "/index.html?snapshot=before&run=%(rd)s",
+              "/index.html?snapshot=after&run=%(rd)s", "/party/status.html?snapshot=after"]
 STEP_4 = "What the rider sees"
 SHIM_DRIVER = w27.REPO / "tests" / "browser" / "w27_replay_shim.cjs"
 
@@ -167,8 +168,9 @@ def _steps(out):
     return steps
 
 
-def _expected_steps(rd, texts):
-    hrefs = [href % rd if "%s" in href else href for href in STEP_HREFS]
+def _expected_steps(fx, texts):
+    hrefs = [href % {"rd": fx["rd_run"], "ns": fx["ns_dispute"]} if "%(" in href else href
+             for href in STEP_HREFS]
     return list(zip(hrefs, list(texts) + [STEP_4]))
 
 
@@ -525,12 +527,12 @@ class LandingSteps(_Base):
 
     def assertSteps(self, result, fx, texts):
         self.assertExported(result)
-        self.assertEqual(_steps(result["out"]), _expected_steps(fx["rd_run"], texts))
+        self.assertEqual(_steps(result["out"]), _expected_steps(fx, texts))
 
     def test_the_mock_fixture(self):
         export = w27.mock_export()
         self.assertEqual(export["code"], 0, export["stderr"][-2000:])
-        self.assertEqual(_steps(export["out"]), _expected_steps(export["fx"]["rd_run"], [
+        self.assertEqual(_steps(export["out"]), _expected_steps(export["fx"], [
             "A no-show case the AI decided alone: no action",
             "A detour case the AI held for a human: it proposed refund SGD 55.16",
             "The human approved: refund SGD 55.16",

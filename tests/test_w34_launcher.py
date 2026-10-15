@@ -122,7 +122,9 @@ FROZEN_W34 = {
     "docs/policy.md": "d6a3e63c4da7223af1e05e96f6e58982af2b9f2a3253348f79b8fd6aa2a3408e",
     "ui/party/driver.js": "fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff",
     # W35 (2026-10-08): ui/party/party.css and ui/party/party.js released (tests/test_w35_P.py).
-    "ui/party/status.js": "127098b1603b45d2ecbd1be7550362e4b6db23920fd7292a4b9588e09465c43e",
+    # Step-1 targeting round (2026-10-15): ui/party/status.js released for the ?dispute=
+    # focus param (tests/test_step1_dispute_target.py pins the new behaviour).
+    "ui/party/status.js": "fc62509fb8b4f5a2507a0a05620657016b3dc68859ab6badde9e5683549e4931",
 }
 # W35 lane C released ui/app.js and ui/styles.css above, SERVER_PREFIX_SHA, and ui/index.html's
 # ORIGINAL_PAGE_SHA entry: that round edits all four (tests/test_w35_C.py pins the new behaviour).

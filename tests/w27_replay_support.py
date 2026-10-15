@@ -52,7 +52,7 @@ LANDING_TITLE = "Ryde dispute resolution: replay"
 #: The mock fixture's landing steps. W27 fix round: steps 1-3 are built from the saved runs
 #: (docs/build-briefs/w27-fix-brief.md), so these are the texts the mock fixture's data produces.
 LANDING_STEPS = [
-    ("A no-show case the AI decided alone: no action", "/party/status.html?snapshot=after"),
+    ("A no-show case the AI decided alone: no action", "/party/status.html?snapshot=after&dispute=%(ns)s"),
     ("A detour case the AI held for a human: it proposed refund SGD 55.16",
      "/index.html?snapshot=before&run=%(rd)s"),
     ("The human approved: refund SGD 55.16", "/index.html?snapshot=after&run=%(rd)s"),

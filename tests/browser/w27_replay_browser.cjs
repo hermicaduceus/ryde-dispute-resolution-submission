@@ -7,7 +7,10 @@
  */
 const assert = require('node:assert/strict'), fs = require('node:fs');
 const puppeteer = require(process.env.PUPPETEER_MODULE || 'puppeteer');
-const [base, rd, recordedOn, output] = process.argv.slice(2);
+const [base, rd, recordedOn, output, prefixArg] = process.argv.slice(2);
+// Banner prefix: the mock-fixture export carries 'TEST REPLAY (mock model). '; a real-model
+// export carries none. Pass the prefix as the fifth argument when gating a real export.
+const prefix = prefixArg === undefined ? 'TEST REPLAY (mock model). ' : prefixArg;
 const report = { passed: false, pages: [], errors: [] };
 const sentence = (s) => 'Replay of saved runs recorded on ' + recordedOn + ', ' + s + ' the human decision. Forms work as a guided walk-through; nothing you submit is processed.';
 (async () => {
@@ -46,7 +49,7 @@ const sentence = (s) => 'Replay of saved runs recorded on ' + recordedOn + ', ' 
         });
         const snapshot = step.href.includes('snapshot=before') ? 'before' : 'after';
         assert.ok(state.bannerFirst, 'banner first on ' + step.href);
-        assert.equal(state.bannerText, 'TEST REPLAY (mock model). ' + sentence(snapshot));
+        assert.equal(state.bannerText, prefix + sentence(snapshot));
         assert.equal(state.switchText, snapshot === 'before' ? 'Show after the decision' : 'Show before the decision');
         assert.equal(state.overflow, false, 'horizontal overflow on ' + step.href + ' at ' + width);
         visits.push({ step: step.text, path: state.path, textSample: state.text.slice(0, 400) });

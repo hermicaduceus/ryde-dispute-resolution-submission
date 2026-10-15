@@ -560,7 +560,8 @@ def _fill_placeholders(template: str, values: Dict[str, str], where: str) -> str
     return text
 
 
-def _write_site(work: Path, rd_run_id: str, recorded_on: str, mock: bool, steps: List[str]) -> None:
+def _write_site(work: Path, rd_run_id: str, ns_dispute_id: str, recorded_on: str,
+                mock: bool, steps: List[str]) -> None:
     for source in sorted(UI_DIR.rglob("*")):
         if not source.is_file():
             continue
@@ -584,6 +585,7 @@ def _write_site(work: Path, rd_run_id: str, recorded_on: str, mock: bool, steps:
         {
             "{{RECORDED_ON}}": recorded_on,
             "{{RD_RUN_ID}}": rd_run_id,
+            "{{NS_DISPUTE_ID}}": ns_dispute_id,
             "{{STEP_1}}": html.escape(steps[0]),
             "{{STEP_2}}": html.escape(steps[1]),
             "{{STEP_3}}": html.escape(steps[2]),
@@ -646,6 +648,11 @@ def _export(args: argparse.Namespace) -> int:
             "--before and --after name different %s runs (%s, %s)" % (NS_TRIP_ID, ns_before, ns_after)
         )
 
+    ns_case = _read_json_object(before / ns_before / CASE_FILE_NAME)
+    ns_dispute_id = ns_case.get("dispute_id") if isinstance(ns_case, dict) else None
+    if not isinstance(ns_dispute_id, str) or not ns_dispute_id:
+        raise Refusal("the %s run has no dispute_id in its case file" % NS_TRIP_ID)
+
     if not args.allow_mock:
         refusal = _provider_refusal(before, after)
         if refusal:
@@ -658,7 +665,7 @@ def _export(args: argparse.Namespace) -> int:
         for label, snapshot in zip(LABELS, (before, after)):
             _record_snapshot(snapshot, work / "replay" / "data" / label)
         steps = _landing_steps(work, ns_before, rd_before)
-        _write_site(work, rd_before, recorded_on, mock=args.allow_mock, steps=steps)
+        _write_site(work, rd_before, ns_dispute_id, recorded_on, mock=args.allow_mock, steps=steps)
         _scan_for_secrets(work, secrets)
         _publish(work, out)
     finally:
