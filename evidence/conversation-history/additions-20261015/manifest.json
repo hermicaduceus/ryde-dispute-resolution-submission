@@ -1,11 +1,11 @@
 {
   "format_version": 1,
-  "exported_at": "2026-10-15T23:25:05+08:00",
+  "exported_at": "2026-10-15T23:38:42+08:00",
   "review_status": "MECHANICALLY_VERIFIED; INDEPENDENT_REVIEW_PENDING",
   "scope": "New saved Ryde conversations since the 2026-10-14 additions. Earlier exports remain unchanged.",
   "method": "Mechanical extraction from JSONL, not native export or an AI summary",
   "baseline_archive_source_sha256": "a1c9cdbf57694a708dcc05751b94c209b8d95d587512463e30185381ff7a8fcb",
-  "source_logs_discovered": 77,
+  "source_logs_discovered": 78,
   "prior_exported_sessions": 64,
   "prior_excluded_logs": 11,
   "sessions": [
@@ -101,6 +101,62 @@
       },
       "privacy_replacement_occurrences": {
         "private-path": 6,
+        "project-store-path": 0,
+        "email": 0,
+        "planner-name": 0,
+        "operator-name": 0,
+        "teammate-name": 0,
+        "cloud-id": 0,
+        "secret-prefix": 0,
+        "bearer": 0,
+        "credential-assignment": 0,
+        "lowercase_os_user": 0,
+        "mac_temp_root": 2,
+        "codebuddy_uid": 0,
+        "export_workspace": 0,
+        "other-product": 0,
+        "review-family": 0,
+        "other-vendor": 0,
+        "planner-product": 0
+      },
+      "content_review": "Pending",
+      "semantic_review_limit": "Independent review pending. Historical tests are not rerun."
+    },
+    {
+      "session_id": "w59c-readme-20261015-2340",
+      "project": "W59 CodeBuddy re-application round",
+      "source_sha256": "f4edaf2f57590e74dea5763a0dc76bd8fe032700a2d7259037015b227975ec79",
+      "source_record_count": 32,
+      "source_record_types": {
+        "message": 6,
+        "file-history-snapshot": 2,
+        "reasoning": 8,
+        "function_call": 8,
+        "function_call_result": 8
+      },
+      "source_message_roles": {
+        "user": 1,
+        "assistant": 5
+      },
+      "recorded_start": "2026-10-15T23:37:23+08:00",
+      "recorded_end": "2026-10-15T23:38:29+08:00",
+      "markdown": "2026-10-15_codebuddy-cli_w59c-readme-20261015-2340.md",
+      "jsonl": "2026-10-15_codebuddy-cli_w59c-readme-20261015-2340.jsonl",
+      "message_count": 6,
+      "tool_event_count": 16,
+      "included_record_count": 22,
+      "omitted_record_types": {
+        "file-history-snapshot": 2,
+        "reasoning": 8
+      },
+      "markdown_sha256": "7894561f94bfd96940851aa7314b78628b4e05af51242bb37f57b8e5f8d5a782",
+      "jsonl_sha256": "7b56d5e85d58aa5c4d9b90e114a5bf8e846f9d5cf39a112b4b72058c4d70c842",
+      "presentation_labels": {
+        "Recorded user-side message": 1,
+        "CodeBuddy": 5
+      },
+      "privacy_replacement_occurrences": {
+        "private-path": 5,
         "project-store-path": 0,
         "email": 0,
         "planner-name": 0,
@@ -334,6 +390,10 @@
       "sha256": "ed43ec3fc9181a4e9c9a93bc1ef975233bc47986b4c5cc8dbfa45236a234d063"
     },
     {
+      "session_id": "w59c-readme-20261015-2340",
+      "sha256": "f4edaf2f57590e74dea5763a0dc76bd8fe032700a2d7259037015b227975ec79"
+    },
+    {
       "session_id": "01a0f68d-6f41-76bf-a42e-9345f533fd4f",
       "sha256": "674e8a51c6e9fe392d11e424fac239332dee984813fc8cdd766590b2ccfc9718"
     },
@@ -454,7 +514,7 @@
     "other-vendor": "the vendor",
     "planner-product": "the planner"
   },
-  "exported_session_count": 2,
-  "recorded_message_count": 40,
-  "recorded_tool_event_count": 132
+  "exported_session_count": 3,
+  "recorded_message_count": 46,
+  "recorded_tool_event_count": 148
 }

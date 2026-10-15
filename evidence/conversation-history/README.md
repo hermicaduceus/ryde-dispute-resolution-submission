@@ -12,7 +12,7 @@ The [later-history index](additions-20261014/README.md) adds 8 saved W43/W44/W47
 
 ## Re-application round, 15 October
 
-The [15 October addition](additions-20261015/README.md) adds 2 saved conversations, 40 message records and 132 tool-event records: the CodeBuddy session that re-applied three application edits first made outside the build lane, removed `CLAUDE.md` and recorded the disclosure in `docs/tool-experiences.md`, and a short follow-up session that linked the hosted EdgeOne sites from the README. The inventory check found 77 saved logs and no other new session. The baseline plus both additions contains **66 distinct conversations, 1139 message records and 9254 tool-event records** at the 15 October export cutoff.
+The [15 October addition](additions-20261015/README.md) adds 3 saved conversations, 46 message records and 148 tool-event records: the CodeBuddy session that re-applied three application edits first made outside the build lane, removed `CLAUDE.md` and recorded the disclosure in `docs/tool-experiences.md`, and two short follow-up sessions that linked the hosted EdgeOne sites from the README and corrected the replay description. The inventory check found 78 saved logs and no other new session. The baseline plus both additions contains **67 distinct conversations, 1145 message records and 9270 tool-event records** at the 15 October export cutoff.
 
 **Addition status: mechanically verified at export; independent review pending.** Earlier transcripts and manifests are unchanged.
 
