@@ -118,7 +118,7 @@ FROZEN_RUNTIME = {
     "app/llm/tencent.py": "fc1d122fce5bb4b73827786598a8825432b80faf33c7e88278d977f2c732a851",
     "app/pipeline.py": "1725249bde875d9d3b317e5b414d35042756bd85f8cfab8b2baee5664386f0f0",
     "app/policy.py": "0d2899305cf68260f3748fa030f304183edcbb8a44fddeaedda7ed3bdd00c4e5",
-    "app/schemas.py": "371334cabd7a75f23dd2f6cb353adccfef48b16fb0197befe5e80e6b33360ce5",
+    "app/schemas.py": "02b86be5537ad8473f79f69598f9b0608bc61ec1a94d890eca5d1f6b78ed2f78",
 }
 # W35 lane C released STYLES_CSS_SHA: that round edits ui/styles.css (tests/test_w35_C.py pins it).
 

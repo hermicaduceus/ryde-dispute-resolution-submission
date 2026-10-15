@@ -33,6 +33,9 @@ if any of them does not match exactly once.
 Upload the zip in the EdgeOne Makers console (project, Deploy, upload). Environment variables
 apply only to a new deployment, so redeploy after changing one.
 
+The bundle deployed on 15 Oct 2026 was built before a comment edit: its `app/schemas.py` differs
+from this repository by one docstring line and is otherwise byte-identical.
+
 ## Keys
 
 The adapter reads three Tencent ADP app keys from the EdgeOne project's environment variables:
