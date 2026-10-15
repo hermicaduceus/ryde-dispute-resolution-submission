@@ -17,6 +17,7 @@ tests/browser/replay_walkthrough.cjs (390px and 1280px).
 
 from __future__ import annotations
 
+import json
 import re
 import unittest
 from pathlib import Path
@@ -95,6 +96,44 @@ class WaitingStepBuilder(unittest.TestCase):
         waiting = re.search(r"def _step_waiting\(.*?\n(?=def |\Z)", code, re.S)
         self.assertIsNotNone(waiting, "_step_waiting not found in export_replay.py")
         self.assertIn('"under_review"', waiting.group(0))
+
+
+class MissingRdDisputeIdRefusal(unittest.TestCase):
+    """The exporter refuses a snapshot whose RD case file has no usable dispute id.
+
+    gpt-6.1-sol review of dec6cab (2026-10-15, MINOR 2): the RD refusal shipped unpinned —
+    deleting its guard left 111 relevant tests green, the same class as the NS refusal in
+    the previous round. Each shape must exit 2 with exactly this refusal and leave nothing
+    in --out.
+    """
+
+    REFUSAL = "the T-RD0109 run has no dispute_id in its case file"
+
+    def _refuse(self, change):
+        fx = w27.copy_fixture()
+        for label in w27.LABELS:
+            path = Path(fx[label]) / fx["rd_run"] / "case_file.json"
+            case = json.loads(path.read_text(encoding="utf-8"))
+            change(case)
+            path.write_text(json.dumps(case, indent=2) + "\n", encoding="utf-8")
+        out = w27.scratch_dir() / "site"
+        code, _stdout, stderr = w27.run_cli(w27.export_args(fx, out, allow_mock=True))
+        return code, stderr, out
+
+    def _assert_refused(self, code, stderr, out):
+        self.assertEqual(2, code)
+        self.assertEqual([w27.REFUSAL_PREFIX + self.REFUSAL], w27.refusal_lines(stderr))
+        self.assertTrue(w27.is_empty_or_absent(out), "the refusal must leave nothing in --out")
+
+    def test_a_missing_dispute_id_is_refused(self):
+        self._assert_refused(*self._refuse(lambda case: case.pop("dispute_id")))
+
+    def test_an_empty_dispute_id_is_refused(self):
+        self._assert_refused(*self._refuse(lambda case: case.update(dispute_id="")))
+
+    def test_a_non_string_dispute_id_is_refused(self):
+        self._assert_refused(*self._refuse(lambda case: case.update(dispute_id=1)))
+        self._assert_refused(*self._refuse(lambda case: case.update(dispute_id=["PF-1"])))
 
 
 class BannerBackLink(unittest.TestCase):

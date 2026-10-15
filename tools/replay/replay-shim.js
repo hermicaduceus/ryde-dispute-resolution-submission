@@ -224,11 +224,15 @@
     var back = document.createElement("a");
     back.setAttribute("id", "replay-back");
     back.setAttribute("href", "/replay/");
+    // Spacing via the CSSOM (no text node), so the banner sentence pins stay exact and a
+    // strict style-src CSP still allows it. sol review of dec6cab, MINOR 1.
+    back.style.marginLeft = "1em";
     back.appendChild(document.createTextNode("Back to the steps"));
     banner.appendChild(back);
     var link = document.createElement("a");
     link.setAttribute("id", "replay-switch");
     link.setAttribute("href", switchHref(snapshot));
+    link.style.marginLeft = "1em";
     link.appendChild(document.createTextNode(
       snapshot === "before" ? "Show after the decision" : "Show before the decision"
     ));

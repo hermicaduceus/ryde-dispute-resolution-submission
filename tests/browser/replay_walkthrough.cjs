@@ -48,7 +48,17 @@ const report = { passed: false, widths: [], errors: [] };
       const backOnPage = () => page.evaluate(() => {
         const banner = document.getElementById('replay-banner');
         const back = banner && banner.querySelector('#replay-back');
-        return { hasBanner: Boolean(banner), hasBack: Boolean(back),
+        const sw = banner && banner.querySelector('#replay-switch');
+        // sol review of dec6cab (MINOR 1): the two anchors must not touch. Compare the
+        // back link's last line fragment with the switch's first; on the same line the
+        // switch must start at least 6px after the back link ends.
+        let gapOk = false;
+        if (back && sw) {
+          const b = Array.from(back.getClientRects()).pop();
+          const s = sw.getClientRects()[0];
+          gapOk = Math.abs(b.top - s.top) > 2 || (s.left - b.right) >= 6;
+        }
+        return { hasBanner: Boolean(banner), hasBack: Boolean(back), gapOk,
                  href: back ? back.getAttribute('href') : null,
                  text: back ? back.textContent.trim() : null };
       });
@@ -62,13 +72,16 @@ const report = { passed: false, widths: [], errors: [] };
       checks.bannerOnWaitingPage = waitingBack.hasBanner;
       checks.backLinkOnWaitingPage = waitingBack.hasBack && waitingBack.href === '/replay/' &&
         waitingBack.text === 'Back to the steps';
+      checks.backAndSwitchSeparatedOnWaitingPage = waitingBack.gapOk;
 
       await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }),
         page.evaluate(() => document.getElementById('replay-back').click())]);
       checks.backClickReturnsToLanding = (await page.title()).trim() === 'Ryde dispute resolution: replay';
 
       await page.goto(base + '/index.html?snapshot=before&run=' + rdRun, { waitUntil: 'networkidle0' });
-      checks.backLinkOnConsolePage = (await backOnPage()).hasBack;
+      const consoleBack = await backOnPage();
+      checks.backLinkOnConsolePage = consoleBack.hasBack;
+      checks.backAndSwitchSeparatedOnConsolePage = consoleBack.gapOk;
 
       await page.goto(base + '/party/status.html?snapshot=after', { waitUntil: 'networkidle0' });
       checks.finalShowsBothCards = (await page.$$('#account-list .step')).length === 2;
