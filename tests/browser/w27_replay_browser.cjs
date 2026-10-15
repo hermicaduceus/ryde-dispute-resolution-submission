@@ -31,7 +31,7 @@ const sentence = (s) => 'Replay of saved runs recorded on ' + recordedOn + ', ' 
       // Landing page: four steps, follow each link.
       await page.goto(base + '/replay/index.html', { waitUntil: 'networkidle0' });
       const steps = await page.$$eval('ol li a', (as) => as.map((a) => ({ text: a.textContent.trim(), href: a.getAttribute('href') })));
-      assert.equal(steps.length, 4);
+      assert.equal(steps.length, 5);
       const visits = [];
       for (const step of steps) {
         await page.goto(base + step.href, { waitUntil: 'networkidle0' });
@@ -41,7 +41,7 @@ const sentence = (s) => 'Replay of saved runs recorded on ' + recordedOn + ', ' 
           return {
             path: location.pathname + location.search,
             bannerFirst: Boolean(banner && document.body.firstElementChild === banner),
-            bannerText: banner ? Array.from(banner.childNodes).filter((n) => n.id !== 'replay-switch').map((n) => n.textContent).join('').trim() : null,
+            bannerText: banner ? Array.from(banner.childNodes).filter((n) => n.id !== 'replay-switch' && n.id !== 'replay-back').map((n) => n.textContent).join('').trim() : null,
             switchText: banner && banner.querySelector('#replay-switch') ? banner.querySelector('#replay-switch').textContent.trim() : null,
             overflow: document.scrollingElement.scrollWidth > window.innerWidth,
             text: document.body.innerText,

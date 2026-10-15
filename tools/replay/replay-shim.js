@@ -221,6 +221,11 @@
     banner.setAttribute("id", "replay-banner");
     banner.setAttribute("role", "note");
     banner.appendChild(document.createTextNode(bannerSentence(snapshot)));
+    var back = document.createElement("a");
+    back.setAttribute("id", "replay-back");
+    back.setAttribute("href", "/replay/");
+    back.appendChild(document.createTextNode("Back to the steps"));
+    banner.appendChild(back);
     var link = document.createElement("a");
     link.setAttribute("id", "replay-switch");
     link.setAttribute("href", switchHref(snapshot));

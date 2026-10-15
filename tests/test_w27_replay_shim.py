@@ -152,6 +152,10 @@ class ReplayShim(unittest.TestCase):
         other = "after" if snapshot == "before" else "before"
         self.assertEqual(banner["link"]["tag"], "A")
         self.assertEqual(banner["link"]["text"].strip(), "Show %s the decision" % other)
+        # Walkthrough round (2026-10-15): one click home from every page.
+        self.assertIsNotNone(banner["back"], "#replay-back must sit inside #replay-banner")
+        self.assertEqual((banner["back"]["tag"], banner["back"]["href"]), ("A", "/replay/"))
+        self.assertEqual(banner["back"]["text"].strip(), "Back to the steps")
         return banner["link"]["href"]
 
     def assertSwitchHref(self, href, path, query):

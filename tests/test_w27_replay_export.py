@@ -179,8 +179,9 @@ class ExportEndToEnd(unittest.TestCase):
         self.assertEqual(page.title.strip(), w27.LANDING_TITLE)
         self.assertEqual(len(page.lists), 1, "one numbered list of steps")
         steps = page.lists[0]
-        self.assertEqual(len(steps), 4)
-        expected = [(href % {"rd": self.fx["rd_run"], "ns": self.fx["ns_dispute"]}, text)
+        self.assertEqual(len(steps), 5)
+        expected = [(href % {"rd": self.fx["rd_run"], "ns": self.fx["ns_dispute"],
+                             "rd_dispute": self.fx["rd_dispute"]}, text)
                     for text, href in w27.LANDING_STEPS]
         actual = []
         for item in steps:

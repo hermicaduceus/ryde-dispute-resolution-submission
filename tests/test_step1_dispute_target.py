@@ -85,10 +85,12 @@ class LandingTargetsTheNoShowCase(unittest.TestCase):
 
     def test_step_one_targets_the_no_show_dispute(self):
         expected = "/party/status.html?snapshot=after&dispute=%s" % self.fx["ns_dispute"]
+        self.assertEqual(5, len(self.hrefs))
         self.assertEqual(expected, self.hrefs[0])
 
-    def test_step_four_keeps_the_full_account_list(self):
-        self.assertEqual("/party/status.html?snapshot=after", self.hrefs[3])
+    def test_the_final_step_keeps_the_full_account_list(self):
+        self.assertEqual(5, len(self.hrefs))
+        self.assertEqual("/party/status.html?snapshot=after", self.hrefs[4])
 
 
 class StatusPageDisputeParam(unittest.TestCase):

@@ -51,8 +51,11 @@ NOT_IN_REPLAY = {"error": "Not in this replay."}
 LANDING_TITLE = "Ryde dispute resolution: replay"
 #: The mock fixture's landing steps. W27 fix round: steps 1-3 are built from the saved runs
 #: (docs/build-briefs/w27-fix-brief.md), so these are the texts the mock fixture's data produces.
+#: The mock fixture's waiting step (its before dispute body is under_review).
+WAITING_STEP = "While a human reviews: the rider's case is still under review"
 LANDING_STEPS = [
     ("A no-show case the AI decided alone: no action", "/party/status.html?snapshot=after&dispute=%(ns)s"),
+    (WAITING_STEP, "/party/status.html?snapshot=before&dispute=%(rd_dispute)s"),
     ("A detour case the AI held for a human: it proposed refund SGD 55.16",
      "/index.html?snapshot=before&run=%(rd)s"),
     ("The human approved: refund SGD 55.16", "/index.html?snapshot=after&run=%(rd)s"),

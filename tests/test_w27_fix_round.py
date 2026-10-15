@@ -35,6 +35,7 @@ MOCK_LINE = ("export_replay: run(s) %s were recorded with the mock model; "
 SECRET_LINE = "export_replay: refusing to publish: a value from --secrets-file occurs in "
 RUN_STARTED_PAYLOAD = "0001-run-started.json"
 STEP_HREFS = ["/party/status.html?snapshot=after&dispute=%(ns)s",
+              "/party/status.html?snapshot=before&dispute=%(rd_dispute)s",
               "/index.html?snapshot=before&run=%(rd)s",
               "/index.html?snapshot=after&run=%(rd)s", "/party/status.html?snapshot=after"]
 STEP_4 = "What the rider sees"
@@ -168,10 +169,12 @@ def _steps(out):
     return steps
 
 
-def _expected_steps(fx, texts):
-    hrefs = [href % {"rd": fx["rd_run"], "ns": fx["ns_dispute"]} if "%(" in href else href
-             for href in STEP_HREFS]
-    return list(zip(hrefs, list(texts) + [STEP_4]))
+def _expected_steps(fx, texts, waiting=None):
+    hrefs = [href % {"rd": fx["rd_run"], "ns": fx["ns_dispute"], "rd_dispute": fx["rd_dispute"]}
+             if "%(" in href else href for href in STEP_HREFS]
+    if waiting is None:
+        waiting = w27.WAITING_STEP
+    return list(zip(hrefs, [texts[0], waiting, texts[1], texts[2]] + [STEP_4]))
 
 
 class _Raw:
@@ -525,9 +528,9 @@ def _ruling(path, field, **changes):
 class LandingSteps(_Base):
     """Steps 1-3 state what the saved runs recorded; step 4, the links and the title do not move."""
 
-    def assertSteps(self, result, fx, texts):
+    def assertSteps(self, result, fx, texts, waiting=None):
         self.assertExported(result)
-        self.assertEqual(_steps(result["out"]), _expected_steps(fx, texts))
+        self.assertEqual(_steps(result["out"]), _expected_steps(fx, texts, waiting=waiting))
 
     def test_the_mock_fixture(self):
         export = w27.mock_export()
@@ -549,7 +552,7 @@ class LandingSteps(_Base):
             "A no-show case: ruled",
             "A detour case: ruled",
             "The human changed it to: refund SGD 40.00",
-        ])
+        ], waiting="The rider's view of the detour case: decided")
 
     def test_an_approval_states_the_decision_record_not_the_proposal(self):
         # HAND-MADE SHAPE (planner, fix-round tightening 2026-10-07): the approval's own amount
@@ -574,7 +577,7 @@ class LandingSteps(_Base):
             "A no-show case: withheld",
             "A detour case: withheld",
             "The human rejected it: no action",
-        ])
+        ], waiting="The rider's view of the detour case: decided")
 
     def test_no_decision_recorded_and_a_no_show_with_a_human_decision(self):
         # HAND-MADE SHAPE: the after snapshot is a separate copy of before (no decision); NS-0202

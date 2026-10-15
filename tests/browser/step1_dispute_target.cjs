@@ -35,9 +35,9 @@ const report = { passed: false, widths: [], errors: [] };
 
       await page.goto(base + '/replay/', { waitUntil: 'networkidle0' });
       const hrefs = await page.$$eval('ol li a', (as) => as.map((a) => a.getAttribute('href')));
-      checks.landingStepOneTargetsNs = hrefs.length === 4 && hrefs[0].includes('dispute=' + ns);
-      checks.landingStepFourUnchanged = hrefs.length === 4 &&
-        hrefs[3] === '/party/status.html?snapshot=after';
+      checks.landingStepOneTargetsNs = hrefs.length === 5 && hrefs[0].includes('dispute=' + ns);
+      checks.landingFinalStepUnchanged = hrefs.length === 5 &&
+        hrefs[4] === '/party/status.html?snapshot=after';
 
       await page.goto(base + '/party/status.html?snapshot=after&dispute=' + ns, { waitUntil: 'networkidle0' });
       const one = await page.$$eval('#account-list .step', (cards) => cards.map((c) => c.textContent));

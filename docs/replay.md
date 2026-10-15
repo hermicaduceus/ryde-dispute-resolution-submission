@@ -58,8 +58,8 @@ string — refuses before anything is recorded:
 
 - **NS-0202** — a no-show case the AI decided alone (trip id `T-NS0202`). The banner's "after"
   snapshot shows the ruling and the party's status page.
-- **RD-0109** — an above-cap detour held for a human (trip id `T-RD0109`). The console opens on
-  the held case (step 2 of the landing page, before the decision); step 3 shows the human's
+- **RD-0109** — an above-cap detour held for a human (trip id `T-RD0109`). The console opens on the
+  held case (step 3 of the landing page, before the decision); step 4 shows the human's
   approval.
 
 Each snapshot must hold exactly one run for each trip id, and it must be the same run id in
@@ -67,11 +67,15 @@ both. Otherwise the export refuses.
 
 ## The landing steps are built from the saved runs
 
-Steps 1-3 of `replay/index.html` are read from the recorded `GET /api/review/<run>/case` bodies,
-so the page states what the replay shows, not a fixed claim. Every step text is HTML-escaped
-when it is written. A ruling or proposal is phrased from its `action` and
-`recommended_amount_sgd`; the human decision from its `action` and `amount_sgd`. When the after
-snapshot holds no decision the third step reads `No human decision was recorded`.
+The landing page lists five steps. Steps 1-4 are read from the recorded bodies — step 1 and
+the waiting step from `GET /api/disputes/<dispute>` bodies, steps 3-4 from the recorded
+`GET /api/review/<run>/case` bodies — so the page states what the replay shows, not a fixed
+claim. Every step text is HTML-escaped when it is written. A ruling or proposal is phrased from its `action` and
+`recommended_amount_sgd`; the human decision from its `action` and `amount_sgd`. When the
+after snapshot holds no decision the fourth step reads `No human decision was recorded`.
+The waiting step reads the BEFORE dispute view: `While a human reviews: the rider's case is
+still under review` when its status is `under_review`, and the recorded status otherwise.
+The banner on every copied page also carries a `Back to the steps` link to `/replay/`.
 
 ## After the export
 

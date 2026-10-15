@@ -141,12 +141,17 @@ function bannerReport(doc) {
     const link = links[0];
     let top = link; while (top.parentNode && top.parentNode !== banner) top = top.parentNode;
     const index = banner.childNodes.indexOf(top);
-    report.textBefore = banner.childNodes.slice(0, index).map((n) => n.textContent).join('');
+    const firstAnchor = banner.childNodes.findIndex((n) => n.tagName === 'A');
+    report.textBefore = banner.childNodes.slice(0, firstAnchor === -1 ? index : firstAnchor)
+      .map((n) => n.textContent).join('');
     report.textAfter = banner.childNodes.slice(index + 1).map((n) => n.textContent).join('');
     report.link = { tag: link.tagName, text: link.textContent, href: link.getAttribute('href') };
   } else {
     report.textBefore = banner.textContent;
   }
+  const backs = banner._all().filter((n) => n.id === 'replay-back');
+  report.back = backs.length ? { tag: backs[0].tagName, text: backs[0].textContent,
+                                 href: backs[0].getAttribute('href') } : null;
   return report;
 }
 

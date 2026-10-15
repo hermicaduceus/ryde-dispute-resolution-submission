@@ -531,12 +531,23 @@ def _step_three(body: Dict[str, Any]) -> str:
     return "The human decided: %s" % (phrase if phrase is not None else _outcome_text(choice))
 
 
-def _landing_steps(work: Path, ns_run: str, rd_run: str) -> List[str]:
-    """Steps 1-3 from the recorded case bodies, so the page states what the replay shows."""
+def _step_waiting(body: Dict[str, Any]) -> str:
+    """What the rider waits through, from the recorded BEFORE dispute view."""
+    status = body.get("status")
+    if status == "under_review":
+        return "While a human reviews: the rider's case is still under review"
+    return "The rider's view of the detour case: %s" % (
+        status if isinstance(status, str) and status else "unknown")
+
+
+def _landing_steps(work: Path, ns_run: str, rd_run: str, rd_dispute_id: str) -> List[str]:
+    """Steps 1-4 from the recorded case bodies, so the page states what the replay shows."""
     ns_after = _recorded_json(work, "after", "GET /api/review/%s/case" % ns_run)
+    rd_waiting = _recorded_json(work, "before", "GET /api/disputes/%s" % rd_dispute_id)
     rd_before = _recorded_json(work, "before", "GET /api/review/%s/case" % rd_run)
     rd_after = _recorded_json(work, "after", "GET /api/review/%s/case" % rd_run)
-    return [_step_one(ns_after), _step_two(rd_before), _step_three(rd_after), "What the rider sees"]
+    return [_step_one(ns_after), _step_waiting(rd_waiting), _step_two(rd_before),
+            _step_three(rd_after), "What the rider sees"]
 
 
 # ------------------------------------------------------------------ static site
@@ -560,8 +571,8 @@ def _fill_placeholders(template: str, values: Dict[str, str], where: str) -> str
     return text
 
 
-def _write_site(work: Path, rd_run_id: str, ns_dispute_id: str, recorded_on: str,
-                mock: bool, steps: List[str]) -> None:
+def _write_site(work: Path, rd_run_id: str, ns_dispute_id: str, rd_dispute_id: str,
+                recorded_on: str, mock: bool, steps: List[str]) -> None:
     for source in sorted(UI_DIR.rglob("*")):
         if not source.is_file():
             continue
@@ -586,9 +597,11 @@ def _write_site(work: Path, rd_run_id: str, ns_dispute_id: str, recorded_on: str
             "{{RECORDED_ON}}": recorded_on,
             "{{RD_RUN_ID}}": rd_run_id,
             "{{NS_DISPUTE_ID}}": ns_dispute_id,
+            "{{RD_DISPUTE_ID}}": rd_dispute_id,
             "{{STEP_1}}": html.escape(steps[0]),
             "{{STEP_2}}": html.escape(steps[1]),
             "{{STEP_3}}": html.escape(steps[2]),
+            "{{STEP_4}}": html.escape(steps[3]),
         },
         "tools/replay/index.html",
     )
@@ -652,6 +665,10 @@ def _export(args: argparse.Namespace) -> int:
     ns_dispute_id = ns_case.get("dispute_id") if isinstance(ns_case, dict) else None
     if not isinstance(ns_dispute_id, str) or not ns_dispute_id:
         raise Refusal("the %s run has no dispute_id in its case file" % NS_TRIP_ID)
+    rd_case = _read_json_object(before / rd_before / CASE_FILE_NAME)
+    rd_dispute_id = rd_case.get("dispute_id") if isinstance(rd_case, dict) else None
+    if not isinstance(rd_dispute_id, str) or not rd_dispute_id:
+        raise Refusal("the %s run has no dispute_id in its case file" % RD_TRIP_ID)
 
     if not args.allow_mock:
         refusal = _provider_refusal(before, after)
@@ -664,8 +681,9 @@ def _export(args: argparse.Namespace) -> int:
     try:
         for label, snapshot in zip(LABELS, (before, after)):
             _record_snapshot(snapshot, work / "replay" / "data" / label)
-        steps = _landing_steps(work, ns_before, rd_before)
-        _write_site(work, rd_before, ns_dispute_id, recorded_on, mock=args.allow_mock, steps=steps)
+        steps = _landing_steps(work, ns_before, rd_before, rd_dispute_id)
+        _write_site(work, rd_before, ns_dispute_id, rd_dispute_id, recorded_on,
+                    mock=args.allow_mock, steps=steps)
         _scan_for_secrets(work, secrets)
         _publish(work, out)
     finally:
