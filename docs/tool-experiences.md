@@ -66,8 +66,8 @@ per session is enough; date each entry.
   to report rather than guess when the brief's own acceptance command was wrong (the brief
   said `discover tests`; the repo documents `-s tests -t .` — the brief's error, correctly
   refused by the builder).
-- The a second-model cross-family review (pinned per round, unset after; served id another coding agent-a second-model
-  — `a second-model` 404s in the delegation layer) found the acceptance tests were false-green:
+- The second-model cross-family review (pinned per round and unset after; the delegation layer
+  needs the full versioned model id, as the short alias returns 404) found the acceptance tests were false-green:
   8 of 13 injected mutations passed, because whole-file greps are satisfied by decoy rules
   and comments. Reproduced firsthand (4 of 13 spot-checked), then rewritten rule-pinned:
   every assertion now targets a named selector's declaration block, and a 12-mutation
@@ -110,3 +110,22 @@ per session is enough; date each entry.
   mutations and source reverts failed assertions. Physical-phone toolbar behaviour
   remains unverified. Genuine CLI transcripts are retained; no new chat screenshot
   was captured for this authorized headless work.
+
+## 2026-10-15: CodeBuddy re-applies three planning-agent app edits
+
+- Three application edits had been made outside the build lane by the planning agent, under
+  operator-approved deadline exceptions: `5a0c4ad` (13 Oct, `ui/party/party.js`: the rider
+  no-show absence question sits directly after the question list, above the amount), `87f1c3e`
+  (15 Oct, `ui/party/status.js`: replay step 1 — a `?dispute=<id>` link shows only that
+  dispute's card, falling open to the full list) and `c40114e` (15 Oct, `ui/party/party.js`:
+  `showError()` scrolls the revealed message into view).
+- At the operator's direction the planning agent removed them in the preparation commit
+  `9ca8aec`, and this CodeBuddy session re-applied them from this brief's exact text. Existing
+  digest pins require identical bytes. The earlier commits remain in history; nothing was
+  rewritten.
+- Separately, the planning agent corrected explanatory wording in `docs/policy.md` on
+  15 October after the publication review, with no rule, parameter or code change. The policy
+  has been written by the planning lane since the start, by design, so it was not re-run here.
+- `CLAUDE.md` was removed because CodeBuddy never used it; the same rule remains in
+  `CODEBUDDY.md`.
+- Session: CodeBuddy CLI v2.164.0 (headless), Deepseek-V4.1-Flash at max effort.
