@@ -141,7 +141,6 @@
     var node = document.getElementById(id);
     node.textContent = message;
     node.hidden = false;
-    node.scrollIntoView({ block: "nearest" });
   }
 
   function clearError(id) {
@@ -470,13 +469,7 @@
     absenceField = buildChoiceQuestion(ABSENCE_QUESTION);
     var host = questionList.parentNode;
     absenceHost = host && typeof host.appendChild === "function" ? host : stepDetails;
-    // Sits directly after the question list, above the amount field: it is a question
-    // about the incident, and the amount is the closing request before Send.
-    if (absenceHost === host && typeof host.insertBefore === "function") {
-      host.insertBefore(absenceField, questionList.nextSibling);
-    } else {
-      absenceHost.appendChild(absenceField);
-    }
+    absenceHost.appendChild(absenceField);
   }
 
   function buildQuestions() {

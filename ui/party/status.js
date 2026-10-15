@@ -144,28 +144,12 @@
     return card;
   }
 
-  // One dispute to focus on, when a link asks for it by reference (the replay's landing
-  // step 1 opens the no-show case by id). Null when absent or not a plain string.
-  function focusedDispute() {
-    var focused = new URLSearchParams(window.location.search).get("dispute");
-    return typeof focused === "string" && focused ? focused : null;
-  }
-
   function loadAccount() {
     request("GET", "/api/demo/rider").then(function (payload) {
       while (accountList.firstChild) {
         accountList.removeChild(accountList.firstChild);
       }
       var disputes = Array.isArray(payload.disputes) ? payload.disputes : [];
-      var focused = focusedDispute();
-      if (focused) {
-        var matched = disputes.filter(function (entry) {
-          return typeof entry === "object" && entry !== null && entry.dispute_id === focused;
-        });
-        if (matched.length > 0) {
-          disputes = matched;
-        }
-      }
       if (disputes.length === 0) {
         accountList.appendChild(element("p", "hint", "No disputes have been filed on this demo yet."));
         return;
