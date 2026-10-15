@@ -2,9 +2,9 @@
 
 **Version 1.0 · effective 2026-09-21 · applies to on-demand trips in Singapore**
 
-This document is the rule set the Judge agent applies. It is **data, not code**: the pipeline
-reads it at a known path, agents cite rules by ID, and a different policy document drops in
-with no code change.
+This document is the rule set the Judge agent reads. It is **data, not code**: the pipeline
+loads its text from a configured path and agents cite rules by ID. Replacing the text does not
+change the Python safeguards; the policy and those separately implemented gates must remain aligned.
 
 ---
 
@@ -50,8 +50,10 @@ Full citations with retrieval dates are in the research reports the team holds.
 
 ## Parameters
 
-Amounts and thresholds are collected here so they can be changed in one place. Rules reference
-them by name.
+Amounts and thresholds are collected here for reference; rules name them below. The autonomous
+cap and confidence threshold are configured separately in `app/config.json`. Other coded gate
+thresholds, including NS-6 and the route materiality/de minimis bounds, live in
+`app/agents/judge.py`. Editing this table alone does not change those controls.
 
 | Parameter | Value | Layer | Note |
 |---|---|---|---|
@@ -306,10 +308,13 @@ ensuring that accurate fares are charged to passengers", and directed a full aud
 reimbursement [PEER-DERIVED, regulatory]. A pricing error is the platform's to fix, not the
 rider's to absorb and not the driver's to pay for.
 
-Enforcement (2026-10-01): where `fare.difference_sgd` is at least the de minimis amount (SGD
-1.00) and a ruling refunds less than it, or nothing, the Judge withholds the ruling for a human.
-This gate is enforced in code beside the others. It never rewrites the amount; it only stops a
-short refund reaching the parties.
+Enforcement (2026-10-01): the floor is a finite `fare.difference_sgd`. If that figure is absent,
+no tariff rates are recorded and ESC-2 has not already withheld the case, the charge above an
+inconsistent breakdown (`fare.charged_sgd - fare.component_sum_sgd`, both finite) also proves a
+floor. At a floor of at least SGD 1.00, a ruling refunding less, or nothing, is withheld for a
+human. A stated non-finite difference is withheld as unreadable rather than using the fallback.
+The gate is enforced in code; it never rewrites the amount, only stops a short refund reaching
+the parties. These are existing safeguards, not additional monetary authority.
 
 ### RD-6 — Duration overrun is not, by itself, a fare dispute [SYNTHESISED]
 

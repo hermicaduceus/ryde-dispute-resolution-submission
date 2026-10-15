@@ -119,7 +119,7 @@ FROZEN_W34 = {
     "app/policy.py": "0d2899305cf68260f3748fa030f304183edcbb8a44fddeaedda7ed3bdd00c4e5",
     "app/prompt_view.py": "3b8472f60e51f99b98a1f96f4ba4fe403986701a3ad3bf74c23a73325db985f6",
     "app/schemas.py": "02b86be5537ad8473f79f69598f9b0608bc61ec1a94d890eca5d1f6b78ed2f78",
-    "docs/policy.md": "d6a3e63c4da7223af1e05e96f6e58982af2b9f2a3253348f79b8fd6aa2a3408e",
+    "docs/policy.md": "5a3ac0bd886af581d753a2353b4d7f38083d99a21cd7d3bf7c5fc4117e045a34",
     "ui/party/driver.js": "fff0dd47777ed9b872fa51deb51171a844f6b827e3c58d4ba90302cf0cbe70ff",
     # W35 (2026-10-08): ui/party/party.css and ui/party/party.js released (tests/test_w35_P.py).
     # Step-1 targeting round (2026-10-15): ui/party/status.js released for the ?dispute=

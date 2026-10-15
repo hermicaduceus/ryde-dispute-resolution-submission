@@ -139,7 +139,7 @@ the model in a prompt:
 | ESC-2, unmeasured deviation, unproven charge or unreadable fare input | `app/agents/judge.py` | On a route-deviation case, the ruling is withheld when `route.deviation_pct` is not a recorded finite figure; when `fare.charged_sgd` is not one, or the fare block is absent; or when the record states a fare input it cannot read (`fare.unreadable_inputs` non-empty: a broken tariff rate or promo). EV-1 names the deviation and the fare charged as the figures a fare finding needs, and a figure the record cannot prove is a missing figure |
 | NS-6, contested no-show | `app/agents/judge.py` | On a no-show case where the driver marked a no-show, the rider claims the driver was absent, and `cancellation.driver_distance_from_pickup_m` is null, the fee has no GPS proof: a refund is issued automatically only when the fee is at most SGD 10 and the rider's `fraud_flags` are recorded and zero with no more than half of past disputes rejected; any other ruling is withheld, and the refund must equal the fee to the cent |
 | NS-8, no-show refund ceiling | `app/agents/judge.py` | On a no-show case, a refund larger than the recorded `cancellation.cancellation_fee_sgd` is withheld — the fee is the ceiling every no-show rule orders within — and a `compensation` ruling is always withheld, because a no-show record proves nothing owed to the driver; a fee that is missing or not a recorded finite figure withholds any refund, since the records then prove no ceiling either way |
-| RD-5, proven overcharge | `app/agents/judge.py` | On a route-deviation case where `fare.difference_sgd` is recorded and at least SGD 1.00, a ruling that refunds less than the proven difference is withheld |
+| RD-5, proven overcharge | `app/agents/judge.py` | On a route-deviation case, the floor is a finite `fare.difference_sgd`, or, when no tariff rates are recorded and ESC-2 has not already withheld the case, the charge above an inconsistent breakdown (`fare.charged_sgd - fare.component_sum_sgd`, both finite). At a floor of at least SGD 1.00, a ruling refunding less is withheld. A stated non-finite difference is withheld as unreadable |
 | RD-4, unproven refund | `app/agents/judge.py` | On a route-deviation case, a refund larger than the records prove the rider overpaid is withheld — the proof is the largest of a positive `fare.difference_sgd`, the charge above an inconsistent breakdown total (EV-3, no rates needed), and, only for a material deviation under RD-1, the charge above `fare.recomputed_estimated_route_sgd` — and a `compensation` ruling is always withheld, because a route record proves nothing owed to the driver |
 | One-round follow-up limit | `app/pipeline.py` | `if questions and not dispute.follow_up_answers` — a dispute is asked at most once; with answers present the Judge always runs and fresh questions are recorded but not sent |
 | Out-of-scope routing | `app/pipeline.py` | `if not dispute.is_agent_handled` — anything outside route deviation and no-show charge goes to human review before any agent runs; an unrecognised category normalises to "other" in `app/dispute.py` |
@@ -247,9 +247,10 @@ read-only, and every rule above stays in Python.
 `docs/policy.md` is data, not code: rules with IDs (GEN, EV, RD, NS, ESC families),
 preconditions written against pack fields in plain language, and per-rule provenance
 stating whether a rule comes from Ryde's own published policy, a comparable operator, or
-the project team. The pipeline reads it at the path in `app/config.json`; a different
-policy document drops in with no code change. Nothing in the code evaluates the
-preconditions — the Judge reads the rules and applies them in its reasoning. Citing a rule
+the project team. The pipeline reads it at the path in `app/config.json`. Replacing the text
+does not change the Python safeguards; the policy and those gates must remain aligned.
+The Judge reasons about the remaining preconditions; the separately coded gates above enforce
+specific conditions and bounds. Citing a rule
 that does not exist is recorded rather than blocked: an unknown ID is logged under the
 ruling's `validation.unknown_rule_ids` with a note and the ruling still issues, but only
 titles of rules the policy actually defines can reach the party message.

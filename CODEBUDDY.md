@@ -55,9 +55,10 @@ These decisions are ruled by the team and are **not open to re-litigation**:
   estimate, fare recomputation, cancellation timestamps, chat-log signals, behaviour profile)
   is computed in Python into a typed **Evidence Pack**. Agents may cite pack fields; they must
   never do the arithmetic themselves.
-- **Policy as a swappable document:** `docs/policy.md`, rules with IDs and machine-checkable
-  preconditions, provenance stated in the file. The Judge and advocates cite rule IDs. A real
-  organiser version, if one ever arrives, drops in with no code change.
+- **Policy as a swappable document:** `docs/policy.md`, rules with IDs and provenance stated
+  in the file. The Judge and advocates cite rule IDs. Policy text can be loaded from another
+  path, but it and the separately implemented Python safeguards must remain aligned; a text
+  replacement does not change the gates or their configured thresholds.
 - **Dataset as a swappable document:** synthesised corpus in `data/`, labelled with
   ground-truth rulings (the correct ruling per case, by design) so replayed-run consistency is
   measurable. Same swap rule.

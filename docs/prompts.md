@@ -137,16 +137,17 @@ none of them is asked of the model:
   - **NS-8.** On a no-show case, a refund larger than the recorded cancellation fee is
     withheld; a compensation ruling is always withheld, and a fee the record cannot read
     withholds any refund. No action is never held by this gate.
-  - **RD-5.** On a route case, when the records prove an overcharge of at least the
-    SGD 1.00 de minimis, a ruling that refunds less than that proof is withheld; a
-    difference figure that is present but not a finite number is withheld too.
+  - **RD-5.** On a route case, a ruling below a proven overcharge of at least the
+    SGD 1.00 de minimis is withheld. Proof comes from a finite `fare.difference_sgd`, or, with no tariff rates
+    recorded and no ESC-2 hold, the charge above an inconsistent breakdown total. A stated
+    non-finite difference is withheld as unreadable; this fallback never replaces a broken rate.
   - **RD-4.** On a route case, a refund larger than the records prove the rider overpaid,
     or any compensation, is withheld.
-- **Retry and time budget.** Transient transport failures (timeouts and 5xx) retry with
-  backoff (2 s, 5 s, 10 s) inside a per-case time budget (`app/config.json`,
-  `llm.case_budget_seconds`, currently 120); other transport errors (a refused
-  connection, a firewall block) fail at once, and a budget that cannot cover the next
-  call escalates the case instead of hanging the party.
+- **Retry and time budget.** Transient transport failures, including timeouts, connection
+  refusals, HTTP 429 and retryable 5xx responses, retry up to three times with backoff
+  (2 s, 5 s, 10 s) inside a per-case time budget (`app/config.json`,
+  `llm.case_budget_seconds`, currently 120). Permanent errors such as firewall blocks fail at once;
+  a budget that cannot cover the next call escalates the case instead of hanging the party.
 
 ## Rider Advocate
 
