@@ -12,6 +12,13 @@ observable case-file view. The challenge statement is in
 
 ## Start here
 
+- **Try it online, nothing to install:** three copies are hosted on Tencent EdgeOne. The
+  [live AI site](https://ryde-dispute-live.edgeone.dev) runs the real Tencent model, with filings
+  limited per visitor and per day ([deploy notes](deploy/edgeone/README.md)). The
+  [practice site](https://ryde-dispute-demo.edgeone.dev) runs the deterministic mock. The
+  [guided replay](https://ryde-dispute-replay.edgeone.dev/replay/) walks through one recorded
+  real case from filing to human decision. Hosted cases are not permanent: an idle restart or a
+  redeploy clears them.
 - **Try it without a key:** [Run](#run). A new server from the standard launchers uses the deterministic mock; an existing Ryde server is reused as it is.
 - **Use approved Tencent access:** [Local live-copy guide](docs/live-copy.md). The live launchers are separate and need a private sidecar.
 - **Inspect the design:** [Architecture](docs/architecture.md), [policy](docs/policy.md) and [dataset](docs/dataset.md).
@@ -142,6 +149,9 @@ The live launcher uses port **8030** by default, opens the rider form rather tha
 and prints the actual party, operator and status URLs. It refuses an occupied port and
 does not silently fall back to the mock. If private access is unavailable, use the standard
 keyless launchers instead and label the result as mock.
+
+To try the real model without keys, use the hosted [live AI site](https://ryde-dispute-live.edgeone.dev)
+listed under [Start here](#start-here).
 
 ### Tests and command-line cases
 
