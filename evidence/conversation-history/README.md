@@ -10,6 +10,12 @@ The [later-history index](additions-20261014/README.md) adds 8 saved W43/W44/W47
 
 **Addition status: independently reviewed on GLM 5.3, PASS_WITH_NOTES.** Earlier transcripts and manifests are unchanged. A later CodeBuddy session requires another inventory check. The old audit does not clear these additions; W6 publication and form placement remain separate.
 
+## Re-application round, 15 October
+
+The [15 October addition](additions-20261015/README.md) adds 1 saved conversation, 34 message records and 116 tool-event records: the CodeBuddy session that re-applied three application edits first made outside the build lane, removed `CLAUDE.md` and recorded the disclosure in `docs/tool-experiences.md`. The inventory check found 76 saved logs and no other new session. The baseline plus both additions contains **65 distinct conversations, 1133 message records and 9238 tool-event records** at the 15 October export cutoff.
+
+**Addition status: mechanically verified at export; independent review pending.** Earlier transcripts and manifests are unchanged.
+
 ## Start here
 
 | Session | Recorded date | Messages | Reading copy |
@@ -37,7 +43,7 @@ This folder is a selected history, not every development session. Automatic comp
 
 Screenshots in the parent evidence folder and the platform usage export are separate proof artifacts. These text exports do not replace the minimum screenshot requirement.
 
-Publication status: locally prepared and privacy-filtered, but still subject to the final W6 whole-repository/publication review. Nothing here has been committed or pushed by the export step.
+Publication status: privacy-filtered and published with the public source repository after the W6 release review on 15 October. The export steps themselves never commit or push.
 
 ## Audit and presentation notes
 
