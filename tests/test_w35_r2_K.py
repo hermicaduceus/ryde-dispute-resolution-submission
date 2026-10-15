@@ -60,9 +60,9 @@ UNDER_REVIEW = "Your case is still under review. We will let you know as soon as
 
 RUN_A, RUN_B, RUN_C = C.RUN_A, C.RUN_B, C.RUN_C
 
-# app/agents/*, app/llm/*, docs/policy.md and data/ at 55204c1: sha256 over the sorted
-# "<path>\0<sha256>\n" lines of their 49 files.
-PROTECTED_TREE_SHA = "b637d6b500a76cafefe1b2caacf7179d44cc386ea3dd9365c189321f8b4b0021"
+# app/agents/*, app/llm/* and data/ stay frozen; docs/policy.md includes the approved
+# publication wording exception. sha256 over sorted "<path>\0<sha256>\n" lines of 49 files.
+PROTECTED_TREE_SHA = "9ab620793db5e297f0ee9675ae73503a2b841becdc90ed8c44f82dcf29d8418f"
 PROTECTED_TREE_FILES = 49
 # app/human_review.py at 55204c1 with load_decision removed (from "def load_decision(" up to the
 # party-message section marker): everything else in the human-decision module is unchanged.
