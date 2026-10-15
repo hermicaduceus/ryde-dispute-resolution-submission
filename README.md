@@ -16,9 +16,9 @@ observable case-file view. The challenge statement is in
   [live AI site](https://ryde-dispute-live.edgeone.dev) runs the real Tencent model, with filings
   limited per visitor and per day ([deploy notes](deploy/edgeone/README.md)). The
   [practice site](https://ryde-dispute-demo.edgeone.dev) runs the deterministic mock. The
-  [guided replay](https://ryde-dispute-replay.edgeone.dev/replay/) walks through one recorded
-  real case from filing to human decision. Hosted cases are not permanent: an idle restart or a
-  redeploy clears them.
+  [guided replay](https://ryde-dispute-replay.edgeone.dev/replay/) plays back two recorded real
+  cases: a no-show the AI decided alone, and a detour it held for a human decision. Hosted cases
+  are not permanent: an idle restart or a redeploy clears them.
 - **Try it without a key:** [Run](#run). A new server from the standard launchers uses the deterministic mock; an existing Ryde server is reused as it is.
 - **Use approved Tencent access:** [Local live-copy guide](docs/live-copy.md). The live launchers are separate and need a private sidecar.
 - **Inspect the design:** [Architecture](docs/architecture.md), [policy](docs/policy.md) and [dataset](docs/dataset.md).
