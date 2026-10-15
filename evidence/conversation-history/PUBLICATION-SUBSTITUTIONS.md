@@ -15,5 +15,7 @@ described in `README.md`:
 
 All commits carry one team author identity. No message was paraphrased and no tool output was
 rewritten to change what it reports. Folder names inside paths were left as they are, because the
-unedited screenshots show them too. Screenshots and the platform usage export are binary files and
-were not edited.
+unedited screenshots show them too. Screenshots were not edited. The platform usage export
+(`evidence/2026-10-10_codebuddy-cli_47-usage-export-api-call-log.xlsx`) received the same
+replacements inside the prompt text of its cells only; its 243 rows, 1,458 cells and every other
+value are unchanged. A PowerPoint lock file committed by mistake was removed from history.
