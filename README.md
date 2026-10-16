@@ -1,4 +1,8 @@
-# Ryde — Multi-Agent Autonomous Dispute Resolution
+# Fare Trial: Two Advocates, One Judge
+
+![Fare Trial: Two Advocates, One Judge](docs/cover.png)
+
+**Ryde — Multi-Agent Autonomous Dispute Resolution**
 
 Entry for the **Tencent Cloud "AI CAN DO IT" Hackathon Singapore 2026**, Digital Native track
 (the Ryde challenge statement, section 5 of the organisers' document).
