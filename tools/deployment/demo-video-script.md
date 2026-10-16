@@ -1,5 +1,7 @@
 # Demo video script (target 7:30, limit 8:00)
 
+**Historical draft, not current filming instructions.** Kept as presentation source, not the accepted recording script. Its local `start.bat` instruction launches the mock and must not be filmed as real AI; its replay date is historical. See [the recording handoff boundary](../../docs/live-copy.md#rehearsal-handoff).
+
 Format: **[ON SCREEN]** is what the viewer sees; plain text is spoken. About 140 words a
 minute. Challenge case study to name in the first line: **Digital Native track, Ryde:
 Multi-Agent Autonomous Dispute Resolution.**
@@ -238,4 +240,4 @@ Likely judge questions and short answers:
 - *"Where do the numbers come from?"* Revenue and expenses are from Ryde's published 1H 2026 results; trips, disputes and support cost are our assumptions, because Ryde publishes none. Shadow mode replaces them with measured data.
 - *"Does it pay back?"* On cost alone, in about 21 months at a 1% dispute rate, and it depends on that rate. The larger value is speed, consistency and retention, which we have not priced.
 - *"Is the AI accurate?"* We measured consistency on 17 synthesised cases, not real-world accuracy. Shadow mode produces that figure.
-- *"What if the model is wrong or attacked?"* Money gates, the SGD 50 cap and the confidence floor are Python checks; parties never see model text; a kill switch withholds every ruling.
+- *"What if the model is wrong or attacked?"* Money gates, the SGD 50 cap and the confidence floor are Python checks; parties never see model text. Before go-live we would add a kill switch that pauses every ruling.

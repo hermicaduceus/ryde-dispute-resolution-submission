@@ -2,7 +2,7 @@
 
 This addition covers 3 saved CodeBuddy conversations recorded on 15 October 2026: 46 message records and 148 tool-event records. It supplements the 12 October archive and the 14 October additions; no earlier exported transcript was rewritten.
 
-**Status: mechanically verified at export; independent review pending.**
+**Status: independently reviewed, PASS at public revision `3a278a8`.** The reviewer recomputed all three exports, counts and publication checks. This is not a new review of older exports or of the later checksum-metadata correction described in the [publication note](../PUBLICATION-SUBSTITUTIONS.md#export-checksums-after-publication).
 
 ## Reading index
 

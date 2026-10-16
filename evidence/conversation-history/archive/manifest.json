@@ -181,7 +181,7 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "a99f8227e24394ef138d2c1f611a0b070a8e4687547c192feb5be83d42d11d5e",
-      "jsonl_sha256": "b074a5c858198f2025ca868e82bbe73c17cd880d263f75a83ec3f5bb5295b050",
+      "jsonl_sha256": "f91a6279f69f99310c7af423437460805e4cac1f10e8e3683ee60a0df51abaa6",
       "presentation_labels": {
         "Automatic system notice": 2,
         "Local command display": 4,
@@ -190,7 +190,10 @@
         "Recorded user-side message": 2
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "b074a5c858198f2025ca868e82bbe73c17cd880d263f75a83ec3f5bb5295b050"
+      }
     },
     {
       "session_id": "01a0c3f1-1fe5-7fec-8439-5458eaa9fc66",
@@ -393,7 +396,7 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "143a361c1d9b204e3f5c305399ba48d9f86f34b50b0d2a3e96f19169e5d75fc8",
-      "jsonl_sha256": "73578bce912d103f210921e18d2211461a2961f7bd7b9cf27ccbe65b0241a682",
+      "jsonl_sha256": "b1bea9f2fd89df26d7fd8d17156ff095847f4e84768ad4fbf5c4921c28add666",
       "presentation_labels": {
         "Automatic system notice": 2,
         "Local command display": 2,
@@ -402,7 +405,10 @@
         "Automatic compaction checkpoint": 1
       },
       "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "73578bce912d103f210921e18d2211461a2961f7bd7b9cf27ccbe65b0241a682"
+      }
     },
     {
       "session_id": "01a0c8d2-b44a-71f2-9574-31e427384a28",
@@ -439,7 +445,7 @@
         "turn-metrics": 3
       },
       "markdown_sha256": "2b92aa7cc3fab0a1f12193e0b96c96263c1a339b92a9951df011a23be0e155c8",
-      "jsonl_sha256": "16bf4f3b511421e16c23159eccd7fa746c528dedd8c2ee8d6e0214895f2d572c",
+      "jsonl_sha256": "2538b01fc333da7a947da2cae0f551d61a1897f40ff7125a0a0c458e35e27094",
       "presentation_labels": {
         "Automatic system notice": 5,
         "Local command display": 6,
@@ -448,7 +454,10 @@
         "Automatic task notification": 1
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "16bf4f3b511421e16c23159eccd7fa746c528dedd8c2ee8d6e0214895f2d572c"
+      }
     },
     {
       "session_id": "01a0c935-adb8-7e46-a51f-e76d4bacb051",
@@ -485,7 +494,7 @@
         "turn-metrics": 1
       },
       "markdown_sha256": "4d626fb51efc8ad3e17b67d18dfbee688515288d1c4e5dcbfd92b66a250253c1",
-      "jsonl_sha256": "8161d7c326635cd550b33694f1a7caf5c53e29c125d556c9e794c2e12f72da8c",
+      "jsonl_sha256": "391f308e1c2b0481cbec33bcb1097df83b3300368c07735c3713c43efbfa8002",
       "presentation_labels": {
         "Recorded user-side message": 3,
         "Recorded provider error": 1,
@@ -494,7 +503,10 @@
         "Local command display": 2
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "8161d7c326635cd550b33694f1a7caf5c53e29c125d556c9e794c2e12f72da8c"
+      }
     },
     {
       "session_id": "01a0cdeb-0e67-7113-a0af-41f5607cd8ef",
@@ -619,13 +631,16 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "31dfef2bc80356125c5acf2c3ecd9b12efef7c0f5582984f0e61ad9724bf5e83",
-      "jsonl_sha256": "1dc9b999bf4c56381ebd1194dc2a6b6cdead6a19dda23256ebfd942b5771f6fc",
+      "jsonl_sha256": "e86f5e86a12b172f79394dd526f0f7ce984fa0eadaa5f755ae67f4d3ed4769fd",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 76
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "1dc9b999bf4c56381ebd1194dc2a6b6cdead6a19dda23256ebfd942b5771f6fc"
+      }
     },
     {
       "session_id": "01a0ced9-b636-7ca5-a0ea-20e98c093500",
@@ -750,13 +765,16 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "888857ec05ea5cb2b491c14217cbf14bea7543014338d59d1ac217fd0d0d6b15",
-      "jsonl_sha256": "02c0b00c8c4d3b51c12567e1c04266692f55b3bd74d19b1be2751d55a1f23e92",
+      "jsonl_sha256": "1590d55a6d4dbd08cd781ae20237037651dbce956fbd2c1cf7e3bd1aecf4f6cd",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 4
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "02c0b00c8c4d3b51c12567e1c04266692f55b3bd74d19b1be2751d55a1f23e92"
+      }
     },
     {
       "session_id": "01a0d644-dc5c-7534-81f3-f20b41ae6470",
@@ -793,13 +811,16 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "f7e428382ceec0c2a8f6e8df4eb732d142401f9f1c584f3bd7bf62c5aa38109c",
-      "jsonl_sha256": "6111ebbd7d2fbb2989c00fdc96d96c38288b879a149a7a947a8b84ef2003fed7",
+      "jsonl_sha256": "18f6e5cd3afd4b1f6fce179d36047996bef509071a0741823f2f7196fd0d79b5",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 2
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "6111ebbd7d2fbb2989c00fdc96d96c38288b879a149a7a947a8b84ef2003fed7"
+      }
     },
     {
       "session_id": "01a0d948-4d47-7e60-87e5-71f10ccc5ad8",
@@ -836,7 +857,7 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "da89fd5eb1f02766335ba2df845628ee47cb530518bbf2824d2d79c7b752c895",
-      "jsonl_sha256": "2f92e00b2c8301274d269331e07afd4bf6050f0cb99cd08fe6b9abe1867fa82d",
+      "jsonl_sha256": "6c09ac9e5790882f106fb5bc561709a031ecf14b0263c506388bb06a654b4670",
       "presentation_labels": {
         "Automatic system notice": 2,
         "Local command display": 4,
@@ -844,7 +865,10 @@
         "CodeBuddy": 17
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "2f92e00b2c8301274d269331e07afd4bf6050f0cb99cd08fe6b9abe1867fa82d"
+      }
     },
     {
       "session_id": "01a0e075-d3d1-795e-9179-d6a679d9226e",
@@ -880,14 +904,18 @@
         "summary": 1,
         "turn-metrics": 1
       },
-      "markdown_sha256": "dc397021f6283a1a412f19fd28f0fa98c5ceeb048e236643587ccce076a6ffd6",
-      "jsonl_sha256": "007e412d7891c86e4412ae70cc63ce8de74a73b23610d10f0593e916411a6fe0",
+      "markdown_sha256": "dfba150b39fda53e35be4affaca7531737b3eddf4b608cf13ae3c5898eff596b",
+      "jsonl_sha256": "acaef42ba9f592229354a5c677931ad8e2050983c69a7cd77e90780f41ee633c",
       "presentation_labels": {
         "Recorded user-side message": 1,
         "CodeBuddy": 6
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "markdown": "dc397021f6283a1a412f19fd28f0fa98c5ceeb048e236643587ccce076a6ffd6",
+        "jsonl": "007e412d7891c86e4412ae70cc63ce8de74a73b23610d10f0593e916411a6fe0"
+      }
     },
     {
       "session_id": "01a0e134-e386-73b8-9bf1-af95691d6200",
@@ -924,13 +952,16 @@
         "turn-metrics": 1
       },
       "markdown_sha256": "d4e077745742088b4e32b58a70bb3440b92a4f81634c871f74091f8afeff145d",
-      "jsonl_sha256": "aed2a9c4d25b6d465e4f61f5b6035cd1798381600da666a25f1de977beee1d1d",
+      "jsonl_sha256": "452b61cdeed8599a92d468c05a5a6d1cdd33a9b0aa9e97465477362415ac330f",
       "presentation_labels": {
         "Recorded user-side message": 1,
         "CodeBuddy": 4
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "aed2a9c4d25b6d465e4f61f5b6035cd1798381600da666a25f1de977beee1d1d"
+      }
     },
     {
       "session_id": "01a0e149-3b22-7128-a013-7de460e66ddc",
@@ -1190,14 +1221,17 @@
         "summary": 1
       },
       "markdown_sha256": "cecc7fd5485c35db61530ef79be70ee8ba7ec05eb827928b0c79579cf40bd1ce",
-      "jsonl_sha256": "6f9861fdbb195a9ab6ad8eba52640ed6704ffd594bc5d1a5a571f74cbd5c9ab5",
+      "jsonl_sha256": "9f7d22e37e561e587e6e667ec2de3973d46e911f1faffd1a06dcc485520b3c66",
       "presentation_labels": {
         "Recorded user-side message": 1,
         "Automatic task notification": 2,
         "CodeBuddy": 1
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "6f9861fdbb195a9ab6ad8eba52640ed6704ffd594bc5d1a5a571f74cbd5c9ab5"
+      }
     },
     {
       "session_id": "01a0edc2-1b50-77a0-a506-8533fe5d6ef0",
@@ -1234,13 +1268,16 @@
         "turn-metrics": 1
       },
       "markdown_sha256": "78c71cd9b3d31316d9e13622036701b03b976beaed6ec4fc9dc91b1309b195f5",
-      "jsonl_sha256": "864c86b781400500eb0337e60c0424b199c951e80d07bee751ce6c483924ed47",
+      "jsonl_sha256": "68ebb851bc90b30e48a7dbe4c576f79fea483ebb0e59942737a535c2bd4eb698",
       "presentation_labels": {
         "Recorded user-side message": 1,
         "CodeBuddy": 12
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "864c86b781400500eb0337e60c0424b199c951e80d07bee751ce6c483924ed47"
+      }
     },
     {
       "session_id": "01a0f455-53e3-7884-aba2-f52c5bfc623d",
@@ -1320,13 +1357,16 @@
         "turn-metrics": 1
       },
       "markdown_sha256": "8116ff7254ff7ccc12fad59fe1e3f12d82050b9b9c9ac67bb144adc918ed0774",
-      "jsonl_sha256": "5f1ff401acd82cd75006c659780fc57710bf26312126f82130ad6ef5c4bb455c",
+      "jsonl_sha256": "6981140f66008e802bda387925d4941e50d1ef62f9c9a9a9930be2ca085e7e02",
       "presentation_labels": {
         "Recorded user-side message": 1,
         "CodeBuddy": 6
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "5f1ff401acd82cd75006c659780fc57710bf26312126f82130ad6ef5c4bb455c"
+      }
     },
     {
       "session_id": "01a0f770-e5d8-7504-b9d9-d020f0e8de17",
@@ -1407,13 +1447,16 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "65fef8b96c6d57b083e2062707ab8c2c6a63e53103d119ec72e48a4ec1c2d439",
-      "jsonl_sha256": "d9f9f41f4c84d76c97b3842efe4402e43327ec9eac541a85d3c9e8f2b8d74d73",
+      "jsonl_sha256": "6d7ba6664ceab43d530468cdfbdaf469a37cd001c790c2d64ca7585010a77d81",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 18
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "d9f9f41f4c84d76c97b3842efe4402e43327ec9eac541a85d3c9e8f2b8d74d73"
+      }
     },
     {
       "session_id": "01a10200-d46b-76d1-8331-63a8610091de",
@@ -1450,14 +1493,17 @@
         "summary": 1
       },
       "markdown_sha256": "796e4c63fb2c82afc3e79536d925581b08c8c438ba6f721f1ab1a58e2e88f79e",
-      "jsonl_sha256": "1889e51b92b5611d21cbbdda4ec8a2e9c118697ee2227b6585b7bc5e7b7f73da",
+      "jsonl_sha256": "c24e696f0e78db2699395e73b28ac7f0cf4e4f18205044970d6faa634399993e",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 34,
         "Automatic task notification": 2
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "1889e51b92b5611d21cbbdda4ec8a2e9c118697ee2227b6585b7bc5e7b7f73da"
+      }
     },
     {
       "session_id": "01a10450-619f-74fc-8ce6-db3741870da4",
@@ -1494,7 +1540,7 @@
         "turn-metrics": 3
       },
       "markdown_sha256": "b87d58415c064f60ec10b87f9173fb5811543d8f3b414326a29197d102dd0ca8",
-      "jsonl_sha256": "f72d79de359ca657daf484ce8f543645a98d4f9a0e87fe7aaed1cd710cd1b36a",
+      "jsonl_sha256": "c2f810fafe4acd5d45990797d73bec899d3503dc2fa2c4aed1b85be9434616c1",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 3,
@@ -1503,7 +1549,10 @@
         "Local command display": 1
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "f72d79de359ca657daf484ce8f543645a98d4f9a0e87fe7aaed1cd710cd1b36a"
+      }
     },
     {
       "session_id": "01a104b4-a32f-7c21-ba9f-419fcfc42055",
@@ -1538,13 +1587,16 @@
         "summary": 1
       },
       "markdown_sha256": "c37bf7078da9ef55faf9e5b0cd11fe5fa151ed66fc3d120404b079e831f60ceb",
-      "jsonl_sha256": "2604499ec3e4eb643a2d3580ccf4a6f84a950e1dc9a4e91ca006bbb81f3c75a2",
+      "jsonl_sha256": "17b1afa7f5ca87d819af7626d9f19501fdd86edfb488419166c5369fb719be39",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 1
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "2604499ec3e4eb643a2d3580ccf4a6f84a950e1dc9a4e91ca006bbb81f3c75a2"
+      }
     },
     {
       "session_id": "01a105bb-dd48-7568-9130-f9a5301603f2",
@@ -1581,14 +1633,17 @@
         "summary": 1
       },
       "markdown_sha256": "839348c436ce631f837ce0b7e95b357c39243ae83366125ac71d081600f45210",
-      "jsonl_sha256": "8fcef290cdccb97a766ef2a2ed2b40bf1b8fd2a5c536432ffa94861f18bf64f7",
+      "jsonl_sha256": "3078c8a089d654c94835a387d0aa739f8e455b0ce864b8db434035453a0861a4",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 20,
         "Automatic task notification": 3
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "8fcef290cdccb97a766ef2a2ed2b40bf1b8fd2a5c536432ffa94861f18bf64f7"
+      }
     },
     {
       "session_id": "01a107f8-ac03-75f6-9708-64978c3eee95",
@@ -1626,8 +1681,8 @@
         "ai-title": 1,
         "session-meta": 1
       },
-      "markdown_sha256": "3a34599d0d793f20806d177add99a65eda765ec9a6d111f540dc95c753023f8e",
-      "jsonl_sha256": "269c808049ae99e77ac479001a37ada5bd47574e49258a4ccc0a24b195439953",
+      "markdown_sha256": "e1a5dca3e494f90866a1e43e29e518494475a0c22f6dd5d70d6ae1988184da47",
+      "jsonl_sha256": "ba070a61e409f765b7bc178510700c42e774040dbe5cab5230e30b2736bb7a37",
       "presentation_labels": {
         "Recorded user-side message": 6,
         "CodeBuddy": 42,
@@ -1635,7 +1690,11 @@
         "Automatic compaction checkpoint": 1
       },
       "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "markdown": "3a34599d0d793f20806d177add99a65eda765ec9a6d111f540dc95c753023f8e",
+        "jsonl": "269c808049ae99e77ac479001a37ada5bd47574e49258a4ccc0a24b195439953"
+      }
     },
     {
       "session_id": "01a10c31-9704-785d-8156-d67c9e5d05df",
@@ -1666,13 +1725,16 @@
         "reasoning": 10
       },
       "markdown_sha256": "232c0ba55918db6e46f6940f575d641c4c3fbf71cb7d5b32a720e67dec265cb0",
-      "jsonl_sha256": "4d5670f87211fc674f4466bf98ced26e2679e64b3563af59ca53378de5aaef00",
+      "jsonl_sha256": "1a2a3f7ff32a5d361b53a90758e45ac67ea911c397ccad3b5ea97dc0a14874c3",
       "presentation_labels": {
         "Recorded user-side message": 1,
         "CodeBuddy": 5
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "4d5670f87211fc674f4466bf98ced26e2679e64b3563af59ca53378de5aaef00"
+      }
     },
     {
       "session_id": "01a10cb7-0733-7fe6-812b-5c09b63004f1",
@@ -1709,14 +1771,17 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "c45fc65dbe776daa0b8b0d73f8868a93fae6814549141523007942b281dfd53a",
-      "jsonl_sha256": "bb1b9b83706e7f1772ed4a8ca438e5c9759ac6f85acb3cfe83e2891790233775",
+      "jsonl_sha256": "c4aa00bd6779a03000c34c62830b09f2573299d6ba8bb8d29f708686160b47a9",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 3,
         "Mixed user-side record: task notice and trailing instructions": 1
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "bb1b9b83706e7f1772ed4a8ca438e5c9759ac6f85acb3cfe83e2891790233775"
+      }
     },
     {
       "session_id": "01a10ce3-7576-71c8-9561-bea27b8e313a",
@@ -1792,7 +1857,7 @@
         "model-usage": 2
       },
       "markdown_sha256": "7750389c5dcc032fdd5924dcbdf9017954b81befeaff29f06ba44f8a24a4bfbb",
-      "jsonl_sha256": "076ac8ff52924c0c550869ccdb8749c4790d7cc679e53ba96131578777e308fc",
+      "jsonl_sha256": "22c0f705bbdb140befdce4d752c6f4efe555c22198597ab888647b22fc1e8575",
       "presentation_labels": {
         "Recorded user-side message": 6,
         "CodeBuddy": 50,
@@ -1801,7 +1866,10 @@
         "Automatic continuation notice": 1
       },
       "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "076ac8ff52924c0c550869ccdb8749c4790d7cc679e53ba96131578777e308fc"
+      }
     },
     {
       "session_id": "01a10f71-d931-7c73-92ec-d8ce3200ffdf",
@@ -1832,13 +1900,16 @@
         "reasoning": 18
       },
       "markdown_sha256": "524229879f9e2c1d1129e7526a086f66ef880799a1ecd8ab358ca43ffaebc912",
-      "jsonl_sha256": "8032cc458c1d1de0f3b959432f2903691d37032ae1f794cf8e925b0161e7571a",
+      "jsonl_sha256": "a400773c1bea0f21d9265d039482c27fe4e39a9c8321095d993cc1123977db3e",
       "presentation_labels": {
         "Recorded user-side message": 1,
         "CodeBuddy": 4
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "8032cc458c1d1de0f3b959432f2903691d37032ae1f794cf8e925b0161e7571a"
+      }
     },
     {
       "session_id": "01a10fae-58a1-731f-9791-1d7b95608ec0",
@@ -1869,7 +1940,7 @@
         "reasoning": 80
       },
       "markdown_sha256": "91d1f0b665a61b421e827db3fe5b537f37c802942dec65fbe564b0e29f115e19",
-      "jsonl_sha256": "dea53d94a233e2ea80d82200b8dcc6ec9bfaed83c630c84eea29c68dd7fac027",
+      "jsonl_sha256": "ebd4f92ca58c561c94fe44533d0613776413e1e11e23e9b7361c0199de9679f5",
       "presentation_labels": {
         "Recorded user-side message": 4,
         "CodeBuddy": 24,
@@ -1877,7 +1948,10 @@
         "Automatic continuation notice": 1
       },
       "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "dea53d94a233e2ea80d82200b8dcc6ec9bfaed83c630c84eea29c68dd7fac027"
+      }
     },
     {
       "session_id": "01a1103c-ded0-75af-b7bc-e6f6c1c642ec",
@@ -2019,14 +2093,17 @@
         "reasoning": 51
       },
       "markdown_sha256": "003a3922205964a5fdf5ea02c12a358aaecf5237e101928aeb670cf5372bba04",
-      "jsonl_sha256": "b307e7b73efc3ac10afa5b152fc326245c3b71275751134da07f44bca80be6ce",
+      "jsonl_sha256": "e233ae54c6dc9cc61ffb9418d7e77d73c0909ccaf2935d67c792ed6bc8b4171d",
       "presentation_labels": {
         "Recorded user-side message": 3,
         "CodeBuddy": 17,
         "Automatic compaction checkpoint": 1
       },
       "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "b307e7b73efc3ac10afa5b152fc326245c3b71275751134da07f44bca80be6ce"
+      }
     },
     {
       "session_id": "w24-20261006-2359",
@@ -2057,7 +2134,7 @@
         "reasoning": 101
       },
       "markdown_sha256": "d170445cf938a6a3c9caf0e210b611053e83cbc928b5238a48ecd275b294aa5c",
-      "jsonl_sha256": "0ce0ec82c6b7f55809127a83b4d4464fd16a1bec283b80e7bf1449ad41d89f95",
+      "jsonl_sha256": "3e226b183ef0c3f1f9169c8959d0a1e433f0a5956afd07441f7cbf5f0f45b8d0",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 27,
@@ -2065,7 +2142,10 @@
         "Automatic continuation notice": 1
       },
       "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "0ce0ec82c6b7f55809127a83b4d4464fd16a1bec283b80e7bf1449ad41d89f95"
+      }
     },
     {
       "session_id": "w27-20261006-2359",
@@ -2551,5 +2631,11 @@
     "verdict": "PASS_WITH_NOTES",
     "sole_finding": "G1 native terminal line-wrap path, reproduced and corrected",
     "scope": "These exported copies only; not public-repo/W6 clearance"
+  },
+  "published_export_digest_refresh": {
+    "checked_on": "2026-10-16",
+    "scope": "Digest metadata only. Transcript bytes, original source hashes and historical counts are unchanged.",
+    "previous_values": "previously_recorded_export_sha256 retains the replaced digest values; those values do not describe the current published files.",
+    "baseline_manifest_input": "baseline_archive_source_sha256, where present, is a historical export-input fingerprint, not the current archive manifest fingerprint."
   }
 }

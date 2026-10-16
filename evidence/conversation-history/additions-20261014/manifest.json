@@ -406,7 +406,7 @@
         "reasoning": 19
       },
       "markdown_sha256": "32f077d03418db2e398587f7020f2a17043ab328b603b012204a28e74ff73ff5",
-      "jsonl_sha256": "c62b7d64cd9dd6835586c656315685362ebb595416db8b6536ea8bda8863e8b6",
+      "jsonl_sha256": "4a6659aeb9719a68794b9d4617456d773f2a1ded2220fa73304be19692b5a337",
       "presentation_labels": {
         "Recorded user-side message": 4,
         "Automatic system notice": 8,
@@ -429,7 +429,10 @@
         "export_workspace": 0
       },
       "content_review": "GLM fully read all conversation message bodies; parent independently verified filtered original-source equality",
-      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance."
+      "semantic_review_limit": "902 added tool-event payloads independently pattern-scanned, not all semantically read. Historical tests not rerun. Not W6 clearance.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "c62b7d64cd9dd6835586c656315685362ebb595416db8b6536ea8bda8863e8b6"
+      }
     }
   ],
   "new_excluded_logs": [],
@@ -768,5 +771,11 @@
       "N3": "Proof-file byte scope corrected in parent record; frozen review input unchanged"
     },
     "source_equality": "Parent verified against unchanged originals; reviewer independently checked derivatives only"
+  },
+  "published_export_digest_refresh": {
+    "checked_on": "2026-10-16",
+    "scope": "Digest metadata only. Transcript bytes, original source hashes and historical counts are unchanged.",
+    "previous_values": "previously_recorded_export_sha256 retains the replaced digest values; those values do not describe the current published files.",
+    "baseline_manifest_input": "baseline_archive_source_sha256, where present, is a historical export-input fingerprint, not the current archive manifest fingerprint."
   }
 }

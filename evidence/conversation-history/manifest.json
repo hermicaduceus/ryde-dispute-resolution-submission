@@ -39,13 +39,16 @@
         "automatic-compaction-summary": 1
       },
       "markdown_sha256": "e780e2c916814489789e466d65936386b4434dd2e94a11c52bcd59e43cd53a34",
-      "jsonl_sha256": "2f391291fe419e79a90bedc52d5f43e480457220b48e4386e7cd7f186a73f730",
+      "jsonl_sha256": "f2c789b36f146f71a49ec792eac2f771ce39d8051a3cc3196517310fb553eb57",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 28
       },
       "content_review": "Reader-reviewed conversation plus full independent GLM reading of the automatic checkpoint bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "2f391291fe419e79a90bedc52d5f43e480457220b48e4386e7cd7f186a73f730"
+      }
     },
     {
       "title": "Party-facing forms and delivery",
@@ -80,13 +83,16 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "c1b1f5bd313a9b5eac43fb3c3484ec1853777a006644f5bea8d85a99224faf38",
-      "jsonl_sha256": "1dc9b999bf4c56381ebd1194dc2a6b6cdead6a19dda23256ebfd942b5771f6fc",
+      "jsonl_sha256": "e86f5e86a12b172f79394dd526f0f7ce984fa0eadaa5f755ae67f4d3ed4769fd",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 76
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "1dc9b999bf4c56381ebd1194dc2a6b6cdead6a19dda23256ebfd942b5771f6fc"
+      }
     },
     {
       "title": "Tencent Cloud ADP adapter",
@@ -208,13 +214,16 @@
         "turn-metrics": 2
       },
       "markdown_sha256": "678f04e4270b8fac21738e8acb1fe1e52bbc97eae24b9beb6daacee5ce740e27",
-      "jsonl_sha256": "d9f9f41f4c84d76c97b3842efe4402e43327ec9eac541a85d3c9e8f2b8d74d73",
+      "jsonl_sha256": "6d7ba6664ceab43d530468cdfbdaf469a37cd001c790c2d64ca7585010a77d81",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 18
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "d9f9f41f4c84d76c97b3842efe4402e43327ec9eac541a85d3c9e8f2b8d74d73"
+      }
     },
     {
       "title": "Party status and human-review backend",
@@ -249,14 +258,17 @@
         "summary": 1
       },
       "markdown_sha256": "4d70b643e8e403184bd94809ff7c693a6a653d568e6e448f3077eeaad4e564a3",
-      "jsonl_sha256": "1889e51b92b5611d21cbbdda4ec8a2e9c118697ee2227b6585b7bc5e7b7f73da",
+      "jsonl_sha256": "c24e696f0e78db2699395e73b28ac7f0cf4e4f18205044970d6faa634399993e",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 34,
         "Automatic task notification": 2
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "1889e51b92b5611d21cbbdda4ec8a2e9c118697ee2227b6585b7bc5e7b7f73da"
+      }
     },
     {
       "title": "Human-review console",
@@ -293,14 +305,17 @@
         "local-command-display": 1
       },
       "markdown_sha256": "501a0e602b625798c14f19c9b9eadd22816649efd750ec0398422796e6befd96",
-      "jsonl_sha256": "079c1e95ae74d61426d8150d7704e7e687065358cbc984d699d681e172ae4690",
+      "jsonl_sha256": "435e59ff968c5e38b2cb6993ee518b80d845db6d9d92deb763558a0d63e519d6",
       "presentation_labels": {
         "Recorded user-side message": 2,
         "CodeBuddy": 3,
         "Operator command input": 1
       },
       "content_review": "Reader-reviewed conversation message bodies",
-      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun."
+      "semantic_review_limit": "Tool arguments/results pattern-scanned, not all semantically read. No historical tests rerun.",
+      "previously_recorded_export_sha256": {
+        "jsonl": "079c1e95ae74d61426d8150d7704e7e687065358cbc984d699d681e172ae4690"
+      }
     }
   ],
   "native_example": {
@@ -356,5 +371,11 @@
     "verdict": "PASS_WITH_NOTES",
     "sole_finding": "G1 native terminal line-wrap path, reproduced and corrected",
     "scope": "These exported copies only; not public-repo/W6 clearance"
+  },
+  "published_export_digest_refresh": {
+    "checked_on": "2026-10-16",
+    "scope": "Digest metadata only. Transcript bytes, original source hashes and historical counts are unchanged.",
+    "previous_values": "previously_recorded_export_sha256 retains the replaced digest values; those values do not describe the current published files.",
+    "baseline_manifest_input": "baseline_archive_source_sha256, where present, is a historical export-input fingerprint, not the current archive manifest fingerprint."
   }
 }

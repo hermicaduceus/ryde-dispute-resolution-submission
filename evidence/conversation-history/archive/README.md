@@ -77,7 +77,7 @@ Later conversations are indexed separately in the [14 October additions](../addi
 | 55 | 2026-10-09 | worktree:w35-r2-status | 9 | Read docs/build-briefs/w35-r2-S-brief.md and follow its protocol exactly. Implement only lane S, do not change tests, verify against the declared sibling RED, commit only the allow | [w35-r2-S-20261009-1227](2026-10-09_codebuddy-cli_w35-r2-S-20261009-1227.md) |
 | 56 | 2026-10-09 | worktree:w35-r3 | 14 | Read docs/build-briefs/w35-r3-brief.md and carry it out exactly, obeying its Protocol section on every turn. Report the commit hash, the full-suite result, the focused result and a | [w35-r3-20261009-1518](2026-10-09_codebuddy-cli_w35-r3-20261009-1518.md) |
 
-Screenshots and the platform usage export remain separate evidence. This export made no model calls, changed no application code, and has not been committed or pushed.
+Screenshots and the platform usage export remain separate evidence. Exporting made no model calls and changed no application code. This archive was later published with the source repository. On 16 October, export-digest metadata was corrected without changing transcript text; see the [publication note](../PUBLICATION-SUBSTITUTIONS.md#export-checksums-after-publication).
 
 ## Audit and presentation notes
 

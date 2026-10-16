@@ -90,9 +90,10 @@ Contract: `tools/deployment/openapi.json`.
 
 ## Slide 11 (reference): Controls and honest limits
 
-**Controls from day one:** SGD 50 cap and 0.65 confidence floor, enforced in code; a kill switch that withholds
-every ruling; PII redaction before any model call; data stays in Ryde's environment, only model calls leave;
-every reviewer decision logged with who made it.
+**Built today:** SGD 50 cap and 0.65 confidence floor, enforced in code; every reviewer decision logged with who made it.
+
+**Before go-live:** add a kill switch that pauses every ruling and remove personal data before any AI call.
+The proposed production deployment keeps data in Ryde's environment, with only model calls leaving.
 
 **Honest limits:** the policy is synthesised and must be adopted by Ryde ops, legal and finance before autonomy;
 17 labelled cases show consistency, not real-world accuracy; no platform publishes its dispute rate, so ours is

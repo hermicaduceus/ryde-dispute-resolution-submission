@@ -2,19 +2,19 @@
 
 The top-level reading copies cover 7 selected real development sessions and 214 recorded user/assistant messages. These are exports of logs saved when the work occurred, not newly generated accounts of development.
 
-The [baseline archive](archive/README.md) contains the 56 saved Ryde conversations exported and audited on 12 October: 990 message records and 8,220 tool-event records, including probes and interrupted sessions. Its GLM verdict is PASS_WITH_NOTES with the minor native-path finding corrected; its disclosed coverage limits remain below. **That audit applies to the baseline only, not whole-repository/publication clearance or newer additions.** The 11 one-sided/empty logs are listed in its unchanged manifest.
+The [baseline archive](archive/README.md) contains the 56 saved Ryde conversations exported and audited on 12 October: 990 message records and 8,220 tool-event records, including probes and interrupted sessions. Its GLM verdict is PASS_WITH_NOTES with the minor native-path finding corrected; its disclosed coverage limits remain below. **That audit applies to the baseline only, not whole-repository/publication clearance or newer additions.** The 11 one-sided/empty logs are listed in its manifest; the export-digest metadata was refreshed on 16 October as disclosed below.
 
 ## Final-build additions, 14 October
 
 The [later-history index](additions-20261014/README.md) adds 8 saved W43/W44/W47 conversations, 109 message records and 902 tool-event records. The baseline plus additions contains **64 distinct conversations, 1099 message records and 9122 tool-event records** at the 14 October export cutoff. The selected reading copies overlap the baseline and are not counted again.
 
-**Addition status: independently reviewed on GLM 5.3, PASS_WITH_NOTES.** Earlier transcripts and manifests are unchanged. A later CodeBuddy session requires another inventory check. The old audit does not clear these additions; W6 publication and form placement remain separate.
+**Addition status: independently reviewed on GLM 5.3, PASS_WITH_NOTES.** Earlier transcript text is unchanged. The 16 October digest-metadata refresh is disclosed in the publication note below and does not extend this earlier review. A later CodeBuddy session requires another inventory check. The old audit does not clear these additions; W6 publication and form placement remain separate.
 
 ## Re-application round, 15 October
 
 The [15 October addition](additions-20261015/README.md) adds 3 saved conversations, 46 message records and 148 tool-event records: the CodeBuddy session that re-applied three application edits first made outside the build lane, removed `CLAUDE.md` and recorded the disclosure in `docs/tool-experiences.md`, and two short follow-up sessions that linked the hosted EdgeOne sites from the README and corrected the replay description. The inventory check found 78 saved logs and no other new session. The baseline plus both additions contains **67 distinct conversations, 1145 message records and 9270 tool-event records** at the 15 October export cutoff.
 
-**Addition status: mechanically verified at export; independent review pending.** Earlier transcripts and manifests are unchanged.
+**Addition status: independently reviewed, PASS at public revision `3a278a8`.** The reviewer recomputed all three 15 October exports, counts and publication checks. That verdict applies to this addition, not the older exports or the later checksum-metadata refresh. Transcript text is unchanged; see [publication substitutions](PUBLICATION-SUBSTITUTIONS.md#export-checksums-after-publication) for the 16 October metadata correction.
 
 ## Start here
 

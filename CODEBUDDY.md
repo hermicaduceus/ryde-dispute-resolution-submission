@@ -1,9 +1,10 @@
 # PROJECT: Ryde — Multi-Agent Autonomous Dispute Resolution
 
-**Status: BUILT, IN POLISH (updated 2026-10-07).** The system runs end to end on the mock and on
-the real Tencent model; the application build freezes on **12 Oct 2026** (operator ruling), after
-which only recording, documentation and deploy work continue. Building started 2026-09-21. Planning closed **2026-09-19** and the scope, stack and
-workflow are ruled. This file is CodeBuddy's memory for this project: the builder's entry
+**Status: PUBLISHED, APPLICATION FROZEN (updated 2026-10-16).** The source repository is public.
+The system runs end to end on the mock and on the real Tencent model. The application freeze
+took effect on **12 Oct 2026**; later approved exceptions are disclosed in `docs/tool-experiences.md`.
+Recording, documentation and deploy work continue without opening new application scope.
+Building started 2026-09-21. Planning closed **2026-09-19** and the scope, stack and workflow are ruled. This file is CodeBuddy's memory for this project: the builder's entry
 point. The ruled scope lives in
 the planning repository and is deliberately unreadable from here (the permission fence in
 `.codebuddy/settings.json` denies reads of that path, and it is verified to work), so
@@ -69,15 +70,17 @@ These decisions are ruled by the team and are **not open to re-litigation**:
   Tencent Cloud's LLM API directly (key in `.env`, never committed). CodeBuddy writes the code;
   it is never the runtime.
 - **Repo layout:** `app/` (Python backend), `ui/` (front end), `docs/` (architecture diagram,
-  policy set, dataset description), `evidence/` (development-process screenshots), `tools/` +
+  policy set, dataset description), `evidence/` (screenshots, conversation history and API-call records), `tools/` +
   `tests/` (marked **non-app**: helper scripts and tests only; `app/` and `ui/` never import
   from them). **The repo is PUBLIC at submission — never commit credentials or personal data.**
-- **Deployment:** local run for the live demo (real backend, real LLM calls). *(Amended
-  2026-10-01.)* The public link is a static replay on EdgeOne Pages of the **full loop** (filing →
-  the Judge withholds → a human decides → the party's status page), labelled honestly as a
-  replay of a real run with its date; it ships first. Optional polish on top: a hosted live
-  system behind one shared judge password (every page and API), a daily case cap and a daily
-  health check, with keys rotated before it goes up.
+- **Deployment:** *(Updated 2026-10-16.)* The README links three EdgeOne copies: an open-access live
+  AI site, a keyless mock practice site and a dated static replay of two recorded cases, including
+  the Judge withholding a ruling, a human deciding and the party's final status. The live site has
+  per-visitor/hour and per-day filing limits; its keys stay in host settings. Hosted cases and
+  counters are temporary, not durable storage. `deploy/edgeone/README.md` owns the limits and
+  deployment instructions. Local launchers remain available: standard launchers use the mock;
+  live launchers require approved private access through `docs/live-copy.md`. This supersedes
+  the earlier shared-password hosting proposal, not the recorded application's freeze.
 
 ## Non-negotiable engineering rules
 
@@ -109,8 +112,8 @@ These decisions are ruled by the team and are **not open to re-litigation**:
 - **Effort follows the Demo Day rubric:** 40 of 100 points are story, design and presentation,
   so `README.md`, `docs/architecture.md` and the demo walkthrough are deliverables on the same
   footing as code — polished after the MVP floor is standing, never skipped.
-- **Run from this folder.** `cd ~/hermes-workspace/projects/ryde-build && codebuddy`. Sessions are
-  scoped by launch directory, and this folder carries its own memory file and permission fence.
+- **Run from this folder.** Open a terminal in the repository root and run `codebuddy`. Sessions
+  are scoped by launch directory, and this folder carries its own memory file and permission fence.
 - **Default model is `deepseek-v4.1-flash`** (global default, x0.00 cost multiplier). Override per
   task with `--model <id>` only when the work warrants the expense: GPT-5.6-Luna x0.14 is the cheap
   upgrade, Kimi-K3 x1.62 for hard reasoning. Never use Primary, Deep, Sol or GPT-6-Astra here.
@@ -131,6 +134,7 @@ ryde-build/
 │   └── party/              # rider and driver intake forms, driver account, status page
 ├── data/packs/             # two swappable dataset packs, ground-truth labelled:
 │                           #   organiser-style-v1 (default) and ryde-synth-v1
+├── deploy/edgeone/         # hosted adapter, bundle builder and deployment checks
 ├── docs/
 │   ├── statement-extract.md  # challenge statement, verbatim — the only requirements source
 │   ├── policy.md             # policy rule set (swappable; provenance stated in-file)
@@ -138,10 +142,13 @@ ryde-build/
 │   ├── architecture.md       # required deliverable: diagram + system description
 │   ├── prompts.md            # how the prompts drive each agent
 │   ├── replay.md             # static replay export for the public link
+│   ├── live-copy.md          # local live-access and recording handoff boundaries
+│   ├── grill-plan.md         # dated post-build review plan, historical process record
 │   ├── evidence-plan.md      # §8 evidence rules and naming
 │   ├── tool-experiences.md   # running log of how the tools behaved
 │   └── build-briefs/         # one brief per build session, kept as a process record
-├── evidence/               # §8 screenshots (YYYY-MM-DD_<tool>_<topic>.png|.jpg)
+├── evidence/               # §8 screenshots and API-call usage export
+│   └── conversation-history/ # selected/archive transcripts, indexes and manifests
 ├── tools/                  # NON-APP helper scripts — app/ never imports from here
 │   └── replay/             # static replay page and its shim
 └── tests/                  # NON-APP tests (stdlib only)

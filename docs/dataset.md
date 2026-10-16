@@ -207,7 +207,7 @@ breakdown is inconsistent, and that inconsistency is the thing being tested.
 
 ## Verification
 
-`tests/test_corpus.py` (28 tests) is the guard on this artifact. It checks structure (every case
+`tests/test_corpus.py` is the guard on this artifact. It checks structure (every case
 labelled exactly once, no label leaking into a record, every label carrying a rationale). It
 checks policy agreement (no label cites a rule that is not in `docs/policy.md`, and the thresholds
 the tests use are parsed from the policy's own parameters table rather than trusted as copies).

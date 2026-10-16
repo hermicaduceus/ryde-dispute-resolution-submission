@@ -1,7 +1,7 @@
 {
   "format_version": 1,
   "exported_at": "2026-10-15T23:38:42+08:00",
-  "review_status": "MECHANICALLY_VERIFIED; INDEPENDENT_REVIEW_PENDING",
+  "review_status": "MECHANICALLY_VERIFIED; INDEPENDENT_REVIEW_PASS_AT_3a278a8",
   "scope": "New saved Ryde conversations since the 2026-10-14 additions. Earlier exports remain unchanged.",
   "method": "Mechanical extraction from JSONL, not native export or an AI summary",
   "baseline_archive_source_sha256": "a1c9cdbf57694a708dcc05751b94c209b8d95d587512463e30185381ff7a8fcb",
@@ -63,8 +63,10 @@
         "other-vendor": 0,
         "planner-product": 0
       },
-      "content_review": "Pending",
-      "semantic_review_limit": "Independent review pending. Historical tests are not rerun."
+      "content_review": "Conversation message bodies independently read; tool arguments/results checked only within the recorded review scope, not exhaustively audited.",
+      "semantic_review_limit": "Export equality, counts and publication checks independently reviewed at 3a278a8. Historical tests were not rerun by the export review; later digest-metadata refresh is separate.",
+      "semantic_review_limit_at_export": "Independent review pending. Historical tests are not rerun.",
+      "content_review_at_export": "Pending"
     },
     {
       "session_id": "w59b-readme-20261015-2323",
@@ -119,8 +121,10 @@
         "other-vendor": 0,
         "planner-product": 0
       },
-      "content_review": "Pending",
-      "semantic_review_limit": "Independent review pending. Historical tests are not rerun."
+      "content_review": "Conversation message bodies independently read; tool arguments/results checked only within the recorded review scope, not exhaustively audited.",
+      "semantic_review_limit": "Export equality, counts and publication checks independently reviewed at 3a278a8. Historical tests were not rerun by the export review; later digest-metadata refresh is separate.",
+      "semantic_review_limit_at_export": "Independent review pending. Historical tests are not rerun.",
+      "content_review_at_export": "Pending"
     },
     {
       "session_id": "w59c-readme-20261015-2340",
@@ -175,8 +179,10 @@
         "other-vendor": 0,
         "planner-product": 0
       },
-      "content_review": "Pending",
-      "semantic_review_limit": "Independent review pending. Historical tests are not rerun."
+      "content_review": "Conversation message bodies independently read; tool arguments/results checked only within the recorded review scope, not exhaustively audited.",
+      "semantic_review_limit": "Export equality, counts and publication checks independently reviewed at 3a278a8. Historical tests were not rerun by the export review; later digest-metadata refresh is separate.",
+      "semantic_review_limit_at_export": "Independent review pending. Historical tests are not rerun.",
+      "content_review_at_export": "Pending"
     }
   ],
   "new_excluded_logs": [],
@@ -516,5 +522,10 @@
   },
   "exported_session_count": 3,
   "recorded_message_count": 46,
-  "recorded_tool_event_count": 148
+  "recorded_tool_event_count": 148,
+  "independent_review": {
+    "verdict": "PASS",
+    "reviewed_revision": "3a278a81e5f3fb782e985446d553e0efa37d7546",
+    "scope": "Three 15 October conversations; independently recomputed exports, counts and publication checks. Does not certify older exports or this later digest-metadata refresh."
+  }
 }
