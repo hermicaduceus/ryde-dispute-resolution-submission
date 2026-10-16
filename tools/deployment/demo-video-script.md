@@ -2,6 +2,8 @@
 
 **Historical draft, not current filming instructions.** Kept as presentation source, not the accepted recording script. Its local `start.bat` instruction launches the mock and must not be filmed as real AI; its replay date is historical. See [the recording handoff boundary](../../docs/live-copy.md#rehearsal-handoff).
 
+**Financial and evaluation appendix superseded on 16 October 2026.** Use [slides.md](slides.md) and `python3 tools/deployment/cost_model.py` for the Flash-advocate/Pro-Judge token budget and revised ROI. The old all-Flash S$14/month, Pro-as-fallback and 17-case claims below are historical wording, not current facts. The saved 3 October evaluation matched 17 of 18 labels, before the serving-model switch.
+
 Format: **[ON SCREEN]** is what the viewer sees; plain text is spoken. About 140 words a
 minute. Challenge case study to name in the first line: **Digital Native track, Ryde:
 Multi-Agent Autonomous Dispute Resolution.**

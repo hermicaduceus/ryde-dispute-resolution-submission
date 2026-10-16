@@ -3,7 +3,7 @@ flowchart LR
   APP["Ryde app"] --> CS["Ryde CS tool<br/>(existing tickets)"]
   CS -- "dispute event" --> SVC["Decision service<br/>in Ryde's cluster:<br/>Evidence Pack,<br/>3 agents, gates"]
   DATA["Ryde data services<br/>trips, GPS, fares, chat"] -- "read-only evidence" --> SVC
-  SVC --> ADP["Tencent Cloud ADP<br/>DeepSeek V4 Flash:<br/>Rider, Driver,<br/>Judge apps"]
+  SVC --> ADP["Tencent Cloud ADP<br/>Advocates: V4 Flash<br/>Judge: V4 Pro"]
   SVC -- "ruling or<br/>withheld case" --> CS
   CS --> PAY["Ryde payments<br/>apply the refund"]
   CS --> REV["CS agents review<br/>withheld cases"]
