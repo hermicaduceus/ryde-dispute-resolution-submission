@@ -91,6 +91,8 @@ flowchart TD
 
 - [`docs/statement-extract.md`](docs/statement-extract.md) — the challenge statement, verbatim
 - [`docs/architecture.md`](docs/architecture.md) — architecture diagram and system description
+- [`docs/architecture-diagram.pptx`](docs/architecture-diagram.pptx) — the architecture slides submitted with the entry: the diagram above with its gate key, the agent pipeline, and the proposed deployment in Ryde's system
+- [`tools/deployment/ryde-dispute-pitch.pptx`](tools/deployment/ryde-dispute-pitch.pptx) — the pitch deck used in the demo video (slide text: [`tools/deployment/slides.md`](tools/deployment/slides.md))
 - [`docs/policy.md`](docs/policy.md) — the policy rule set the Judge applies, with per-rule provenance
 - [`docs/dataset.md`](docs/dataset.md) — the labelled corpus, its provenance and its limitations
 - [`docs/prompts.md`](docs/prompts.md) — how the prompts drive each agent, and what code checks after the model answers
@@ -224,3 +226,7 @@ The code in `app/` and `ui/` was written in Tencent Cloud CodeBuddy. A planning 
 session's brief and its failing tests first; CodeBuddy built until they passed, and the result was
 re-checked by running it, not by describing it. The screenshots in `evidence/` record those
 sessions as they happened.
+
+Work items carry IDs such as W15 or W28. The same IDs name the build briefs in
+`docs/build-briefs/`, the tests that pin each item (`tests/test_w28_*.py`) and the entries in
+[`docs/tool-experiences.md`](docs/tool-experiences.md).
